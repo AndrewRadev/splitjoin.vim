@@ -50,6 +50,8 @@ endfunction
 " Note that the motion needs to include a visual mode key, like 'V', 'v' or
 " 'gv'
 function! sj#GetMotion(motion)
+  call sj#PushCursor()
+
   let original_reg      = getreg('z')
   let original_reg_type = getregtype('z')
 
@@ -57,6 +59,7 @@ function! sj#GetMotion(motion)
   let text = @z
 
   call setreg('z', original_reg, original_reg_type)
+  call sj#PopCursor()
 
   return text
 endfunction
