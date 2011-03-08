@@ -1,4 +1,20 @@
+if exists("g:loaded_splitjoin") || &cp
+  finish
+endif
+
+let g:loaded_splitjoin = 1 " version number
+let s:keepcpo          = &cpo
+set cpo&vim
+
+" Public Interface:
+" =================
+
 command! SplitjoinSplit call s:Split()
+command! SplitjoinJoin  call s:Join()
+
+" Internal Functions:
+" ===================
+
 function! s:Split()
   if !exists('b:splitjoin_split_callbacks')
     return
@@ -15,7 +31,6 @@ function! s:Split()
   call sj#PopCursor()
 endfunction
 
-command! SplitjoinJoin call s:Join()
 function! s:Join()
   if !exists('b:splitjoin_join_callbacks')
     return
@@ -31,3 +46,6 @@ function! s:Join()
 
   call sj#PopCursor()
 endfunction
+
+let &cpo = s:keepcpo
+unlet s:keepcpo
