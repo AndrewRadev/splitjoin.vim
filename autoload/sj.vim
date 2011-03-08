@@ -22,9 +22,8 @@ function! sj#PeekCursor()
   return b:cursor_position_stack[-1]
 endfunction
 
-" Replace the normal mode motion given as the first parameter with the text
-" given as the second parameter. Mostly just a wrapper for a normal! command
-" with a paste, but doesn't pollute any registers.
+" Replace the normal mode 'motion' with 'text' Mostly just a wrapper for a
+" normal! command with a paste, but doesn't pollute any registers.
 "
 " Note that the motion needs to include a visual mode key, like 'V', 'v' or
 " 'gv'
@@ -43,6 +42,19 @@ function! sj#ReplaceMotion(motion, text, ...)
   normal! gv=
 
   call setreg('z', original_reg, original_reg_type)
+endfunction
+
+" Replace the area defined by the 'start' and 'end' lines with 'text'
+function! sj#ReplaceLines(start, end, text, ...)
+  if a:0 > 0
+    let reindent = a:0
+  else
+    let reindent = 1
+  end
+
+  let interval = a:end - a:start
+
+  return sj#ReplaceMotion(a:start.'GV'.interval.'j', a:text, reindent)
 endfunction
 
 " Execute the normal mode motion and return the text it marks.
