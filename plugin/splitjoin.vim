@@ -26,7 +26,7 @@ function! s:Split()
   call sj#PushCursor()
 
   for callback in b:splitjoin_split_callbacks
-    if call(callback, []) == 1
+    if call(callback, []) != 0
       break
     endif
   endfor
@@ -45,7 +45,7 @@ function! s:Join()
   call sj#PushCursor()
 
   for callback in b:splitjoin_join_callbacks
-    if call(callback, []) == 1
+    if call(callback, []) != 0
       break
     endif
   endfor
