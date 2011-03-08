@@ -20,6 +20,9 @@ function! s:Split()
     return
   end
 
+  " expand any folds under the cursor, or we might replace the wrong area
+  normal! zo
+
   call sj#PushCursor()
 
   for callback in b:splitjoin_split_callbacks
@@ -35,6 +38,9 @@ function! s:Join()
   if !exists('b:splitjoin_join_callbacks')
     return
   end
+
+  " expand any folds under the cursor, or we might replace the wrong area
+  normal! zo
 
   call sj#PushCursor()
 
