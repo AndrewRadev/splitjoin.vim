@@ -13,7 +13,9 @@ Into this:
 
 And the other way around.
 
-For now, this transformation for HTML tags is all that works (with issues),
-although this could also work for ruby blocks, if/unless statements and option
-hashes. It shouldn't be a problem to do this for other languages as well, but
+For now, this works for HTML tags, one-line ruby if/unless clauses and ruby
+blocks. Some more work needs to be done for ruby option hashes and a few other
+things.
+
+It shouldn't be a problem to do this for other languages as well, but
 these are the ones I'm interested in in the moment.
