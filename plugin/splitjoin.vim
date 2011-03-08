@@ -21,7 +21,7 @@ function! s:Split()
   end
 
   " expand any folds under the cursor, or we might replace the wrong area
-  normal! zo
+  silent! foldopen
 
   call sj#PushCursor()
 
@@ -40,7 +40,7 @@ function! s:Join()
   end
 
   " expand any folds under the cursor, or we might replace the wrong area
-  normal! zo
+  silent! foldopen
 
   call sj#PushCursor()
 
