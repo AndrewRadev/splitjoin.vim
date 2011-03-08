@@ -74,3 +74,20 @@ endfunction
 function! sj#Trim(s)
   return sj#Rtrim(sj#Ltrim(a:s))
 endfunction
+
+" Extract a regex match from a string. Ordinarily, substitute() would be used
+" for this, but it's a bit too cumbersome for extracting a particular grouped
+" match.
+function! sj#ExtractRx(expr, pat, sub)
+  let rx = a:pat
+
+  if stridx(a:pat, '^') != 0
+    let rx = '^.*'.rx
+  endif
+
+  if strridx(a:pat, '$') + 1 != strlen(a:pat)
+    let rx = rx.'.*$'
+  endif
+
+  return substitute(a:expr, rx, a:sub, '')
+endfunction

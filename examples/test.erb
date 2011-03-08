@@ -6,12 +6,10 @@
   </head>
 
   <body>
-    <%# hashes and option hashes: %>
+    <%# TODO hashes and option hashes: %>
 
     <span><%= foo 1, 2, :one => 1, :two => 2, :three => 'three' %></span>
-
     <%= link_to 'Google', 'http://google.com', :class => 'google', :id => 'google-link' %>
-
     <%= link_to 'http://google.com', :class => 'google', :id => 'google-link' do %>
       <span>Google</span>
     <% end %>
@@ -19,10 +17,9 @@
     <%# if/unless: %>
 
     <%= foo unless bar? %>
-
     <% foo = 42 if bar? %>
-
     <%= link_to 'Google', 'http://google.com', :class => 'google' if show_google? %>
+    <span><%= foo if bar? %></span>
 
     <%# html tags: %>
     <div class="foo">bar</div>
