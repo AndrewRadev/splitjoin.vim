@@ -1,8 +1,13 @@
-# TODO: hashes and option hashes:
+# hashes
+
+foo = { :bar => 'baz', :one => 'two' }
+{ :bar => 'baz', :one => 'two' }
+foo = { :bar => 'baz', :one => { :two => 'three', :four => 'five' }, :five => 'six' }
+mail({ :to => 'me', :from => 'me' })
+
+# TODO: option hashes:
 
 foo 1, 2, :one => 1, :two => 2, :three => 'three'
-foo = { :bar => 'baz', :one => 'two' }
-
 class Bar
   foo 1, 2, :one => 1, :two => 2, :three => 'three'
 end
