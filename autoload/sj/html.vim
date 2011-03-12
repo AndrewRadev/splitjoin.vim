@@ -1,5 +1,5 @@
 " TODO doesn't work well for several tags on a single line
-function! sj#html#Split()
+function! sj#html#SplitTags()
   let line = getline('.')
   let tag_regex = '\(<.\{-}>\)\(.*\)\(<\/.\{-}>\)'
 
@@ -12,7 +12,7 @@ function! sj#html#Split()
 endfunction
 
 " Needs to be called with the cursor on a starting or ending tag to work.
-function! sj#html#Join()
+function! sj#html#JoinTags()
   if searchpair('<', '', '>', 'cb', '', line('.')) <= 0
         \ && searchpair('<', '', '>', 'c', '', line('.')) <= 0
     " then we're pretty sure there's no tag under the cursor

@@ -1,9 +1,9 @@
 let b:splitjoin_split_callbacks = [
-      \ 'sj#html#Split',
-      \ 'sj#eruby#Split',
+      \ 'sj#html#SplitTags',
+      \ 'sj#eruby#SplitIfClause',
       \ ]
 
 let b:splitjoin_join_callbacks = [
-      \ 'sj#eruby#Join',
-      \ 'sj#html#Join',
+      \ 'sj#eruby#JoinIfClause',
+      \ 'sj#html#JoinTags',
       \ ]

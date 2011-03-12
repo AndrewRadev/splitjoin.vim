@@ -1,4 +1,4 @@
-function! sj#eruby#Split()
+function! sj#eruby#SplitIfClause()
   let line    = getline('.')
   let pattern = '\v\<\%(.*\S.*) (if|unless) (.*)\s*\%\>'
 
@@ -12,7 +12,7 @@ function! sj#eruby#Split()
   return 0
 endfunction
 
-function! sj#eruby#Join()
+function! sj#eruby#JoinIfClause()
   let line    = getline('.')
   let pattern = '\v^\s*\<\%\s*(if|unless)'
 
