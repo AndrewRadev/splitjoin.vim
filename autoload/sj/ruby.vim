@@ -67,7 +67,7 @@ function! sj#ruby#JoinBlock()
   if do_line_no > 0
     let end_line_no = searchpair('\<do\>', '', '\<end\>', 'W')
 
-    let lines = map(getbufline('.', do_line_no, end_line_no), 'sj#Trim(v:val)')
+    let lines = map(getbufline('%', do_line_no, end_line_no), 'sj#Trim(v:val)')
 
     let do_line  = substitute(lines[0], 'do', '{', '')
     let body     = join(lines[1:-2], '; ')
