@@ -86,7 +86,7 @@ endfunction
 
 function! sj#ruby#SplitHash()
   let line    = getline('.')
-  let pattern = '\v\{\s*(([^,]+\s*\=\>\s*[^,]{-1,},?)+)\s*\}[,)]?$'
+  let pattern = '\v\{\s*(([^,]+\s*\=\>\s*[^,]{-1,},?)+)\s*\}[,)]?'
 
   if line =~ pattern
     call cursor(line('.'), 1)
