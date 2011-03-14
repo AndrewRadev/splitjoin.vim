@@ -25,6 +25,11 @@ endfunction
 " Replace the normal mode 'motion' with 'text' Mostly just a wrapper for a
 " normal! command with a paste, but doesn't pollute any registers.
 "
+" The third parameter is optional -- if it's truthy (it is, by default), the
+" result is reindented, else it's not.
+"
+" Example: call sj#ReplaceMotion('Va{', 'some text')
+"
 " Note that the motion needs to include a visual mode key, like 'V', 'v' or
 " 'gv'
 function! sj#ReplaceMotion(motion, text, ...)
