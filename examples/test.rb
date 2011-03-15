@@ -27,7 +27,7 @@ class Baz
     foo 1, 2, :one => 1, :two => 2, :three => 'three' if condition?
     foo = "bar" if one.two?
 
-    # TODO: multiline if/unless
+    # multiline if/unless
 
     if one and two
       three

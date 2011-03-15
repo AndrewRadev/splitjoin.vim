@@ -10,31 +10,30 @@ function! sj#ruby#SplitIfClause()
   endif
 endfunction
 
-" TODO only works for blocks with a single line for now, e.g.
-"
-" if foo
-"   bar
-" end
-"
-" NOTE only works when the cursor is on the line with the if/unless clause
 function! sj#ruby#JoinIfClause()
   let line    = getline('.')
   let pattern = '\v^\s*(if|unless)'
 
   if line =~ pattern
-    normal! jj
+    let if_line_no = line('.')
+    let end_line_pattern = '^'.repeat(' ', indent(if_line_no)).'end\s*$'
 
-    if getline('.') =~ 'end'
-      let body = sj#GetMotion('Vkk')
+    let end_line_no = search(end_line_pattern, 'W')
 
-      let [if_line, body, end_line] = split(body, '\n')
+    if end_line_no > 0
+      let lines = sj#GetLines(if_line_no, end_line_no)
+
+      let if_line  = lines[0]
+      let end_line = lines[-1]
+      let body     = join(lines[1:-2], "\n")
 
       let if_line = sj#Trim(if_line)
       let body    = sj#Trim(body)
+      let body    = s:JoinLines(body)
 
       let replacement = body.' '.if_line
 
-      call sj#ReplaceMotion('gv', replacement)
+      call sj#ReplaceLines(if_line_no, end_line_no, replacement)
 
       return 1
     endif
@@ -67,7 +66,7 @@ function! sj#ruby#JoinBlock()
   if do_line_no > 0
     let end_line_no = searchpair('\<do\>', '', '\<end\>', 'W')
 
-    let lines = map(getbufline('%', do_line_no, end_line_no), 'sj#Trim(v:val)')
+    let lines = map(sj#GetLines(do_line_no, end_line_no), 'sj#Trim(v:val)')
 
     let do_line  = substitute(lines[0], 'do', '{', '')
     let body     = join(lines[1:-2], '; ')
@@ -141,4 +140,15 @@ function! s:SplitHash(string)
   endwhile
 
   return lines
+endfunction
+
+function! s:JoinLines(text)
+  let lines = split(a:text, "\n")
+  let lines = map(lines, 'sj#Trim(v:val)')
+
+  if len(lines) > 1
+    return '('.join(lines, '; ').')'
+  else
+    return join(lines, '; ')
+  endif
 endfunction

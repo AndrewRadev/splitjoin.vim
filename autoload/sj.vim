@@ -81,6 +81,12 @@ function! sj#GetMotion(motion)
   return text
 endfunction
 
+" Retrieve the lines from a:start to a:end and return them as a list. Simply a
+" wrapper for getbufline for the moment.
+function! sj#GetLines(start, end)
+  return getbufline('%', a:start, a:end)
+endfunction
+
 " Trimming functions. Should be obvious.
 function! sj#Ltrim(s)
 	return substitute(a:s, '^\_s\+', '', '')
