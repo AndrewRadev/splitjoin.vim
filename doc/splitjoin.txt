@@ -1,5 +1,51 @@
 ==============================================================================
-RUBY                                                     *splitjoin-ruby*
+INSTALLATION                                          *splitjoin-installation*
+
+There are several ways to install the plugin. The recommended one is by using
+Tim Pope's pathogen (http://www.vim.org/scripts/script.php?script_id=2332). In
+that case, you can clone the plugin's git repository like so:
+>
+    git clone git://github.com/AndrewRadev/splitjoin.vim.git ~/.vim/bundle/splitjoin
+<
+If your vim configuration is under git version control, you could also set up
+the repository as a submodule, which would allow you to update more easily.
+The command is (provided you're in ~/.vim):
+>
+    git submodule add git://github.com/AndrewRadev/splitjoin.vim.git bundle/splitjoin
+<
+
+Another way is to simply copy all the directories inside the ~.vim/ directory
+(plugin, autoload, etc.)
+
+TODO: install from zip file
+TODO: install from vimball
+
+After the plugin is installed, the command |SplitjoinSplit| will perform
+splitting and |SplitjoinJoin| -- joining of the code under the cursor. It's
+highly recommended to map these to keybindings, since the idea of the plugin
+is to simplify these manipulations. An example keybinding that needs to go in
+.vimrc:
+>
+    nmap <Leader>j :SplitjoinJoin<cr>
+    nmap <Leader>s :SplitjoinSplit<cr>
+<
+With these mappings, and if the <Leader> is set to, for example, "_", then
+"_j" would attempt to perform a join on the text block under the cursor and
+"_s" would perform a split on the line.
+
+My personal preference is to avoid mnemonics in this case and go for an
+approach that makes more sense to my fingers instead:
+>
+    nmap sj :SplitjoinSplit<cr>
+    nmap sk :SplitjoinJoin<cr>
+<
+Note that I'm using "sj" for splitting, not joining. To me, "splitting" a line
+results in expanding it downwards, so using "j" seems more intuitive, likewise
+for "k". Also note that the "s" key is generally taken (try :help s), but I
+don't use it, so I've mapped it to <Nop>.
+
+==============================================================================
+RUBY                                                          *splitjoin-ruby*
 
 If/unless clauses ~
 >
@@ -22,12 +68,28 @@ Hashes ~
 
 Blocks ~
 >
-  Bar.new { |b| puts b.to_s }
+    Bar.new { |b| puts b.to_s }
 
-  Bar.new do |b|
-    puts b.to_s
-  end
+    Bar.new do |b|
+      puts b.to_s
+    end
 <
+
+==============================================================================
+HTML                                                          *splitjoin-html*
+
+TODO
+
+==============================================================================
+ERUBY                                                        *splitjoin-eruby*
+
+TODO
+
+
+==============================================================================
+TODO: yaml, python, javascript?
+
+
 
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*
@@ -66,4 +128,4 @@ INTERNALS                                                *splitjoin-internals*
 
 ==============================================================================
 
-vim:tw=78:ts=8:ft=help:norl:
+vim:tw=78:sw=4:ft=help:norl:
