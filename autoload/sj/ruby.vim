@@ -115,6 +115,28 @@ function! sj#ruby#JoinHash()
   endif
 endfunction
 
+function! sj#ruby#SplitOptions()
+  let line = getline('.')
+
+  let option_pattern = '\v,(([^,]+\s*\=\>\s*[^,]{-1,},?)+)(\s*do.*)?$'
+  let hash_pattern   = '\v\{\s*(([^,]+\s*\=\>\s*[^,]{-1,},?)+)\s*\}[,)]?'
+
+  let option_index = match(line, option_pattern)
+  let hash_index   = match(line, hash_pattern)
+
+  if hash_index != -1 && (option_index == -1 || hash_index < option_index)
+    " then the hash is the correct match, replace that
+    return sj#ruby#SplitHash()
+  elseif option_index != -1
+    " then it looks like a curly-brace-less option block
+    let replacement = substitute(line, option_pattern, ', {\1 }\3', '')
+    call sj#ReplaceMotion('V', replacement)
+    return sj#ruby#SplitHash()
+  else
+    return 0
+  endif
+endfunction
+
 " Helper functions
 
 function! s:SplitHash(string)

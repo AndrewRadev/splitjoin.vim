@@ -6,12 +6,28 @@ foo = { :bar => 'baz', :one => { :two => 'three', :four => 'five' }, :five => 's
 mail({ :to => 'me', :from => 'me' })
 { :bar => 'baz', :one => 'two' }.merge(:one => 42)
 
-# TODO: option hashes:
+# option hashes:
 
 foo 1, 2, :one => 1, :two => 2, :three => 'three'
 class Bar
   foo 1, 2, :one => 1, :two => 2, :three => 'three'
 end
+foo 1, 2, :one => 1, :two => 2, :three => 'three' do
+  something
+end
+foo 1, 2, :one => 1, :two => 2, :three => 'three' do |bar|
+  something(bar)
+end
+foo 1, 2, :bar => 'baz', :one => { :two => 'three', :four => 'five' }, :five => 'six'
+
+# TODO: option hashes with a single item
+
+root :to => 'articles#index'
+
+# TODO: multiple hashes in parameter list
+
+foo 1, 2, { :bar => :baz }, :baz => :qux
+foo 1, 2, { :bar => :baz }, { :baz => :qux }
 
 # blocks
 

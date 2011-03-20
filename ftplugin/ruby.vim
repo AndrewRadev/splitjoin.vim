@@ -3,7 +3,7 @@
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
         \ 'sj#ruby#SplitIfClause',
-        \ 'sj#ruby#SplitHash',
+        \ 'sj#ruby#SplitOptions',
         \ 'sj#ruby#SplitBlock',
         \ ]
 endif
