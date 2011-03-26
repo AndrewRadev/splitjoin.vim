@@ -88,8 +88,8 @@ function! sj#ruby#SplitHash()
   let pattern = '\v\{\s*(([^,]+\s*\=\>\s*[^,]{-1,},?)+)\s*\}[,)]?'
 
   if line =~ pattern
-    call cursor(line('.'), 1)
     call search('{', 'c', line('.'))
+    call searchpair('{', '', '}', 'c', line('.'))
 
     let body  = sj#GetMotion('Vi{')
     let lines = s:SplitHash(body)
@@ -117,24 +117,30 @@ endfunction
 
 function! sj#ruby#SplitOptions()
   let line = getline('.')
+  let hash_key_pattern = '\v(:\k+|\d+|:?''[^'']*''|:?"[^"]*")\s+\=\>'
 
+  " TODO Pattern doesn't work
   let option_pattern = '\v,(([^,]+\s*\=\>\s*[^,]{-1,},?)+)(\s*do.*)?$'
-  let hash_pattern   = '\v\{\s*(([^,]+\s*\=\>\s*[^,]{-1,},?)+)\s*\}[,)]?'
 
-  let option_index = match(line, option_pattern)
-  let hash_index   = match(line, hash_pattern)
+  if line =~ '=>' " then there's some kind of a hash around
+    normal! 0
+    call search('=>')
 
-  if hash_index != -1 && (option_index == -1 || hash_index < option_index)
-    " then the hash is the correct match, replace that
-    return sj#ruby#SplitHash()
-  elseif option_index != -1
-    " then it looks like a curly-brace-less option block
-    let replacement = substitute(line, option_pattern, ', {\1 }\3', '')
-    call sj#ReplaceMotion('V', replacement)
+    if searchpair('{', '', '}', 'bW', 0, line('.')) > 0
+      " then it's a standard hash
+    elseif line =~ '^\s*'.hash_key_pattern.'\s*\{.*\},?$'
+      " then it's a line with a nested hash:
+      "   :one => { :two => :three }
+    else
+      " it's probably an option hash, no braces, so just add them and continue
+      let replacement = substitute(line, option_pattern, ', {\1 }\3', '')
+      call sj#ReplaceMotion('V', replacement)
+    endif
+
     return sj#ruby#SplitHash()
   else
     return 0
-  endif
+  end
 endfunction
 
 " Helper functions
@@ -146,6 +152,8 @@ function! s:SplitHash(string)
   let regular_pattern     = '\(^[^,]\+=>.\{-}[,\n]\)'
 
   let lines = []
+
+  " TODO correctly handle nested hashes for more than two levels
 
   while body !~ '^\s*$'
     if body =~ nested_hash_pattern

@@ -1,10 +1,20 @@
 # hashes
 
+{ :one => 'two', 'two three' => 'four', 5 => 'six', "bla bla" => "bla" }
+
 foo = { :bar => 'baz', :one => 'two' }
 { :bar => 'baz', :one => 'two' }
 foo = { :bar => 'baz', :one => { :two => 'three', :four => 'five' }, :five => 'six' }
 mail({ :to => 'me', :from => 'me' })
 { :bar => 'baz', :one => 'two' }.merge(:one => 42)
+
+{
+  :one => { :two => :three },
+  'one two' => { :two => :three },
+  "one two" => { :two => :three },
+  :'one two' => { :two => :three },
+  :"one two" => { :two => :three }
+}
 
 # option hashes:
 
@@ -18,13 +28,17 @@ end
 foo 1, 2, :one => 1, :two => 2, :three => 'three' do |bar|
   something(bar)
 end
-foo 1, 2, :bar => 'baz', :one => { :two => 'three', :four => 'five' }, :five => 'six'
+
+# TODO: no-bracket options with nested hashes
+foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' }, :five => 'six'
+foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' }
+foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' } { |one| two }
 
 # TODO: option hashes with a single item
 
 root :to => 'articles#index'
 
-# TODO: multiple hashes in parameter list
+# multiple hashes in parameter list
 
 foo 1, 2, { :bar => :baz }, :baz => :qux
 foo 1, 2, { :bar => :baz }, { :baz => :qux }
