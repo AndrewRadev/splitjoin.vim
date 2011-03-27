@@ -50,12 +50,14 @@ Bar.new { puts self.to_s }
 
 class Baz
   def qux
-    # if/unless:
+    # if/unless/while/until:
 
     return if problem?
     return 42 unless something_wrong?
     foo 1, 2, :one => 1, :two => 2, :three => 'three' if condition?
     foo = "bar" if one.two?
+    n += 1 while n < 10
+    n += 1 until n > 10
 
     # multiline if/unless
 

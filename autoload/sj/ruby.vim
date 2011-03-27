@@ -1,6 +1,6 @@
 function! sj#ruby#SplitIfClause()
   let line    = getline('.')
-  let pattern = '\v(.*\S.*) (if|unless) (.*)'
+  let pattern = '\v(.*\S.*) (if|unless|while|until) (.*)'
 
   if line =~ pattern
     call sj#ReplaceMotion('V', substitute(line, pattern, '\2 \3\n\1\nend', ''))
@@ -12,7 +12,7 @@ endfunction
 
 function! sj#ruby#JoinIfClause()
   let line    = getline('.')
-  let pattern = '\v^\s*(if|unless)'
+  let pattern = '\v^\s*(if|unless|while|until)'
 
   if line =~ pattern
     let if_line_no = line('.')
