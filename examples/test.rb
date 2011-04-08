@@ -34,7 +34,7 @@ foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, 
 foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' }
 foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' } { |one| two }
 
-# TODO: option hashes with a single item
+# option hashes with a single item
 
 root :to => 'articles#index'
 

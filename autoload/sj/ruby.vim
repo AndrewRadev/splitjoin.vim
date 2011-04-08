@@ -133,8 +133,8 @@ function! sj#ruby#SplitOptions()
       "   :one => { :two => :three }
     else
       " it's probably an option hash, no braces, so just add them and continue
-      let replacement = substitute(line, option_pattern, ', {\1 }\3', '')
-      call sj#ReplaceMotion('V', replacement)
+      call search(hash_key_pattern, 'b', line('.'))
+      call s:AddBraces(getpos('.'))
     endif
 
     return sj#ruby#SplitHash()
@@ -181,4 +181,17 @@ function! s:JoinLines(text)
   else
     return join(lines, '; ')
   endif
+endfunction
+
+function! s:AddBraces(pos)
+  let from = a:pos[2]
+
+  normal! $
+  call search('\v.do(\s*\|.*\|\s*)?$', 'b', line('.'))
+  call search('\v.\{\s*\|.*\|.*$', 'b', line('.'))
+
+  let to = getpos('.')[2]
+
+  let text = sj#GetCols(from, to)
+  call sj#ReplaceCols(from, to, '{ '.sj#Trim(text).' } ')
 endfunction

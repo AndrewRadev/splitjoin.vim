@@ -62,6 +62,20 @@ function! sj#ReplaceLines(start, end, text, ...)
   return sj#ReplaceMotion(a:start.'GV'.interval.'j', a:text, reindent)
 endfunction
 
+" Replace the area defined by the 'start' and 'end' columns on the current
+" line with 'text'
+function! sj#ReplaceCols(start, end, text, ...)
+  if a:0 > 0
+    let reindent = a:0
+  else
+    let reindent = 1
+  end
+
+  let interval = a:end - a:start
+
+  return sj#ReplaceMotion(a:start.'|v'.interval.'l', a:text, reindent)
+endfunction
+
 " Execute the normal mode motion and return the text it marks.
 "
 " Note that the motion needs to include a visual mode key, like 'V', 'v' or
@@ -87,12 +101,17 @@ function! sj#GetLines(start, end)
   return getbufline('%', a:start, a:end)
 endfunction
 
+" Retrieve the text from columns a:start to a:end.
+function! sj#GetCols(start, end)
+  return strpart(getline('.'), a:start - 1, a:end - a:start + 1)
+endfunction
+
 " Trimming functions. Should be obvious.
 function! sj#Ltrim(s)
-	return substitute(a:s, '^\_s\+', '', '')
+  return substitute(a:s, '^\_s\+', '', '')
 endfunction
 function! sj#Rtrim(s)
-	return substitute(a:s, '\_s\+$', '', '')
+  return substitute(a:s, '\_s\+$', '', '')
 endfunction
 function! sj#Trim(s)
   return sj#Rtrim(sj#Ltrim(a:s))
