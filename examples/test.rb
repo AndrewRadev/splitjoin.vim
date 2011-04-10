@@ -25,6 +25,7 @@ end
 foo 1, 2, :one => 1, :two => 2, :three => 'three' do
   something
 end
+foo 1, 2, :one => 1, :two => 2, :three => 'three' { |bar| something(bar) }
 foo 1, 2, :one => 1, :two => 2, :three => 'three' do |bar|
   something(bar)
 end

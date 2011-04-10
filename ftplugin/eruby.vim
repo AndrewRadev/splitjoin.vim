@@ -1,6 +1,6 @@
 let b:splitjoin_split_callbacks = [
       \ 'sj#html#SplitTags',
-      \ 'sj#ruby#SplitHash',
+      \ 'sj#ruby#SplitOptions',
       \ 'sj#eruby#SplitIfClause',
       \ ]
 

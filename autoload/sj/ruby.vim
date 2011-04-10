@@ -184,8 +184,12 @@ function! s:AddBraces(pos)
   let from = a:pos[2]
 
   normal! $
-  call search('\v.do(\s*\|.*\|\s*)?$', 'b', line('.'))
+  call search('.\<do\>', 'b', line('.'))
   call search('\v.\{\s*\|.*\|.*$', 'b', line('.'))
+
+  if &filetype == 'eruby'
+    call search('\s-\?%>', 'b', line('.'))
+  end
 
   let to = getpos('.')[2]
 
