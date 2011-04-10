@@ -1,4 +1,14 @@
 ==============================================================================
+FOREWORD                                                  *splitjoin-foreword*
+
+This is a work in progress, still very incomplete. It's also my first plugin
+and it's not tested on any vim configurations other than my own. That's why
+it's not published on http://www.vim.org yet. Even so, any bugs and
+suggestions are very welcome on the github bugtracker:
+https://github.com/AndrewRadev/splitjoin.vim/issues
+
+
+==============================================================================
 INSTALLATION                                          *splitjoin-installation*
 
 There are several ways to install the plugin. The recommended one is by using
@@ -43,6 +53,7 @@ Note that I'm using "sj" for splitting, not joining. To me, "splitting" a line
 results in expanding it downwards, so using "j" seems more intuitive, likewise
 for "k". Also note that the "s" key is ordinarily taken (try :help s), but I
 don't use it, so I've mapped it to <Nop>.
+
 
 ==============================================================================
 USAGE                                                        *splitjoin-usage*
@@ -126,6 +137,7 @@ possible to get things working sensibly, but this seems to be good enough for
 now: To join the hash, be on the "{" line, to join the "if" clause (not a good
 idea, mind you, doesn't do anything that makes sense), be on the "if foo?"
 line.
+
 
 ==============================================================================
 RUBY                                                          *splitjoin-ruby*
