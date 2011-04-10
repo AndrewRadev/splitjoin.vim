@@ -160,6 +160,15 @@ Hashes ~
       :one => 'two'
     }
 <
+Option hashes ~
+>
+    foo 1, 2, :one => 1, :two => 2
+
+    foo 1, 2, {
+      :one => 1,
+      :two => 2
+    }
+<
 
 Blocks ~
 >
@@ -173,17 +182,56 @@ Blocks ~
 ==============================================================================
 HTML                                                          *splitjoin-html*
 
-TODO
+Tags ~
+>
+    <div class="foo">bar</div>
+
+    <div class="foo">
+      bar
+    </div>
+<
 
 ==============================================================================
 ERUBY                                                        *splitjoin-eruby*
 
-TODO
+Tags ~
+>
+    <div class="foo">bar</div>
 
+    <div class="foo">
+      bar
+    </div>
+<
 
-==============================================================================
-TODO: yaml, python, javascript?
+If/unless clauses ~
+>
+    <%= foo if bar? %>
 
+    <% if bar? %>
+      <%= foo %>
+    <% end %>
+<
+
+Hashes ~
+>
+    <% foo = { :bar => 'baz', :one => :two, :five => 'six' } %>
+
+    <% foo = {
+      :bar => 'baz',
+      :one => :two,
+      :five => 'six'
+    } %>
+<
+
+Option hashes ~
+>
+    <%= link_to 'Google', 'http://google.com', :class => 'google', :id => 'google-link' %>
+
+    <%= link_to 'Google', 'http://google.com', {
+      :class => 'google',
+      :id => 'google-link'
+    } %>
+<
 
 
 ==============================================================================
