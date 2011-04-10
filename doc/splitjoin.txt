@@ -41,8 +41,91 @@ approach that makes more sense to my fingers instead:
 <
 Note that I'm using "sj" for splitting, not joining. To me, "splitting" a line
 results in expanding it downwards, so using "j" seems more intuitive, likewise
-for "k". Also note that the "s" key is generally taken (try :help s), but I
+for "k". Also note that the "s" key is ordinarily taken (try :help s), but I
 don't use it, so I've mapped it to <Nop>.
+
+==============================================================================
+USAGE                                                        *splitjoin-usage*
+
+As noted above, in |splitjoin-installation|, using the plugin consists in
+executing |SplitjoinSplit| or |SplitjoinJoin| on the current line, and it's
+recommended to have mappings for those commands. From now on, I'll just use
+the verbs "split" and "join" for the actions, regardless of the way you decide
+to execute them.
+
+Splitting a line consists of checking for blocks of text that the plugin knows
+how to split and, well, doing that. For example, if we have a ruby hash:
+>
+    { :one => 'two', :three => 'four' }
+<
+Then, with the cursor anywhere on the line, we can split it to get:
+>
+    {
+      :one => 'two',
+      :three => 'four'
+    }
+<
+This works for various other things, you can see some examples for each
+filetype below.
+
+If there are several different kinds of splittings that can be executed, there
+is a fixed priority. For instance, this:
+>
+    { :one => 'two', :three => 'four' } if foo?
+<
+will be split into this:
+>
+    if foo?
+      { :one => 'two', :three => 'four' }
+    end
+<
+The plugin does not take into account where the cursor is exactly on the line,
+it just always gives priority to the if clause.
+
+The cursor position is not taken into account even with two hashes:
+>
+    foo 1, 2, { :bar => :baz }, { :baz => :qux }
+<
+Even if the cursor is located on the second hash, the result will still be:
+>
+    foo 1, 2, {
+      :bar => :baz
+    }, { :baz => :qux }
+<
+This is one of the problems that should be solved at some point.
+
+Joining is similarly problematic in this regard, and it imposes even more
+constraints. Take this as an example:
+>
+    if foo?
+      bar
+    end
+<
+In order to turn this into:
+>
+    bar if foo?
+<
+you need to place your cursor on the line with the "if" clause. If your cursor
+is on the "bar" line, joining will not work. This might be considered a bug (I
+find it simpler cognitively to join blocks when I'm within them), but it
+simplifies the implementation and solves some ambiguity. This might be a nice
+example:
+>
+    if foo?
+      {
+        :one => :two,
+        :three => :four
+      }
+    end
+<
+Joining when on the line ":one => :two" would currently do nothing. However,
+if we wanted to detect the type of joining we could do, we might give priority
+to the if clause instead of the hash, which would not make a lot of sense. Of
+course, with smart prioritization (or a change in implementation), it might be
+possible to get things working sensibly, but this seems to be good enough for
+now: To join the hash, be on the "{" line, to join the "if" clause (not a good
+idea, mind you, doesn't do anything that makes sense), be on the "if foo?"
+line.
 
 ==============================================================================
 RUBY                                                          *splitjoin-ruby*
