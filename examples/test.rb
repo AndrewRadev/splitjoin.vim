@@ -39,6 +39,10 @@ foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, 
 
 root :to => 'articles#index'
 
+redirect_to root_path, :error => 'ф'
+redirect_to root_path, :error => 'こ'
+redirect_to root_path, :error => 'f'
+
 # multiple hashes in parameter list
 
 foo 1, 2, { :bar => :baz }, :baz => :qux

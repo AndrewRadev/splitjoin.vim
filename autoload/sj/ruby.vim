@@ -191,8 +191,10 @@ function! s:AddBraces(pos)
     call search('\s-\?%>', 'b', line('.'))
   end
 
-  let to = getpos('.')[2]
+  let to = virtcol('.')
 
-  let text = sj#GetCols(from, to)
-  call sj#ReplaceCols(from, to, '{ '.sj#Trim(text).' } ')
+  exe "normal! ".to."|"
+  exe "normal! a } "
+  exe "normal! ".from."|"
+  exe "normal! i{ "
 endfunction

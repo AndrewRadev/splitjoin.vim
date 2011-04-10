@@ -64,6 +64,8 @@ endfunction
 
 " Replace the area defined by the 'start' and 'end' columns on the current
 " line with 'text'
+"
+" TODO Multibyte characters break it
 function! sj#ReplaceCols(start, end, text, ...)
   if a:0 > 0
     let reindent = a:0
@@ -71,9 +73,7 @@ function! sj#ReplaceCols(start, end, text, ...)
     let reindent = 1
   end
 
-  let interval = a:end - a:start
-
-  return sj#ReplaceMotion(a:start.'|v'.interval.'l', a:text, reindent)
+  return sj#ReplaceMotion(a:start.'|v'.a:end.'|', a:text, reindent)
 endfunction
 
 " Execute the normal mode motion and return the text it marks.
