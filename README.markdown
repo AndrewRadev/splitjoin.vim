@@ -13,9 +13,10 @@ Into this:
 
 And the other way around.
 
-For now, this works for HTML tags, one-line ruby if/unless clauses and ruby
-blocks. Some more work needs to be done for ruby option hashes and a few other
-things.
+For more information, take a look at
+[doc/splitjoin.txt](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt)
 
-It shouldn't be a problem to do this for other languages as well, but
-these are the ones I'm interested in in the moment.
+For more examples, corner cases, a few items that are still not working, take
+a look at the
+[examples](https://github.com/AndrewRadev/splitjoin.vim/tree/master/examples)
+directory.
