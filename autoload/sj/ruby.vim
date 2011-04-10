@@ -119,9 +119,6 @@ function! sj#ruby#SplitOptions()
   let line = getline('.')
   let hash_key_pattern = '\v(:\k+|\d+|:?''[^'']*''|:?"[^"]*")\s+\=\>'
 
-  " TODO Pattern doesn't work
-  let option_pattern = '\v,(([^,]+\s*\=\>\s*[^,]{-1,},?)+)(\s*do.*)?$'
-
   if line =~ '=>' " then there's some kind of a hash around
     normal! 0
     call search('=>')
