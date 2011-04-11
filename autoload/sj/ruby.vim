@@ -184,8 +184,9 @@ function! s:AddBraces(pos)
   let from = a:pos[2]
 
   normal! $
-  call search('.\<do\>', 'b', line('.'))
-  call search('\v.\{\s*\|.*\|.*$', 'b', line('.'))
+  call search('\v.\s+do\s*', 'b', line('.'))
+  call search('\v.\s+\{\s*\|.*\|.*$', 'b', line('.'))
+  call search('\v.\)', 'b', line('.'))
 
   if &filetype == 'eruby'
     call search('\s-\?%>', 'b', line('.'))
@@ -194,7 +195,7 @@ function! s:AddBraces(pos)
   let to = virtcol('.')
 
   exe "normal! ".to."|"
-  exe "normal! a } "
+  exe "normal! a }"
   exe "normal! ".from."|"
   exe "normal! i{ "
 endfunction
