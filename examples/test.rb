@@ -29,9 +29,6 @@ foo 1, 2, :one => 1, :two => 2, :three => 'three' do |bar|
   something(bar)
 end
 
-# TODO: Not working
-foo 1, 2, :one => 1, :two => 2, :three => 'three' { |bar| something(bar) }
-
 redirect_to root_path, :error => 'ф'
 redirect_to root_path, :error => 'こ'
 redirect_to root_path, :error => 'f'
@@ -42,7 +39,9 @@ mail(:to => 'me', :from => 'me')
 
 foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' }, :five => 'six'
 foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' }
-foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' } { |one| two }
+foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' } do |one|
+  two
+end
 
 # option hashes with a single item
 
