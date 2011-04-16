@@ -233,41 +233,40 @@ Option hashes ~
     } %>
 <
 
-
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*
 
-  The only interface of the plugin is in 'plugin/splitjoin.vim'. It's a fairly
-  short file containing two commands, |SplitjoinSplit| and |SplitjoinJoin|.
-  All of the actual splitting and joining logic is in autoloaded files. The
-  only things that these two commands do are:
+The only interface of the plugin is in 'plugin/splitjoin.vim'. It's a fairly
+short file containing two commands, |SplitjoinSplit| and |SplitjoinJoin|.  All
+of the actual splitting and joining logic is in autoloaded files. The only
+things that these two commands do are:
 
-    - Check the |b:splitjoin_join_callbacks| and |b:splitjoin_split_callbacks|
-      respectively for a list of function names.
-    - Invoke the functions, in order. If any of the functions returns a number
-      different than 0, stop.
+- Check the |b:splitjoin_join_callbacks| and |b:splitjoin_split_callbacks|
+  respectively for a list of function names.
+- Invoke the functions, in order. If any of the functions returns a number
+  different than 0, stop.
 
-  The actual functions may do whatever they want, but it makes sense for them
-  to return 0 only if they haven't made any modifications.
+The actual functions may do whatever they want, but it makes sense for them to
+return 0 only if they haven't made any modifications.
 
-  The function names could be buffer-local, global, autoloaded, anything the
-  |function()| call can use.
+The function names could be buffer-local, global, autoloaded, anything the
+|function()| call can use.
 
-  Obviously, extending the plugin is straightforward -- it's enough to define
-  a function for splitting and one for joining and add those to the buffer
-  variable. Of course, that doesn't imply it's easy -- the functions would
-  need to actually perform all the necessary manipulations and simply inform
-  the plugin if they've been successful by returning a number other than 0 as
-  a result.
+Obviously, extending the plugin is straightforward -- it's enough to define a
+function for splitting and one for joining and add those to the buffer
+variable. Of course, that doesn't imply it's easy -- the functions would need
+to actually perform all the necessary manipulations and simply inform the
+plugin if they've been successful by returning a number other than 0 as a
+result.
 
-  The file 'autoload/sj.vim' contains helpers that might be useful for said
-  manipulations. There are functions for replacing bodies of text defined by
-  normal mode motions or by line ranges, for saving and restoring the cursor
-  position and possibly other interesting functions that might assist. They
-  should be commented reasonably well.
+The file 'autoload/sj.vim' contains helpers that might be useful for said
+manipulations. There are functions for replacing bodies of text defined by
+normal mode motions or by line ranges, for saving and restoring the cursor
+position and possibly other interesting functions that might assist. They
+should be commented reasonably well.
 
-  The other files in 'autoload/sj' might be useful as well, although they're
-  mostly filetype-specific.
+The other files in 'autoload/sj' might be useful as well, although they're
+mostly filetype-specific.
 
 ==============================================================================
 
