@@ -34,6 +34,7 @@ redirect_to root_path, :error => 'こ'
 redirect_to root_path, :error => 'f'
 
 mail(:to => 'me', :from => 'me')
+mail :to => t('me'), :from => 'me'
 
 # TODO: no-bracket options with nested hashes
 

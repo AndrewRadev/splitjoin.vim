@@ -186,7 +186,7 @@ function! s:AddBraces(pos)
   normal! $
   call search('\v.\s+do\s*', 'b', line('.'))
   call search('\v.\s+\{\s*\|.*\|.*$', 'b', line('.'))
-  call search('\v.\)', 'b', line('.'))
+  call search('\v.(\)$)|(\)\s)', 'b', line('.'))
 
   if &filetype == 'eruby'
     call search('\s-\?%>', 'b', line('.'))
