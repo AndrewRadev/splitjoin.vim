@@ -25,22 +25,13 @@ endfunction
 " Replace the normal mode 'motion' with 'text' Mostly just a wrapper for a
 " normal! command with a paste, but doesn't pollute any registers.
 "
-" The third parameter is optional -- if it's truthy (it is, by default), the
-" result is reindented, else it's not.
-"
 " Example: call sj#ReplaceMotion('Va{', 'some text')
 "
 " Note that the motion needs to include a visual mode key, like 'V', 'v' or
 " 'gv'
-function! sj#ReplaceMotion(motion, text, ...)
+function! sj#ReplaceMotion(motion, text)
   let original_reg      = getreg('z')
   let original_reg_type = getregtype('z')
-
-  if a:0 > 0
-    let reindent = a:0
-  else
-    let reindent = 1
-  end
 
   let @z = a:text
   exec 'normal! '.a:motion.'"zp'
@@ -50,30 +41,18 @@ function! sj#ReplaceMotion(motion, text, ...)
 endfunction
 
 " Replace the area defined by the 'start' and 'end' lines with 'text'
-function! sj#ReplaceLines(start, end, text, ...)
-  if a:0 > 0
-    let reindent = a:0
-  else
-    let reindent = 1
-  end
-
+function! sj#ReplaceLines(start, end, text)
   let interval = a:end - a:start
 
-  return sj#ReplaceMotion(a:start.'GV'.interval.'j', a:text, reindent)
+  return sj#ReplaceMotion(a:start.'GV'.interval.'j', a:text)
 endfunction
 
 " Replace the area defined by the 'start' and 'end' columns on the current
 " line with 'text'
 "
 " TODO Multibyte characters break it
-function! sj#ReplaceCols(start, end, text, ...)
-  if a:0 > 0
-    let reindent = a:0
-  else
-    let reindent = 1
-  end
-
-  return sj#ReplaceMotion(a:start.'|v'.a:end.'|', a:text, reindent)
+function! sj#ReplaceCols(start, end, text)
+  return sj#ReplaceMotion(a:start.'|v'.a:end.'|', a:text)
 endfunction
 
 " Execute the normal mode motion and return the text it marks.
