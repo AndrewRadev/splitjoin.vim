@@ -83,6 +83,49 @@ function! sj#ruby#JoinBlock()
   end
 endfunction
 
+function! sj#ruby#SplitCachingConstruct()
+  let line = getline('.')
+
+  if line =~ '||=' && line !~ '||=\s\+begin\>'
+    let replacement = substitute(line, '||=\s\+\(.*\)$', '||= begin\n\1\nend', '')
+    call sj#ReplaceMotion('V', replacement)
+
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
+function! sj#ruby#JoinCachingConstruct()
+  let line = getline('.')
+
+  if line =~ '||=\s\+begin'
+    let start_line_no    = line('.')
+    let end_line_pattern = '^'.repeat(' ', indent(start_line_no)).'end\s*$'
+    let end_line_no      = search(end_line_pattern, 'W')
+
+    if end_line_no > 0
+      let lines = sj#GetLines(start_line_no, end_line_no)
+
+      let lvalue   = substitute(lines[0], '\s\+||=\s\+begin.*$', '', '')
+      let end_line = lines[-1] " unused
+      let body     = join(lines[1:-2], "\n")
+
+      let lvalue = sj#Trim(lvalue)
+      let body   = sj#Trim(body)
+      let body   = s:JoinLines(body)
+
+      let replacement = lvalue.' ||= '.body
+
+      call sj#ReplaceLines(start_line_no, end_line_no, replacement)
+
+      return 1
+    endif
+  endif
+
+  return 0
+endfunction
+
 function! sj#ruby#SplitHash()
   let line    = getline('.')
   let pattern = '\v\{\s*(([^,]+\s*\=\>\s*[^,]{-1,},?)+)\s*\}[,)]?'

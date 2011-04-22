@@ -169,7 +169,14 @@ Option hashes ~
       :two => 2
     }
 <
+Caching constructs  ~
+>
+    @two ||= 1 + 1
 
+    @two ||= begin
+      1 + 1
+    end
+<
 Blocks ~
 >
     Bar.new { |b| puts b.to_s }

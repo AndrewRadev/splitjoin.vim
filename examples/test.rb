@@ -53,6 +53,10 @@ root :to => 'articles#index'
 foo 1, 2, { :bar => :baz }, :baz => :qux
 foo 1, 2, { :bar => :baz }, { :baz => :qux }
 
+# caching constructs
+
+@two ||= 1 + 1
+
 # blocks
 
 Bar.new { |b| puts b.to_s; puts 'foo' }
