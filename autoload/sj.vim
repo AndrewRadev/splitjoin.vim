@@ -1,4 +1,18 @@
-" Adds the current cursor position to a stack
+" vim: foldmethod=marker
+
+" Cursor stack manipulation {{{1
+"
+" In order to make the pattern of saving the cursor and restoring it
+" afterwards easier, these functions implement a simple cursor stack. The
+" basic usage is:
+"
+"   call sj#PushCursor()
+"   " Do stuff that move the cursor around
+"   call sj#PopCursor()
+
+" function! sj#PushCursor() {{{2
+"
+" Adds the current cursor position to the cursor stack.
 function! sj#PushCursor()
   if !exists('b:cursor_position_stack')
     let b:cursor_position_stack = []
@@ -7,8 +21,10 @@ function! sj#PushCursor()
   call add(b:cursor_position_stack, getpos('.'))
 endfunction
 
-" Restores the cursor to the latest position in the cursor stack, as added from
-" the sj#PushCursor function
+" function! sj#PopCursor() {{{2
+"
+" Restores the cursor to the latest position in the cursor stack, as added
+" from the sj#PushCursor function. Removes the position from the stack.
 function! sj#PopCursor()
   if !exists('b:cursor_position_stack')
     let b:cursor_position_stack = []
@@ -17,18 +33,30 @@ function! sj#PopCursor()
   call setpos('.', remove(b:cursor_position_stack, -1))
 endfunction
 
-" Returns the last saved cursor position
+" function! sj#PeekCursor() {{{2
+"
+" Returns the last saved cursor position from the cursor stack.
+" Note that if the cursor hasn't been saved at all, this will raise an error.
 function! sj#PeekCursor()
   return b:cursor_position_stack[-1]
 endfunction
 
-" Replace the normal mode 'motion' with 'text' Mostly just a wrapper for a
-" normal! command with a paste, but doesn't pollute any registers.
+" Text replacement {{{1
+"
+" Vim doesn't seem to have a whole lot of functions to aid in text replacement
+" within a buffer. The ":normal!" command usually works just fine, but it
+" could be difficult to maintain sometimes. These functions encapsulate a few
+" common patterns for this.
+
+" function! sj#ReplaceMotion(motion, text) {{{2
+"
+" Replace the normal mode "motion" with "text". This is mostly just a wrapper
+" for a normal! command with a paste, but doesn't pollute any registers.
 "
 " Example: call sj#ReplaceMotion('Va{', 'some text')
 "
-" Note that the motion needs to include a visual mode key, like 'V', 'v' or
-" 'gv'
+" Note that the motion needs to include a visual mode key, like "V", "v" or
+" "gv"
 function! sj#ReplaceMotion(motion, text)
   let original_reg      = getreg('z')
   let original_reg_type = getregtype('z')
@@ -40,13 +68,17 @@ function! sj#ReplaceMotion(motion, text)
   call setreg('z', original_reg, original_reg_type)
 endfunction
 
-" Replace the area defined by the 'start' and 'end' lines with 'text'
+" function! sj#ReplaceLines(start, end, text) {{{2
+"
+" Replace the area defined by the 'start' and 'end' lines with 'text'.
 function! sj#ReplaceLines(start, end, text)
   let interval = a:end - a:start
 
   return sj#ReplaceMotion(a:start.'GV'.interval.'j', a:text)
 endfunction
 
+" function! sj#ReplaceCols(start, end, text) {{{2
+"
 " Replace the area defined by the 'start' and 'end' columns on the current
 " line with 'text'
 "
@@ -55,10 +87,17 @@ function! sj#ReplaceCols(start, end, text)
   return sj#ReplaceMotion(a:start.'|v'.a:end.'|', a:text)
 endfunction
 
-" Execute the normal mode motion and return the text it marks.
+" Text retrieval {{{1
 "
-" Note that the motion needs to include a visual mode key, like 'V', 'v' or
-" 'gv'
+" These functions are similar to the text replacement functions, only retrieve
+" the text instead.
+
+" function! sj#GetMotion(motion) {{{2
+"
+" Execute the normal mode motion "motion" and return the text it marks.
+"
+" Note that the motion needs to include a visual mode key, like "V", "v" or
+" "gv"
 function! sj#GetMotion(motion)
   call sj#PushCursor()
 
@@ -74,18 +113,26 @@ function! sj#GetMotion(motion)
   return text
 endfunction
 
-" Retrieve the lines from a:start to a:end and return them as a list. Simply a
-" wrapper for getbufline for the moment.
+" function! sj#GetLines(start, end) {{{2
+"
+" Retrieve the lines from "start" to "end" and return them as a list. This is
+" simply a wrapper for getbufline for the moment.
 function! sj#GetLines(start, end)
   return getbufline('%', a:start, a:end)
 endfunction
 
-" Retrieve the text from columns a:start to a:end.
+" function! sj#GetLines(start, end) {{{2
+"
+" Retrieve the text from columns "start" to "end" on the current line.
 function! sj#GetCols(start, end)
   return strpart(getline('.'), a:start - 1, a:end - a:start + 1)
 endfunction
 
-" Trimming functions. Should be obvious.
+" Trimming functions {{{1
+"
+" Surprisingly, Vim doesn't seem to have a "trim" function. In any case, these
+" should be fairly obvious.
+
 function! sj#Ltrim(s)
   return substitute(a:s, '^\_s\+', '', '')
 endfunction
@@ -96,9 +143,16 @@ function! sj#Trim(s)
   return sj#Rtrim(sj#Ltrim(a:s))
 endfunction
 
+" Regex helpers {{{1
+
+" function! sj#ExtractRx(expr, pat, sub)
+"
 " Extract a regex match from a string. Ordinarily, substitute() would be used
 " for this, but it's a bit too cumbersome for extracting a particular grouped
-" match.
+" match. Example usage:
+"
+"   sj#ExtractRx('foo:bar:baz', ':\(.*\):', '\1') == 'bar'
+"
 function! sj#ExtractRx(expr, pat, sub)
   let rx = a:pat
 
