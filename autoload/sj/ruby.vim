@@ -159,31 +159,43 @@ function! sj#ruby#JoinHash()
 endfunction
 
 function! sj#ruby#SplitOptions()
-  let line = getline('.')
-  let hash_key_pattern = '\v(:\k+|\d+|:?''[^'']*''|:?"[^"]*")\s+\=\>'
+  let function_start = s:LocateFunctionStart()
+  if function_start > 0
+    let [from, to, args] = s:ParseArguments(function_start)
 
-  if line =~ '=>' " then there's some kind of a hash around
-    normal! 0
-    call search('=>')
+    call sj#ReplaceCols(from, to, "{\n" . join(args, "\n") . "\n}\n")
 
-    if searchpair('{', '', '}', 'bW', 0, line('.')) > 0
-      " then it's a standard hash
-    elseif line =~ '^\s*'.hash_key_pattern.'\s*\{.*\},?$'
-      " then it's a line with a nested hash:
-      "   :one => { :two => :three }
-    else
-      " it's probably an option hash, no braces, so just add them and continue
-      call search(hash_key_pattern, 'b', line('.'))
-      call s:AddBraces(getpos('.'))
-    endif
-
-    return sj#ruby#SplitHash()
+    return 1
   else
     return 0
   end
 endfunction
 
 " Helper functions
+
+function! s:LocateFunctionStart()
+  let [_bufnum, line, col, _off] = getpos('.')
+
+  " first case, brackets: foo(bar, baz)
+  " TODO strings, comments
+  let function_start = searchpair('(', '', ')', 'cn')
+  if function_start > 0
+    return function_start
+  endif
+
+  " second case, bracketless: foo bar, baz
+  " starts with a keyword, then spaces, then something that's not a comma
+  let function_start = search('\v\k+\s+[^,]', 'bnW', line('.'))
+  if function_start > 0
+    return function_start
+  endif
+
+  return -1
+endfunction
+
+function! s:ParseArguments(function_start)
+  return [ a:function_start, col('$'), ['one', 'two'] ]
+endfunction
 
 function! s:SplitHash(string)
   let body = sj#Trim(a:string)."\n"
