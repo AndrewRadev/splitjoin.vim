@@ -159,7 +159,10 @@ function! sj#ruby#JoinHash()
 endfunction
 
 function! sj#ruby#SplitOptions()
+  call sj#PushCursor()
   let function_start = s:LocateFunctionStart()
+  call sj#PopCursor()
+
   if function_start > 0
     let [from, to, args] = s:ParseArguments(function_start)
 
@@ -178,22 +181,28 @@ function! s:LocateFunctionStart()
 
   " first case, brackets: foo(bar, baz)
   " TODO strings, comments
-  let function_start = searchpair('(', '', ')', 'cn')
-  if function_start > 0
-    return function_start
+  let found = searchpair('(', '', ')', 'cb', '', line('.'))
+  if found > 0
+    return col('.')
   endif
 
   " second case, bracketless: foo bar, baz
   " starts with a keyword, then spaces, then something that's not a comma
-  let function_start = search('\v\k+\s+[^,]', 'bnW', line('.'))
-  if function_start > 0
-    return function_start
+  let found = search('\v(^|\s)\k+\s+[^,]', 'bcWe', line('.'))
+  if found > 0
+    return col('.') - 1
   endif
 
   return -1
 endfunction
 
 function! s:ParseArguments(function_start)
+  let body = getline('.')
+  let body = strpart(body, a:function_start)
+
+  " TODO parse the body
+  Decho body
+
   return [ a:function_start, col('$'), ['one', 'two'] ]
 endfunction
 
