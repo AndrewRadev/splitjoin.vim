@@ -200,10 +200,27 @@ function! s:ParseArguments(function_start)
   let body = getline('.')
   let body = strpart(body, a:function_start)
 
-  " TODO parse the body
-  Decho body
+  let index       = a:function_start
+  let args        = []
+  let current_arg = ''
 
-  return [ a:function_start, col('$'), ['one', 'two'] ]
+  while strlen(body) > 0
+    if body[0] == ','
+      call add(args, current_arg)
+      let current_arg = ''
+    elseif body[0] == ')'
+      break
+    else
+      let current_arg .= body[0]
+    endif
+
+    let body  = strpart(body, 1)
+    let index = index + 1
+  endwhile
+
+  call add(args, current_arg)
+
+  return [ a:function_start, index, args ]
 endfunction
 
 function! s:SplitHash(string)
