@@ -1,3 +1,19 @@
+" Data structure:
+" ===============
+function! ParseData(function_start)
+  return {
+        \ 'args':             [],
+        \ 'opts':             [],
+        \ 'index':            a:function_start,
+        \ 'current_arg':      '',
+        \ 'current_arg_type': 'normal',
+        \ }
+endfunction
+
+
+" Public functions:
+" =================
+
 function! sj#rubyparse#LocateFunctionStart()
   let [_bufnum, line, col, _off] = getpos('.')
 
@@ -19,43 +35,39 @@ function! sj#rubyparse#LocateFunctionStart()
 endfunction
 
 function! sj#rubyparse#ParseArguments(function_start)
-  let body = getline('.')
-  let body = strpart(body, a:function_start)
+  let parse_data = ParseData(a:function_start)
 
-  let index            = a:function_start
-  let args             = []
-  let opts             = []
-  let current_arg      = ''
-  let current_arg_type = 'normal'
+  let parse_data.body = getline('.')
+  let parse_data.body = strpart(parse_data.body, a:function_start)
 
-  while strlen(body) > 0
-    if body[0] == ','
-      if current_arg_type == 'option'
-        call add(opts, current_arg)
+  while strlen(parse_data.body) > 0
+    if parse_data.body[0] == ','
+      if parse_data.current_arg_type == 'option'
+        call add(parse_data.opts, parse_data.current_arg)
       else
-        call add(args, current_arg)
+        call add(parse_data.args, parse_data.current_arg)
       endif
 
-      let current_arg_type = 'normal'
-      let current_arg      = ''
-    elseif body[0] == ')'
+      let parse_data.current_arg_type = 'normal'
+      let parse_data.current_arg      = ''
+    elseif parse_data.body[0] == ')'
       break
-    elseif body =~ '^=>'
-      let current_arg_type = 'option'
-      let current_arg .= body[0]
+    elseif parse_data.body =~ '^=>'
+      let parse_data.current_arg_type = 'option'
+      let parse_data.current_arg .= parse_data.body[0]
     else
-      let current_arg .= body[0]
+      let parse_data.current_arg .= parse_data.body[0]
     endif
 
-    let body  = strpart(body, 1)
-    let index = index + 1
+    let parse_data.body  = strpart(parse_data.body, 1)
+    let parse_data.index = parse_data.index + 1
   endwhile
 
-  if current_arg_type == 'option'
-    call add(opts, current_arg)
+  if parse_data.current_arg_type == 'option'
+    call add(parse_data.opts, parse_data.current_arg)
   else
-    call add(args, current_arg)
+    call add(parse_data.args, parse_data.current_arg)
   endif
 
-  return [ a:function_start + 1, index, args, opts ]
+  return [ a:function_start + 1, parse_data.index, parse_data.args, parse_data.opts ]
 endfunction
