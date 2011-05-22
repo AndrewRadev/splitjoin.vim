@@ -164,9 +164,26 @@ function! sj#ruby#SplitOptions()
   call sj#PopCursor()
 
   if function_start > 0
-    let [from, to, args] = s:ParseArguments(function_start)
+    let [from, to, args, opts] = s:ParseArguments(function_start)
 
-    call sj#ReplaceCols(from, to, "{\n" . join(args, "\n") . "\n}\n")
+    if len(opts) < 1
+      " no options found, leave it as it is
+      return 0
+    endif
+
+    let args = map(args, 'sj#Trim(v:val)')
+    let opts = map(opts, 'sj#Trim(v:val)')
+
+    let replacement = ''
+
+    if len(args) > 1
+      let replacement .= join(args, ', ') . ', '
+    endif
+    let replacement .= "{\n"
+    let replacement .= join(opts, ",\n")
+    let replacement .= "\n}"
+
+    call sj#ReplaceCols(from, to, replacement)
 
     return 1
   else
@@ -200,16 +217,27 @@ function! s:ParseArguments(function_start)
   let body = getline('.')
   let body = strpart(body, a:function_start)
 
-  let index       = a:function_start
-  let args        = []
-  let current_arg = ''
+  let index            = a:function_start
+  let args             = []
+  let opts             = []
+  let current_arg      = ''
+  let current_arg_type = 'normal'
 
   while strlen(body) > 0
     if body[0] == ','
-      call add(args, current_arg)
-      let current_arg = ''
+      if current_arg_type == 'option'
+        call add(opts, current_arg)
+      else
+        call add(args, current_arg)
+      endif
+
+      let current_arg_type = 'normal'
+      let current_arg      = ''
     elseif body[0] == ')'
       break
+    elseif body =~ '^=>'
+      let current_arg_type = 'option'
+      let current_arg .= body[0]
     else
       let current_arg .= body[0]
     endif
@@ -218,9 +246,13 @@ function! s:ParseArguments(function_start)
     let index = index + 1
   endwhile
 
-  call add(args, current_arg)
+  if current_arg_type == 'option'
+    call add(opts, current_arg)
+  else
+    call add(args, current_arg)
+  endif
 
-  return [ a:function_start, index, args ]
+  return [ a:function_start + 1, index, args, opts ]
 endfunction
 
 function! s:SplitHash(string)
