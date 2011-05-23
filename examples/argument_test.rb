@@ -12,3 +12,5 @@ foo :one, :two, :three => 3, :four => 4
 
 # TODO
 foo :one, :two, { :three => 3, :four => 4 }
+foo :one, :three, { :three => 3, :four => 4 }
+foo :one, :two, { :three => 3, :four => 4 }

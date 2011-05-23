@@ -33,8 +33,33 @@ function! s:Next() dict
   let self.index = self.index + 1
 endfunction
 
+" TODO handle nesting
+function! s:Jump(char) dict
+  let n = stridx(self.body, a:char) + 1
+
+  let self.current_arg .= strpart(self.body, 0, n)
+
+  let self.body  = strpart(self.body, n)
+  let self.index = self.index + n - 1
+endfunction
+
 function! s:Finished() dict
   return len(self.body) <= 0
+endfunction
+
+function! s:ExpandOptionHash() dict
+  if len(self.opts) <= 0
+    " then try parsing the last parameter
+    let last = sj#Trim(self.args[-1])
+    if last =~ '^{.*=>.*}$'
+      " then it seems to be a hash, expand it
+      call remove(self.args, -1)
+
+      let last = sj#ExtractRx(last, '^{\(.*=>.*\)}$', '\1')
+      let opts = split(last, ',')
+      call extend(self.opts, opts)
+    endif
+  endif
 endfunction
 
 let s:parser = {
@@ -44,11 +69,13 @@ let s:parser = {
       \ 'current_arg':      '',
       \ 'current_arg_type': 'normal',
       \
-      \ 'init':      function("s:InitParseData"),
-      \ 'push_arg':  function("s:PushArg"),
-      \ 'push_char': function("s:PushChar"),
-      \ 'next':      function("s:Next"),
-      \ 'finished':  function("s:Finished"),
+      \ 'init':               function("s:InitParseData"),
+      \ 'push_arg':           function("s:PushArg"),
+      \ 'push_char':          function("s:PushChar"),
+      \ 'next':               function("s:Next"),
+      \ 'jump':               function("s:Jump"),
+      \ 'finished':           function("s:Finished"),
+      \ 'expand_option_hash': function("s:ExpandOptionHash"),
       \ }
 
 " Constructor:
@@ -93,6 +120,9 @@ function! sj#rubyparse#ParseArguments(function_start)
       continue
     elseif parser.body[0] == ')'
       break
+    elseif parser.body[0] == '{'
+      call parser.jump('}')
+      call parser.push_arg()
     elseif parser.body =~ '^=>'
       let parser.current_arg_type = 'option'
       call parser.push_char()
@@ -101,7 +131,11 @@ function! sj#rubyparse#ParseArguments(function_start)
     call parser.push_char()
   endwhile
 
-  call parser.push_arg()
+  if len(parser.current_arg) > 0
+    call parser.push_arg()
+  endif
+  call parser.expand_option_hash()
 
+  " TODO return parser, work with that
   return [ a:function_start + 1, parser.index, parser.args, parser.opts ]
 endfunction
