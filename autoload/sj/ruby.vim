@@ -176,7 +176,7 @@ function! sj#ruby#SplitOptions()
 
     let replacement = ''
 
-    if len(args) > 1
+    if len(args) > 0
       let replacement .= join(args, ', ') . ', '
     endif
     let replacement .= "{\n"
