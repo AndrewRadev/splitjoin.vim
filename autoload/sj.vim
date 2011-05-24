@@ -84,7 +84,10 @@ endfunction
 "
 " TODO Multibyte characters break it
 function! sj#ReplaceCols(start, end, text)
-  return sj#ReplaceMotion(a:start.'|v'.a:end.'|', a:text)
+  let start    = a:start - 1
+  let interval = a:end - a:start
+
+  return sj#ReplaceMotion('0'.start.'lv'.interval.'l', a:text)
 endfunction
 
 " Text retrieval {{{1
