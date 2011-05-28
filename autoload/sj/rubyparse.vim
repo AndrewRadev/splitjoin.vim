@@ -58,10 +58,8 @@ endfunction
 "
 " This will parse matching round and square brackets.
 function! s:JumpPair(start_chars, end_chars) dict
-  let char_index = stridx(a:start_chars, self.body[0])
+  let char_index  = stridx(a:start_chars, self.body[0])
   let target_char = a:end_chars[char_index]
-
-  Decho [a:start_chars, a:end_chars, self.body[0], target_char]
   call self.jump(target_char)
 endfunction
 
@@ -146,8 +144,8 @@ function! sj#rubyparse#ParseArguments(function_start)
       continue
     elseif parser.body[0] == ')'
       break
-    elseif parser.body[0] =~ "[\"'{]"
-      call parser.jump_pair("\"'{", "\"'}")
+    elseif parser.body[0] =~ "[\"'{\[`(]"
+      call parser.jump_pair("\"'{[`(", "\"'}]`)")
     elseif parser.body =~ '^=>'
       let parser.current_arg_type = 'option'
       call parser.push_char()
@@ -161,6 +159,5 @@ function! sj#rubyparse#ParseArguments(function_start)
   endif
   call parser.expand_option_hash()
 
-  " TODO return parser, work with that
   return [ a:function_start + 1, parser.index, parser.args, parser.opts ]
 endfunction
