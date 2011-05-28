@@ -51,6 +51,20 @@ function! s:Jump(char) dict
   let self.index = self.index + n
 endfunction
 
+" Finds the current char in a:start_chars and jumps to its match in a:end_chars.
+"
+" Example:
+"   call parser.jump_pair("([", ")]")
+"
+" This will parse matching round and square brackets.
+function! s:JumpPair(start_chars, end_chars) dict
+  let char_index = stridx(a:start_chars, self.body[0])
+  let target_char = a:end_chars[char_index]
+
+  Decho [a:start_chars, a:end_chars, self.body[0], target_char]
+  call self.jump(target_char)
+endfunction
+
 " Returns true if the parser has finished parsing the arguments.
 function! s:Finished() dict
   return len(self.body) <= 0
@@ -85,6 +99,7 @@ let s:parser = {
       \ 'push_char':          function("s:PushChar"),
       \ 'next':               function("s:Next"),
       \ 'jump':               function("s:Jump"),
+      \ 'jump_pair':          function("s:JumpPair"),
       \ 'finished':           function("s:Finished"),
       \ 'expand_option_hash': function("s:ExpandOptionHash"),
       \ }
@@ -131,12 +146,8 @@ function! sj#rubyparse#ParseArguments(function_start)
       continue
     elseif parser.body[0] == ')'
       break
-    elseif parser.body[0] == '{'
-      call parser.jump('}')
-    elseif parser.body[0] == '"'
-      call parser.jump('"')
-    elseif parser.body[0] == "'"
-      call parser.jump("'")
+    elseif parser.body[0] =~ "[\"'{]"
+      call parser.jump_pair("\"'{", "\"'}")
     elseif parser.body =~ '^=>'
       let parser.current_arg_type = 'option'
       call parser.push_char()
