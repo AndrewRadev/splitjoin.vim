@@ -1,6 +1,7 @@
 " Data structure:
 " ===============
 
+" Resets the parser.
 function! s:InitParseData(function_start) dict
   let self.args             = []
   let self.opts             = []
@@ -12,6 +13,8 @@ function! s:InitParseData(function_start) dict
   let self.body = strpart(self.body, a:function_start)
 endfunction
 
+" Pushes the current argument either to the args or opts stack and initializes
+" a new one.
 function! s:PushArg() dict
   if self.current_arg_type == 'option'
     call add(self.opts, self.current_arg)
@@ -23,16 +26,19 @@ function! s:PushArg() dict
   let self.current_arg_type = 'normal'
 endfunction
 
+" Moves the parser to the next char and consumes the current
 function! s:PushChar() dict
   let self.current_arg .= self.body[0]
   call self.next()
 endfunction
 
+" Moves the parser to the next char without consuming it.
 function! s:Next() dict
   let self.body  = strpart(self.body, 1)
   let self.index = self.index + 1
 endfunction
 
+" Moves the parser to a:char without consuming it.
 " TODO handle nesting
 function! s:Jump(char) dict
   let n = stridx(self.body, a:char) + 1
@@ -43,10 +49,13 @@ function! s:Jump(char) dict
   let self.index = self.index + n - 1
 endfunction
 
+" Returns true if the parser has finished parsing the arguments.
 function! s:Finished() dict
   return len(self.body) <= 0
 endfunction
 
+" If the last argument is a hash and no options have been parsed, splits the
+" last argument and fills the options with it.
 function! s:ExpandOptionHash() dict
   if len(self.opts) <= 0
     " then try parsing the last parameter
