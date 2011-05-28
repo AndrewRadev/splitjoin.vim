@@ -41,12 +41,14 @@ endfunction
 " Moves the parser to a:char without consuming it.
 " TODO handle nesting
 function! s:Jump(char) dict
-  let n = stridx(self.body, a:char) + 1
+  call self.push_char()
+
+  let n = stridx(self.body, a:char)
 
   let self.current_arg .= strpart(self.body, 0, n)
 
   let self.body  = strpart(self.body, n)
-  let self.index = self.index + n - 1
+  let self.index = self.index + n
 endfunction
 
 " Returns true if the parser has finished parsing the arguments.
@@ -131,7 +133,10 @@ function! sj#rubyparse#ParseArguments(function_start)
       break
     elseif parser.body[0] == '{'
       call parser.jump('}')
-      call parser.push_arg()
+    elseif parser.body[0] == '"'
+      call parser.jump('"')
+    elseif parser.body[0] == "'"
+      call parser.jump("'")
     elseif parser.body =~ '^=>'
       let parser.current_arg_type = 'option'
       call parser.push_char()
