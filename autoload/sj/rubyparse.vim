@@ -38,29 +38,25 @@ function! s:Next() dict
   let self.index = self.index + 1
 endfunction
 
-" Moves the parser to a:char without consuming it.
-" TODO handle nesting
-function! s:Jump(char) dict
-  call self.push_char()
-
-  let n = stridx(self.body, a:char)
-
-  let self.current_arg .= strpart(self.body, 0, n)
-
-  let self.body  = strpart(self.body, n)
-  let self.index = self.index + n
-endfunction
-
 " Finds the current char in a:start_chars and jumps to its match in a:end_chars.
 "
 " Example:
 "   call parser.jump_pair("([", ")]")
 "
 " This will parse matching round and square brackets.
+" TODO handle nesting
 function! s:JumpPair(start_chars, end_chars) dict
   let char_index  = stridx(a:start_chars, self.body[0])
   let target_char = a:end_chars[char_index]
-  call self.jump(target_char)
+
+  call self.push_char()
+
+  let n = stridx(self.body, target_char)
+
+  let self.current_arg .= strpart(self.body, 0, n)
+
+  let self.body  = strpart(self.body, n)
+  let self.index = self.index + n
 endfunction
 
 " Returns true if the parser has finished parsing the arguments.
@@ -96,7 +92,6 @@ let s:parser = {
       \ 'push_arg':           function("s:PushArg"),
       \ 'push_char':          function("s:PushChar"),
       \ 'next':               function("s:Next"),
-      \ 'jump':               function("s:Jump"),
       \ 'jump_pair':          function("s:JumpPair"),
       \ 'finished':           function("s:Finished"),
       \ 'expand_option_hash': function("s:ExpandOptionHash"),

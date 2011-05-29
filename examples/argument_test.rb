@@ -31,4 +31,6 @@ foo :one, :two => (true || false || foo bar, baz)
 foo :one, :two => (true || false || foo(bar, baz))
 foo(:one, :two => (true || false || foo(bar, baz)))
 
+foo :one => { :two => { :three => 3 }, :four => 4 }
+
 # TODO more complex cases
