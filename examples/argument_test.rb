@@ -8,6 +8,10 @@ foo :one => 1, :two => 2
 
 foo :one, :two, :three => 3, :four => 4
 
+# nesting
+foo :one => { :two => { :three => 3 }, :four => 4 }
+
+# TODO: broken with multibyte characters on the line
 foo :one, :two, { :three => 'ффяю', :four => 4 }
 foo :one, :two, { :three => 3, :four => 4 }
 foo :one, :three, { :three => 3, :four => 4 }
@@ -27,10 +31,7 @@ foo :one, :two => `ls foo, bar`
 
 # items, grouped with round braces
 foo :one, :two => (true || false || foo bar, baz)
-# TODO nesting
 foo :one, :two => (true || false || foo(bar, baz))
 foo(:one, :two => (true || false || foo(bar, baz)))
-
-foo :one => { :two => { :three => 3 }, :four => 4 }
 
 # TODO more complex cases

@@ -44,14 +44,32 @@ endfunction
 "   call parser.jump_pair("([", ")]")
 "
 " This will parse matching round and square brackets.
-" TODO handle nesting
+"
+" Note: nesting doesn't work properly if there's a string containing unmatched
+" braces within the pair.
 function! s:JumpPair(start_chars, end_chars) dict
   let char_index  = stridx(a:start_chars, self.body[0])
+  let start_char  = a:start_chars[char_index]
   let target_char = a:end_chars[char_index]
 
   call self.push_char()
 
-  let n = stridx(self.body, target_char)
+  let stack = 1
+  let n     = 0
+  let limit = len(self.body)
+
+  " Note: if the start and end chars are the same (quotes, for example), this
+  " will still work, because we're checking for the target_char before the
+  " start_char
+  while stack > 0 && n < limit
+    let n = n + 1
+
+    if self.body[n] == target_char
+      let stack = stack - 1
+    elseif self.body[n] == start_char
+      let stack = stack + 1
+    endif
+  endwhile
 
   let self.current_arg .= strpart(self.body, 0, n)
 
