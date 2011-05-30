@@ -2,15 +2,14 @@
 " ===============
 
 " Resets the parser.
-function! s:InitParseData(function_start) dict
+function! s:InitParseData(start_index, line) dict
   let self.args             = []
   let self.opts             = []
-  let self.index            = a:function_start
+  let self.index            = a:start_index
   let self.current_arg      = ''
   let self.current_arg_type = 'normal'
 
-  let self.body = getline('.')
-  let self.body = strpart(self.body, a:function_start)
+  let self.body = strpart(a:line, a:start_index)
 endfunction
 
 " Pushes the current argument either to the args or opts stack and initializes
@@ -133,9 +132,9 @@ let s:parser = {
 " Constructor:
 " ============
 
-function! s:Parser(function_start)
+function! s:Parser(start_index, line)
   let parser = s:parser
-  call parser.init(a:function_start)
+  call parser.init(a:start_index, a:line)
   return parser
 endfunction
 
@@ -166,7 +165,7 @@ function! sj#rubyparse#LocateFunctionStart()
 endfunction
 
 function! sj#rubyparse#ParseArguments(function_start)
-  let parser = s:Parser(a:function_start)
+  let parser = s:Parser(a:function_start, getline('.'))
 
   while !parser.finished()
     if parser.body[0] == ','
