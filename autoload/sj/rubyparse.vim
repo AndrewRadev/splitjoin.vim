@@ -99,6 +99,20 @@ function! s:ExpandOptionHash() dict
   endif
 endfunction
 
+" Returns true if the parser is at the function's end, either because of a
+" closing brace, a "do" clause or a "%>".
+function! s:AtFunctionEnd() dict
+  if self.body[0] == ')'
+    return 1
+  elseif self.body =~ '\v^\s*do(\s*\|.*\|)?(\s*-?\%\>\s*)?$'
+    return 1
+  elseif self.body =~ '^\s*-\?%>'
+    return 1
+  endif
+
+  return 0
+endfunction
+
 let s:parser = {
       \ 'args':             [],
       \ 'opts':             [],
@@ -111,6 +125,7 @@ let s:parser = {
       \ 'push_char':          function("s:PushChar"),
       \ 'next':               function("s:Next"),
       \ 'jump_pair':          function("s:JumpPair"),
+      \ 'at_function_end':    function("s:AtFunctionEnd"),
       \ 'finished':           function("s:Finished"),
       \ 'expand_option_hash': function("s:ExpandOptionHash"),
       \ }
@@ -158,11 +173,7 @@ function! sj#rubyparse#ParseArguments(function_start)
       call parser.push_arg()
       call parser.next()
       continue
-    elseif parser.body[0] == ')'
-      break
-    elseif parser.body =~ '\v^\s*do(\s*\|.*\|)?(\s*-?\%\>\s*)?$'
-      break
-    elseif parser.body =~ '^\s*-\?%>'
+    elseif parser.at_function_end()
       break
     elseif parser.body[0] =~ "[\"'{\[`(]"
       call parser.jump_pair("\"'{[`(", "\"'}]`)")
