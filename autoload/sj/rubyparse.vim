@@ -157,6 +157,10 @@ function! sj#rubyparse#ParseArguments(function_start)
       continue
     elseif parser.body[0] == ')'
       break
+    elseif parser.body =~ '\v^\s*do(\s*\|.*\|)?(\s*-?\%\>\s*)?$'
+      break
+    elseif parser.body =~ '^\s*-\?%>'
+      break
     elseif parser.body[0] =~ "[\"'{\[`(]"
       call parser.jump_pair("\"'{[`(", "\"'}]`)")
     elseif parser.body =~ '^=>'

@@ -8,6 +8,13 @@ foo :one => 1, :two => 2
 
 foo :one, :two, :three => 3, :four => 4
 
+foo :one, :two => :three do |something|
+  something something
+end
+foo :one, :two => :three do
+  something something
+end
+
 # nesting
 foo :one => { :two => { :three => 3 }, :four => 4 }
 
