@@ -131,7 +131,6 @@ function! sj#rubyparse#LocateFunctionStart()
   let [_bufnum, line, col, _off] = getpos('.')
 
   " first case, brackets: foo(bar, baz)
-  " TODO strings, comments
   let found = searchpair('(', '', ')', 'cb', '', line('.'))
   if found > 0
     return col('.')
@@ -140,6 +139,10 @@ function! sj#rubyparse#LocateFunctionStart()
   " second case, bracketless: foo bar, baz
   " starts with a keyword, then spaces, then something that's not a comma
   let found = search('\v(^|\s)\k+\s+[^,]', 'bcWe', line('.'))
+  if found <= 0
+    " try searching forward
+    let found = search('\v(^|\s)\k+\s+[^,]', 'cWe', line('.'))
+  endif
   if found > 0
     return col('.') - 1
   endif
