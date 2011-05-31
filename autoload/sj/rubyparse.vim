@@ -2,14 +2,18 @@
 " ===============
 
 " Resets the parser.
-function! s:InitParseData(start_index, line) dict
+function! s:InitParseData(start_index, end_index, line) dict
   let self.args             = []
   let self.opts             = []
   let self.index            = a:start_index
   let self.current_arg      = ''
   let self.current_arg_type = 'normal'
 
-  let self.body = strpart(a:line, a:start_index)
+  let self.body = a:line
+  let self.body = strpart(self.body, a:start_index)
+  if a:end_index > 0
+    let self.body = strpart(self.body, 0, a:end_index - a:start_index)
+  endif
 endfunction
 
 " Pushes the current argument either to the args or opts stack and initializes
@@ -132,22 +136,26 @@ let s:parser = {
 " Constructor:
 " ============
 
-function! s:Parser(start_index, line)
+function! s:Parser(start_index, end_index, line)
   let parser = s:parser
-  call parser.init(a:start_index, a:line)
+  call parser.init(a:start_index, a:end_index, a:line)
   return parser
 endfunction
 
 " Public functions:
 " =================
 
-function! sj#rubyparse#LocateFunctionStart()
+function! sj#rubyparse#LocateFunction()
   let [_bufnum, line, col, _off] = getpos('.')
 
   " first case, brackets: foo(bar, baz)
   let found = searchpair('(', '', ')', 'cb', '', line('.'))
   if found > 0
-    return col('.')
+    let from = col('.')
+    normal! %
+    let to = col('.')
+
+    return [from, to]
   endif
 
   " second case, bracketless: foo bar, baz
@@ -158,14 +166,32 @@ function! sj#rubyparse#LocateFunctionStart()
     let found = search('\v(^|\s)\k+\s+[^,]', 'cWe', line('.'))
   endif
   if found > 0
-    return col('.') - 1
+    let from = col('.') - 1
+    let to   = -1 " not sure about the end
+
+    return [from, to]
   endif
 
-  return -1
+  return [-1, -1]
 endfunction
 
-function! sj#rubyparse#ParseArguments(function_start)
-  let parser = s:Parser(a:function_start, getline('.'))
+function! sj#rubyparse#LocateHash()
+  let [_bufnum, line, col, _off] = getpos('.')
+
+  let found = searchpair('{', '', '}', 'cb', '', line('.'))
+  if found > 0
+    let from = col('.') - 1
+    normal! %
+    let to = col('.')
+
+    return [from, to]
+  else
+    return [-1, -1]
+  endif
+endfunction
+
+function! sj#rubyparse#ParseArguments(start_index, end_index, line)
+  let parser = s:Parser(a:start_index, a:end_index, a:line)
 
   while !parser.finished()
     if parser.body[0] == ','
@@ -189,5 +215,5 @@ function! sj#rubyparse#ParseArguments(function_start)
   endif
   call parser.expand_option_hash()
 
-  return [ a:function_start + 1, parser.index, parser.args, parser.opts ]
+  return [ a:start_index + 1, parser.index, parser.args, parser.opts ]
 endfunction

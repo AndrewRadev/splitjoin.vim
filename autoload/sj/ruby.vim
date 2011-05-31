@@ -160,11 +160,17 @@ endfunction
 
 function! sj#ruby#SplitOptions()
   call sj#PushCursor()
-  let function_start = sj#rubyparse#LocateFunctionStart()
+  let [from, to] = sj#rubyparse#LocateHash()
   call sj#PopCursor()
 
-  if function_start > 0
-    let [from, to, args, opts] = sj#rubyparse#ParseArguments(function_start)
+  if from < 0
+    call sj#PushCursor()
+    let [from, to] = sj#rubyparse#LocateFunction()
+    call sj#PopCursor()
+  endif
+
+  if from >= 0
+    let [from, to, args, opts] = sj#rubyparse#ParseArguments(from, to, getline('.'))
 
     if len(opts) < 1
       " no options found, leave it as it is
@@ -188,7 +194,7 @@ function! sj#ruby#SplitOptions()
     return 1
   else
     return 0
-  end
+  endif
 endfunction
 
 " Helper functions
