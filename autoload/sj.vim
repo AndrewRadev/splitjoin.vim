@@ -87,7 +87,13 @@ function! sj#ReplaceCols(start, end, text)
   let start    = a:start - 1
   let interval = a:end - a:start
 
-  return sj#ReplaceMotion('0'.start.'lv'.interval.'l', a:text)
+  if start > 0
+    let motion = '0'.start.'lv'.interval.'l'
+  else
+    let motion = '0v'.interval.'l'
+  endif
+
+  return sj#ReplaceMotion(motion, a:text)
 endfunction
 
 " Text retrieval {{{1

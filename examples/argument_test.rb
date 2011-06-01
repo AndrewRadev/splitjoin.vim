@@ -33,6 +33,11 @@ foo :one, :two => [3, 4], :five => [6, 7, 8]
 # TODO parse hashes recursively
 foo :one, { :two => [3, 4], :five => [6, 7, 8] }
 
+# hashes
+{ :one => 1, :two => 2 }
+foo = { :one => 1, :two => 2 }
+{:one => 1, :two => 2}
+
 # backticks
 foo :one, :two => `ls foo, bar`
 
