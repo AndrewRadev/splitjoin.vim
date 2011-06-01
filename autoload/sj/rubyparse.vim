@@ -137,7 +137,7 @@ let s:parser = {
 " ============
 
 function! s:Parser(start_index, end_index, line)
-  let parser = s:parser
+  let parser = deepcopy(s:parser)
   call parser.init(a:start_index, a:end_index, a:line)
   return parser
 endfunction
