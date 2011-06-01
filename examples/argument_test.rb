@@ -22,7 +22,6 @@ foo :one => { :two => { :three => 3 }, :four => 4 }
 foo :one, :two, { :three => 'ффяю', :four => 4 }
 foo :one, :two, { :three => 3, :four => 4 }
 foo :one, :three, { :three => 3, :four => 4 }
-foo :one, :two, { :three => 3, :four => 4 }
 
 # strings
 foo :one, :two => 'three, seven'
@@ -30,7 +29,6 @@ foo :one, :two, "three, four", :five => 'six, seven', :six => 7
 
 # arrays
 foo :one, :two => [3, 4], :five => [6, 7, 8]
-# TODO parse hashes recursively
 foo :one, { :two => [3, 4], :five => [6, 7, 8] }
 
 # hashes

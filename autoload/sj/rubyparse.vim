@@ -10,7 +10,9 @@ function! s:InitParseData(start_index, end_index, line) dict
   let self.current_arg_type = 'normal'
 
   let self.body = a:line
-  let self.body = strpart(self.body, a:start_index)
+  if a:start_index > 0
+    let self.body = strpart(self.body, a:start_index)
+  endif
   if a:end_index > 0
     let self.body = strpart(self.body, 0, a:end_index - a:start_index)
   endif
@@ -88,15 +90,16 @@ endfunction
 " If the last argument is a hash and no options have been parsed, splits the
 " last argument and fills the options with it.
 function! s:ExpandOptionHash() dict
-  if len(self.opts) <= 0
+  if len(self.opts) <= 0 && len(self.args) > 0
     " then try parsing the last parameter
     let last = sj#Trim(self.args[-1])
     if last =~ '^{.*=>.*}$'
       " then it seems to be a hash, expand it
       call remove(self.args, -1)
 
-      let last = sj#ExtractRx(last, '^{\(.*=>.*\)}$', '\1')
-      let opts = split(last, ',')
+      let hash = sj#ExtractRx(last, '^{\(.*=>.*\)}$', '\1')
+
+      let [_from, _to, _args, opts] = sj#rubyparse#ParseArguments(0, -1, hash)
       call extend(self.opts, opts)
     endif
   endif
@@ -119,6 +122,7 @@ endfunction
 let s:parser = {
       \ 'args':             [],
       \ 'opts':             [],
+      \ 'body':             '',
       \ 'index':            0,
       \ 'current_arg':      '',
       \ 'current_arg_type': 'normal',
