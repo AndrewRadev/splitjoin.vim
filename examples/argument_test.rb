@@ -47,4 +47,5 @@ foo :one, :two => /three, four/im, :five => :six
 foo :one, :two => %|three, four|, :five => :six
 foo :one, :two => %w|three, four|, :five => :six
 
-# TODO more complex cases
+foo? :one => 1, :two => 2
+foo! :one => 1, :two => 2
