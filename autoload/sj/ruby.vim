@@ -126,24 +126,6 @@ function! sj#ruby#JoinCachingConstruct()
   return 0
 endfunction
 
-function! sj#ruby#SplitHash()
-  let line    = getline('.')
-  let pattern = '\v\{\s*(([^,]+\s*\=\>\s*[^,]{-1,},?)+)\s*\}[,)]?'
-
-  if line =~ pattern
-    call search('{', 'c', line('.'))
-    call searchpair('{', '', '}', 'c', line('.'))
-
-    let body  = sj#GetMotion('Vi{')
-    let lines = s:SplitHash(body)
-    call sj#ReplaceMotion('Va{', "{\n".join(lines, "\n")."\n}")
-
-    return 1
-  else
-    return 0
-  endif
-endfunction
-
 function! sj#ruby#JoinHash()
   let line    = getline('.')
   let pattern = '{\s*$'
@@ -159,58 +141,45 @@ function! sj#ruby#JoinHash()
 endfunction
 
 function! sj#ruby#SplitOptions()
-  let line = getline('.')
-  let hash_key_pattern = '\v(:\k+|\d+|:?''[^'']*''|:?"[^"]*")\s+\=\>'
+  call sj#PushCursor()
+  let [from, to] = sj#rubyparse#LocateHash()
+  call sj#PopCursor()
 
-  if line =~ '=>' " then there's some kind of a hash around
-    normal! 0
-    call search('=>')
+  if from < 0
+    call sj#PushCursor()
+    let [from, to] = sj#rubyparse#LocateFunction()
+    call sj#PopCursor()
+  endif
 
-    if searchpair('{', '', '}', 'bW', 0, line('.')) > 0
-      " then it's a standard hash
-    elseif line =~ '^\s*'.hash_key_pattern.'\s*\{.*\},?$'
-      " then it's a line with a nested hash:
-      "   :one => { :two => :three }
-    else
-      " it's probably an option hash, no braces, so just add them and continue
-      call search(hash_key_pattern, 'b', line('.'))
-      call s:AddBraces(getpos('.'))
+  if from >= 0
+    let [from, to, args, opts] = sj#rubyparse#ParseArguments(from, to, getline('.'))
+
+    if len(opts) < 1
+      " no options found, leave it as it is
+      return 0
     endif
 
-    return sj#ruby#SplitHash()
+    let args = map(args, 'sj#Trim(v:val)')
+    let opts = map(opts, 'sj#Trim(v:val)')
+
+    let replacement = ''
+
+    if len(args) > 0
+      let replacement .= join(args, ', ') . ', '
+    endif
+    let replacement .= "{\n"
+    let replacement .= join(opts, ",\n")
+    let replacement .= "\n}"
+
+    call sj#ReplaceCols(from, to, replacement)
+
+    return 1
   else
     return 0
-  end
+  endif
 endfunction
 
 " Helper functions
-
-function! s:SplitHash(string)
-  let body = sj#Trim(a:string)."\n"
-
-  let nested_hash_pattern = '\(^[^,]\+=>\s*{.\{-}}[,\n]\)'
-  let regular_pattern     = '\(^[^,]\+=>.\{-}[,\n]\)'
-
-  let lines = []
-
-  " TODO correctly handle nested hashes for more than two levels
-
-  while body !~ '^\s*$'
-    if body =~ nested_hash_pattern
-      let segment = sj#ExtractRx(body, nested_hash_pattern, '\1')
-    elseif body =~ regular_pattern
-      let segment = sj#ExtractRx(body, regular_pattern, '\1')
-    else
-      " TODO should never happen, raise error?
-      break
-    end
-
-    call add(lines, sj#Trim(segment))
-    let body = strpart(body, len(segment))
-  endwhile
-
-  return lines
-endfunction
 
 function! s:JoinLines(text)
   let lines = split(a:text, "\n")
@@ -221,24 +190,4 @@ function! s:JoinLines(text)
   else
     return join(lines, '; ')
   endif
-endfunction
-
-function! s:AddBraces(pos)
-  let from = a:pos[2]
-
-  normal! $
-  call search('\v.\s+do\s*', 'b', line('.'))
-  call search('\v.\s+\{\s*\|.*\|.*$', 'b', line('.'))
-  call search('\v.(\)$|\)\s)', 'b', line('.'))
-
-  if &filetype == 'eruby'
-    call search('.\s\+-\?%>', 'b', line('.'))
-  end
-
-  let to = virtcol('.')
-
-  exe "normal! ".to."|"
-  exe "normal! a }"
-  exe "normal! ".from."|"
-  exe "normal! i{ "
 endfunction

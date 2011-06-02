@@ -36,8 +36,6 @@ redirect_to root_path, :error => 'f'
 mail(:to => 'me', :from => 'me')
 mail :to => t('me'), :from => 'me'
 
-# TODO: no-bracket options with nested hashes
-
 foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' }, :five => 'six'
 foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' }
 foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, :four => 'five' } do |one|
