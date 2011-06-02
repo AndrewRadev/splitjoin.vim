@@ -26,8 +26,8 @@ function! s:Process() dict
       continue
     elseif self.at_function_end()
       break
-    elseif self.body[0] =~ "[\"'{\[`(]"
-      call self.jump_pair("\"'{[`(", "\"'}]`)")
+    elseif self.body[0] =~ "[\"'{\[`(/]"
+      call self.jump_pair("\"'{[`(/", "\"'}]`)/")
     elseif self.body[0] == '%'
       call self.push_char()
       if self.body[0] =~ '[qQrswWx]'

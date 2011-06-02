@@ -43,6 +43,7 @@ foo(:one, :two => `ls foo, bar`)
 foo :one, :two => (true || false || foo(bar, baz))
 foo(:one, :two => (true || false || foo(bar, baz)))
 
+foo :one, :two => /three, four/im, :five => :six
 foo :one, :two => %|three, four|, :five => :six
 foo :one, :two => %w|three, four|, :five => :six
 
