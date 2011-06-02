@@ -49,3 +49,6 @@ foo :one, :two => %w|three, four|, :five => :six
 
 foo? :one => 1, :two => 2
 foo! :one => 1, :two => 2
+
+Foo.bar :one => 1, :two => 2
+Foo::bar :one => 1, :two => 2

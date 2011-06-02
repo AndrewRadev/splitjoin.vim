@@ -197,7 +197,7 @@ function! sj#rubyparse#LocateFunction()
 
   " second case, bracketless: foo bar, baz
   " starts with a keyword, then spaces, then something that's not a comma
-  let pattern = '\v(^|\s)\k+[?!]?\s+[^,]'
+  let pattern = '\v(^|\s|\.|::)\k+[?!]?\s+[^,]'
   let found = search(pattern, 'bcWe', line('.'))
   if found <= 0
     " try searching forward
