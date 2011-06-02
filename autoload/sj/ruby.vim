@@ -126,24 +126,6 @@ function! sj#ruby#JoinCachingConstruct()
   return 0
 endfunction
 
-function! sj#ruby#SplitHash()
-  let line    = getline('.')
-  let pattern = '\v\{\s*(([^,]+\s*\=\>\s*[^,]{-1,},?)+)\s*\}[,)]?'
-
-  if line =~ pattern
-    call search('{', 'c', line('.'))
-    call searchpair('{', '', '}', 'c', line('.'))
-
-    let body  = sj#GetMotion('Vi{')
-    let lines = s:SplitHash(body)
-    call sj#ReplaceMotion('Va{', "{\n".join(lines, "\n")."\n}")
-
-    return 1
-  else
-    return 0
-  endif
-endfunction
-
 function! sj#ruby#JoinHash()
   let line    = getline('.')
   let pattern = '{\s*$'
@@ -199,33 +181,6 @@ endfunction
 
 " Helper functions
 
-function! s:SplitHash(string)
-  let body = sj#Trim(a:string)."\n"
-
-  let nested_hash_pattern = '\(^[^,]\+=>\s*{.\{-}}[,\n]\)'
-  let regular_pattern     = '\(^[^,]\+=>.\{-}[,\n]\)'
-
-  let lines = []
-
-  " TODO correctly handle nested hashes for more than two levels
-
-  while body !~ '^\s*$'
-    if body =~ nested_hash_pattern
-      let segment = sj#ExtractRx(body, nested_hash_pattern, '\1')
-    elseif body =~ regular_pattern
-      let segment = sj#ExtractRx(body, regular_pattern, '\1')
-    else
-      " TODO should never happen, raise error?
-      break
-    end
-
-    call add(lines, sj#Trim(segment))
-    let body = strpart(body, len(segment))
-  endwhile
-
-  return lines
-endfunction
-
 function! s:JoinLines(text)
   let lines = split(a:text, "\n")
   let lines = map(lines, 'sj#Trim(v:val)')
@@ -235,24 +190,4 @@ function! s:JoinLines(text)
   else
     return join(lines, '; ')
   endif
-endfunction
-
-function! s:AddBraces(pos)
-  let from = a:pos[2]
-
-  normal! $
-  call search('\v.\s+do\s*', 'b', line('.'))
-  call search('\v.\s+\{\s*\|.*\|.*$', 'b', line('.'))
-  call search('\v.(\)$|\)\s)', 'b', line('.'))
-
-  if &filetype == 'eruby'
-    call search('.\s\+-\?%>', 'b', line('.'))
-  end
-
-  let to = virtcol('.')
-
-  exe "normal! ".to."|"
-  exe "normal! a }"
-  exe "normal! ".from."|"
-  exe "normal! i{ "
 endfunction
