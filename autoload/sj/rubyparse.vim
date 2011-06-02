@@ -28,6 +28,13 @@ function! s:Process() dict
       break
     elseif self.body[0] =~ "[\"'{\[`(]"
       call self.jump_pair("\"'{[`(", "\"'}]`)")
+    elseif self.body[0] == '%'
+      call self.push_char()
+      if self.body[0] =~ '[qQrswWx]'
+        call self.push_char()
+      endif
+      let delimiter = self.body[0]
+      call self.jump_pair(delimiter, delimiter)
     elseif self.body =~ '^=>'
       let self.current_arg_type = 'option'
       call self.push_char()

@@ -37,11 +37,13 @@ foo = { :one => 1, :two => 2 }
 {:one => 1, :two => 2}
 
 # backticks
-foo :one, :two => `ls foo, bar`
+foo(:one, :two => `ls foo, bar`)
 
 # items, grouped with round braces
-foo :one, :two => (true || false || foo bar, baz)
 foo :one, :two => (true || false || foo(bar, baz))
 foo(:one, :two => (true || false || foo(bar, baz)))
+
+foo :one, :two => %|three, four|, :five => :six
+foo :one, :two => %w|three, four|, :five => :six
 
 # TODO more complex cases
