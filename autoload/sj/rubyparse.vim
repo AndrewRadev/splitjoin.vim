@@ -2,7 +2,7 @@
 " ===============
 
 " Resets the parser.
-function! s:InitParseData(start_index, end_index, line) dict
+function! s:Init(start_index, end_index, line) dict
   let self.args             = []
   let self.opts             = []
   let self.index            = a:start_index
@@ -16,6 +16,30 @@ function! s:InitParseData(start_index, end_index, line) dict
   if a:end_index > 0
     let self.body = strpart(self.body, 0, a:end_index - a:start_index)
   endif
+endfunction
+
+function! s:Process() dict
+  while !self.finished()
+    if self.body[0] == ','
+      call self.push_arg()
+      call self.next()
+      continue
+    elseif self.at_function_end()
+      break
+    elseif self.body[0] =~ "[\"'{\[`(]"
+      call self.jump_pair("\"'{[`(", "\"'}]`)")
+    elseif self.body =~ '^=>'
+      let self.current_arg_type = 'option'
+      call self.push_char()
+    endif
+
+    call self.push_char()
+  endwhile
+
+  if len(self.current_arg) > 0
+    call self.push_arg()
+  endif
+  call self.expand_option_hash()
 endfunction
 
 " Pushes the current argument either to the args or opts stack and initializes
@@ -59,6 +83,7 @@ function! s:JumpPair(start_chars, end_chars) dict
 
   call self.push_char()
 
+  " prepare a stack for nested braces and the like
   let stack = 1
   let n     = 0
   let limit = len(self.body)
@@ -127,7 +152,8 @@ let s:parser = {
       \ 'current_arg':      '',
       \ 'current_arg_type': 'normal',
       \
-      \ 'init':               function("s:InitParseData"),
+      \ 'init':               function("s:Init"),
+      \ 'process':            function("s:Process"),
       \ 'push_arg':           function("s:PushArg"),
       \ 'push_char':          function("s:PushChar"),
       \ 'next':               function("s:Next"),
@@ -196,28 +222,6 @@ endfunction
 
 function! sj#rubyparse#ParseArguments(start_index, end_index, line)
   let parser = s:Parser(a:start_index, a:end_index, a:line)
-
-  while !parser.finished()
-    if parser.body[0] == ','
-      call parser.push_arg()
-      call parser.next()
-      continue
-    elseif parser.at_function_end()
-      break
-    elseif parser.body[0] =~ "[\"'{\[`(]"
-      call parser.jump_pair("\"'{[`(", "\"'}]`)")
-    elseif parser.body =~ '^=>'
-      let parser.current_arg_type = 'option'
-      call parser.push_char()
-    endif
-
-    call parser.push_char()
-  endwhile
-
-  if len(parser.current_arg) > 0
-    call parser.push_arg()
-  endif
-  call parser.expand_option_hash()
-
+  call parser.process()
   return [ a:start_index + 1, parser.index, parser.args, parser.opts ]
 endfunction
