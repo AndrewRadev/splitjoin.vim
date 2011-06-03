@@ -294,7 +294,10 @@ mostly filetype-specific.
 ==============================================================================
 ISSUES                                                      *splitjoin-issues*
 
-Any issues and suggestions are very welcome on the github bugtracker:
+    - Currently, splitting ruby hashes breaks when dealing with multibyte
+      characters, like japanese, joining the final line with the one below it.
+
+Any other issues and suggestions are very welcome on the github bugtracker:
 https://github.com/AndrewRadev/splitjoin.vim/issues
 
 
