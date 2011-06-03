@@ -185,19 +185,14 @@ endfunction
 function! sj#rubyparse#LocateFunction()
   let [_bufnum, line, col, _off] = getpos('.')
 
-  " first case, brackets: foo(bar, baz)
-  let found = searchpair('(', '', ')', 'cb', '', line('.'))
-  if found > 0
-    let from = col('.')
-    normal! %
-    let to = col('.')
-
-    return [from, to]
-  endif
-
-  " second case, bracketless: foo bar, baz
-  " starts with a keyword, then spaces, then something that's not a comma
-  let pattern = '\v(^|\s|\.|::)\k+[?!]?\s+[^,]'
+  " The pattern consists of the following:
+  "
+  "   - a keyword
+  "   - spaces or an opening round bracket
+  "   - something that's not a comma or an "=" sign (to avoid detecting
+  "     assignment by mistake)
+  "
+  let pattern = '\v(^|\s|\.|::)\k+[?!]?(\s+|\s*\(\s*)[^,=]'
   let found = search(pattern, 'bcWe', line('.'))
   if found <= 0
     " try searching forward
@@ -205,7 +200,7 @@ function! sj#rubyparse#LocateFunction()
   endif
   if found > 0
     let from = col('.') - 1
-    let to   = -1 " not sure about the end
+    let to   = -1 " we're not sure about the end right now
 
     return [from, to]
   endif
