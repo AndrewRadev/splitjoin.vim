@@ -1,11 +1,13 @@
 ==============================================================================
-FOREWORD                                                  *splitjoin-foreword*
+CONTENTS                                      *splitjoin* *splitjoin-contents*
 
-This is a work in progress, still very incomplete. It's also my first plugin
-and it's not tested on any vim configurations other than my own. That's why
-it's not published on http://www.vim.org yet. Even so, any bugs and
-suggestions are very welcome on the github bugtracker:
-https://github.com/AndrewRadev/splitjoin.vim/issues
+    Installation...........................: |splitjoin-installation|
+    Usage..................................: |splitjoin-usage|
+    Ruby...................................: |splitjoin-ruby|
+    HTML...................................: |splitjoin-html|
+    Eruby..................................: |splitjoin-eruby|
+    Internals..............................: |splitjoin-internals|
+    Issues.................................: |splitjoin-issues|
 
 
 ==============================================================================
@@ -24,14 +26,11 @@ The command is (provided you're in ~/.vim):
     git submodule add git://github.com/AndrewRadev/splitjoin.vim.git bundle/splitjoin
 <
 
-Another way is to simply copy all the directories inside the ~.vim/ directory
-(plugin, autoload, etc.)
+Another way is to simply copy all the essential directories inside the ~.vim/
+directory: plugin, ftplbugin, autoload, doc.
 
-TODO: install from zip file
-TODO: install from vimball
-
-After the plugin is installed, the command |SplitjoinSplit| will perform
-splitting and |SplitjoinJoin| -- joining of the code under the cursor. It's
+After the plugin is installed, the command :SplitjoinSplit will perform
+splitting and :SplitjoinJoin -- joining of the code under the cursor. It's
 highly recommended to map these to keybindings, since the idea of the plugin
 is to simplify these manipulations. An example keybinding that needs to go in
 .vimrc:
@@ -59,7 +58,7 @@ don't use it, so I've mapped it to <Nop>.
 USAGE                                                        *splitjoin-usage*
 
 As noted above, in |splitjoin-installation|, using the plugin consists in
-executing |SplitjoinSplit| or |SplitjoinJoin| on the current line, and it's
+executing :SplitjoinSplit or :SplitjoinJoin on the current line, and it's
 recommended to have mappings for those commands. From now on, I'll just use
 the verbs "split" and "join" for the actions, regardless of the way you decide
 to execute them.
@@ -69,7 +68,7 @@ how to split and, well, doing that. For example, if we have a ruby hash:
 >
     { :one => 'two', :three => 'four' }
 <
-Then, with the cursor anywhere on the line, we can split it to get:
+Then, with the cursor within the hash, we can split it to get:
 >
     {
       :one => 'two',
@@ -90,23 +89,32 @@ will be split into this:
       { :one => 'two', :three => 'four' }
     end
 <
-The plugin does not take into account where the cursor is exactly on the line,
-it just always gives priority to the if clause.
+In this case, the plugin does not take into account where exactly the cursor
+is located on the line, it just always gives priority to the if clause.
 
-The cursor position is not taken into account even with two hashes:
+For ruby hashes in particular, the cursor position is considered, however.
+Let's take this as an example:
 >
     foo 1, 2, { :bar => :baz }, { :baz => :qux }
 <
-Even if the cursor is located on the second hash, the result will still be:
+If the cursor is located on the first hash, the result will be:
 >
     foo 1, 2, {
       :bar => :baz
     }, { :baz => :qux }
 <
-This is one of the problems that should be solved at some point.
+If it's on the second hash, or on any other part of the method call (like on
+"foo"), you'll get this:
+>
+    foo 1, 2, { :bar => :baz }, {
+      :baz => :qux
+    }
+<
+In general, if you're trying to split a structure, try to "be inside" when you
+do so. This doesn't make sense in cases like the "if" statement, but it does
+for hashes.
 
-Joining is similarly problematic in this regard, and it imposes even more
-constraints. Take this as an example:
+Joining might impose more constraints. Take this as an example:
 >
     if foo?
       bar
@@ -138,6 +146,10 @@ now: To join the hash, be on the "{" line, to join the "if" clause (not a good
 idea, mind you, doesn't do anything that makes sense), be on the "if foo?"
 line.
 
+The basic rule of thumb here is that, to join a structure, the cursor should
+usually be at its beginning (the opening tag, the opening brace, etc.).
+
+Now for some examples for the filetypes that have splitjoin implementations.
 
 ==============================================================================
 RUBY                                                          *splitjoin-ruby*
@@ -168,6 +180,10 @@ Option hashes ~
       :one => 1,
       :two => 2
     }
+
+    # note that after joining, the result will be:
+
+    foo 1, 2, { :one => 1, :two => 2 }
 <
 Caching constructs  ~
 >
@@ -254,7 +270,7 @@ things that these two commands do are:
   different than 0, stop.
 
 The actual functions may do whatever they want, but it makes sense for them to
-return 0 only if they haven't made any modifications.
+return 0 only if they haven't made any modifications to the buffer.
 
 The function names could be buffer-local, global, autoloaded, anything the
 |function()| call can use.
@@ -276,5 +292,10 @@ The other files in 'autoload/sj' might be useful as well, although they're
 mostly filetype-specific.
 
 ==============================================================================
+ISSUES                                                      *splitjoin-issues*
+
+Any issues and suggestions are very welcome on the github bugtracker:
+https://github.com/AndrewRadev/splitjoin.vim/issues
+
 
 vim:tw=78:sw=4:ft=help:norl:
