@@ -1,0 +1,12 @@
+body {
+  background-color: #4B7399;
+  font-family: Verdana, Helvetica, Arial;
+  font-size: 14px;
+}
+
+a { color: #0000FF; text-decoration: underline }
+a { color: #0000FF; text-decoration: underline; }
+
+a {
+  color: #0000FF;
+}
