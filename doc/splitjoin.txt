@@ -5,6 +5,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Usage..................................: |splitjoin-usage|
     Ruby...................................: |splitjoin-ruby|
     HTML...................................: |splitjoin-html|
+    CSS....................................: |splitjoin-css|
     Eruby..................................: |splitjoin-eruby|
     Internals..............................: |splitjoin-internals|
     Issues.................................: |splitjoin-issues|
@@ -212,6 +213,19 @@ Tags ~
     <div class="foo">
       bar
     </div>
+<
+
+==============================================================================
+CSS                                                             *splitjoin-css*
+
+Style definitions ~
+>
+    a { color: #0000FF; text-decoration: underline; }
+
+    a {
+      color: #0000FF;
+      text-decoration: underline;
+    }
 <
 
 ==============================================================================
