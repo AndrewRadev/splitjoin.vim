@@ -137,11 +137,14 @@ function! sj#GetCols(start, end)
   return strpart(getline('.'), a:start - 1, a:end - a:start + 1)
 endfunction
 
-" Trimming functions {{{1
-"
+" String functions {{{1
+" Various string manipulation utility functions
+function! sj#BlankString(s)
+  return (a:s =~ '^\s*$')
+endfunction
+
 " Surprisingly, Vim doesn't seem to have a "trim" function. In any case, these
 " should be fairly obvious.
-
 function! sj#Ltrim(s)
   return substitute(a:s, '^\_s\+', '', '')
 endfunction

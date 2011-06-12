@@ -39,6 +39,32 @@ function! sj#css#JoinDefinition()
   return 1
 endfunction
 
+function! sj#css#JoinMultilineSelector()
+  let line = getline('.')
+
+  let start_line = line('.')
+  let end_line   = start_line
+  let col        = col('.')
+  let limit_line = line('$')
+
+  while !sj#BlankString(line) && line !~ '{\s*$' && end_line < limit_line
+    call cursor(end_line + 1, col)
+    let end_line = line('.')
+    let line     = getline('.')
+  endwhile
+
+  if start_line == end_line
+    return 0
+  else
+    if line =~ '^\s*{\s*$'
+      let end_line = end_line - 1
+    endif
+
+    exe start_line.','.end_line.'join'
+    return 1
+  endif
+endfunction
+
 function! s:LocateDefinition()
   if search('{', 'bcW', line('.')) <= 0 && search('{', 'cW', line('.')) <= 0
     return 0

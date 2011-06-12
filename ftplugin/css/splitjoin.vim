@@ -4,4 +4,5 @@ let b:splitjoin_split_callbacks = [
 
 let b:splitjoin_join_callbacks = [
       \ 'sj#css#JoinDefinition',
+      \ 'sj#css#JoinMultilineSelector',
       \ ]
