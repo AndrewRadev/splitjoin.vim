@@ -3,6 +3,10 @@ function! sj#css#SplitDefinition()
     return 0
   endif
 
+  if getline('.') !~ '{.*}' " then there's nothing to split
+    return 0
+  endif
+
   let body = sj#GetMotion('Vi{')
 
   let lines = split(body, ";\s*")
