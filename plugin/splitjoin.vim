@@ -2,7 +2,7 @@ if exists("g:loaded_splitjoin") || &cp
   finish
 endif
 
-let g:loaded_splitjoin = 1 " version number
+let g:loaded_splitjoin = '0.1.1' " version number
 let s:keepcpo          = &cpo
 set cpo&vim
 
