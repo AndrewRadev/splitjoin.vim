@@ -44,7 +44,7 @@ endfunction
 
 function! sj#ruby#SplitBlock()
   let line    = getline('.')
-  let pattern = '\v\{(\s*\|.*\|)?\s*(.*)\}'
+  let pattern = '\v\{(\s*\|.{-}\|)?\s*(.*)\}'
 
   if line =~ pattern
     call search('{', 'bc', line('.'))

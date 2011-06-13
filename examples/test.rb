@@ -60,6 +60,7 @@ foo 1, 2, { :bar => :baz }, { :baz => :qux }
 Bar.new { |b| puts b.to_s; puts 'foo' }
 Bar.new { puts self.to_s }
 Bar.new { foo({ :one => :two, :three => :four }) }
+Bar.new { |one| one.new { |two| two.three } }
 
 class Baz
   def qux
