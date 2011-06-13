@@ -47,11 +47,14 @@ function! sj#ruby#SplitBlock()
   let pattern = '\v\{(\s*\|.*\|)?\s*(.*)\}'
 
   if line =~ pattern
-    let body = sj#ExtractRx(line, pattern, '\2')
-    let body = join(split(body, '\s*;\s*'), "\n")
-    let replacement = substitute(line, pattern, 'do\1\n'.body.'\nend', '')
+    call search('{', 'bc', line('.'))
+    call search('{', 'c', line('.'))
 
-    call sj#ReplaceMotion('V', replacement)
+    let body = sj#GetMotion('Va{')
+    let body = join(split(body, '\s*;\s*'), "\n")
+    let replacement = substitute(body, '^'.pattern.'$', 'do\1\n\2\nend', '')
+
+    call sj#ReplaceMotion('Va{', replacement)
 
     return 1
   else
