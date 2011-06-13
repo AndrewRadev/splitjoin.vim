@@ -61,6 +61,9 @@ Bar.new { |b| puts b.to_s; puts 'foo' }
 Bar.new { puts self.to_s }
 Bar.new { foo({ :one => :two, :three => :four }) }
 Bar.new { |one| one.new { |two| two.three } }
+foo(items.map do |i|
+  i.bar
+end) # comment
 
 class Baz
   def qux

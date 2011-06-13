@@ -74,9 +74,9 @@ function! sj#ruby#JoinBlock()
     let do_line  = substitute(lines[0], 'do', '{', '')
     let body     = join(lines[1:-2], '; ')
     let body     = sj#Trim(body)
-    " ignore end line, not needed
+    let end_line = substitute(lines[-1], 'end', '}', '')
 
-    let replacement = do_line.' '.body.' }'
+    let replacement = do_line.' '.body.' '.end_line
 
     call sj#ReplaceLines(do_line_no, end_line_no, replacement)
 
