@@ -2,10 +2,10 @@
 
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
-        \ 'sj#ruby#SplitCachingConstruct',
         \ 'sj#ruby#SplitIfClause',
         \ 'sj#ruby#SplitOptions',
         \ 'sj#ruby#SplitBlock',
+        \ 'sj#ruby#SplitCachingConstruct',
         \ ]
 endif
 

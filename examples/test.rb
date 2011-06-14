@@ -54,6 +54,9 @@ foo 1, 2, { :bar => :baz }, { :baz => :qux }
 # caching constructs
 
 @two ||= 1 + 1
+# other splitting takes precedence
+@two ||= lambda { |one| one.two }
+@two ||= two(:three => :four, :five => :six)
 
 # blocks
 
