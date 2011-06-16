@@ -1,5 +1,3 @@
-" Wrap them in conditions to avoid messing up erb
-
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
         \ 'sj#ruby#SplitIfClause',
