@@ -42,6 +42,14 @@ foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, 
   two
 end
 
+one << two(:three => :four)
+three = one + two(:three => :four)
+three = one - two(:three => :four)
+three = one / two(:three => :four)
+three = one * two(:three => :four)
+three = one ^ two(:three => :four)
+three = one % two(:three => :four)
+
 # option hashes with a single item
 
 root :to => 'articles#index'
