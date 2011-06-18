@@ -63,15 +63,19 @@ function! sj#ruby#SplitBlock()
 endfunction
 
 function! sj#ruby#JoinBlock()
-  call search('\<do\>\(\s*\|.*\|\s*\)\?$', 'cW', line('.'))
-  let do_line_no = search('\<do\>\(\s*\|.*\|\s*\)\?$', 'bcW', line('.'))
+  let do_pattern = '\<do\>\(\s*|.*|\s*\)\?$'
+
+  let do_line_no = search(do_pattern, 'cW', line('.'))
+  if do_line_no <= 0
+    let do_line_no = search(do_pattern, 'bcW', line('.'))
+  endif
 
   if do_line_no > 0
-    let end_line_no = searchpair('\<do\>', '', '\<end\>', 'W')
+    let end_line_no = searchpair(do_pattern, '', '\<end\>', 'W')
 
     let lines = map(sj#GetLines(do_line_no, end_line_no), 'sj#Trim(v:val)')
 
-    let do_line  = substitute(lines[0], 'do', '{', '')
+    let do_line  = substitute(lines[0], do_pattern, '{\1', '')
     let body     = join(lines[1:-2], '; ')
     let body     = sj#Trim(body)
     let end_line = substitute(lines[-1], 'end', '}', '')

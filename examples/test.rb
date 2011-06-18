@@ -68,6 +68,10 @@ foo(items.map do |i|
   i.bar
 end) # comment
 
+foo 'line with do in it' do |something|
+  something
+end
+
 class Baz
   def qux
     # if/unless/while/until:
