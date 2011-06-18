@@ -166,9 +166,6 @@ function! sj#ruby#SplitOptions()
       return 0
     endif
 
-    let args = map(args, 'sj#Trim(v:val)')
-    let opts = map(opts, 'sj#Trim(v:val)')
-
     let replacement = ''
 
     if len(args) > 0

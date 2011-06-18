@@ -47,6 +47,9 @@ function! s:Process() dict
     call self.push_arg()
   endif
   call self.expand_option_hash()
+
+  let self.args = map(self.args, 'sj#Trim(v:val)')
+  let self.opts = map(self.opts, 'sj#Trim(v:val)')
 endfunction
 
 " Pushes the current argument either to the args or opts stack and initializes
