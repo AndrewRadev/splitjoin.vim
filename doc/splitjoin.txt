@@ -226,6 +226,20 @@ Style definitions ~
       color: #0000FF;
       text-decoration: underline;
     }
+
+Multiline selectors ~
+>
+    h1,
+    h2,
+    h3 {
+      font-size: 18px;
+      font-weight: bold
+    }
+
+    h1, h2, h3 {
+      font-size: 18px;
+      font-weight: bold
+    }
 <
 
 ==============================================================================
