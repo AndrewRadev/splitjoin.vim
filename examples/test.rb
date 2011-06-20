@@ -42,6 +42,14 @@ foo 1, 2, :bar => 'baz', :one => { :two => 'three', :foo => { 'bar' => 'baz' }, 
   two
 end
 
+# hashes with extra whitespace
+
+one = {
+  :one   => 'two',
+  :three => 'four',
+  :a     => 'b'
+}
+
 # option hashes with a single item
 
 root :to => 'articles#index'

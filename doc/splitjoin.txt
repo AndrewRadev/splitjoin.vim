@@ -6,6 +6,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Ruby...................................: |splitjoin-ruby|
     HTML...................................: |splitjoin-html|
     Eruby..................................: |splitjoin-eruby|
+    Settings...............................: |splitjoin-settings|
     Internals..............................: |splitjoin-internals|
     Issues.................................: |splitjoin-issues|
 
@@ -255,6 +256,12 @@ Option hashes ~
       :id => 'google-link'
     } %>
 <
+
+==============================================================================
+SETTINGS                                                  *splitjoin-settings*
+
+TODO
+
 
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*
