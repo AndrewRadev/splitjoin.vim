@@ -318,6 +318,8 @@ This variable controls whether duplicate whitespace should be reduced within a
 joined structure, which makes a lot of sense in some situations, particularly
 when the items are aligned. Set it to 1 to activate.
 
+Currently works for ruby hashes and CSS style definitions.
+
 Default value: 0
 
 Example:

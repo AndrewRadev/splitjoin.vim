@@ -34,6 +34,9 @@ function! sj#css#JoinDefinition()
   let lines = split(body, ";\s*\n")
   let lines = map(lines, 'sj#Trim(v:val)')
   let lines = filter(lines, 'v:val !~ "^\s*$"')
+  if g:splitjoin_normalize_whitespace
+    let lines = map(lines, "substitute(v:val, '\\s*:\\s\\+', ': ', '')")
+  endif
 
   let body = join(lines, "; ")
   let body = substitute(body, ';\?$', ';', '')
