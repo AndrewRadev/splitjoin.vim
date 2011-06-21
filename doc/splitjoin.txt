@@ -260,7 +260,50 @@ Option hashes ~
 ==============================================================================
 SETTINGS                                                  *splitjoin-settings*
 
-TODO
+These are the variables that control the behaviour of the plugin.
+
+
+                                                 *b:splitjoin_join_callbacks*
+                                                 *b:splitjoin_split_callbacks*
+>
+    b:splitjoin_join_callbacks
+    b:splitjoin_split_callbacks
+<
+These two variables contain lists of functions that are called to execute the
+splitting or joining functionality. If they are set to an empty array in a
+particular file, this will effectively disable the plugin for it.
+
+Default value: depends on the filetype
+
+Example:
+Putting the following in ftplugin/ruby.vim will disable the join functionality
+for ruby files:
+>
+    let b:splitjoin_join_callbacks = []
+<
+
+                                            *g:splitjoin_normalize_whitespace*
+>
+    g:splitjoin_normalize_whitespace
+<
+This variable controls whether duplicate whitespace should be reduced within a
+joined structure, which makes a lot of sense in some situations, particularly
+when the items are aligned. Set it to 1 to activate.
+
+Default value: 0
+
+Example:
+Setting the variable to 1 will reduce the extra whitespace around "=>" symbols
+in ruby hashes:
+>
+    one = {
+      :one   => 'two',
+      :three => 'four',
+      :a     => 'b'
+    }
+
+    one = { :one => 'two', :three => 'four', :a => 'b' }
+<
 
 
 ==============================================================================
