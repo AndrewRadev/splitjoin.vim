@@ -50,6 +50,14 @@ three = one * two(:three => :four)
 three = one ^ two(:three => :four)
 three = one % two(:three => :four)
 
+# hashes with extra whitespace
+
+one = {
+  :one   => 'two',
+  :three => 'four',
+  :a     => 'b'
+}
+
 # option hashes with a single item
 
 root :to => 'articles#index'

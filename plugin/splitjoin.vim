@@ -6,6 +6,10 @@ let g:loaded_splitjoin = '0.1.1' " version number
 let s:keepcpo          = &cpo
 set cpo&vim
 
+if !exists('g:splitjoin_normalize_whitespace')
+  let g:splitjoin_normalize_whitespace = 0
+endif
+
 " Public Interface:
 " =================
 

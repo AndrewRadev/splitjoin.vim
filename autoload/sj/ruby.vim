@@ -139,6 +139,13 @@ function! sj#ruby#JoinHash()
 
   if line =~ pattern
     normal! $
+
+    if g:splitjoin_normalize_whitespace
+      let body = sj#GetMotion('Vi{',)
+      let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
+      call sj#ReplaceMotion('Vi{', body)
+    endif
+
     normal! Va{J
 
     return 1
