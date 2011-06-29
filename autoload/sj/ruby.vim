@@ -184,6 +184,11 @@ function! sj#ruby#SplitOptions()
 
     call sj#ReplaceCols(from, to, replacement)
 
+    if 1
+      let row_count = len(opts) - 1
+      exe "normal! jV".row_count."j:Tabularize/=>\<cr>"
+    endif
+
     return 1
   else
     return 0
