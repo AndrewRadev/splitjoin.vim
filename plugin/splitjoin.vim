@@ -13,8 +13,8 @@ endif
 " Public Interface:
 " =================
 
-command! SplitjoinSplit call s:Split()
-command! SplitjoinJoin  call s:Join()
+command! SplitjoinSplit call s:Split() | silent! call repeat#set(':SplitjoinSplit<cr>')
+command! SplitjoinJoin  call s:Join() | silent! call repeat#set(':SplitjoinJoin<cr>')
 
 " Internal Functions:
 " ===================
