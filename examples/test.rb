@@ -4,7 +4,7 @@
 
 foo = { :bar => 'baz', :one => 'two' }
 { :bar => 'baz', :one => 'two' }
-foo = { :bar => 'baz', :one => { :two => 'three', :four => 'five' }, :five => 'six' }
+foo = { :bar => { :bazbar => 1 }, :one => { :two => 'three', :four => 'five' }, :five => 'six' }
 mail({ :to => 'me', :from => 'me' })
 { :bar => 'baz', :one => 'two' }.merge(:one => 42)
 

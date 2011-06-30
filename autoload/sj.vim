@@ -201,7 +201,9 @@ function! s:Tabularize(from, to, type)
   call cursor(a:from, 0)
 
   if a:type == 'ruby_hash'
-    let pattern = '=>'
+    let pattern = '^[^=>]*\zs=>'
+  else
+    return
   endif
 
   exe "normal! V".(a:to - a:from)."j:Tabularize/".pattern."\<cr>"
@@ -211,8 +213,10 @@ function! s:Align(from, to, type)
   call cursor(a:from, 0)
 
   if a:type == 'ruby_hash'
-    let pattern = '=>'
+    let pattern = 'l: =>'
+  else
+    return
   endif
 
-  exe "normal! V".(a:to - a:from)."j:Align".pattern."\<cr>"
+  exe "normal! V".(a:to - a:from)."j:Align!".pattern."\<cr>"
 endfunction
