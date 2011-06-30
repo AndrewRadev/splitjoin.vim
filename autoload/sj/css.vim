@@ -17,6 +17,12 @@ function! sj#css#SplitDefinition()
 
   call sj#ReplaceMotion('Va{', "{\n".body."\n}")
 
+  if g:splitjoin_align
+    let alignment_start = line('.') + 1
+    let alignment_end   = alignment_start + len(lines) - 1
+    call sj#Align(alignment_start, alignment_end, 'css_declaration')
+  endif
+
   return 1
 endfunction
 
