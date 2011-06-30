@@ -10,6 +10,10 @@ if !exists('g:splitjoin_normalize_whitespace')
   let g:splitjoin_normalize_whitespace = 0
 endif
 
+if !exists('g:splitjoin_align')
+  let g:splitjoin_align = 0
+end
+
 " Public Interface:
 " =================
 
