@@ -346,10 +346,9 @@ a complement to this setting, since you'd probably want to reduce the extra
 whitespace when joining.
 
 Set the flag to 1 to attempt alignment. In order for it to work, it requires
-that you have either the Tabular plugin
-(https://github.com/godlygeek/tabular), or the Align plugin
+that you have either Tabular (https://github.com/godlygeek/tabular) or Align
 (http://www.vim.org/scripts/script.php?script_id=294) installed. If that's not
-the case, its value will be set to 0.
+the case, the value of this setting will be ignored.
 
 Currently works for ruby hashes and CSS style definitions.
 
