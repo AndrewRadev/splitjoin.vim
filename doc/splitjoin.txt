@@ -405,6 +405,8 @@ ISSUES                                                      *splitjoin-issues*
 
     - Currently, splitting ruby hashes breaks when dealing with multibyte
       characters, like japanese, joining the final line with the one below it.
+    - If |g:splitjoin_align| is truthy and the Align plugin is being used, the
+      "undo" action undoes only the alignment first, then the splitting.
 
 Any other issues and suggestions are very welcome on the github bugtracker:
 https://github.com/AndrewRadev/splitjoin.vim/issues
