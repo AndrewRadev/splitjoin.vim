@@ -178,3 +178,49 @@ function! sj#ExtractRx(expr, pat, sub)
 
   return substitute(a:expr, rx, a:sub, '')
 endfunction
+
+" Splitjoin-specific helpers {{{1
+
+" These functions are not general-purpose, but can be used all around the
+" plugin disregarding filetype, so they have no place in the specific autoload
+" files.
+
+function! sj#Align(from, to, type)
+  if exists('g:tabular_loaded')
+    call sj#PushCursor()
+    call s:Tabularize(a:from, a:to, a:type)
+    call sj#PopCursor()
+  elseif exists('g:loaded_AlignPlugin')
+    call sj#PushCursor()
+    call s:Align(a:from, a:to, a:type)
+    call sj#PopCursor()
+  endif
+endfunction
+
+function! s:Tabularize(from, to, type)
+  call cursor(a:from, 0)
+
+  if a:type == 'ruby_hash'
+    let pattern = '^[^=>]*\zs=>'
+  elseif a:type == 'css_declaration'
+    let pattern = ':\s*\zs\s/l0'
+  else
+    return
+  endif
+
+  exe "normal! V".(a:to - a:from)."j:Tabularize/".pattern."\<cr>"
+endfunction
+
+function! s:Align(from, to, type)
+  call cursor(a:from, 0)
+
+  if a:type == 'ruby_hash'
+    let pattern = 'l: =>'
+  elseif a:type == 'css_declaration'
+    let pattern = 'lp0W0 :\s*\zs'
+  else
+    return
+  endif
+
+  exe "normal! V".(a:to - a:from)."j:Align! ".pattern."\<cr>"
+endfunction

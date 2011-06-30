@@ -184,6 +184,12 @@ function! sj#ruby#SplitOptions()
 
     call sj#ReplaceCols(from, to, replacement)
 
+    if g:splitjoin_align
+      let alignment_start = line('.') + 1
+      let alignment_end   = alignment_start + len(opts) - 1
+      call sj#Align(alignment_start, alignment_end, 'ruby_hash')
+    endif
+
     return 1
   else
     return 0
