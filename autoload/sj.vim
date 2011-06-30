@@ -178,3 +178,24 @@ function! sj#ExtractRx(expr, pat, sub)
 
   return substitute(a:expr, rx, a:sub, '')
 endfunction
+
+" Splitjoin-specific helpers {{{1
+
+" These functions are not general-purpose, but can be used all around the
+" plugin disregarding filetype, so they have no place in the specific autoload
+" files.
+
+function! sj#Align(from, to, type)
+  if exists('g:tabular_loaded')
+    call sj#PushCursor()
+
+    call cursor(a:from, 0)
+
+    if a:type == 'ruby_hash'
+      let pattern = '=>'
+    endif
+
+    exe "normal! V".(a:to - a:from)."j:Tabularize/".pattern."\<cr>"
+    call sj#PopCursor()
+  endif
+endfunction

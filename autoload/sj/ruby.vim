@@ -185,8 +185,9 @@ function! sj#ruby#SplitOptions()
     call sj#ReplaceCols(from, to, replacement)
 
     if g:splitjoin_align
-      let row_count = len(opts) - 1
-      exe "normal! jV".row_count."j:Tabularize/=>\<cr>"
+      let alignment_start = line('.') + 1
+      let alignment_end   = alignment_start + len(opts) - 1
+      call sj#Align(alignment_start, alignment_end, 'ruby_hash')
     endif
 
     return 1
