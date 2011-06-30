@@ -335,6 +335,36 @@ in ruby hashes:
     one = { :one => 'two', :three => 'four', :a => 'b' }
 <
 
+                                                           *g:splitjoin_align*
+>
+    g:splitjoin_align
+<
+This is a flag that controls whether a few constructs should be aligned by a
+certain character. As a specific example, when you split ruby hashes, this can
+align them by the "=>" signs. In a way, |g:splitjoin_normalize_whitespace| is
+a complement to this setting, since you'd probably want to reduce the extra
+whitespace when joining.
+
+Set the flag to 1 to attempt alignment. In order for it to work, it requires
+that you have either the Tabular plugin
+(https://github.com/godlygeek/tabular), or the Align plugin
+(http://www.vim.org/scripts/script.php?script_id=294) installed. If that's not
+the case, its value will be set to 0.
+
+Currently works for ruby hashes and CSS style definitions.
+
+Default value: 0
+
+Example:
+>
+    one = { :one => 'two', :three => 'four', :a => 'b' }
+
+    one = {
+      :one   => 'two',
+      :three => 'four',
+      :a     => 'b'
+    }
+<
 
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*
