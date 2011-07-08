@@ -18,7 +18,7 @@ end
 " =================
 
 command! SplitjoinSplit call s:Split() | silent! call repeat#set(':SplitjoinSplit<cr>')
-command! SplitjoinJoin  call s:Join() | silent! call repeat#set(':SplitjoinJoin<cr>')
+command! SplitjoinJoin  call s:Join()  | silent! call repeat#set(':SplitjoinJoin<cr>')
 
 " Internal Functions:
 " ===================
