@@ -14,6 +14,10 @@ if !exists('g:splitjoin_align')
   let g:splitjoin_align = 0
 end
 
+if !exists('g:splitjoin_ruby_curly_braces')
+  let g:splitjoin_ruby_curly_braces = 1
+end
+
 " Public Interface:
 " =================
 

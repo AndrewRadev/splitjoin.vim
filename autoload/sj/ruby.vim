@@ -137,21 +137,45 @@ function! sj#ruby#JoinHash()
   let line    = getline('.')
   let pattern = '{\s*$'
 
-  if line =~ pattern
-    normal! $
-
-    if g:splitjoin_normalize_whitespace
-      let body = sj#GetMotion('Vi{',)
-      let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
-      call sj#ReplaceMotion('Vi{', body)
-    endif
-
-    normal! Va{J
-
-    return 1
+  if line =~ '{\s*$'
+    return s:JoinHashWithBraces()
+  elseif line =~ ',\s*$'
+    return s:JoinHashWithoutBraces()
   else
     return 0
   endif
+endfunction
+
+function! s:JoinHashWithBraces()
+  normal! $
+
+  if g:splitjoin_normalize_whitespace
+    let body = sj#GetMotion('Vi{',)
+    let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
+    call sj#ReplaceMotion('Vi{', body)
+  endif
+
+  normal! Va{J
+
+  return 1
+endfunction
+
+function! s:JoinHashWithoutBraces()
+  let start_line = line('.')
+
+  normal! j
+
+  let indent = repeat(' ', indent('.'))
+
+  let line = getline('.')
+  while line =~ '^'.indent && line =~ '=>'
+    let end_line = line('.')
+    normal! j
+    let line = getline('.')
+  endwhile
+
+  call cursor(start_line, 0)
+  exe "normal! V".(end_line - start_line)."jJ"
 endfunction
 
 function! sj#ruby#SplitOptions()
@@ -162,7 +186,10 @@ function! sj#ruby#SplitOptions()
   if from < 0
     call sj#PushCursor()
     let [from, to] = sj#rubyparse#LocateFunction()
+    let option_type = 'option'
     call sj#PopCursor()
+  else
+    let option_type = 'hash'
   endif
 
   if from >= 0
@@ -178,9 +205,14 @@ function! sj#ruby#SplitOptions()
     if len(args) > 0
       let replacement .= join(args, ', ') . ', '
     endif
-    let replacement .= "{\n"
+    if g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
+      let replacement .= '{'
+    endif
+    let replacement .= "\n"
     let replacement .= join(opts, ",\n")
-    let replacement .= "\n}"
+    if g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
+      let replacement .= "\n}"
+    endif
 
     call sj#ReplaceCols(from, to, replacement)
 
