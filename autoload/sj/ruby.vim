@@ -138,7 +138,9 @@ function! sj#ruby#JoinHash()
   let pattern = '{\s*$'
 
   if line =~ '{\s*$'
-    return s:JoinHashWithBraces()
+    return s:JoinHashWithCurlyBraces()
+  elseif line =~ '(\s*$'
+    return s:JoinHashWithRoundBraces()
   elseif line =~ ',\s*$'
     return s:JoinHashWithoutBraces()
   else
@@ -146,7 +148,7 @@ function! sj#ruby#JoinHash()
   endif
 endfunction
 
-function! s:JoinHashWithBraces()
+function! s:JoinHashWithCurlyBraces()
   normal! $
 
   if g:splitjoin_normalize_whitespace
@@ -160,6 +162,19 @@ function! s:JoinHashWithBraces()
   return 1
 endfunction
 
+function! s:JoinHashWithRoundBraces()
+  normal! $
+
+  let body = sj#GetMotion('Vi(',)
+  if g:splitjoin_normalize_whitespace
+    let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
+  endif
+  let body = join(map(split(body, "\n"), 'sj#Trim(v:val)'), ' ')
+  call sj#ReplaceMotion('Va(', '('.body.')')
+
+  return 1
+endfunction
+
 function! s:JoinHashWithoutBraces()
   let start_line = line('.')
 
@@ -168,7 +183,7 @@ function! s:JoinHashWithoutBraces()
   let indent = repeat(' ', indent('.'))
 
   let line = getline('.')
-  while line =~ '^'.indent && line =~ '=>'
+  while (line =~ '^'.indent && line =~ '=>') || line =~ '^\s*)'
     let end_line = line('.')
     normal! j
     let line = getline('.')
