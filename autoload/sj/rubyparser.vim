@@ -1,14 +1,14 @@
 " Constructor:
 " ============
 
-function! sj#rubyparse#Parser(start_index, end_index, line)
+function! sj#rubyparser#Construct(start_index, end_index, line)
   let parser = sj#argparser#Construct(a:start_index, a:end_index, a:line)
 
   call extend(parser, {
-        \ 'Process':          function('sj#rubyparse#Process'),
-        \ 'PushArg':          function('sj#rubyparse#PushArg'),
-        \ 'AtFunctionEnd':    function('sj#rubyparse#AtFunctionEnd'),
-        \ 'ExpandOptionHash': function('sj#rubyparse#ExpandOptionHash'),
+        \ 'Process':          function('sj#rubyparser#Process'),
+        \ 'PushArg':          function('sj#rubyparser#PushArg'),
+        \ 'AtFunctionEnd':    function('sj#rubyparser#AtFunctionEnd'),
+        \ 'ExpandOptionHash': function('sj#rubyparser#ExpandOptionHash'),
         \ })
 
   return parser
@@ -17,7 +17,7 @@ endfunction
 " Methods:
 " ========
 
-function! sj#rubyparse#Process() dict
+function! sj#rubyparser#Process() dict
   while !self.Finished()
     if self.body[0] == ','
       call self.PushArg()
@@ -53,7 +53,7 @@ endfunction
 
 " Pushes the current argument either to the args or opts stack and initializes
 " a new one.
-function! sj#rubyparse#PushArg() dict
+function! sj#rubyparser#PushArg() dict
   if self.current_arg_type == 'option'
     call add(self.opts, self.current_arg)
   else
@@ -67,7 +67,7 @@ endfunction
 
 " If the last argument is a hash and no options have been parsed, splits the
 " last argument and fills the options with it.
-function! sj#rubyparse#ExpandOptionHash() dict
+function! sj#rubyparser#ExpandOptionHash() dict
   if len(self.opts) <= 0 && len(self.args) > 0
     " then try parsing the last parameter
     let last = sj#Trim(self.args[-1])
@@ -77,7 +77,7 @@ function! sj#rubyparse#ExpandOptionHash() dict
 
       let hash = sj#ExtractRx(last, '^{\(.*=>.*\)}$', '\1')
 
-      let [_from, _to, _args, opts] = sj#rubyparse#ParseArguments(0, -1, hash)
+      let [_from, _to, _args, opts] = sj#rubyparser#ParseArguments(0, -1, hash)
       call extend(self.opts, opts)
     endif
   endif
@@ -85,7 +85,7 @@ endfunction
 
 " Returns true if the parser is at the function's end, either because of a
 " closing brace, a "do" clause or a "%>".
-function! sj#rubyparse#AtFunctionEnd() dict
+function! sj#rubyparser#AtFunctionEnd() dict
   if self.body[0] == ')'
     return 1
   elseif self.body =~ '\v^\s*do(\s*\|.*\|)?(\s*-?\%\>\s*)?$'
@@ -100,7 +100,7 @@ endfunction
 " Public functions:
 " =================
 
-function! sj#rubyparse#LocateFunction()
+function! sj#rubyparser#LocateFunction()
   let [_bufnum, line, col, _off] = getpos('.')
 
   " The pattern consists of the following:
@@ -126,7 +126,7 @@ function! sj#rubyparse#LocateFunction()
   return [-1, -1]
 endfunction
 
-function! sj#rubyparse#LocateHash()
+function! sj#rubyparser#LocateHash()
   let [_bufnum, line, col, _off] = getpos('.')
 
   let found = searchpair('{', '', '}', 'cb', '', line('.'))
@@ -141,8 +141,8 @@ function! sj#rubyparse#LocateHash()
   endif
 endfunction
 
-function! sj#rubyparse#ParseArguments(start_index, end_index, line)
-  let parser = sj#rubyparse#Parser(a:start_index, a:end_index, a:line)
+function! sj#rubyparser#ParseArguments(start_index, end_index, line)
+  let parser = sj#rubyparser#Construct(a:start_index, a:end_index, a:line)
   call parser.Process()
   return [ a:start_index + 1, parser.index, parser.args, parser.opts ]
 endfunction

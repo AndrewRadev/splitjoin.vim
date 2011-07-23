@@ -180,12 +180,12 @@ endfunction
 
 function! sj#ruby#SplitOptions()
   call sj#PushCursor()
-  let [from, to] = sj#rubyparse#LocateHash()
+  let [from, to] = sj#rubyparser#LocateHash()
   call sj#PopCursor()
 
   if from < 0
     call sj#PushCursor()
-    let [from, to] = sj#rubyparse#LocateFunction()
+    let [from, to] = sj#rubyparser#LocateFunction()
     let option_type = 'option'
     call sj#PopCursor()
   else
@@ -193,7 +193,7 @@ function! sj#ruby#SplitOptions()
   endif
 
   if from >= 0
-    let [from, to, args, opts] = sj#rubyparse#ParseArguments(from, to, getline('.'))
+    let [from, to, args, opts] = sj#rubyparser#ParseArguments(from, to, getline('.'))
 
     if len(opts) < 1
       " no options found, leave it as it is
