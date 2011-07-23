@@ -19,34 +19,34 @@ function! s:Init(start_index, end_index, line) dict
 endfunction
 
 function! s:Process() dict
-  while !self.finished()
+  while !self.Finished()
     if self.body[0] == ','
-      call self.push_arg()
-      call self.next()
+      call self.PushArg()
+      call self.Next()
       continue
-    elseif self.at_function_end()
+    elseif self.AtFunctionEnd()
       break
     elseif self.body[0] =~ "[\"'{\[`(/]"
-      call self.jump_pair("\"'{[`(/", "\"'}]`)/")
+      call self.JumpPair("\"'{[`(/", "\"'}]`)/")
     elseif self.body[0] == '%'
-      call self.push_char()
+      call self.PushChar()
       if self.body[0] =~ '[qQrswWx]'
-        call self.push_char()
+        call self.PushChar()
       endif
       let delimiter = self.body[0]
-      call self.jump_pair(delimiter, delimiter)
+      call self.JumpPair(delimiter, delimiter)
     elseif self.body =~ '^=>'
       let self.current_arg_type = 'option'
-      call self.push_char()
+      call self.PushChar()
     endif
 
-    call self.push_char()
+    call self.PushChar()
   endwhile
 
   if len(self.current_arg) > 0
-    call self.push_arg()
+    call self.PushArg()
   endif
-  call self.expand_option_hash()
+  call self.ExpandOptionHash()
 
   let self.args = map(self.args, 'sj#Trim(v:val)')
   let self.opts = map(self.opts, 'sj#Trim(v:val)')
@@ -68,7 +68,7 @@ endfunction
 " Moves the parser to the next char and consumes the current
 function! s:PushChar() dict
   let self.current_arg .= self.body[0]
-  call self.next()
+  call self.Next()
 endfunction
 
 " Moves the parser to the next char without consuming it.
@@ -80,7 +80,7 @@ endfunction
 " Finds the current char in a:start_chars and jumps to its match in a:end_chars.
 "
 " Example:
-"   call parser.jump_pair("([", ")]")
+"   call parser.JumpPair("([", ")]")
 "
 " This will parse matching round and square brackets.
 "
@@ -91,7 +91,7 @@ function! s:JumpPair(start_chars, end_chars) dict
   let start_char  = a:start_chars[char_index]
   let target_char = a:end_chars[char_index]
 
-  call self.push_char()
+  call self.PushChar()
 
   " prepare a stack for nested braces and the like
   let stack = 1
@@ -162,15 +162,15 @@ let s:parser = {
       \ 'current_arg':      '',
       \ 'current_arg_type': 'normal',
       \
-      \ 'init':               function("s:Init"),
-      \ 'process':            function("s:Process"),
-      \ 'push_arg':           function("s:PushArg"),
-      \ 'push_char':          function("s:PushChar"),
-      \ 'next':               function("s:Next"),
-      \ 'jump_pair':          function("s:JumpPair"),
-      \ 'at_function_end':    function("s:AtFunctionEnd"),
-      \ 'finished':           function("s:Finished"),
-      \ 'expand_option_hash': function("s:ExpandOptionHash"),
+      \ 'Init':             function('s:Init'),
+      \ 'Process':          function('s:Process'),
+      \ 'PushArg':          function('s:PushArg'),
+      \ 'PushChar':         function('s:PushChar'),
+      \ 'Next':             function('s:Next'),
+      \ 'JumpPair':         function('s:JumpPair'),
+      \ 'AtFunctionEnd':    function('s:AtFunctionEnd'),
+      \ 'Finished':         function('s:Finished'),
+      \ 'ExpandOptionHash': function('s:ExpandOptionHash'),
       \ }
 
 " Constructor:
@@ -178,7 +178,7 @@ let s:parser = {
 
 function! s:Parser(start_index, end_index, line)
   let parser = deepcopy(s:parser)
-  call parser.init(a:start_index, a:end_index, a:line)
+  call parser.Init(a:start_index, a:end_index, a:line)
   return parser
 endfunction
 
@@ -228,6 +228,6 @@ endfunction
 
 function! sj#rubyparse#ParseArguments(start_index, end_index, line)
   let parser = s:Parser(a:start_index, a:end_index, a:line)
-  call parser.process()
+  call parser.Process()
   return [ a:start_index + 1, parser.index, parser.args, parser.opts ]
 endfunction
