@@ -1,22 +1,37 @@
-" Data structure:
-" ===============
+" Constructor:
+" ============
 
-" Resets the parser.
-function! s:Init(start_index, end_index, line) dict
-  let self.args             = []
-  let self.opts             = []
-  let self.index            = a:start_index
-  let self.current_arg      = ''
-  let self.current_arg_type = 'normal'
+function! s:Parser(start_index, end_index, line)
+  let parser = {
+        \ 'args':             [],
+        \ 'opts':             [],
+        \ 'body':             a:line,
+        \ 'index':            a:start_index,
+        \ 'current_arg':      '',
+        \ 'current_arg_type': 'normal',
+        \
+        \ 'Process':          function('s:Process'),
+        \ 'PushArg':          function('s:PushArg'),
+        \ 'PushChar':         function('s:PushChar'),
+        \ 'Next':             function('s:Next'),
+        \ 'JumpPair':         function('s:JumpPair'),
+        \ 'AtFunctionEnd':    function('s:AtFunctionEnd'),
+        \ 'Finished':         function('s:Finished'),
+        \ 'ExpandOptionHash': function('s:ExpandOptionHash'),
+        \ }
 
-  let self.body = a:line
   if a:start_index > 0
-    let self.body = strpart(self.body, a:start_index)
+    let parser.body = strpart(parser.body, a:start_index)
   endif
   if a:end_index > 0
-    let self.body = strpart(self.body, 0, a:end_index - a:start_index)
+    let parser.body = strpart(parser.body, 0, a:end_index - a:start_index)
   endif
+
+  return parser
 endfunction
+
+" Methods:
+" ========
 
 function! s:Process() dict
   while !self.Finished()
@@ -152,34 +167,6 @@ function! s:AtFunctionEnd() dict
   endif
 
   return 0
-endfunction
-
-let s:parser = {
-      \ 'args':             [],
-      \ 'opts':             [],
-      \ 'body':             '',
-      \ 'index':            0,
-      \ 'current_arg':      '',
-      \ 'current_arg_type': 'normal',
-      \
-      \ 'Init':             function('s:Init'),
-      \ 'Process':          function('s:Process'),
-      \ 'PushArg':          function('s:PushArg'),
-      \ 'PushChar':         function('s:PushChar'),
-      \ 'Next':             function('s:Next'),
-      \ 'JumpPair':         function('s:JumpPair'),
-      \ 'AtFunctionEnd':    function('s:AtFunctionEnd'),
-      \ 'Finished':         function('s:Finished'),
-      \ 'ExpandOptionHash': function('s:ExpandOptionHash'),
-      \ }
-
-" Constructor:
-" ============
-
-function! s:Parser(start_index, end_index, line)
-  let parser = deepcopy(s:parser)
-  call parser.Init(a:start_index, a:end_index, a:line)
-  return parser
 endfunction
 
 " Public functions:
