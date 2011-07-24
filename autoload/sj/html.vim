@@ -1,10 +1,10 @@
-" TODO doesn't work well for several tags on a single line
 function! sj#html#SplitTags()
   let line = getline('.')
   let tag_regex = '\(<.\{-}>\)\(.*\)\(<\/.\{-}>\)'
 
   if line =~ tag_regex
-    call sj#ReplaceMotion('V', substitute(line, tag_regex, '\1\n\2\n\3', ''))
+    let body = sj#GetMotion('Vat')
+    call sj#ReplaceMotion('Vat', substitute(body, tag_regex, '\1\n\2\n\3', ''))
     return 1
   else
     return 0
