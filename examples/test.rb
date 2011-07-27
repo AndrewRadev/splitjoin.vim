@@ -67,6 +67,14 @@ root :to => 'articles#index'
 foo 1, 2, { :bar => :baz }, :baz => :qux
 foo 1, 2, { :bar => :baz }, { :baz => :qux }
 
+# joining options without curly braces
+
+User.new(
+  :first_name => "Andrew",
+  :last_name => "Radev"
+)
+User.new(:first_name => "Andrew", :last_name => "Radev")
+
 # caching constructs
 
 @two ||= 1 + 1
