@@ -232,6 +232,10 @@ endfunction
 function! sj#LocateCurlyBracesOnLine()
   let [_bufnum, line, col, _off] = getpos('.')
 
+  if getline('.') !~ '{.*}'
+    return [-1, -1]
+  endif
+
   let found = searchpair('{', '', '}', 'cb', '', line('.'))
   if found > 0
     let from = col('.') - 1
