@@ -4,7 +4,7 @@ function! sj#js#SplitObjectLiteral()
   if from < 0 && to < 0
     return 0
   else
-    let args = s:ParseHash(from, to)
+    let args = s:ParseHash(from + 1, to - 1)
     let body = "{\n".join(args, ",\n")."\n}"
     call sj#ReplaceMotion('Va{', body)
 
@@ -28,7 +28,7 @@ function! sj#js#JoinObjectLiteral()
 endfunction
 
 function! s:ParseHash(from, to)
-  let body = sj#Trim(sj#GetCols(a:from, a:to))
-  let body = substitute(body, '{\(.*\)}', '\1', '')
-  return map(split(body, ','), 'sj#Trim(v:val)')
+  let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
+  call parser.Process()
+  return parser.args
 endfunction
