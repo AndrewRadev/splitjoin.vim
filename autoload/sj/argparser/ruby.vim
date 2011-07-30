@@ -46,31 +46,27 @@ function! sj#argparser#ruby#Process() dict
     call self.PushArg()
   endif
   call self.ExpandOptionHash()
-
-  let self.args = map(self.args, 'sj#Trim(v:val)')
-  let self.opts = map(self.opts, 'sj#Trim(v:val)')
 endfunction
 
 " Pushes the current argument either to the args or opts stack and initializes
 " a new one.
 function! sj#argparser#ruby#PushArg() dict
   if self.current_arg_type == 'option'
-    call add(self.opts, self.current_arg)
+    call add(self.opts, sj#Trim(self.current_arg))
   else
-    call add(self.args, self.current_arg)
+    call add(self.args, sj#Trim(self.current_arg))
   endif
 
   let self.current_arg      = ''
   let self.current_arg_type = 'normal'
 endfunction
 
-
 " If the last argument is a hash and no options have been parsed, splits the
 " last argument and fills the options with it.
 function! sj#argparser#ruby#ExpandOptionHash() dict
   if len(self.opts) <= 0 && len(self.args) > 0
     " then try parsing the last parameter
-    let last = sj#Trim(self.args[-1])
+    let last = self.args[-1]
     if last =~ '^{.*=>.*}$'
       " then it seems to be a hash, expand it
       call remove(self.args, -1)

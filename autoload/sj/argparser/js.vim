@@ -24,6 +24,4 @@ function! sj#argparser#js#Process() dict
   if len(self.current_arg) > 0
     call self.PushArg()
   endif
-
-  let self.args = map(self.args, 'sj#Trim(v:val)')
 endfunction

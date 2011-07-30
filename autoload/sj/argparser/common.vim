@@ -58,7 +58,7 @@ endfunction
 
 " Pushes the current argument to the args and initializes a new one.
 function! sj#argparser#common#PushArg() dict
-  call add(self.args, self.current_arg)
+  call add(self.args, sj#Trim(self.current_arg))
 
   let self.current_arg      = ''
   let self.current_arg_type = 'normal'
