@@ -1,7 +1,7 @@
 " Constructor:
 " ============
 
-function! sj#argparser#Construct(start_index, end_index, line)
+function! sj#argparser#common#Construct(start_index, end_index, line)
   let parser = {
         \ 'args':             [],
         \ 'opts':             [],
@@ -10,13 +10,13 @@ function! sj#argparser#Construct(start_index, end_index, line)
         \ 'current_arg':      '',
         \ 'current_arg_type': 'normal',
         \
-        \ 'Process':       function('sj#argparser#Process'),
-        \ 'PushArg':       function('sj#argparser#PushArg'),
-        \ 'PushChar':      function('sj#argparser#PushChar'),
-        \ 'Next':          function('sj#argparser#Next'),
-        \ 'JumpPair':      function('sj#argparser#JumpPair'),
-        \ 'AtFunctionEnd': function('sj#argparser#AtFunctionEnd'),
-        \ 'Finished':      function('sj#argparser#Finished'),
+        \ 'Process':       function('sj#argparser#common#Process'),
+        \ 'PushArg':       function('sj#argparser#common#PushArg'),
+        \ 'PushChar':      function('sj#argparser#common#PushChar'),
+        \ 'Next':          function('sj#argparser#common#Next'),
+        \ 'JumpPair':      function('sj#argparser#common#JumpPair'),
+        \ 'AtFunctionEnd': function('sj#argparser#common#AtFunctionEnd'),
+        \ 'Finished':      function('sj#argparser#common#Finished'),
         \ }
 
   if a:start_index > 0
@@ -32,7 +32,7 @@ endfunction
 " Methods:
 " ========
 
-function! sj#argparser#Process() dict
+function! sj#argparser#common#Process() dict
   throw "Not implemented"
 
   " " Implementation might go something like this:
@@ -57,7 +57,7 @@ function! sj#argparser#Process() dict
 endfunction
 
 " Pushes the current argument to the args and initializes a new one.
-function! sj#argparser#PushArg() dict
+function! sj#argparser#common#PushArg() dict
   call add(self.args, self.current_arg)
 
   let self.current_arg      = ''
@@ -65,13 +65,13 @@ function! sj#argparser#PushArg() dict
 endfunction
 
 " Moves the parser to the next char and consumes the current
-function! sj#argparser#PushChar() dict
+function! sj#argparser#common#PushChar() dict
   let self.current_arg .= self.body[0]
   call self.Next()
 endfunction
 
 " Moves the parser to the next char without consuming it.
-function! sj#argparser#Next() dict
+function! sj#argparser#common#Next() dict
   let self.body  = strpart(self.body, 1)
   let self.index = self.index + 1
 endfunction
@@ -85,7 +85,7 @@ endfunction
 "
 " Note: nesting doesn't work properly if there's a string containing unmatched
 " braces within the pair.
-function! sj#argparser#JumpPair(start_chars, end_chars) dict
+function! sj#argparser#common#JumpPair(start_chars, end_chars) dict
   let char_index  = stridx(a:start_chars, self.body[0])
   let start_char  = a:start_chars[char_index]
   let target_char = a:end_chars[char_index]
@@ -117,11 +117,11 @@ function! sj#argparser#JumpPair(start_chars, end_chars) dict
 endfunction
 
 " Returns true if the parser has finished parsing the arguments.
-function! sj#argparser#Finished() dict
+function! sj#argparser#common#Finished() dict
   return len(self.body) <= 0
 endfunction
 
 " Returns true if the parser is at the function's end
-function! sj#argparser#AtFunctionEnd() dict
+function! sj#argparser#common#AtFunctionEnd() dict
   return (self.body[0] == ')')
 endfunction
