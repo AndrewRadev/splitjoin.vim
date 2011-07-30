@@ -127,18 +127,7 @@ function! sj#argparser#ruby#LocateFunction()
 endfunction
 
 function! sj#argparser#ruby#LocateHash()
-  let [_bufnum, line, col, _off] = getpos('.')
-
-  let found = searchpair('{', '', '}', 'cb', '', line('.'))
-  if found > 0
-    let from = col('.') - 1
-    normal! %
-    let to = col('.')
-
-    return [from, to]
-  else
-    return [-1, -1]
-  endif
+  return sj#LocateCurlyBracesOnLine()
 endfunction
 
 function! sj#argparser#ruby#ParseArguments(start_index, end_index, line)

@@ -224,3 +224,22 @@ function! s:Align(from, to, type)
 
   exe "normal! V".(a:to - a:from)."j:Align! ".pattern."\<cr>"
 endfunction
+
+" Returns a pair with the column positions of the closest opening and closing
+" curly braces on the current line, provided the cursor is within them.
+"
+" If a pair is not found on the line, returns [-1, -1]
+function! sj#LocateCurlyBracesOnLine()
+  let [_bufnum, line, col, _off] = getpos('.')
+
+  let found = searchpair('{', '', '}', 'cb', '', line('.'))
+  if found > 0
+    let from = col('.') - 1
+    normal! %
+    let to = col('.')
+
+    return [from, to]
+  else
+    return [-1, -1]
+  endif
+endfunction
