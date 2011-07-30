@@ -1,14 +1,5 @@
 function! sj#js#SplitObjectLiteral()
-  return 0
-
-  let [from, to] = [-1, -1]
-
-  let [_line, to] = searchpairpos('{', '', '}', 'c', line('.'))
-  if to > 0
-    let [_line, from] = searchpos('{', 'cb', line('.'))
-  endif
-
-  Decho [from, to]
+  let [from, to] = sj#LocateCurlyBracesOnLine()
 
   if from < 0 && to < 0
     return 0
@@ -37,6 +28,7 @@ function! sj#js#JoinObjectLiteral()
 endfunction
 
 function! s:ParseHash(from, to)
-  let body = sj#GetCols(a:from, a:to)
+  let body = sj#Trim(sj#GetCols(a:from, a:to))
+  let body = substitute(body, '{\(.*\)}', '\1', '')
   return map(split(body, ','), 'sj#Trim(v:val)')
 endfunction
