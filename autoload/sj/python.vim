@@ -29,9 +29,20 @@ function! sj#python#SplitDict()
   if from < 0 && to < 0
     return 0
   else
-    let args = s:ParseHash(from + 1, to - 1)
-    let body = "{\n".join(args, ",\n")."\n}"
+    let pairs = s:ParseHash(from + 1, to - 1)
+    let body  = "{\n".join(pairs, ",\n")."\n}"
     call sj#ReplaceMotion('Va{', body)
+
+    let body_start = line('.') + 1
+    let body_end   = body_start + len(pairs)
+
+    call sj#PushCursor()
+    exe "normal! jV".(body_end - body_start)."j2>"
+    call sj#PopCursor()
+
+    if g:splitjoin_align
+      call sj#Align(body_start, body_end - 1, 'js_hash')
+    endif
 
     return 1
   endif
@@ -43,7 +54,15 @@ function! sj#python#JoinDict()
   if line =~ '{\s*$'
     call search('{', 'c', line('.'))
     let body = sj#GetMotion('Vi{')
-    let body = join(map(split(body, "\n"), 'sj#Trim(v:val)'), ' ')
+
+    let lines = split(body, "\n")
+    let lines = map(lines, 'sj#Trim(v:val)')
+    if g:splitjoin_normalize_whitespace
+      let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
+    endif
+
+    let body = join(lines, ' ')
+
     call sj#ReplaceMotion('Va{', '{ '.body.' }')
 
     return 1

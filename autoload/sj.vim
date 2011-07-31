@@ -202,8 +202,8 @@ function! s:Tabularize(from, to, type)
 
   if a:type == 'ruby_hash'
     let pattern = '^[^=>]*\zs=>'
-  elseif a:type == 'css_declaration'
-    let pattern = ':\s*\zs\s/l0'
+  elseif a:type == 'css_declaration' || a:type == 'js_hash'
+    let pattern = '^[^:]*:\s*\zs\s/l0'
   else
     return
   endif
@@ -216,7 +216,7 @@ function! s:Align(from, to, type)
 
   if a:type == 'ruby_hash'
     let pattern = 'l: =>'
-  elseif a:type == 'css_declaration'
+  elseif a:type == 'css_declaration' || a:type == 'js_hash'
     let pattern = 'lp0W0 :\s*\zs'
   else
     return
