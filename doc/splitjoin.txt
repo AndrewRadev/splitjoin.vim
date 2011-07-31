@@ -4,6 +4,8 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Installation...........................: |splitjoin-installation|
     Usage..................................: |splitjoin-usage|
     Ruby...................................: |splitjoin-ruby|
+    Python.................................: |splitjoin-python|
+    Javascript.............................: |splitjoin-javascript|
     HTML...................................: |splitjoin-html|
     CSS....................................: |splitjoin-css|
     Eruby..................................: |splitjoin-eruby|
@@ -202,6 +204,40 @@ Blocks ~
     Bar.new do |b|
       puts b.to_s
     end
+<
+
+==============================================================================
+PYTHON                                                      *splitjoin-python*
+
+Dicts ~
+>
+    knights = { 'gallahad': 'the pure', 'robin': 'the brave' }
+
+    knights = {
+            'gallahad': 'the pure',
+            'robin': 'the brave'
+            }
+<
+
+Statements ~
+>
+    if foo: bar()
+
+    if foo:
+        bar()
+<
+
+==============================================================================
+JAVASCRIPT                                              *splitjoin-javascript*
+
+Objects ~
+>
+    var one = { one: "two", three: "four" };
+
+    var one = {
+      one: "two",
+      three: "four"
+    };
 <
 
 ==============================================================================
