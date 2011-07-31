@@ -187,19 +187,13 @@ endfunction
 
 function! sj#Align(from, to, type)
   if exists('g:tabular_loaded')
-    call sj#PushCursor()
     call s:Tabularize(a:from, a:to, a:type)
-    call sj#PopCursor()
   elseif exists('g:loaded_AlignPlugin')
-    call sj#PushCursor()
     call s:Align(a:from, a:to, a:type)
-    call sj#PopCursor()
   endif
 endfunction
 
 function! s:Tabularize(from, to, type)
-  call cursor(a:from, 0)
-
   if a:type == 'ruby_hash'
     let pattern = '^[^=>]*\zs=>'
   elseif a:type == 'css_declaration' || a:type == 'js_hash'
@@ -212,8 +206,6 @@ function! s:Tabularize(from, to, type)
 endfunction
 
 function! s:Align(from, to, type)
-  call cursor(a:from, 0)
-
   if a:type == 'ruby_hash'
     let pattern = 'l: =>'
   elseif a:type == 'css_declaration' || a:type == 'js_hash'
