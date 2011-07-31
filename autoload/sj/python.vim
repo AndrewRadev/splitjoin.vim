@@ -1,3 +1,28 @@
+function! sj#python#SplitStatement()
+  let line = getline('.')
+
+  if line =~ '^[^:]*:\s*\S'
+    let replacement = substitute(line, ':\s*', ":\n", '')
+    call sj#ReplaceMotion('V', replacement)
+
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
+function! sj#python#JoinStatement()
+  let line = getline('.')
+
+  if line =~ '^[^:]*:\s*$'
+    join
+
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
 function! sj#python#SplitDict()
   let [from, to] = sj#LocateCurlyBracesOnLine()
 
