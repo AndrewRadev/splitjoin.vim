@@ -186,6 +186,10 @@ endfunction
 " files.
 
 function! sj#Align(from, to, type)
+  if a:from == a:to
+    return
+  endif
+
   if exists('g:tabular_loaded')
     call s:Tabularize(a:from, a:to, a:type)
   elseif exists('g:loaded_AlignPlugin')
