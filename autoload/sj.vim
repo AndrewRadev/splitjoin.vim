@@ -208,7 +208,7 @@ function! s:Tabularize(from, to, type)
     return
   endif
 
-  exe "normal! V".(a:to - a:from)."j:Tabularize/".pattern."\<cr>"
+  exe a:from.",".a:to."Tabularize/".pattern
 endfunction
 
 function! s:Align(from, to, type)
@@ -222,7 +222,7 @@ function! s:Align(from, to, type)
     return
   endif
 
-  exe "normal! V".(a:to - a:from)."j:Align! ".pattern."\<cr>"
+  exe a:from.",".a:to."Align! ".pattern
 endfunction
 
 " Returns a pair with the column positions of the closest opening and closing
