@@ -73,7 +73,8 @@ User.new(
   :first_name => "Andrew",
   :last_name => "Radev"
 )
-User.new(:first_name => "Andrew", :last_name => "Radev")
+User.new :one, :first_name => "Andrew", :last_name => "Radev"
+User.new(:one, :first_name => "Andrew", :last_name => "Radev")
 
 # caching constructs
 

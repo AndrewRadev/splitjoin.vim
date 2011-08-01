@@ -159,6 +159,10 @@ Now for some examples for the filetypes that have splitjoin implementations.
 RUBY                                                          *splitjoin-ruby*
 
 If/unless clauses ~
+
+Joining works for more-than-one-line "if" clauses as well, but it doesn't look
+very pretty. It's generally recommended to use it only when the body is a
+single line.
 >
     return "the answer" if 6 * 9 == 42
 
@@ -168,6 +172,9 @@ If/unless clauses ~
 <
 
 Hashes ~
+
+To split a hash, you need to be within the curly brackets. Otherwise, the
+plugin attempts to split it as a block.
 >
     foo = { :bar => 'baz', :one => 'two' }
 
@@ -177,6 +184,9 @@ Hashes ~
     }
 <
 Option hashes ~
+
+There's an option, |g:splitjoin_ruby_curly_braces|, that controls whether the
+curly braces are present after splitting.
 >
     foo 1, 2, :one => 1, :two => 2
 
@@ -209,6 +219,10 @@ Blocks ~
 ==============================================================================
 PYTHON                                                      *splitjoin-python*
 
+Just like in ruby, the cursor needs to be inside the dict in order to split it
+correctly, otherwise it tries to split it as a statement (which works, due to
+the dict having ":" characters in it).
+
 Dicts ~
 >
     knights = { 'gallahad': 'the pure', 'robin': 'the brave' }
@@ -229,6 +243,15 @@ Statements ~
 
 ==============================================================================
 JAVASCRIPT                                              *splitjoin-javascript*
+
+Just like in ruby and python, the cursor needs to be inside the object in
+order to split it.
+
+This could also work just fine for JSON. If you're dealing with files with
+that kind of content, you could simply set the filetype to "javascript". If
+you're using a plugin to set a specific "json" filetype instead, you could
+copy the "ftplugin/javascript/splitjoin.vim" file's contents into a
+"ftplugin/json.vim" file.
 
 Objects ~
 >
@@ -333,11 +356,12 @@ These are the variables that control the behaviour of the plugin.
     b:splitjoin_join_callbacks
     b:splitjoin_split_callbacks
 <
+
+Default value: depends on the filetype
+
 These two variables contain lists of functions that are called to execute the
 splitting or joining functionality. If they are set to an empty array in a
 particular file, this will effectively disable the plugin for it.
-
-Default value: depends on the filetype
 
 Example:
 Putting the following in ftplugin/ruby.vim will disable the join functionality
@@ -350,13 +374,14 @@ for ruby files:
 >
     g:splitjoin_normalize_whitespace
 <
+
+Default value: 0
+
 This variable controls whether duplicate whitespace should be reduced within a
 joined structure, which makes a lot of sense in some situations, particularly
 when the items are aligned. Set it to 1 to activate.
 
 Currently works for ruby hashes and CSS style definitions.
-
-Default value: 0
 
 Example:
 Setting the variable to 1 will reduce the extra whitespace around "=>" symbols
@@ -375,6 +400,9 @@ in ruby hashes:
 >
     g:splitjoin_align
 <
+
+Default value: 0
+
 This is a flag that controls whether a few constructs should be aligned by a
 certain character. As a specific example, when you split ruby hashes, this can
 align them by the "=>" signs. In a way, |g:splitjoin_normalize_whitespace| is
@@ -388,8 +416,6 @@ the case, the value of this setting will be ignored.
 
 Currently works for ruby hashes and CSS style definitions.
 
-Default value: 0
-
 Example:
 >
     one = { :one => 'two', :three => 'four', :a => 'b' }
@@ -399,6 +425,46 @@ Example:
       :three => 'four',
       :a     => 'b'
     }
+<
+
+                                               *g:splitjoin_ruby_curly_braces*
+>
+    g:splitjoin_ruby_curly_braces
+<
+
+Default value: 1
+
+This flag controls the formatting of ruby option hashes when splitting.
+When it's 1, curly braces will be present in option blocks. Example:
+>
+    User.new :one, :first_name => "Andrew", :last_name => "Radev"
+
+    User.new :one, {
+      :first_name => "Andrew",
+      :last_name => "Radev"
+    }
+<
+When the flag is 0, the result will be:
+>
+    User.new :one,
+      :first_name => "Andrew",
+      :last_name  => "Radev"
+<
+This won't always have effect. In some cases, it's not syntactically valid to
+omit the curly braces, which is part of the reason I prefer having them
+around. However, when there's a non-optional argument or the option hashes is
+wrapped in round braces, it should work just fine.
+
+Regardless of the value of this option, the second example will be joined back
+to:
+>
+    User.new :one, :first_name => "Andrew", :last_name => "Radev"
+<
+That's because it's easy to infer that it's an option block. Unfortunately,
+it's more difficult to decide whether we have an option block or a plain hash
+if there are braces, so the first example will always be joined to:
+>
+    User.new :one, { :first_name => "Andrew", :last_name => "Radev" }
 <
 
 ==============================================================================
@@ -436,6 +502,11 @@ should be commented reasonably well.
 The other files in 'autoload/sj' might be useful as well, although they're
 mostly filetype-specific.
 
+The files in 'autoload/sj/argparser' contain small parsers for parts of a few
+of the languages that are supported. They're necessary for splitting
+dictionary objects, since those can have a lot of structure and usually can't
+be analyzed properly with just regular expressions.
+
 ==============================================================================
 ISSUES                                                      *splitjoin-issues*
 
@@ -443,6 +514,8 @@ ISSUES                                                      *splitjoin-issues*
       characters, like japanese, joining the final line with the one below it.
     - If |g:splitjoin_align| is truthy and the Align plugin is being used, the
       "undo" action undoes only the alignment first, then the splitting.
+    - Joining ruby option hashes could result in a pair of unnecessary curly
+      braces.
 
 Any other issues and suggestions are very welcome on the github bugtracker:
 https://github.com/AndrewRadev/splitjoin.vim/issues
