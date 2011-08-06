@@ -33,7 +33,11 @@ function! sj#argparser#ruby#Process() dict
         call self.PushChar()
       endif
       let delimiter = self.body[0]
-      call self.JumpPair(delimiter, delimiter)
+      if delimiter =~ '[[({<]'
+        call self.JumpPair('[({<', '])}>')
+      else
+        call self.JumpPair(delimiter, delimiter)
+      endif
     elseif self.body =~ '^=>'
       let self.current_arg_type = 'option'
       call self.PushChar()
