@@ -38,7 +38,7 @@ function! sj#argparser#ruby#Process() dict
       else
         call self.JumpPair(delimiter, delimiter)
       endif
-    elseif self.body =~ '^=>'
+    elseif self.body =~ '^=>' || self.body =~ '^\k:'
       let self.current_arg_type = 'option'
       call self.PushChar()
     endif
@@ -71,11 +71,13 @@ function! sj#argparser#ruby#ExpandOptionHash() dict
   if len(self.opts) <= 0 && len(self.args) > 0
     " then try parsing the last parameter
     let last = self.args[-1]
-    if last =~ '^{.*=>.*}$'
+    let hash_pattern = '^{\(.*\(=>\|\k:\).*\)}$'
+
+    if last =~ hash_pattern
       " then it seems to be a hash, expand it
       call remove(self.args, -1)
 
-      let hash = sj#ExtractRx(last, '^{\(.*=>.*\)}$', '\1')
+      let hash = sj#ExtractRx(last, hash_pattern, '\1')
 
       let [_from, _to, _args, opts] = sj#argparser#ruby#ParseArguments(0, -1, hash)
       call extend(self.opts, opts)

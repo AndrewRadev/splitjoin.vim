@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # hashes
 
 { :one => 'two', 'two three' => 'four', 5 => 'six', "bla bla" => "bla" }
@@ -28,6 +30,15 @@ end
 foo 1, 2, :one => 1, :two => 2, :three => 'three' do |bar|
   something(bar)
 end
+
+# 1.9 hashes:
+
+{ one: 'two', two: 'three' }
+
+foo = { bar: 'baz', one_two: 3  }
+foo = { bar: 'baz', 'one' => 2  }
+
+foo 1, 2, one: 1, :two => 2, three: 'three'
 
 redirect_to root_path, :error => 'ф'
 redirect_to root_path, :error => 'こ'
