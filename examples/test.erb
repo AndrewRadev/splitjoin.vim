@@ -9,6 +9,8 @@
     <%# hashes: %>
 
     <% foo = { :bar => 'baz', :one => { :two => 'three', :four => 'five' }, :five => 'six' } %>
+    <% foo = { bar: 'baz', :one => { :two => 'three', :four => 'five' }, :five => 'six' } %>
+    <% foo = { bar: 'baz', one_two: :three } %>
 
     <span><%= foo 1, 2, :one => 1, :two => 2, :three => 'three' %></span>
     <%= link_to 'Google', 'http://google.com', :class => 'google', :id => 'google-link' %>

@@ -208,7 +208,7 @@ function! sj#ruby#SplitOptions()
   endif
 
   if from >= 0
-    let [from, to, args, opts] = sj#argparser#ruby#ParseArguments(from, to, getline('.'))
+    let [from, to, args, opts, hash_type] = sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
     if len(opts) < 1
       " no options found, leave it as it is
@@ -231,10 +231,15 @@ function! sj#ruby#SplitOptions()
 
     call sj#ReplaceCols(from, to, replacement)
 
-    if g:splitjoin_align
+    if g:splitjoin_align && hash_type != 'mixed'
       let alignment_start = line('.') + 1
       let alignment_end   = alignment_start + len(opts) - 1
-      call sj#Align(alignment_start, alignment_end, 'ruby_hash')
+
+      if hash_type == 'classic'
+        call sj#Align(alignment_start, alignment_end, 'ruby_hash')
+      elseif hash_type == 'new'
+        call sj#Align(alignment_start, alignment_end, 'ruby_new_hash')
+      endif
     endif
 
     return 1
