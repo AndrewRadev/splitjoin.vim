@@ -31,7 +31,7 @@ The command is (provided you're in ~/.vim):
 <
 
 Another way is to simply copy all the essential directories inside the ~.vim/
-directory: plugin, ftplbugin, autoload, doc.
+directory: plugin, ftplugin, autoload, doc.
 
 After the plugin is installed, the command :SplitjoinSplit will perform
 splitting and :SplitjoinJoin -- joining of the code under the cursor. It's
