@@ -1,5 +1,14 @@
 function! sj#vim#Split()
-  return 0
+  let new_line = sj#GetMotion('vg_')
+
+  if sj#BlankString(new_line)
+    return 0
+  else
+    let new_line = "\n\\ ".new_line
+    call sj#ReplaceMotion('vg_', new_line)
+
+    return 1
+  endif
 endfunction
 
 function! sj#vim#Join()
