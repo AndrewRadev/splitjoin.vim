@@ -6,6 +6,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Ruby...................................: |splitjoin-ruby|
     Python.................................: |splitjoin-python|
     Javascript.............................: |splitjoin-javascript|
+    Vimscript..............................: |splitjoin-vimscript|
     HTML...................................: |splitjoin-html|
     CSS....................................: |splitjoin-css|
     Eruby..................................: |splitjoin-eruby|
@@ -262,6 +263,42 @@ Objects ~
       three: "four"
     };
 <
+
+==============================================================================
+VIMSCRIPT                                                *splitjoin-vimscript*
+
+Vimscript can generally be split anywhere by simply placing the remainder of
+the line on the next one, prefixed by a backslash. That's why joining is
+fairly easy to do for the most general case -- anything that is followed by a
+line, starting with a backslash, can be joined with the current one.
+
+>
+    let example_one = {
+        \ 'one': 'two',
+        \ 'three': 'four'
+        \ }
+
+    " is joined into:
+
+    let example_one = { 'one': 'two', 'three': 'four' }
+
+    command! Foo if one |
+        \   'two'     |
+        \ else        |
+        \   'three'   |
+        \ endif
+
+    " is joined into:
+
+    command! Foo if one | 'two' | else | 'three' | endif
+<
+
+Splitting is a bit trickier, since anything can be split at any point. While
+it's possible to handle some specific cases like dictionaries, arrays, and
+commands, for now the plugin takes the simple approach of splitting precisely
+where the cursor is right now. In the future, this may be replaced with
+specific splits based on the context.
+
 
 ==============================================================================
 HTML                                                          *splitjoin-html*
