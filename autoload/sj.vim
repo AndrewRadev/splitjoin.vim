@@ -243,3 +243,24 @@ function! sj#LocateCurlyBracesOnLine()
     return [-1, -1]
   endif
 endfunction
+
+" Removes all extra whitespace on the current line. Such is often left when
+" joining lines that have been aligned.
+"
+"   Example:
+"
+"     var one = { one:   "two", three: "four" };
+"     " turns into:
+"     var one = { one: "two", three: "four" };
+"
+function! sj#CompressWhitespaceOnLine()
+  call sj#PushCursor()
+
+  s/\S\zs \+/ /g
+
+  " Don't leave a history entry
+  call histdel('search', -1)
+  let @/ = histget('search', -1)
+
+  call sj#PopCursor()
+endfunction

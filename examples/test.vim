@@ -9,7 +9,7 @@ let example_two = [
       \ ]
 
 command! Foo if one |
-      \ 'two' |
-      \ else |
-      \ 'three' |
+      \   'two'     |
+      \ else        |
+      \   'three'   |
       \ endif

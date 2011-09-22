@@ -12,19 +12,27 @@ function! sj#vim#Split()
 endfunction
 
 function! sj#vim#Join()
-  let next_line_no = line('.') + 1
+  let continuation_pattern = '^\s*\\'
+  let next_line_no         = line('.') + 1
 
   if next_line_no > line('$')
     return 0
-  endif
-
-  let next_line = getline(next_line_no)
-  if next_line =~ '^\s*\\'
-    normal! j0f\xk
-    join
-    call sj#vim#Join()
-    return 1
   else
-    return 0
+    let next_line = getline(next_line_no)
+
+    while next_line_no <= line('$') && next_line =~ continuation_pattern
+      let next_line_no = next_line_no + 1
+      let next_line    = getline(next_line_no)
+    endwhile
+
+    let range = line('.').','.(next_line_no - 1)
+    exe range.'substitute/'.continuation_pattern.'//'
+    exe range.'join'
+
+    if g:splitjoin_normalize_whitespace
+      call sj#CompressWhitespaceOnLine()
+    endif
+
+    return 1
   endif
 endfunction
