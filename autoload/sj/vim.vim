@@ -14,12 +14,11 @@ endfunction
 function! sj#vim#Join()
   let continuation_pattern = '^\s*\\'
   let next_line_no         = line('.') + 1
+  let next_line            = getline(next_line_no)
 
-  if next_line_no > line('$')
+  if next_line_no > line('$') || next_line !~ continuation_pattern
     return 0
   else
-    let next_line = getline(next_line_no)
-
     while next_line_no <= line('$') && next_line =~ continuation_pattern
       let next_line_no = next_line_no + 1
       let next_line    = getline(next_line_no)
