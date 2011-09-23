@@ -186,7 +186,7 @@ endfunction
 " files.
 
 function! sj#Align(from, to, type)
-  if a:from == a:to
+  if a:from >= a:to
     return
   endif
 
