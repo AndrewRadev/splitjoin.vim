@@ -18,6 +18,15 @@ function! sj#js#SplitObjectLiteral()
   endif
 endfunction
 
+function! sj#js#SplitFunction()
+  if expand('<cword>') == 'function' && getline('.') =~ 'function\s*(.*)\s*{.*}'
+    normal! f{
+    return sj#js#SplitObjectLiteral()
+  else
+    return 0
+  endif
+endfunction
+
 function! sj#js#JoinObjectLiteral()
   let line = getline('.')
 

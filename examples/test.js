@@ -6,3 +6,7 @@ var two = {
 };
 
 var three = { one: [two, three], four: "five, six", 'seven': /8, 9/ };
+
+var callback = function (something, other) {
+  something_else;
+};
