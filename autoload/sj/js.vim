@@ -19,7 +19,7 @@ function! sj#js#SplitObjectLiteral()
 endfunction
 
 function! sj#js#SplitFunction()
-  if expand('<cword>') == 'function' && getline('.') =~ 'function\s*(.*)\s*{.*}'
+  if expand('<cword>') == 'function' && getline('.') =~ '\<function\>.*(.*)\s*{.*}'
     normal! f{
     return sj#js#SplitObjectLiteral()
   else
