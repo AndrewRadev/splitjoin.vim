@@ -1,5 +1,18 @@
 function! sj#yaml#SplitArray()
-  return 0
+  let line = getline('.')
+
+  if line =~ ':\s*\[.*\]\s*\(#.*\)\?$'
+    let [key_part, array_part] = split(line, ':')
+    let array_part             = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
+    let expanded_array         = join(split(array_part, ',\s*'), "\n- ")
+
+    call sj#ReplaceMotion('V', key_part.":\n- ".expanded_array)
+    " TODO (2011-09-25) Set proper indent
+
+    return 1
+  else
+    return 0
+  endif
 endfunction
 
 function! sj#yaml#JoinArray()
