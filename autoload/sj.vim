@@ -51,47 +51,32 @@ endfunction
 " function! sj#ReplaceMotion(motion, text) {{{2
 "
 " Replace the normal mode "motion" with "text". This is mostly just a wrapper
-" for a normal! command with a paste, but doesn't pollute any registers. The
-" final argument is optional, a dictionary of options to control the
-" function's behaviour. Currently, there is only one option:
-"
-"   - indent: default is 1, controls whether the function will reindent the
-"             replaced text.
+" for a normal! command with a paste, but doesn't pollute any registers.
 "
 "   Examples:
 "     call sj#ReplaceMotion('Va{', 'some text')
-"     call sj#ReplaceMotion('Va{', 'some text', { 'indent:' false })
+"     call sj#ReplaceMotion('V', 'replacement line')
 "
 " Note that the motion needs to include a visual mode key, like "V", "v" or
 " "gv"
-function! sj#ReplaceMotion(motion, text, ...)
-  let options = (a:0 > 0) ? a:1 : {}
-  let options = extend({
-        \ 'indent': 1
-        \ }, options)
-
+function! sj#ReplaceMotion(motion, text)
   let original_reg      = getreg('z')
   let original_reg_type = getregtype('z')
 
   let @z = a:text
   exec 'normal! '.a:motion.'"zp'
-  if options.indent
-    normal! gv=
-  endif
+  normal! gv=
 
   call setreg('z', original_reg, original_reg_type)
 endfunction
 
 " function! sj#ReplaceLines(start, end, text) {{{2
 "
-" Replace the area defined by the 'start' and 'end' lines with 'text'. The
-" final argument is optional, a dictionary with options to the function. See
-" sj#ReplaceMotion for the options
-function! sj#ReplaceLines(start, end, text, ...)
-  let options = (a:0 > 0) ? a:1 : {}
+" Replace the area defined by the 'start' and 'end' lines with 'text'.
+function! sj#ReplaceLines(start, end, text)
   let interval = a:end - a:start
 
-  return sj#ReplaceMotion(a:start.'GV'.interval.'j', a:text, options)
+  return sj#ReplaceMotion(a:start.'GV'.interval.'j', a:text)
 endfunction
 
 " function! sj#ReplaceCols(start, end, text) {{{2
