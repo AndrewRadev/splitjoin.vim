@@ -4,7 +4,7 @@
 
 { :one => 'two', 'two three' => 'four', 5 => 'six', "bla bla" => "bla" }
 
-foo = { :bar => 'baz', :one => 'two' }
+foo = { :bar => '', :one => 'two' }
 { :bar => 'baz', :one => 'two' }
 foo = { :bar => { :bazbar => 1 }, :one => { :two => 'three', :four => 'five' }, :five => 'six' }
 mail({ :to => 'me', :from => 'me' })

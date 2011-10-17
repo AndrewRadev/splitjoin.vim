@@ -90,8 +90,6 @@ function! sj#argparser#common#JumpPair(start_chars, end_chars) dict
   let start_char  = a:start_chars[char_index]
   let target_char = a:end_chars[char_index]
 
-  call self.PushChar()
-
   " prepare a stack for nested braces and the like
   let stack = 1
   let n     = 0
