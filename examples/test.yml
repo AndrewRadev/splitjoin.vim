@@ -1,0 +1,10 @@
+root:
+  one: [1, 2, 3]
+  two: ['four', 'five', 'six']
+  two: ['four', 'five', 'six'] # comment
+  three:
+    - four
+    - five
+  three: # comment
+    - four
+    - five
