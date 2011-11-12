@@ -9,6 +9,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Vimscript..............................: |splitjoin-vimscript|
     HTML...................................: |splitjoin-html|
     CSS....................................: |splitjoin-css|
+    YAML...................................: |splitjoin-yaml|
     Eruby..................................: |splitjoin-eruby|
     Settings...............................: |splitjoin-settings|
     Internals..............................: |splitjoin-internals|
@@ -337,6 +338,24 @@ Multiline selectors ~
       font-size: 18px;
       font-weight: bold
     }
+<
+
+==============================================================================
+YAML                                                           *splitjoin-yaml*
+
+Arrays ~
+>
+    root:
+      one: [1, 2]
+      two: ['three', 'four']
+
+    root:
+      one:
+        - 1
+        - 2
+      two:
+        - 'three'
+        - 'four'
 <
 
 ==============================================================================
