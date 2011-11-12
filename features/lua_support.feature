@@ -40,7 +40,7 @@ Feature: Lua support
       """
       function example (one, two) print("foo") end
       """
-    And the cursor is positioned on "function"
+    And the cursor is positioned on "example"
     When I split the line
     And I save
     Then the file "example.lua" should contain the following text:
@@ -58,7 +58,7 @@ Feature: Lua support
         print("bar")
       end
       """
-    And the cursor is positioned on "function"
+    And the cursor is positioned on "example"
     When I join the line
     And I save
     Then the file "example.lua" should contain the following text:

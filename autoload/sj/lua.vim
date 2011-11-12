@@ -24,7 +24,7 @@ function! sj#lua#SplitFunction()
 endfunction
 
 function! sj#lua#JoinFunction()
-  if search('\<function\>', 'c', line('.')) <= 0
+  if search('\<function\>', 'c', line('.')) <= 0 && search('\<function\>', 'bc', line('.')) <= 0
     return 0
   else
     let function_line_no = line('.')
