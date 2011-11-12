@@ -1,5 +1,5 @@
 function! sj#lua#SplitFunction()
-  let function_pattern = '\(\<function\>\s*(.\{-})\)\(.*\)\<end\>'
+  let function_pattern = '\(\<function\>.\{-}(.\{-})\)\(.*\)\<end\>'
   let line             = getline('.')
 
   if line !~ function_pattern
@@ -8,7 +8,13 @@ function! sj#lua#SplitFunction()
     let head = sj#ExtractRx(line, function_pattern, '\1')
     let body = sj#Trim(sj#ExtractRx(line, function_pattern, '\2'))
 
-    let replacement = head."\n".body."\nend"
+    if sj#BlankString(body)
+      let body = ''
+    else
+      let body = body."\n"
+    endif
+
+    let replacement = head."\n".body."end"
     let new_line    = substitute(line, function_pattern, replacement, '')
 
     call sj#ReplaceMotion('V', new_line)
@@ -18,9 +24,7 @@ function! sj#lua#SplitFunction()
 endfunction
 
 function! sj#lua#JoinFunction()
-  let line = getline('.')
-
-  if line !~ '\<function\>'
+  if search('\<function\>', 'c', line('.')) <= 0
     return 0
   else
     let function_line_no = line('.')
@@ -36,9 +40,12 @@ function! sj#lua#JoinFunction()
       let body_lines = getbufline('.', function_line_no + 1, end_line_no - 1)
       let body_lines = map(body_lines, 'sj#Trim(v:val)')
       let body       = join(body_lines, '; ')
+      let body       = ' '.body.' '
+    else
+      let body = ' '
     endif
 
-    let replacement = function_line.' '.body.' '.end_line
+    let replacement = function_line.body.end_line
 
     call sj#ReplaceLines(function_line_no, end_line_no, replacement)
 
