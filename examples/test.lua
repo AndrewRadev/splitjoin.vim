@@ -1,1 +1,6 @@
-(function () print("foo") end)
+local something = other(function (one, two) print("foo") end)
+
+function example ()
+  print("foo")
+  print("bar")
+end
