@@ -132,7 +132,7 @@ function! sj#GetLines(start, end)
   return getbufline('%', a:start, a:end)
 endfunction
 
-" function! sj#GetLines(start, end) {{{2
+" function! sj#GetCols(start, end) {{{2
 "
 " Retrieve the text from columns "start" to "end" on the current line.
 function! sj#GetCols(start, end)
