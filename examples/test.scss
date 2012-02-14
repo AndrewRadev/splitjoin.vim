@@ -1,0 +1,40 @@
+body {
+  background-color: #4B7399;
+  font-family: Verdana, Helvetica, Arial;
+  font-size: 14px;
+}
+
+body {
+  font-family:      Verdana, Helvetica, Arial;
+  background-color: #4B7399;
+  font-size:        14px;
+}
+
+a { color: #0000FF; text-decoration: underline }
+a { color: #0000FF; text-decoration: underline; }
+
+h1,
+h2,
+h3 {
+  font-size: 18px;
+  font-weight: bold
+}
+
+h1,
+h2,
+h3
+{
+  font-size: 18px;
+  font-weight: bold
+}
+a {
+  color: #0000FF;
+} /* comment */
+
+a { color: #0000FF; }
+
+body {
+  #content {
+    background-color: white;
+  }
+}

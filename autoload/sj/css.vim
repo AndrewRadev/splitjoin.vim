@@ -37,7 +37,7 @@ function! sj#css#JoinDefinition()
 
   let body = sj#GetMotion('Vi{')
 
-  let lines = split(body, ";\s*\n")
+  let lines = split(body, ";\\?\s*\n")
   let lines = map(lines, 'sj#Trim(v:val)')
   let lines = filter(lines, 'v:val !~ "^\s*$"')
   if g:splitjoin_normalize_whitespace
@@ -46,6 +46,7 @@ function! sj#css#JoinDefinition()
 
   let body = join(lines, "; ")
   let body = substitute(body, ';\?$', ';', '')
+  let body = substitute(body, '{;', '{', '')
 
   call sj#ReplaceMotion('Va{', '{ '.body.' }')
 
