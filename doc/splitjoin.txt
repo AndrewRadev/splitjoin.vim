@@ -355,6 +355,8 @@ Tags ~
 ==============================================================================
 CSS                                                             *splitjoin-css*
 
+These should also work for SCSS and LESS.
+
 Style definitions ~
 >
     a { color: #0000FF; text-decoration: underline; }
