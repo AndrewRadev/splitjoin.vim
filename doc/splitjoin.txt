@@ -5,6 +5,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Usage..................................: |splitjoin-usage|
     Ruby...................................: |splitjoin-ruby|
     Python.................................: |splitjoin-python|
+    Coffeescript...........................: |splitjoin-coffee|
     Lua....................................: |splitjoin-lua|
     Javascript.............................: |splitjoin-javascript|
     Vimscript..............................: |splitjoin-vimscript|
@@ -242,6 +243,25 @@ Statements ~
 
     if foo:
         bar()
+<
+
+==============================================================================
+COFFEESCRIPT                                                *splitjoin-coffee*
+
+Functions ~
+>
+    (foo, bar) -> console.log foo
+
+    (foo, bar) ->
+      console.log foo
+<
+
+If/unless clauses ~
+>
+    console.log bar if foo?
+
+    if foo?
+      console.log bar
 <
 
 ==============================================================================
