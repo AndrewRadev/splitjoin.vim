@@ -263,6 +263,15 @@ If/unless clauses ~
     if foo?
       console.log bar
 <
+Object literals ~
+>
+    one = { one: "two", three: "four" }
+
+    one =
+      one: "two"
+      three: "four"
+<
+
 
 ==============================================================================
 LUA                                                            *splitjoin-lua*
