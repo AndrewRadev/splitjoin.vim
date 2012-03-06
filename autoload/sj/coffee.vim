@@ -48,3 +48,72 @@ function! sj#coffee#JoinIfClause()
   call sj#ReplaceMotion('Vj', body.' '.if_clause)
   return 1
 endfunction
+
+function! sj#coffee#SplitObjectLiteral()
+  let [from, to] = sj#LocateCurlyBracesOnLine()
+
+  if from < 0 && to < 0
+    return 0
+  else
+    let pairs = s:ParseHash(from + 1, to - 1)
+    let body  = "\n".join(pairs, "\n")
+    call sj#ReplaceMotion('Va{', body)
+
+    " clean the remaining whitespace
+    s/\s\+$//e
+
+    if g:splitjoin_align
+      let body_start = line('.') + 1
+      let body_end   = body_start + len(pairs) - 1
+      call sj#Align(body_start, body_end, 'js_hash')
+    endif
+
+    return 1
+  endif
+endfunction
+
+function! sj#coffee#JoinObjectLiteral()
+  if line('.') == line('$')
+    return 0
+  endif
+
+  let [start_line, end_line] = s:IndentedLinesBelow('.')
+
+  if start_line == -1
+    return 0
+  endif
+
+  let lines = getbufline('.', start_line, end_line)
+  let lines = map(lines, 'sj#Trim(v:val)')
+  if g:splitjoin_normalize_whitespace
+    let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
+  endif
+  let body = getline('.').' { '.join(lines, ', ').' }'
+  call sj#ReplaceLines(start_line - 1, end_line, body)
+
+  return 1
+endfunction
+
+function! s:ParseHash(from, to)
+  let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
+  call parser.Process()
+  return parser.args
+endfunction
+
+function! s:IndentedLinesBelow(line)
+  let current_line = line(a:line)
+  let first_line   = nextnonblank(current_line + 1)
+  let next_line    = first_line
+  let base_indent  = indent(current_line)
+
+  if indent(first_line) <= base_indent
+    return [-1, -1]
+  endif
+
+  while next_line <= line('$') && indent(next_line) > base_indent
+    let current_line = next_line
+    let next_line    = nextnonblank(current_line + 1)
+  endwhile
+
+  return [first_line, current_line]
+endfunction
