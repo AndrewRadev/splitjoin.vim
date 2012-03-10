@@ -83,7 +83,7 @@ function! sj#coffee#JoinObjectLiteral()
     return 0
   endif
 
-  let lines = getbufline('.', start_line, end_line)
+  let lines = getbufline('%', start_line, end_line)
   let lines = map(lines, 'sj#Trim(v:val)')
   if g:splitjoin_normalize_whitespace
     let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
