@@ -22,12 +22,17 @@ function! sj#coffee#JoinFunction()
 endfunction
 
 function! sj#coffee#SplitIfClause()
-  let line    = getline('.')
-  let pattern = '\v(.*\S.*) (if|unless|while|until) (.*)'
+  let line            = getline('.')
+  let suffix_pattern  = '\v(.*\S.*) (if|unless|while|until) (.*)'
+  let postfix_pattern = '\v(if|unless|while|until) (.*) then (.*)'
 
-  if line =~ pattern
-    call sj#ReplaceMotion('V', substitute(line, pattern, '\2 \3\n\1', ''))
-    normal! gv=
+  if line =~ suffix_pattern
+    call sj#ReplaceMotion('V', substitute(line, suffix_pattern, '\2 \3\n\1', ''))
+    normal! j==
+    return 1
+  elseif line =~ postfix_pattern
+    call sj#ReplaceMotion('V', substitute(line, postfix_pattern, '\1 \2\n\3', ''))
+    normal! j==
     return 1
   else
     return 0
@@ -45,7 +50,12 @@ function! sj#coffee#JoinIfClause()
   let if_clause = sj#Trim(getline('.'))
   let body      = sj#Trim(getline(line('.') + 1))
 
-  call sj#ReplaceMotion('Vj', body.' '.if_clause)
+  if g:splitjoin_coffee_suffix_if_clause
+    call sj#ReplaceMotion('Vj', body.' '.if_clause)
+  else
+    call sj#ReplaceMotion('Vj', if_clause.' then '.body)
+  endif
+
   return 1
 endfunction
 

@@ -1,5 +1,7 @@
 (foo, bar) -> console.log foo
 
-console.log bar if foo?
+do ->
+  console.log bar if foo?
+  if foo? then console.log bar
 
 foo = { one: two, three: 'four' }

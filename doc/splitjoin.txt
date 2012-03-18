@@ -256,9 +256,15 @@ Functions ~
       console.log foo
 <
 
-If/unless clauses ~
+If/unless/while/until clauses ~
+
+Since it's possible to join a multiline if into either a postfix or suffix
+variant, a variable controls which one it'll be,
+|g:splitjoin_coffee_suffix_if_clause|. By default, it's 1, which joins into
+the suffix format.
 >
     console.log bar if foo?
+    if foo? then console.log bar
 
     if foo?
       console.log bar
@@ -591,6 +597,30 @@ it's more difficult to decide whether we have an option block or a plain hash
 if there are braces, so the first example will always be joined to:
 >
     User.new :one, { :first_name => "Andrew", :last_name => "Radev" }
+<
+
+                                         *g:splitjoin_coffee_suffix_if_clause*
+>
+    g:splitjoin_coffee_suffix_if_clause
+<
+
+Default value: 1
+
+This flag controls the kind of if-clause to use when joining multiline
+if-clauses in coffeescript. Given the following example:
+>
+    if foo?
+      console.log bar
+<
+Joining this construct with |g:splitjoin_coffee_suffix_if_clause| set to 1
+(the default) would produce:
+>
+    console.log bar if foo?
+<
+Doing that with |g:splitjoin_coffee_suffix_if_clause| set to 0 would result
+in:
+>
+    if foo? then console.log bar
 <
 
 ==============================================================================

@@ -18,6 +18,10 @@ if !exists('g:splitjoin_ruby_curly_braces')
   let g:splitjoin_ruby_curly_braces = 1
 end
 
+if !exists('g:splitjoin_coffee_suffix_if_clause')
+  let g:splitjoin_coffee_suffix_if_clause = 1
+endif
+
 " Public Interface:
 " =================
 
