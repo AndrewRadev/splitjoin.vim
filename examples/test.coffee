@@ -1,4 +1,6 @@
 (foo, bar) -> console.log foo
+(foo, bar) ->
+  console.log foo
 
 do ->
   console.log bar if foo?

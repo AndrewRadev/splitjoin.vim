@@ -23,16 +23,17 @@ endfunction
 
 function! sj#coffee#SplitIfClause()
   let line            = getline('.')
+  let base_indent     = indent('.')
   let suffix_pattern  = '\v(.*\S.*) (if|unless|while|until) (.*)'
   let postfix_pattern = '\v(if|unless|while|until) (.*) then (.*)'
 
   if line =~ suffix_pattern
     call sj#ReplaceMotion('V', substitute(line, suffix_pattern, '\2 \3\n\1', ''))
-    normal! j==
+    call s:SetBaseIndent(line('.'), line('.') + 1, base_indent)
     return 1
   elseif line =~ postfix_pattern
     call sj#ReplaceMotion('V', substitute(line, postfix_pattern, '\1 \2\n\3', ''))
-    normal! j==
+    call s:SetBaseIndent(line('.'), line('.') + 1, base_indent)
     return 1
   else
     return 0
@@ -40,8 +41,9 @@ function! sj#coffee#SplitIfClause()
 endfunction
 
 function! sj#coffee#JoinIfClause()
-  let line    = getline('.')
-  let pattern = '\v^\s*(if|unless|while|until)'
+  let line        = getline('.')
+  let base_indent = indent('.')
+  let pattern     = '\v^\s*(if|unless|while|until)'
 
   if line !~ pattern
     return 0
@@ -55,6 +57,7 @@ function! sj#coffee#JoinIfClause()
   else
     call sj#ReplaceMotion('Vj', if_clause.' then '.body)
   endif
+  call s:SetBaseIndent(line('.'), line('.'), base_indent)
 
   return 1
 endfunction
@@ -126,4 +129,11 @@ function! s:IndentedLinesBelow(line)
   endwhile
 
   return [first_line, current_line]
+endfunction
+
+function! s:SetBaseIndent(from, to, indent)
+  let current_whitespace = matchstr(getline(a:from), '^\s*')
+  let new_whitespace     = repeat(' ', a:indent)
+
+  exe a:from.','.a:to.'s/^'.current_whitespace.'/'.new_whitespace
 endfunction
