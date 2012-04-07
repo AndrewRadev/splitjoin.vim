@@ -98,6 +98,20 @@ function! sj#ReplaceCols(start, end, text)
   return sj#ReplaceMotion(motion, a:text)
 endfunction
 
+" function! sj#ReplaceByPosition(start, end, text) {{{2
+"
+" Replace the area defined by the 'start' and 'end' positions with 'text'. The
+" positions should be compatible with the results of getpos():
+"
+"   [bufnum, lnum, col, off]
+"
+function! sj#ReplaceByPosition(start, end, text)
+  call setpos('.', a:start)
+  call setpos("'z", a:end)
+
+  return sj#ReplaceMotion('v`z', a:text)
+endfunction
+
 " Text retrieval {{{1
 "
 " These functions are similar to the text replacement functions, only retrieve
@@ -137,6 +151,20 @@ endfunction
 " Retrieve the text from columns "start" to "end" on the current line.
 function! sj#GetCols(start, end)
   return strpart(getline('.'), a:start - 1, a:end - a:start + 1)
+endfunction
+
+" function! sj#GetByPosition(start, end) {{{2
+"
+" Fetch the area defined by the 'start' and 'end' positions. The positions
+" should be compatible with the results of getpos():
+"
+"   [bufnum, lnum, col, off]
+"
+function! sj#GetByPosition(start, end)
+  call setpos('.', a:start)
+  call setpos("'z", a:end)
+
+  return sj#GetMotion('v`z')
 endfunction
 
 " String functions {{{1

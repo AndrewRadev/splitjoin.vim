@@ -107,6 +107,42 @@ function! sj#coffee#JoinObjectLiteral()
   return 1
 endfunction
 
+function! sj#coffee#SplitString()
+  if search('"', 'Wb', line('.')) <= 0
+    return 0
+  endif
+
+  let body     = sj#GetMotion('vi"')
+  let new_body = "\"\"\n".body."\n\"\"" " Note: only two double quotes
+
+  call sj#ReplaceMotion('vi"', new_body)
+  normal! j>>
+
+  return 1
+endfunction
+
+function! sj#coffee#JoinString()
+  if search('"""', 'Wbc') <= 0
+    return 0
+  endif
+  let start = getpos('.')
+  normal! j
+
+  if search('"""', 'Wce') <= 0
+    return 0
+  endif
+  let end = getpos('.')
+
+  let body     = sj#GetByPosition(start, end)
+  let new_body = substitute(body, '^"""\_s*\(.*\)\_s*"""', '\1', 'g')
+  let new_body = sj#Trim(new_body)
+  let new_body = '"'.new_body.'"'
+
+  call sj#ReplaceByPosition(start, end, new_body)
+
+  return 1
+endfunction
+
 function! s:ParseHash(from, to)
   let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
   call parser.Process()
