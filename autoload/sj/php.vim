@@ -20,6 +20,10 @@ function! sj#php#SplitArray()
       call sj#PushCursor()
       exe "normal! jV".(body_end - body_start)."j2="
       call sj#PopCursor()
+
+      if g:splitjoin_align
+        call sj#Align(body_start, body_end, 'ruby_hash')
+      endif
     endif
 
     return 1
