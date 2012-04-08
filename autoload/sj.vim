@@ -324,16 +324,3 @@ function! sj#ParseJsonObjectBody(from, to)
   call parser.Process()
   return parser.args
 endfunction
-
-function! sj#JoinHashWithRoundBraces()
-  normal! $
-
-  let body = sj#GetMotion('Vi(',)
-  if g:splitjoin_normalize_whitespace
-    let body = substitute(body, '\s*=>\s*', ' => ', 'g')
-  endif
-  let body = join(map(split(body, "\n"), 'sj#Trim(v:val)'), ' ')
-  call sj#ReplaceMotion('Va(', '('.body.')')
-
-  return 1
-endfunction
