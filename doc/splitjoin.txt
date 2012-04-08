@@ -277,7 +277,18 @@ Object literals ~
       one: "two"
       three: "four"
 <
+Multiline strings ~
+>
+    foo = "example with #{interpolation} and \"nested\" quotes"
+    foo = """
+      example with #{interpolation} and "nested" quotes
+    """
 
+    bar = 'example with single quotes'
+    bar = '''
+      example with single quotes
+    '''
+<
 
 ==============================================================================
 LUA                                                            *splitjoin-lua*
