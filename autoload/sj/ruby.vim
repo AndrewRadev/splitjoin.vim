@@ -140,7 +140,7 @@ function! sj#ruby#JoinHash()
   if line =~ '{\s*$'
     return s:JoinHashWithCurlyBraces()
   elseif line =~ '(\s*$'
-    return s:JoinHashWithRoundBraces()
+    return sj#JoinHashWithRoundBraces()
   elseif line =~ ',\s*$'
     return s:JoinHashWithoutBraces()
   else
@@ -158,19 +158,6 @@ function! s:JoinHashWithCurlyBraces()
   endif
 
   normal! Va{J
-
-  return 1
-endfunction
-
-function! s:JoinHashWithRoundBraces()
-  normal! $
-
-  let body = sj#GetMotion('Vi(',)
-  if g:splitjoin_normalize_whitespace
-    let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
-  endif
-  let body = join(map(split(body, "\n"), 'sj#Trim(v:val)'), ' ')
-  call sj#ReplaceMotion('Va(', '('.body.')')
 
   return 1
 endfunction
