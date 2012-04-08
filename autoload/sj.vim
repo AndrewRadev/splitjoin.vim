@@ -185,6 +185,11 @@ function! sj#Trim(s)
   return sj#Rtrim(sj#Ltrim(a:s))
 endfunction
 
+" Execute sj#Trim on each item of a List
+function! sj#TrimList(list)
+  return map(a:list, 'sj#Trim(v:val)')
+endfunction
+
 " Regex helpers {{{1
 
 " function! sj#ExtractRx(expr, pat, sub)
@@ -228,9 +233,9 @@ function! sj#Align(from, to, type)
 endfunction
 
 function! s:Tabularize(from, to, type)
-  if a:type == 'ruby_hash'
+  if a:type == 'hashrocket'
     let pattern = '^[^=>]*\zs=>'
-  elseif a:type == 'css_declaration' || a:type == 'js_hash' || a:type == 'ruby_new_hash'
+  elseif a:type == 'css_declaration' || a:type == 'json_object'
     let pattern = '^[^:]*:\s*\zs\s/l0'
   else
     return
@@ -240,9 +245,9 @@ function! s:Tabularize(from, to, type)
 endfunction
 
 function! s:Align(from, to, type)
-  if a:type == 'ruby_hash'
+  if a:type == 'hashrocket'
     let pattern = 'l: =>'
-  elseif a:type == 'css_declaration' || a:type == 'js_hash' || a:type == 'ruby_new_hash'
+  elseif a:type == 'css_declaration' || a:type == 'json_object'
     let pattern = 'lp0W0 :\s*\zs'
   else
     return
@@ -252,19 +257,26 @@ function! s:Align(from, to, type)
 endfunction
 
 " Returns a pair with the column positions of the closest opening and closing
-" curly braces on the current line, provided the cursor is within them.
+" braces on the current line. The a:open and a:close parameters are the
+" opening and closing brace characters to look for.
 "
 " If a pair is not found on the line, returns [-1, -1]
-function! sj#LocateCurlyBracesOnLine()
+"
+" Examples:
+"
+"   let [start, end] = sj#LocateBracesOnLine('{', '}')
+"   let [start, end] = sj#LocateBracesOnLine('[', ']')
+"
+function! sj#LocateBracesOnLine(open, close)
   let [_bufnum, line, col, _off] = getpos('.')
 
-  if getline('.') !~ '{.*}'
+  if getline('.') !~ a:open.'.*'.a:close
     return [-1, -1]
   endif
 
-  let found = searchpair('{', '', '}', 'cb', '', line('.'))
+  let found = searchpair(a:open, '', a:close, 'cb', '', line('.'))
   if found <= 0
-    let found = search('{', '', '', line('.'))
+    let found = search(a:open, '', '', line('.'))
   endif
 
   if found > 0
@@ -297,4 +309,23 @@ function! sj#CompressWhitespaceOnLine()
   let @/ = histget('search', -1)
 
   call sj#PopCursor()
+endfunction
+
+" Parses a JSON-like object and returns a list of its components
+" (comma-separated parts).
+"
+" Note that a:from and a:to are the start and end of the body, not the curly
+" braces that usually define a JSON object. This makes it possible to use the
+" function for parsing an argument list into separate arguments, knowing their
+" start and end.
+"
+" Different languages have different rules for delimiters, so it might be a
+" better idea to write a specific parser. See autoload/sj/argparser/js.vim for
+" inspiration.
+"
+function! sj#ParseJsonObjectBody(from, to)
+  " Just use js object parser
+  let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
+  call parser.Process()
+  return parser.args
 endfunction

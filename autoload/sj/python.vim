@@ -24,12 +24,12 @@ function! sj#python#JoinStatement()
 endfunction
 
 function! sj#python#SplitDict()
-  let [from, to] = sj#LocateCurlyBracesOnLine()
+  let [from, to] = sj#LocateBracesOnLine('{', '}')
 
   if from < 0 && to < 0
     return 0
   else
-    let pairs = s:ParseHash(from + 1, to - 1)
+    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body  = "{\n".join(pairs, ",\n")."\n}"
     call sj#ReplaceMotion('Va{', body)
 
@@ -41,7 +41,7 @@ function! sj#python#SplitDict()
     call sj#PopCursor()
 
     if g:splitjoin_align
-      call sj#Align(body_start, body_end - 1, 'js_hash')
+      call sj#Align(body_start, body_end - 1, 'json_object')
     endif
 
     return 1
@@ -55,8 +55,7 @@ function! sj#python#JoinDict()
     call search('{', 'c', line('.'))
     let body = sj#GetMotion('Vi{')
 
-    let lines = split(body, "\n")
-    let lines = map(lines, 'sj#Trim(v:val)')
+    let lines = sj#TrimList(split(body, "\n"))
     if g:splitjoin_normalize_whitespace
       let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
     endif
@@ -69,11 +68,4 @@ function! sj#python#JoinDict()
   else
     return 0
   endif
-endfunction
-
-function! s:ParseHash(from, to)
-  " Js object parser works just fine
-  let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
-  call parser.Process()
-  return parser.args
 endfunction

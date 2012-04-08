@@ -63,12 +63,12 @@ function! sj#coffee#JoinIfClause()
 endfunction
 
 function! sj#coffee#SplitObjectLiteral()
-  let [from, to] = sj#LocateCurlyBracesOnLine()
+  let [from, to] = sj#LocateBracesOnLine('{', '}')
 
   if from < 0 && to < 0
     return 0
   else
-    let pairs = s:ParseHash(from + 1, to - 1)
+    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body  = "\n".join(pairs, "\n")
     call sj#ReplaceMotion('Va{', body)
 
@@ -78,7 +78,7 @@ function! sj#coffee#SplitObjectLiteral()
     if g:splitjoin_align
       let body_start = line('.') + 1
       let body_end   = body_start + len(pairs) - 1
-      call sj#Align(body_start, body_end, 'js_hash')
+      call sj#Align(body_start, body_end, 'json_object')
     endif
 
     return 1
@@ -97,6 +97,7 @@ function! sj#coffee#JoinObjectLiteral()
   endif
 
   let lines = getbufline('%', start_line, end_line)
+  let lines = sj#TrimList(lines)
   let lines = map(lines, 'sj#Trim(v:val)')
   if g:splitjoin_normalize_whitespace
     let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
@@ -149,12 +150,6 @@ function! sj#coffee#JoinString()
   call sj#ReplaceByPosition(start, end, new_body)
 
   return 1
-endfunction
-
-function! s:ParseHash(from, to)
-  let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
-  call parser.Process()
-  return parser.args
 endfunction
 
 function! s:IndentedLinesBelow(line)

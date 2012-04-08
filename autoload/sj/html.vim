@@ -27,7 +27,7 @@ function! sj#html#JoinTags()
   endif
 
   let body = sj#Trim(body)
-  let body = join(map(split(body, "\n"), 'sj#Trim(v:val)'), ' ')
+  let body = join(sj#TrimList(split(body, "\n")), ' ')
 
   call sj#ReplaceMotion('vit', body)
 
