@@ -108,37 +108,43 @@ function! sj#coffee#JoinObjectLiteral()
 endfunction
 
 function! sj#coffee#SplitString()
-  if search('"', 'Wb', line('.')) <= 0
+  if search('["'']', 'Wb', line('.')) <= 0
     return 0
   endif
 
-  let body     = sj#GetMotion('vi"')
-  let new_body = substitute(body, '\\"', '"', 'g')
-  let new_body = "\"\"\n".new_body."\n\"\"" " Note: only two double quotes
+  let quote       = getline('.')[col('.') - 1]
+  let multi_quote = repeat(quote, 2) " Note: only two quotes
 
-  call sj#ReplaceMotion('vi"', new_body)
+  let body     = sj#GetMotion('vi'.quote)
+  let new_body = substitute(body, '\\'.quote, quote, 'g')
+  let new_body = multi_quote."\n".new_body."\n".multi_quote
+
+  call sj#ReplaceMotion('vi'.quote, new_body)
   normal! j>>
 
   return 1
 endfunction
 
 function! sj#coffee#JoinString()
-  if search('"""', 'Wbc') <= 0
+  if search('"""\|''''''', 'Wbc') <= 0
     return 0
   endif
-  let start = getpos('.')
+  let start       = getpos('.')
+  let multi_quote = expand('<cword>')
+  let quote       = multi_quote[0]
+
   normal! j
 
-  if search('"""', 'Wce') <= 0
+  if search(multi_quote, 'Wce') <= 0
     return 0
   endif
   let end = getpos('.')
 
   let body     = sj#GetByPosition(start, end)
-  let new_body = substitute(body, '^"""\_s*\(.*\)\_s*"""', '\1', 'g')
-  let new_body = substitute(new_body, '"', '\\"', 'g')
+  let new_body = substitute(body, '^'.multi_quote.'\_s*\(.*\)\_s*'.multi_quote.'$', '\1', 'g')
+  let new_body = substitute(new_body, quote, '\\'.quote, 'g')
   let new_body = sj#Trim(new_body)
-  let new_body = '"'.new_body.'"'
+  let new_body = quote.new_body.quote
 
   call sj#ReplaceByPosition(start, end, new_body)
 

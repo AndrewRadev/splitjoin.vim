@@ -12,5 +12,6 @@ foo = "example"
 foo = "example with #{interpolation}"
 foo = "example with \"nested\" quotes"
 
-# TODO (2012-04-07) Implement
 foo = 'example with single quotes'
+foo = 'example with \'escaped\' single quotes'
+# TODO odd problem with last line
