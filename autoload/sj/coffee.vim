@@ -113,7 +113,8 @@ function! sj#coffee#SplitString()
   endif
 
   let body     = sj#GetMotion('vi"')
-  let new_body = "\"\"\n".body."\n\"\"" " Note: only two double quotes
+  let new_body = substitute(body, '\\"', '"', 'g')
+  let new_body = "\"\"\n".new_body."\n\"\"" " Note: only two double quotes
 
   call sj#ReplaceMotion('vi"', new_body)
   normal! j>>
@@ -135,6 +136,7 @@ function! sj#coffee#JoinString()
 
   let body     = sj#GetByPosition(start, end)
   let new_body = substitute(body, '^"""\_s*\(.*\)\_s*"""', '\1', 'g')
+  let new_body = substitute(new_body, '"', '\\"', 'g')
   let new_body = sj#Trim(new_body)
   let new_body = '"'.new_body.'"'
 
