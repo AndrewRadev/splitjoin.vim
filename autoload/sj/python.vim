@@ -29,7 +29,7 @@ function! sj#python#SplitDict()
   if from < 0 && to < 0
     return 0
   else
-    let pairs = s:ParseHash(from + 1, to - 1)
+    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body  = "{\n".join(pairs, ",\n")."\n}"
     call sj#ReplaceMotion('Va{', body)
 
@@ -69,11 +69,4 @@ function! sj#python#JoinDict()
   else
     return 0
   endif
-endfunction
-
-function! s:ParseHash(from, to)
-  " Js object parser works just fine
-  let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
-  call parser.Process()
-  return parser.args
 endfunction

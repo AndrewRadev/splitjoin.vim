@@ -306,6 +306,25 @@ function! sj#CompressWhitespaceOnLine()
   call sj#PopCursor()
 endfunction
 
+" Parses a JSON-like object and returns a list of its components
+" (comma-separated parts).
+"
+" Note that a:from and a:to are the start and end of the body, not the curly
+" braces that usually define a JSON object. This makes it possible to use the
+" function for parsing an argument list into separate arguments, knowing their
+" start and end.
+"
+" Different languages have different rules for delimiters, so it might be a
+" better idea to write a specific parser. See autoload/sj/argparser/js.vim for
+" inspiration.
+"
+function! sj#ParseJsonObjectBody(from, to)
+  " Just use js object parser
+  let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
+  call parser.Process()
+  return parser.args
+endfunction
+
 function! sj#JoinHashWithRoundBraces()
   normal! $
 

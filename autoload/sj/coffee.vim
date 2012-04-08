@@ -68,7 +68,7 @@ function! sj#coffee#SplitObjectLiteral()
   if from < 0 && to < 0
     return 0
   else
-    let pairs = s:ParseHash(from + 1, to - 1)
+    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body  = "\n".join(pairs, "\n")
     call sj#ReplaceMotion('Va{', body)
 
@@ -149,12 +149,6 @@ function! sj#coffee#JoinString()
   call sj#ReplaceByPosition(start, end, new_body)
 
   return 1
-endfunction
-
-function! s:ParseHash(from, to)
-  let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
-  call parser.Process()
-  return parser.args
 endfunction
 
 function! s:IndentedLinesBelow(line)
