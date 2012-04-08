@@ -33,7 +33,7 @@ function! sj#php#JoinArray()
   if g:splitjoin_normalize_whitespace
     let body = substitute(body, '\s*=>\s*', ' => ', 'g')
   endif
-  let body = join(map(split(body, "\n"), 'sj#Trim(v:val)'), ' ')
+  let body = join(sj#TrimList(split(body, "\n")), ' ')
   call sj#ReplaceMotion('Va(', '('.body.')')
 
   return 1

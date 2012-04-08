@@ -55,8 +55,7 @@ function! sj#python#JoinDict()
     call search('{', 'c', line('.'))
     let body = sj#GetMotion('Vi{')
 
-    let lines = split(body, "\n")
-    let lines = map(lines, 'sj#Trim(v:val)')
+    let lines = sj#TrimList(split(body, "\n"))
     if g:splitjoin_normalize_whitespace
       let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
     endif

@@ -73,7 +73,8 @@ function! sj#ruby#JoinBlock()
   if do_line_no > 0
     let end_line_no = searchpair(do_pattern, '', '\<end\>', 'W')
 
-    let lines = map(sj#GetLines(do_line_no, end_line_no), 'sj#Trim(v:val)')
+    let lines = sj#GetLines(do_line_no, end_line_no)
+    let lines = sj#TrimList(lines)
 
     let do_line  = substitute(lines[0], do_pattern, '{\1', '')
     let body     = join(lines[1:-2], '; ')
@@ -169,7 +170,7 @@ function! s:JoinHashWithRoundBraces()
   if g:splitjoin_normalize_whitespace
     let body = substitute(body, '\s*=>\s*', ' => ', 'g')
   endif
-  let body = join(map(split(body, "\n"), 'sj#Trim(v:val)'), ' ')
+  let body = join(sj#TrimList(split(body, "\n")), ' ')
   call sj#ReplaceMotion('Va(', '('.body.')')
 
   return 1
@@ -251,8 +252,7 @@ endfunction
 " Helper functions
 
 function! s:JoinLines(text)
-  let lines = split(a:text, "\n")
-  let lines = map(lines, 'sj#Trim(v:val)')
+  let lines = sj#TrimList(split(a:text, "\n"))
 
   if len(lines) > 1
     return '('.join(lines, '; ').')'

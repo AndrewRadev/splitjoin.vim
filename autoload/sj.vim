@@ -185,6 +185,11 @@ function! sj#Trim(s)
   return sj#Rtrim(sj#Ltrim(a:s))
 endfunction
 
+" Execute sj#Trim on each item of a List
+function! sj#TrimList(list)
+  return map(a:list, 'sj#Trim(v:val)')
+endfunction
+
 " Regex helpers {{{1
 
 " function! sj#ExtractRx(expr, pat, sub)
