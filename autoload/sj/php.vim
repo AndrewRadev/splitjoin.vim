@@ -22,7 +22,7 @@ function! sj#php#SplitArray()
       call sj#PopCursor()
 
       if g:splitjoin_align
-        call sj#Align(body_start, body_end, 'ruby_hash')
+        call sj#Align(body_start, body_end, 'hashrocket')
       endif
     endif
 

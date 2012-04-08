@@ -41,7 +41,7 @@ function! sj#python#SplitDict()
     call sj#PopCursor()
 
     if g:splitjoin_align
-      call sj#Align(body_start, body_end - 1, 'js_hash')
+      call sj#Align(body_start, body_end - 1, 'json_object')
     endif
 
     return 1

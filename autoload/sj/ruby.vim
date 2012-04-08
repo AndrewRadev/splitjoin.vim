@@ -237,9 +237,9 @@ function! sj#ruby#SplitOptions()
       let alignment_end   = alignment_start + len(opts) - 1
 
       if hash_type == 'classic'
-        call sj#Align(alignment_start, alignment_end, 'ruby_hash')
+        call sj#Align(alignment_start, alignment_end, 'hashrocket')
       elseif hash_type == 'new'
-        call sj#Align(alignment_start, alignment_end, 'ruby_new_hash')
+        call sj#Align(alignment_start, alignment_end, 'json_object')
       endif
     endif
 

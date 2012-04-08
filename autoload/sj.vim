@@ -233,9 +233,9 @@ function! sj#Align(from, to, type)
 endfunction
 
 function! s:Tabularize(from, to, type)
-  if a:type == 'ruby_hash'
+  if a:type == 'hashrocket'
     let pattern = '^[^=>]*\zs=>'
-  elseif a:type == 'css_declaration' || a:type == 'js_hash' || a:type == 'ruby_new_hash'
+  elseif a:type == 'css_declaration' || a:type == 'json_object'
     let pattern = '^[^:]*:\s*\zs\s/l0'
   else
     return
@@ -245,9 +245,9 @@ function! s:Tabularize(from, to, type)
 endfunction
 
 function! s:Align(from, to, type)
-  if a:type == 'ruby_hash'
+  if a:type == 'hashrocket'
     let pattern = 'l: =>'
-  elseif a:type == 'css_declaration' || a:type == 'js_hash' || a:type == 'ruby_new_hash'
+  elseif a:type == 'css_declaration' || a:type == 'json_object'
     let pattern = 'lp0W0 :\s*\zs'
   else
     return

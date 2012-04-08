@@ -78,7 +78,7 @@ function! sj#coffee#SplitObjectLiteral()
     if g:splitjoin_align
       let body_start = line('.') + 1
       let body_end   = body_start + len(pairs) - 1
-      call sj#Align(body_start, body_end, 'js_hash')
+      call sj#Align(body_start, body_end, 'json_object')
     endif
 
     return 1
