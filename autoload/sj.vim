@@ -252,19 +252,26 @@ function! s:Align(from, to, type)
 endfunction
 
 " Returns a pair with the column positions of the closest opening and closing
-" curly braces on the current line, provided the cursor is within them.
+" braces on the current line. The a:open and a:close parameters are the
+" opening and closing brace characters to look for.
 "
 " If a pair is not found on the line, returns [-1, -1]
-function! sj#LocateCurlyBracesOnLine()
+"
+" Examples:
+"
+"   let [start, end] = sj#LocateBracesOnLine('{', '}')
+"   let [start, end] = sj#LocateBracesOnLine('[', ']')
+"
+function! sj#LocateBracesOnLine(open, close)
   let [_bufnum, line, col, _off] = getpos('.')
 
-  if getline('.') !~ '{.*}'
+  if getline('.') !~ a:open.'.*'.a:close
     return [-1, -1]
   endif
 
-  let found = searchpair('{', '', '}', 'cb', '', line('.'))
+  let found = searchpair(a:open, '', a:close, 'cb', '', line('.'))
   if found <= 0
-    let found = search('{', '', '', line('.'))
+    let found = search(a:open, '', '', line('.'))
   endif
 
   if found > 0

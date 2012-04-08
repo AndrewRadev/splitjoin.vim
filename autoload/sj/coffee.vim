@@ -63,7 +63,7 @@ function! sj#coffee#JoinIfClause()
 endfunction
 
 function! sj#coffee#SplitObjectLiteral()
-  let [from, to] = sj#LocateCurlyBracesOnLine()
+  let [from, to] = sj#LocateBracesOnLine('{', '}')
 
   if from < 0 && to < 0
     return 0

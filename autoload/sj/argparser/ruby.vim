@@ -144,7 +144,7 @@ function! sj#argparser#ruby#LocateFunction()
 endfunction
 
 function! sj#argparser#ruby#LocateHash()
-  return sj#LocateCurlyBracesOnLine()
+  return sj#LocateBracesOnLine('{', '}')
 endfunction
 
 function! sj#argparser#ruby#ParseArguments(start_index, end_index, line)

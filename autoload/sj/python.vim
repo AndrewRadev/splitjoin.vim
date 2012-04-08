@@ -24,7 +24,7 @@ function! sj#python#JoinStatement()
 endfunction
 
 function! sj#python#SplitDict()
-  let [from, to] = sj#LocateCurlyBracesOnLine()
+  let [from, to] = sj#LocateBracesOnLine('{', '}')
 
   if from < 0 && to < 0
     return 0
