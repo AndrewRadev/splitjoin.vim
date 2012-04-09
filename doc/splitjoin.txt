@@ -8,6 +8,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Coffeescript...........................: |splitjoin-coffee|
     Lua....................................: |splitjoin-lua|
     Javascript.............................: |splitjoin-javascript|
+    PHP....................................: |splitjoin-php|
     Vimscript..............................: |splitjoin-vimscript|
     HTML...................................: |splitjoin-html|
     CSS....................................: |splitjoin-css|
@@ -348,6 +349,19 @@ because it falls back to the above object joining.
     var callback = function (something, other) {
       something_else;
     };
+<
+
+==============================================================================
+PHP                                                            *splitjoin-php*
+
+Arrays ~
+>
+    foo = array('one' => 'two', 'two' => 'three')
+
+    foo = array(
+      'one' => 'two',
+      'two' => 'three'
+    )
 <
 
 ==============================================================================
