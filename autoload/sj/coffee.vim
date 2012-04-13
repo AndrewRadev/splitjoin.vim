@@ -62,6 +62,28 @@ function! sj#coffee#JoinIfClause()
   return 1
 endfunction
 
+function! sj#coffee#SplitTernaryClause()
+  let line = getline('.')
+  let pattern = '\v^(.*)if (.*) then (.*) else ([^)]*)(.*)$'
+
+  if line =~ pattern
+    let body_when_true  = sj#ExtractRx(line, pattern, '\3')
+    let body_when_false = sj#ExtractRx(line, pattern, '\4')
+    let replacement     = "if \\2\r\\1".body_when_true."\\5\relse\r\\1".body_when_false."\\5"
+    exe 's/'.pattern.'/'.escape(replacement, '/')
+    normal! >>kk>>
+
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
+function! sj#coffee#JoinTernaryClause()
+  " TODO (2012-04-13) Need to get difference of two lines somehow.
+  return 0
+endfunction
+
 function! sj#coffee#SplitObjectLiteral()
   let [from, to] = sj#LocateBracesOnLine('{', '}')
 
