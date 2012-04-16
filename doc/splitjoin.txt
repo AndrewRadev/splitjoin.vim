@@ -270,6 +270,18 @@ the suffix format.
     if foo?
       console.log bar
 <
+Ternary operator ~
+
+Only splitting is available at this time, since joining an if-else clause into
+a ternary operator is a bit more complicated.
+>
+    foo = if bar? then 'baz' else 'qux'
+
+    if bar?
+      foo = 'baz'
+    else
+      foo = 'qux'
+<
 Object literals ~
 >
     one = { one: "two", three: "four" }
