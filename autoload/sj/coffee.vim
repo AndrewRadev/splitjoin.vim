@@ -79,11 +79,6 @@ function! sj#coffee#SplitTernaryClause()
   endif
 endfunction
 
-function! sj#coffee#JoinTernaryClause()
-  " TODO (2012-04-13) Need to get difference of two lines somehow.
-  return 0
-endfunction
-
 function! sj#coffee#SplitObjectLiteral()
   let [from, to] = sj#LocateBracesOnLine('{', '}')
 
