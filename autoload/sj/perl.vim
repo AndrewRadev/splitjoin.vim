@@ -31,7 +31,9 @@ function! sj#perl#JoinIfClause()
 
   let end_line = line('.')
   let body     = sj#GetMotion('Vi{')
-  let body     = substitute(body, ';\_s*$', '', '')
+  let body     = join(split(body, ";\\s*\n"), '; ')
+  let body     = substitute(body, ';\s\+', '; ', 'g')
+  let body     = sj#Trim(body)
 
   let replacement = body.' '.operation.' '.condition.';'
   call sj#ReplaceLines(start_line, end_line, replacement)
