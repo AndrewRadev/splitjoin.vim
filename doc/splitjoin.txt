@@ -5,6 +5,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Usage..................................: |splitjoin-usage|
     Ruby...................................: |splitjoin-ruby|
     Python.................................: |splitjoin-python|
+    Perl...................................: |splitjoin-perl|
     Coffeescript...........................: |splitjoin-coffee|
     Lua....................................: |splitjoin-lua|
     Javascript.............................: |splitjoin-javascript|
@@ -163,7 +164,7 @@ Now for some examples for the filetypes that have splitjoin implementations.
 ==============================================================================
 RUBY                                                          *splitjoin-ruby*
 
-If/unless clauses ~
+If/unless/while/until clauses ~
 
 Joining works for more-than-one-line "if" clauses as well, but it doesn't look
 very pretty. It's generally recommended to use it only when the body is a
@@ -244,6 +245,18 @@ Statements ~
 
     if foo:
         bar()
+<
+
+==============================================================================
+PERL                                                          *splitjoin-perl*
+
+If/unless/while/until clauses ~
+>
+    print "a = $a\n" if $debug;
+
+    if ($debug) {
+      print "a = $a\n";
+    }
 <
 
 ==============================================================================
