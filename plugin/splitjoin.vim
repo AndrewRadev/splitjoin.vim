@@ -22,6 +22,10 @@ if !exists('g:splitjoin_coffee_suffix_if_clause')
   let g:splitjoin_coffee_suffix_if_clause = 1
 endif
 
+if !exists('g:splitjoin_perl_brace_on_same_line')
+  let g:splitjoin_perl_brace_on_same_line = 1
+endif
+
 " Public Interface:
 " =================
 

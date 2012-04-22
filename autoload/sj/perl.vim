@@ -6,7 +6,12 @@ function! sj#perl#SplitIfClause()
     return 0
   endif
 
-  let replacement = substitute(line, pattern, "\\2 (\\3) {\n\\1;\n}", '')
+  if g:splitjoin_perl_brace_on_same_line
+    let replacement = substitute(line, pattern, "\\2 (\\3) {\n\\1;\n}", '')
+  else
+    let replacement = substitute(line, pattern, "\\2 (\\3) \n{\n\\1;\n}", '')
+  endif
+
   call sj#ReplaceMotion('V', replacement)
 
   return 1

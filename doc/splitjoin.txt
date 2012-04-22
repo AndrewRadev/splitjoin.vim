@@ -251,6 +251,12 @@ Statements ~
 PERL                                                          *splitjoin-perl*
 
 If/unless/while/until clauses ~
+
+The variable |g:splitjoin_perl_brace_on_same_line| controls the format of the
+curly braces when joining. If it's set to 0, the opening curly brace will be
+on its own line. Otherwise, it'll be placed on the same line as the if-clause
+(the default behaviour).
+
 >
     print "a = $a\n" if $debug;
 
@@ -671,6 +677,28 @@ Doing that with |g:splitjoin_coffee_suffix_if_clause| set to 0 would result
 in:
 >
     if foo? then console.log bar
+<
+
+                                         *g:splitjoin_perl_brace_on_same_line*
+>
+    g:splitjoin_perl_brace_on_same_line
+<
+
+Default value: 1
+
+This flag controls the placement of curly braces when joining if-clauses. When
+it's 1 (the default), the opening brace will be placed on the same line:
+>
+    if ($debug) {
+      print "a = $a\n";
+    }
+<
+If it's set to 0, the brace will get its own line:
+>
+    if ($debug)
+    {
+      print "a = $a\n";
+    }
 <
 
 ==============================================================================
