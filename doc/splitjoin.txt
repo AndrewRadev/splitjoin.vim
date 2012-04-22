@@ -265,6 +265,20 @@ on its own line. Otherwise, it'll be placed on the same line as the if-clause
     }
 <
 
+And/or clauses ~
+
+It only makes sense to split these -- joining results in joining an if/unless
+clause. variable |g:splitjoin_perl_brace_on_same_line| affects the results
+just like explained above.
+
+>
+    open PID, ">", $pidfile or die;
+
+    unless (open PID, ">", $pidfile) {
+      die;
+    }
+<
+
 ==============================================================================
 COFFEESCRIPT                                                *splitjoin-coffee*
 

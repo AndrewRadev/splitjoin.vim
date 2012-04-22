@@ -10,3 +10,6 @@ if ($debug)
 {
   print "a = $a\n";
 }
+
+open PID, ">", $pidfile or die;
+print "something" and exit;
