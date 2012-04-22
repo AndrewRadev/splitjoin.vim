@@ -1,20 +1,13 @@
 function! sj#perl#SplitIfClause()
-  let line    = getline('.')
   let pattern = '\(.*\) \(if\|unless\|while\|until\) \(.*\);\s*$'
 
   if g:splitjoin_perl_brace_on_same_line
-    let replacement_pattern = "\\2 (\\3) {\n\\1;\n}"
+    let replacement = "\\2 (\\3) {\n\\1;\n}"
   else
-    let replacement_pattern = "\\2 (\\3) \n{\n\\1;\n}"
+    let replacement = "\\2 (\\3) \n{\n\\1;\n}"
   endif
 
-  if line !~ pattern
-    return 0
-  endif
-
-  call sj#ReplaceMotion('V', substitute(line, pattern, replacement_pattern, ''))
-
-  return 1
+  return s:Split(pattern, replacement)
 endfunction
 
 function! sj#perl#JoinIfClause()
@@ -47,39 +40,37 @@ function! sj#perl#JoinIfClause()
 endfunction
 
 function! sj#perl#SplitAndClause()
-  let line    = getline('.')
   let pattern = '\(.*\) and \(.*\);\s*$'
 
   if g:splitjoin_perl_brace_on_same_line
-    let replacement_pattern = "if (\\1) {\n\\2;\n}"
+    let replacement = "if (\\1) {\n\\2;\n}"
   else
-    let replacement_pattern = "if (\\1) \n{\n\\2;\n}"
+    let replacement = "if (\\1) \n{\n\\2;\n}"
   endif
 
-  if line !~ pattern
-    return 0
-  endif
-
-  call sj#ReplaceMotion('V', substitute(line, pattern, replacement_pattern, ''))
-
-  return 1
+  return s:Split(pattern, replacement)
 endfunction
 
 function! sj#perl#SplitOrClause()
-  let line    = getline('.')
   let pattern = '\(.*\) or \(.*\);\s*$'
 
   if g:splitjoin_perl_brace_on_same_line
-    let replacement_pattern = "unless (\\1) {\n\\2;\n}"
+    let replacement = "unless (\\1) {\n\\2;\n}"
   else
-    let replacement_pattern = "unless (\\1) \n{\n\\2;\n}"
+    let replacement = "unless (\\1) \n{\n\\2;\n}"
   endif
 
-  if line !~ pattern
+  return s:Split(pattern, replacement)
+endfunction
+
+function! s:Split(pattern, replacement_pattern)
+  let line = getline('.')
+
+  if line !~ a:pattern
     return 0
   endif
 
-  call sj#ReplaceMotion('V', substitute(line, pattern, replacement_pattern, ''))
+  call sj#ReplaceMotion('V', substitute(line, a:pattern, a:replacement_pattern, ''))
 
   return 1
 endfunction
