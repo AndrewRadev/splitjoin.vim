@@ -5,3 +5,8 @@ if ($debug) {
   print "a = $a\n";
   print "b = $b\n";
 }
+
+if ($debug)
+{
+  print "a = $a\n";
+}

@@ -14,7 +14,7 @@ endfunction
 
 function! sj#perl#JoinIfClause()
   let current_line      = getline('.')
-  let if_clause_pattern = '^\s*\(if\|unless\|while\|until\)\s*(\(.*\))\s*{\s*$'
+  let if_clause_pattern = '^\s*\(if\|unless\|while\|until\)\s*(\(.*\))\s*{\=\s*$'
 
   if current_line !~ if_clause_pattern
     return 0
@@ -24,7 +24,7 @@ function! sj#perl#JoinIfClause()
   let operation = substitute(current_line, if_clause_pattern, '\1', '')
   let start_line = line('.')
 
-  call search('{', 'W', line('.'))
+  call search('{', 'W')
   if searchpair('{', '', '}', 'W') <= 0
     return 0
   endif
