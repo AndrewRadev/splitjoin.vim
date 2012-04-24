@@ -126,7 +126,7 @@ function! sj#coffee#JoinObjectLiteral()
 endfunction
 
 function! sj#coffee#SplitString()
-  if search('["'']', 'Wb', line('.')) <= 0
+  if search('["''].\{-}["'']\s*$', 'Wbc', line('.')) <= 0
     return 0
   endif
 
@@ -144,7 +144,7 @@ function! sj#coffee#SplitString()
 endfunction
 
 function! sj#coffee#JoinString()
-  if search('"""\|''''''', 'Wbc') <= 0
+  if search('\%("""\|''''''\)\s*$', 'Wbc') <= 0
     return 0
   endif
   let start       = getpos('.')

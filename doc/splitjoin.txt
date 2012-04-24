@@ -324,6 +324,10 @@ Object literals ~
       three: "four"
 <
 Multiline strings ~
+
+Note that strings are split only at the end of the line. This seems to be the
+most common case, and the restriction avoids conflicts with other kinds of
+splitting.
 >
     foo = "example with #{interpolation} and \"nested\" quotes"
     foo = """
