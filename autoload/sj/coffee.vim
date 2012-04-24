@@ -1,10 +1,10 @@
 function! sj#coffee#SplitFunction()
   let line = getline('.')
 
-  if line !~ '->'
+  if line !~ '[-=]>'
     return 0
   else
-    s/->\s*/->\r/
+    s/\([-=]\)>\s*/\1>\r/
     normal! ==
     return 1
   endif
@@ -13,10 +13,10 @@ endfunction
 function! sj#coffee#JoinFunction()
   let line = getline('.')
 
-  if line !~ '->'
+  if line !~ '[-=]>'
     return 0
   else
-    s/->\_s\+/-> /
+    s/\([-=]\)>\_s\+/\1> /
     return 1
   endif
 endfunction
