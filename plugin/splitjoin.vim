@@ -43,16 +43,16 @@ function! s:Split()
   " expand any folds under the cursor, or we might replace the wrong area
   silent! foldopen
 
-  call sj#PushCursor()
-
   for callback in b:splitjoin_split_callbacks
+    call sj#PushCursor()
+
     if call(callback, []) != 0
       silent! call repeat#set(":SplitjoinSplit\<cr>")
       break
     endif
-  endfor
 
-  call sj#PopCursor()
+    call sj#PopCursor()
+  endfor
 endfunction
 
 function! s:Join()
@@ -63,16 +63,16 @@ function! s:Join()
   " expand any folds under the cursor, or we might replace the wrong area
   silent! foldopen
 
-  call sj#PushCursor()
-
   for callback in b:splitjoin_join_callbacks
+    call sj#PushCursor()
+
     if call(callback, []) != 0
       silent! call repeat#set(":SplitjoinJoin\<cr>")
       break
     endif
-  endfor
 
-  call sj#PopCursor()
+    call sj#PopCursor()
+  endfor
 endfunction
 
 let &cpo = s:keepcpo
