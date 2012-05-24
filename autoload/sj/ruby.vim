@@ -44,7 +44,7 @@ endfunction
 
 function! sj#ruby#SplitBlock()
   let line    = getline('.')
-  let pattern = '\v\{(\s*\|.{-}\|)?\s*(.*)\}'
+  let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}'
 
   if line =~ pattern
     call search('{', 'bc', line('.'))
@@ -135,8 +135,7 @@ function! sj#ruby#JoinCachingConstruct()
 endfunction
 
 function! sj#ruby#JoinHash()
-  let line    = getline('.')
-  let pattern = '{\s*$'
+  let line = getline('.')
 
   if line =~ '{\s*$'
     return s:JoinHashWithCurlyBraces()
@@ -202,51 +201,52 @@ function! sj#ruby#SplitOptions()
   if from < 0
     call sj#PushCursor()
     let [from, to] = sj#argparser#ruby#LocateFunction()
-    let option_type = 'option'
     call sj#PopCursor()
+
+    let option_type = 'option'
   else
     let option_type = 'hash'
   endif
 
-  if from >= 0
-    let [from, to, args, opts, hash_type] = sj#argparser#ruby#ParseArguments(from, to, getline('.'))
-
-    if len(opts) < 1
-      " no options found, leave it as it is
-      return 0
-    endif
-
-    let replacement = ''
-
-    if len(args) > 0
-      let replacement .= join(args, ', ') . ', '
-    endif
-    if g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
-      let replacement .= '{'
-    endif
-    let replacement .= "\n"
-    let replacement .= join(opts, ",\n")
-    if g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
-      let replacement .= "\n}"
-    endif
-
-    call sj#ReplaceCols(from, to, replacement)
-
-    if g:splitjoin_align && hash_type != 'mixed'
-      let alignment_start = line('.') + 1
-      let alignment_end   = alignment_start + len(opts) - 1
-
-      if hash_type == 'classic'
-        call sj#Align(alignment_start, alignment_end, 'hashrocket')
-      elseif hash_type == 'new'
-        call sj#Align(alignment_start, alignment_end, 'json_object')
-      endif
-    endif
-
-    return 1
-  else
+  if from < 0
     return 0
   endif
+
+  let [from, to, args, opts, hash_type] = sj#argparser#ruby#ParseArguments(from, to, getline('.'))
+
+  if len(opts) < 1
+    " no options found, leave it as it is
+    return 0
+  endif
+
+  let replacement = ''
+
+  if len(args) > 0
+    let replacement .= join(args, ', ') . ', '
+  endif
+  if g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
+    let replacement .= '{'
+  endif
+  let replacement .= "\n"
+  let replacement .= join(opts, ",\n")
+  if g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
+    let replacement .= "\n}"
+  endif
+
+  call sj#ReplaceCols(from, to, replacement)
+
+  if g:splitjoin_align && hash_type != 'mixed'
+    let alignment_start = line('.') + 1
+    let alignment_end   = alignment_start + len(opts) - 1
+
+    if hash_type == 'classic'
+      call sj#Align(alignment_start, alignment_end, 'hashrocket')
+    elseif hash_type == 'new'
+      call sj#Align(alignment_start, alignment_end, 'json_object')
+    endif
+  endif
+
+  return 1
 endfunction
 
 " Helper functions
