@@ -140,7 +140,7 @@ function! sj#ruby#JoinHash()
   if line =~ '{\s*$'
     return s:JoinHashWithCurlyBraces()
   elseif line =~ '(\s*$'
-    return sj#JoinHashWithRoundBraces()
+    return s:JoinHashWithRoundBraces()
   elseif line =~ ',\s*$'
     return s:JoinHashWithoutBraces()
   else
@@ -199,7 +199,7 @@ function! sj#ruby#SplitOptions()
 
   if from < 0
     call sj#PushCursor()
-    let [from, to] = sj#argparser#ruby#LocateFunction()
+    let [from, to, function_type] = sj#argparser#ruby#LocateFunction()
     call sj#PopCursor()
 
     let option_type = 'option'
@@ -223,14 +223,20 @@ function! sj#ruby#SplitOptions()
   if len(args) > 0
     let replacement .= join(args, ', ') . ','
   endif
-  if option_type == 'hash'
+  if !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces'
+    " don't add any opening delimiter, there's a "(" already
+  elseif option_type == 'hash' || len(args) == 0
     let replacement .= '{'
-  elseif g:splitjoin_ruby_curly_braces || len(args) == 0
+  elseif g:splitjoin_ruby_curly_braces
     let replacement .= ' {'
   endif
   let replacement .= "\n"
   let replacement .= join(opts, ",\n")
-  if g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
+  if !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces'
+    " add a newline, there's a ")" already
+    " Note: adding a space to avoid pasting issues
+    let replacement .= "\n "
+  elseif g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
     let replacement .= "\n}"
   endif
 

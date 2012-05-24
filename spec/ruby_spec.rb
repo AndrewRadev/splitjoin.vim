@@ -133,5 +133,28 @@ describe "ruby" do
         foo 1, 2, :one => 1, :two => 2
       EOF
     end
+
+    specify "with round braces" do
+      VIM.command('let g:splitjoin_ruby_curly_braces = 0')
+
+      set_file_contents <<-EOF
+        foo(:one => 1, :two => 2)
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        foo(
+          :one => 1,
+          :two => 2
+        )
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        foo(:one => 1, :two => 2)
+      EOF
+    end
   end
 end
