@@ -87,4 +87,51 @@ describe "ruby" do
       Bar.new { |b| puts b.to_s }
     EOF
   end
+
+  describe "method options" do
+    specify "with curly braces" do
+      VIM.command('let g:splitjoin_ruby_curly_braces = 1')
+
+      set_file_contents <<-EOF
+        foo 1, 2, :one => 1, :two => 2
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        foo 1, 2, {
+          :one => 1,
+          :two => 2
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        foo 1, 2, { :one => 1, :two => 2 }
+      EOF
+    end
+
+    specify "without curly braces" do
+      VIM.command('let g:splitjoin_ruby_curly_braces = 0')
+
+      set_file_contents <<-EOF
+        foo 1, 2, :one => 1, :two => 2
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        foo 1, 2,
+          :one => 1,
+          :two => 2
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        foo 1, 2, :one => 1, :two => 2
+      EOF
+    end
+  end
 end

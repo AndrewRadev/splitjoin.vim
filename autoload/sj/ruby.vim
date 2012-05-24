@@ -176,21 +176,20 @@ function! s:JoinHashWithRoundBraces()
 endfunction
 
 function! s:JoinHashWithoutBraces()
-  let start_line = line('.')
+  let start_lineno = line('.')
+  let end_lineno   = start_lineno
+  let lineno       = nextnonblank(start_lineno + 1)
+  let line         = getline(lineno)
+  let indent       = repeat(' ', indent(lineno))
 
-  normal! j
-
-  let indent = repeat(' ', indent('.'))
-
-  let line = getline('.')
-  while (line =~ '^'.indent && line =~ '=>') || line =~ '^\s*)'
-    let end_line = line('.')
-    normal! j
-    let line = getline('.')
+  while lineno <= line('$') && ((line =~ '^'.indent && line =~ '=>') || line =~ '^\s*)')
+    let end_lineno = lineno
+    let lineno     = nextnonblank(lineno + 1)
+    let line       = getline(lineno)
   endwhile
 
-  call cursor(start_line, 0)
-  exe "normal! V".(end_line - start_line)."jJ"
+  call cursor(start_lineno, 0)
+  exe "normal! V".(end_lineno - start_lineno)."jJ"
 endfunction
 
 function! sj#ruby#SplitOptions()
@@ -222,10 +221,12 @@ function! sj#ruby#SplitOptions()
   let replacement = ''
 
   if len(args) > 0
-    let replacement .= join(args, ', ') . ', '
+    let replacement .= join(args, ', ') . ','
   endif
-  if g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
+  if option_type == 'hash'
     let replacement .= '{'
+  elseif g:splitjoin_ruby_curly_braces || len(args) == 0
+    let replacement .= ' {'
   endif
   let replacement .= "\n"
   let replacement .= join(opts, ",\n")
