@@ -147,7 +147,7 @@ function! sj#argparser#ruby#LocateFunction()
     return [from, to, function_type]
   endif
 
-  return [-1, -1]
+  return [-1, -1, '']
 endfunction
 
 function! sj#argparser#ruby#LocateHash()
