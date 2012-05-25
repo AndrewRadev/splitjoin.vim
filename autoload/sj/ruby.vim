@@ -105,33 +105,21 @@ function! sj#ruby#SplitCachingConstruct()
 endfunction
 
 function! sj#ruby#JoinCachingConstruct()
-  let line = getline('.')
+  let begin_line = getline('.')
+  let body_line  = getline(line('.') + 1)
+  let end_line   = getline(line('.') + 2)
 
-  if line =~ '||=\s\+begin'
-    let start_line_no    = line('.')
-    let end_line_pattern = '^'.repeat(' ', indent(start_line_no)).'end\s*$'
-    let end_line_no      = search(end_line_pattern, 'W')
+  if begin_line =~ '||=\s\+begin' && end_line =~ '^\s*end'
+    let lvalue      = substitute(begin_line, '\s\+||=\s\+begin.*$', '', '')
+    let body        = sj#Trim(body_line)
+    let replacement = lvalue.' ||= '.body
 
-    if end_line_no > 0
-      let lines = sj#GetLines(start_line_no, end_line_no)
+    call sj#ReplaceLines(line('.'), line('.') + 2, replacement)
 
-      let lvalue   = substitute(lines[0], '\s\+||=\s\+begin.*$', '', '')
-      let end_line = lines[-1] " unused
-      let body     = join(lines[1:-2], "\n")
-
-      let lvalue = sj#Trim(lvalue)
-      let body   = sj#Trim(body)
-      let body   = s:JoinLines(body)
-
-      let replacement = lvalue.' ||= '.body
-
-      call sj#ReplaceLines(start_line_no, end_line_no, replacement)
-
-      return 1
-    endif
+    return 1
+  else
+    return 0
   endif
-
-  return 0
 endfunction
 
 function! sj#ruby#JoinHash()

@@ -48,7 +48,7 @@ describe "ruby" do
   end
 
   # TODO (2012-05-24) Indentation breaks the "end" matching logic
-  xspecify "caching constructs" do
+  specify "caching constructs" do
     set_file_contents <<-EOF
       @two ||= 1 + 1
     EOF
