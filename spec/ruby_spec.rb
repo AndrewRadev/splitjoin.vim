@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe "ruby" do
   let(:vim) { VIM }
+  let(:filename) { 'test.rb' }
 
   specify "if-clauses" do
     set_file_contents <<-EOF

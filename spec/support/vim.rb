@@ -2,8 +2,8 @@ module Support
   module Vim
     def set_file_contents(string)
       string = normalize_string(string)
-      File.open('test.rb', 'w') { |f| f.write(string) }
-      VIM.edit 'test.rb'
+      File.open(filename, 'w') { |f| f.write(string) }
+      VIM.edit filename
     end
 
     def split
@@ -18,7 +18,7 @@ module Support
 
     def assert_file_contents(string)
       string = normalize_string(string)
-      IO.read('test.rb').strip.should eq string
+      IO.read(filename).strip.should eq string
     end
 
     private

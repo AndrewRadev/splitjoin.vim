@@ -79,6 +79,20 @@ function! sj#css#JoinMultilineSelector()
   endif
 endfunction
 
+function! sj#css#SplitMultilineSelector()
+  if getline('.') !~ '.*,.*{\s*$'
+    " then there is nothing to split
+    return 0
+  endif
+
+  let definition = getline('.')
+  let replacement = substitute(definition, ',\s*', ",\n", 'g')
+
+  call sj#ReplaceMotion('V', replacement)
+
+  return 1
+endfunction
+
 function! s:LocateDefinition()
   if search('{', 'bcW', line('.')) <= 0 && search('{', 'cW', line('.')) <= 0
     return 0
