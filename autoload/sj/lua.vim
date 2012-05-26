@@ -39,7 +39,7 @@ function! sj#lua#JoinFunction()
   let end_line      = getline(end_lineno)
 
   if end_lineno - function_lineno > 1
-    let body_lines = getbufline('%', function_lineno + 1, end_lineno - 1)
+    let body_lines = sj#GetLines(function_lineno + 1, end_lineno - 1)
     let body_lines = sj#TrimList(body_lines)
     let body       = join(body_lines, '; ')
     let body       = ' '.body.' '
