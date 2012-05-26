@@ -9,7 +9,7 @@ describe "lua" do
     vim.set 'shiftwidth', 2
   end
 
-  xspecify "functions" do
+  specify "functions" do
     set_file_contents <<-EOF
       function example () print("foo"); print("bar") end
     EOF
@@ -29,7 +29,7 @@ describe "lua" do
     EOF
   end
 
-  xspecify "lambda functions" do
+  specify "lambda functions" do
     set_file_contents <<-EOF
       local something = other(function (one, two) print("foo") end)
     EOF

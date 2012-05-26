@@ -24,31 +24,31 @@ function! sj#lua#SplitFunction()
 endfunction
 
 function! sj#lua#JoinFunction()
-  if search('\<function\>', 'c', line('.')) <= 0 && search('\<function\>', 'bc', line('.')) <= 0
+  normal! 0
+  if search('\<function\>', 'W', line('.')) < 0
     return 0
-  else
-    let function_line_no = line('.')
-    if searchpair('\<function\>', '', '\<end\>', 'W') < 0
-      return 0
-    endif
-    let end_line_no = line('.')
-
-    let function_line = getline(function_line_no)
-    let end_line      = getline(end_line_no)
-
-    if end_line_no - function_line_no > 1
-      let body_lines = getbufline('.', function_line_no + 1, end_line_no - 1)
-      let body_lines = sj#TrimList(body_lines)
-      let body       = join(body_lines, '; ')
-      let body       = ' '.body.' '
-    else
-      let body = ' '
-    endif
-
-    let replacement = function_line.body.end_line
-
-    call sj#ReplaceLines(function_line_no, end_line_no, replacement)
-
-    return 1
   endif
+
+  let function_lineno = line('.')
+  if searchpair('\<function\>', '', '\<end\>', 'W') <= 0
+    return 0
+  endif
+  let end_lineno = line('.')
+
+  let function_line = getline(function_lineno)
+  let end_line      = getline(end_lineno)
+
+  if end_lineno - function_lineno > 1
+    let body_lines = getbufline('%', function_lineno + 1, end_lineno - 1)
+    let body_lines = sj#TrimList(body_lines)
+    let body       = join(body_lines, '; ')
+    let body       = ' '.body.' '
+  else
+    let body = ' '
+  endif
+
+  let replacement = function_line.body.end_line
+  call sj#ReplaceLines(function_lineno, end_lineno, replacement)
+
+  return 1
 endfunction
