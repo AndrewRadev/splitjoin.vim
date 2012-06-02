@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/AndrewRadev/splitjoin.vim.png?branch=master)](http://travis-ci.org/AndrewRadev/splitjoin.vim)
+
 This plugin is meant to simplify a task I've found too common in my workflow:
 switching between a single-line statement and a multi-line one.
 
