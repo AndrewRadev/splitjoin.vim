@@ -46,6 +46,7 @@ function! sj#yaml#JoinArray()
 
     let lines       = sj#GetLines(line_no + 1, next_line_no)
     let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
+    let lines       = filter(lines, 'v:val !~ "^\s*$"')
     let first_line  = substitute(line, '\s*#.*$', '', '')
     let replacement = first_line.' ['.join(lines, ', ').']'
 
