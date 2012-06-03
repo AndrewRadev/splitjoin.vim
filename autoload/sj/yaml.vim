@@ -10,6 +10,7 @@ function! sj#yaml#SplitArray()
     let body                   = join(expanded_array, "\n- ")
 
     call sj#ReplaceMotion('V', key_part.":\n- ".body)
+    silent! normal! zO
     call s:SetIndentWhitespace(line_no, whitespace)
     call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(expanded_array), whitespace)
 
@@ -49,6 +50,7 @@ function! sj#yaml#JoinArray()
     let replacement = first_line.' ['.join(lines, ', ').']'
 
     call sj#ReplaceLines(line_no, next_line_no, replacement)
+    silent! normal! zO
     call s:SetIndentWhitespace(line_no, whitespace)
 
     return 1
@@ -60,7 +62,7 @@ function! s:GetIndentWhitespace(line_no)
 endfunction
 
 function! s:SetIndentWhitespace(line_no, whitespace)
-  exe a:line_no."s/^\\s*/".a:whitespace
+  silent exe a:line_no."s/^\\s*/".a:whitespace
 endfunction
 
 function! s:IncreaseIndentWhitespace(from, to, whitespace)
