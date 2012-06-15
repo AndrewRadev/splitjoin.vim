@@ -19,5 +19,3 @@ foo = 'example with \'escaped\' single quotes'
 foo = if bar? then 'baz' else 'qux'
 functionCall(if bar? then 'baz' else 'qux')
 functionCall('one', 'two', if bar? then 'baz' else 'qux')
-
-# TODO odd problem with last line
