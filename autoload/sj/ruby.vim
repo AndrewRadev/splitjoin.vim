@@ -142,6 +142,7 @@ function! s:JoinHashWithCurlyBraces()
   if g:splitjoin_normalize_whitespace
     let body = sj#GetMotion('Vi{',)
     let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
+    let body = substitute(body, '\s\+\k\+\zs:\s\+', ': ', 'g')
     call sj#ReplaceMotion('Vi{', body)
   endif
 
