@@ -13,5 +13,6 @@ if !exists('b:splitjoin_join_callbacks')
         \ 'sj#ruby#JoinHash',
         \ 'sj#ruby#JoinIfClause',
         \ 'sj#ruby#JoinCachingConstruct',
+        \ 'sj#ruby#JoinContinuedMethodCall',
         \ ]
 endif

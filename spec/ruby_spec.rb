@@ -89,6 +89,20 @@ describe "ruby" do
     EOF
   end
 
+  specify "method continuations" do
+    set_file_contents <<-EOF
+      one.
+        two.
+        three
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      one.two.three
+    EOF
+  end
+
   describe "method options" do
     specify "with curly braces" do
       VIM.command('let g:splitjoin_ruby_curly_braces = 1')

@@ -108,6 +108,13 @@ foo 'line with do in it' do |something|
   something
 end
 
+# method continuations
+
+foo = one.
+  two.
+  three(four, five).
+  six
+
 class Baz
   def qux
     # if/unless/while/until:

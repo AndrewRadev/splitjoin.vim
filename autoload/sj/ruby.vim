@@ -256,3 +256,21 @@ function! s:JoinLines(text)
     return join(lines, '; ')
   endif
 endfunction
+
+function! sj#ruby#JoinContinuedMethodCall()
+  if getline('.') !~ '\.$'
+    return 0
+  endif
+
+  let start_lineno = line('.')
+  silent! normal! zO
+  normal! j
+
+  while line('.') < line('$') && getline('.') =~ '\.$'
+    normal! j
+  endwhile
+
+  let end_lineno = line('.') - 1
+
+  exe start_lineno.','.end_lineno.'s/\n\_s*//'
+endfunction
