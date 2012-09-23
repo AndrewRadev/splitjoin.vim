@@ -11,9 +11,12 @@ function! sj#css#SplitDefinition()
 
   let lines = split(body, ";\s*")
   let lines = sj#TrimList(lines)
-  let lines = filter(lines, 'v:val !~ "^\s*$"')
+  let lines = filter(lines, '!sj#BlankString(v:val)')
 
-  let body = join(lines, ";\n") . ";"
+  let body = join(lines, ";\n")
+  if !sj#BlankString(body)
+    let body .= ";"
+  endif
 
   call sj#ReplaceMotion('Va{', "{\n".body."\n}")
 
@@ -35,6 +38,8 @@ function! sj#css#JoinDefinition()
     return 0
   endif
 
+  normal! 0
+  call search('{', 'Wc', line('.'))
   let body = sj#GetMotion('Vi{')
 
   let lines = split(body, ";\\?\s*\n")
@@ -45,9 +50,11 @@ function! sj#css#JoinDefinition()
   endif
 
   let body = join(lines, "; ")
-  let body = substitute(body, ';\?$', ';', '')
-  let body = substitute(body, '{;', '{', '')
+  let body = substitute(body, '\S.*\zs;\?$', ';', '')
+  let body = substitute(body, '{;', '{', '') " for SCSS
 
+  " TODO bug in Vim? (empty CSS body)
+  " Decho "OK"
   call sj#ReplaceMotion('Va{', '{ '.body.' }')
 
   return 1

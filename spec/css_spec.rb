@@ -30,6 +30,33 @@ describe "css" do
     EOF
   end
 
+  specify "empty single-line style definitions (regression)" do
+    set_file_contents <<-EOF
+      body {
+
+      }
+    EOF
+
+    join
+    assert_file_contents 'body {  }'
+
+    split
+    assert_file_contents <<-EOF
+      body {
+
+      }
+    EOF
+
+    # TODO Bug in Vim?
+    # set_file_contents <<-EOF
+    #   body {
+    #   }
+    # EOF
+
+    # join
+    # assert_file_contents 'body { }'
+  end
+
   # TODO (2012-05-26) Joining not quite working for some reason
   xspecify "multiline selectors" do
     set_file_contents <<-EOF
