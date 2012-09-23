@@ -4,6 +4,11 @@ describe "ruby" do
   let(:vim) { VIM }
   let(:filename) { 'test.rb' }
 
+  before :each do
+    vim.set(:expandtab)
+    vim.set(:shiftwidth, 2)
+  end
+
   specify "if-clauses" do
     set_file_contents <<-EOF
       return "the answer" if 6 * 9 == 42
