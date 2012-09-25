@@ -64,8 +64,8 @@ function! sj#ReplaceMotion(motion, text)
   let original_reg_type = getregtype('z')
 
   let @z = a:text
-  exec 'normal! '.a:motion.'"zp'
-  normal! gv=
+  exec 'silent normal! '.a:motion.'"zp'
+  silent normal! gv=
 
   call setreg('z', original_reg, original_reg_type)
 endfunction
