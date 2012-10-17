@@ -40,10 +40,6 @@ function! sj#python#SplitDict()
     exe "normal! jV".(body_end - body_start)."j2>"
     call sj#PopCursor()
 
-    if g:splitjoin_align
-      call sj#Align(body_start, body_end - 1, 'json_object')
-    endif
-
     return 1
   endif
 endfunction
@@ -62,7 +58,7 @@ function! sj#python#JoinDict()
 
     let body = join(lines, ' ')
 
-    call sj#ReplaceMotion('Va{', '{ '.body.' }')
+    call sj#ReplaceMotion('Va{', '{'.body.'}')
 
     return 1
   else
