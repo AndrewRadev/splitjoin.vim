@@ -26,10 +26,6 @@ endfunction
 " Restores the cursor to the latest position in the cursor stack, as added
 " from the sj#PushCursor function. Removes the position from the stack.
 function! sj#PopCursor()
-  if !exists('b:cursor_position_stack')
-    let b:cursor_position_stack = []
-  endif
-
   call setpos('.', remove(b:cursor_position_stack, -1))
 endfunction
 
@@ -203,13 +199,33 @@ endfunction
 " function! sj#SearchUnderCursor(pattern, flags)
 "
 " Searches for a match for the given pattern under the cursor. Returns the
-" result of the |search()| call if a match was found, 0 otherwise. Moves the
-" cursor unless the 'n' flag is given.
+" result of the |search()| call if a match was found, 0 otherwise.
+"
+" Moves the cursor unless the 'n' flag is given.
 "
 " The a:flags parameter can include one of "e", "p", "s", "n", which work the
 " same way as the built-in |search()| call. Any other flags will be ignored.
 "
 function! sj#SearchUnderCursor(pattern, ...)
+  let [match_start, match_end] = call('sj#SearchposUnderCursor', [a:pattern] + a:000)
+  if match_start > 0
+    return match_start
+  else
+    return 0
+  endif
+endfunction
+
+" function! sj#SearchposUnderCursor(pattern, flags)
+"
+" Searches for a match for the given pattern under the cursor. Returns the
+" start and (end + 1) column positions of the match. If nothing was found,
+" returns [0, 0].
+"
+" Moves the cursor unless the 'n' flag is given.
+"
+" See sj#SearchUnderCursor for the behaviour of a:flags
+"
+function! sj#SearchposUnderCursor(pattern, ...)
   if a:0 > 0
     let given_flags = a:1
   else
@@ -235,7 +251,7 @@ function! sj#SearchUnderCursor(pattern, ...)
     call search(pattern, 'bcW', lnum)
     let search_result = search(pattern, 'cW'.extra_flags, lnum)
     if search_result <= 0
-      return 0
+      return [0, 0]
     endif
     let match_start = col('.')
 
@@ -257,10 +273,10 @@ function! sj#SearchUnderCursor(pattern, ...)
 
     if match_start > col || match_end <= col
       " then the cursor is not in the pattern
-      return 0
+      return [0, 0]
     else
       " a match has been found
-      return search_result
+      return [match_start, match_end]
     endif
   finally
     if stridx(given_flags, 'n') >= 0

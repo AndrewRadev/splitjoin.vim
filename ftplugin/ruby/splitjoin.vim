@@ -4,6 +4,7 @@ if !exists('b:splitjoin_split_callbacks')
         \ 'sj#ruby#SplitOptions',
         \ 'sj#ruby#SplitBlock',
         \ 'sj#ruby#SplitCachingConstruct',
+        \ 'sj#ruby#SplitString',
         \ ]
 endif
 

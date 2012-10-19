@@ -316,3 +316,46 @@ function! sj#ruby#JoinHeredoc()
 
   return 1
 endfunction
+
+function! sj#ruby#SplitString()
+  let string_pattern       = '\%(\%(^\|[^\\]\)\zs[''"]\)\(.\{-}\)\%([^\\][''"]\)'
+  let empty_string_pattern = '\%(''''\|""\)'
+
+  let [match_start, match_end] = sj#SearchposUnderCursor(string_pattern)
+  if match_start <= 0
+    let [match_start, match_end] = sj#SearchposUnderCursor(empty_string_pattern)
+    if match_start <= 0
+      return 0
+    endif
+  endif
+
+  let string    = sj#GetCols(match_start, match_end - 1)
+  let delimiter = string[0]
+
+  if match_end - match_start > 2
+    let string_body = sj#GetCols(match_start + 1, match_end - 2)."\n"
+  else
+    let string_body = ''
+  endif
+
+  if delimiter == '"'
+    let string_body = substitute(string_body, '\\"', '"', 'g')
+  elseif delimiter == "'"
+    let string_body = substitute(string_body, "\\''", "'", 'g')
+  endif
+
+  if g:splitjoin_ruby_heredoc_type == '<<-'
+    call sj#ReplaceCols(match_start, match_end - 1, '<<-EOF')
+    let replacement = getline('.')."\n".string_body."EOF"
+    call sj#ReplaceMotion('V', replacement)
+  elseif g:splitjoin_ruby_heredoc_type == '<<'
+    call sj#ReplaceCols(match_start, match_end - 1, '<<EOF')
+    let replacement = getline('.')."\n".string_body."EOF"
+    call sj#ReplaceMotion('V', replacement)
+    exe (line('.') + 1).','.(line('.') + 2).'s/^\s*//'
+  else
+    throw 'Unknown value for g:splitjoin_ruby_heredoc_type, "'.g:splitjoin_ruby_heredoc_type.'"'
+  endif
+
+  return 1
+endfunction

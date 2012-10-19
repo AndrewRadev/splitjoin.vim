@@ -154,17 +154,51 @@ describe "ruby" do
       EOF
     end
 
-    xit "splits normal strings into heredocs" do
-      set_file_contents 'string = "\'something\', \"anything\""'
+    it "splits normal strings into heredocs" do
+      set_file_contents 'string = "\"anything\""'
 
-      VIM.search 'something'
+      VIM.search 'anything'
       split
 
       assert_file_contents <<-OUTER
         string = <<-EOF
-          'something', "anything"
+        "anything"
         EOF
       OUTER
+    end
+
+    it "splits empty strings into empty heredocs" do
+      set_file_contents 'string = ""'
+
+      VIM.search '"'
+      split
+
+      assert_file_contents <<-OUTER
+        string = <<-EOF
+        EOF
+      OUTER
+    end
+
+    it "can use the << heredoc style" do
+      set_file_contents <<-EOF
+        do
+          string = "something"
+        end
+      EOF
+
+      VIM.search 'something'
+      VIM.command('let g:splitjoin_ruby_heredoc_type = "<<"')
+      split
+
+      assert_file_contents <<-OUTER
+        do
+          string = <<EOF
+        something
+        EOF
+        end
+      OUTER
+
+      VIM.command('let g:splitjoin_ruby_heredoc_type = "<<-"')
     end
   end
 

@@ -117,17 +117,12 @@ foo = one.
 
 # heredocs
 
-string = <<-EOF
-  something, anything
-EOF
-string = <<EOF
-EOF
-string = function_call(<<-EOF, something_else)
-  something, \'"anything"
-EOF
-string = function_call(<<-EOF, something_else)
-  something, "#{anything}"
-EOF
+do
+  string = '"anything"'
+  string = ''
+  string = function_call("something, \'\"anything\"", something_else)
+  string = function_call("something, \"#{anything}\"", something_else)
+end
 
 class Baz
   def qux
