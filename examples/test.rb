@@ -99,7 +99,7 @@ User.new(:one, :first_name => "Andrew", :last_name => "Radev")
 Bar.new { |b| puts b.to_s; puts 'foo' }
 Bar.new { puts self.to_s }
 Bar.new { foo({ :one => :two, :three => :four }) }
-Bar.new { |one| one.new { |two| two.three } }
+Bar.new { |one| one.new { |two| two.three } } # comment
 foo(items.map do |i|
   i.bar
 end) # comment
