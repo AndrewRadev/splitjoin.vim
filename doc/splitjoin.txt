@@ -221,6 +221,14 @@ Blocks ~
       puts b.to_s
     end
 <
+Heredocs ~
+>
+    string = 'something'
+
+    string = <<-EOF
+    something
+    EOF
+<
 
 ==============================================================================
 PYTHON                                                      *splitjoin-python*
@@ -717,6 +725,31 @@ If it's set to 0, the brace will get its own line:
     {
       print "a = $a\n";
     }
+<
+
+                                               *g:splitjoin_ruby_heredoc_type*
+>
+    g:splitjoin_ruby_heredoc_type
+<
+
+Default value: "<<-"
+
+This setting can be one of "<<-" and "<<" and controls how strings will be
+split into heredocs. If it's "<<-", the following form is used
+>
+    do
+      foo = <<-EOF
+      something
+      EOF
+    end
+<
+If it's set to "<<", the result is this:
+>
+    do
+      foo = <<EOF
+    something
+    EOF
+    end
 <
 
 ==============================================================================
