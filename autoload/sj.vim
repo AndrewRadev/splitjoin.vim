@@ -33,6 +33,14 @@ function! sj#PopCursor()
   call setpos('.', remove(b:cursor_position_stack, -1))
 endfunction
 
+" function! sj#DropCursor() {{{2
+"
+" Discards the last saved cursor position from the cursor stack.
+" Note that if the cursor hasn't been saved at all, this will raise an error.
+function! sj#DropCursor()
+  call remove(b:cursor_position_stack, -1)
+endfunction
+
 " function! sj#PeekCursor() {{{2
 "
 " Returns the last saved cursor position from the cursor stack.
@@ -188,6 +196,79 @@ endfunction
 " Execute sj#Trim on each item of a List
 function! sj#TrimList(list)
   return map(a:list, 'sj#Trim(v:val)')
+endfunction
+
+" Searching for patterns {{{1
+
+" function! sj#SearchUnderCursor(pattern, flags)
+"
+" Searches for a match for the given pattern under the cursor. Returns the
+" result of the |search()| call if a match was found, 0 otherwise. Moves the
+" cursor unless the 'n' flag is given.
+"
+" The a:flags parameter can include one of "e", "p", "s", "n", which work the
+" same way as the built-in |search()| call. Any other flags will be ignored.
+"
+function! sj#SearchUnderCursor(pattern, ...)
+  if a:0 > 0
+    let given_flags = a:1
+  else
+    let given_flags = ''
+  endif
+
+  let lnum        = line('.')
+  let col         = col('.')
+  let pattern     = a:pattern
+  let extra_flags = ''
+
+  " handle any extra flags provided by the user
+  for char in ['e', 'p', 's']
+    if stridx(given_flags, char) >= 0
+      let extra_flags .= char
+    endif
+  endfor
+
+  try
+    call sj#PushCursor()
+
+    " find the start of the pattern
+    call search(pattern, 'bcW', lnum)
+    let search_result = search(pattern, 'cW'.extra_flags, lnum)
+    if search_result <= 0
+      return 0
+    endif
+    let match_start = col('.')
+
+    " find the end of the pattern
+    call sj#PushCursor()
+    call search(pattern, 'cWe', lnum)
+    let match_end = col('.')
+
+    " set the end of the pattern to the next character, or EOL. Extra logic
+    " is for multibyte characters.
+    normal! l
+    if col('.') == match_end
+      " no movement, we must be at the end
+      let match_end = col('$')
+    else
+      let match_end = col('.')
+    endif
+    call sj#PopCursor()
+
+    if match_start > col || match_end <= col
+      " then the cursor is not in the pattern
+      return 0
+    else
+      " a match has been found
+      return search_result
+    endif
+  finally
+    if stridx(given_flags, 'n') >= 0
+      call sj#PopCursor()
+    else
+      call sj#DropCursor()
+    endif
+  endtry
 endfunction
 
 " Regex helpers {{{1

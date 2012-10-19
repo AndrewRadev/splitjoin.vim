@@ -14,5 +14,6 @@ if !exists('b:splitjoin_join_callbacks')
         \ 'sj#ruby#JoinIfClause',
         \ 'sj#ruby#JoinCachingConstruct',
         \ 'sj#ruby#JoinContinuedMethodCall',
+        \ 'sj#ruby#JoinHeredoc',
         \ ]
 endif

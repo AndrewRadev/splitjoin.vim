@@ -108,6 +108,66 @@ describe "ruby" do
     EOF
   end
 
+  describe "heredocs" do
+    it "joins heredocs into single-quoted strings when possible" do
+      set_file_contents <<-EOF
+        string = <<-ANYTHING
+          something, "anything"
+        ANYTHING
+      EOF
+
+      VIM.search 'ANYTHING'
+      join
+
+      assert_file_contents <<-EOF
+        string = 'something, "anything"'
+      EOF
+    end
+
+    it "joins heredocs into double-quoted strings when there's a single-quoted string inside" do
+      set_file_contents <<-EOF
+        string = <<-ANYTHING
+          something, 'anything'
+        ANYTHING
+      EOF
+
+      VIM.search 'ANYTHING'
+      join
+
+      assert_file_contents <<-EOF
+        string = "something, 'anything'"
+      EOF
+    end
+
+    it "joins heredocs into double-quoted strings when there's interpolation inside" do
+      set_file_contents <<-EOF
+        string = <<-ANYTHING
+          something, \#{anything}
+        ANYTHING
+      EOF
+
+      VIM.search 'ANYTHING'
+      join
+
+      assert_file_contents <<-EOF
+        string = "something, \#{anything}"
+      EOF
+    end
+
+    xit "splits normal strings into heredocs" do
+      set_file_contents 'string = "\'something\', \"anything\""'
+
+      VIM.search 'something'
+      split
+
+      assert_file_contents <<-OUTER
+        string = <<-EOF
+          'something', "anything"
+        EOF
+      OUTER
+    end
+  end
+
   describe "method options" do
     specify "with curly braces" do
       VIM.command('let g:splitjoin_ruby_curly_braces = 1')

@@ -115,6 +115,20 @@ foo = one.
   three(four, five).
   six
 
+# heredocs
+
+string = <<-EOF
+  something, anything
+EOF
+string = <<EOF
+EOF
+string = function_call(<<-EOF, something_else)
+  something, \'"anything"
+EOF
+string = function_call(<<-EOF, something_else)
+  something, "#{anything}"
+EOF
+
 class Baz
   def qux
     # if/unless/while/until:

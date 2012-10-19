@@ -274,3 +274,44 @@ function! sj#ruby#JoinContinuedMethodCall()
 
   exe start_lineno.','.end_lineno.'s/\n\_s*//'
 endfunction
+
+function! sj#ruby#JoinHeredoc()
+  let heredoc_pattern = '<<-\?\([^ \t,]\+\)'
+
+  if sj#SearchUnderCursor(heredoc_pattern) <= 0
+    return 0
+  endif
+
+  let start_lineno      = line('.')
+  let remainder_of_line = sj#GetCols(col('.'), col('$'))
+  let delimiter         = sj#ExtractRx(remainder_of_line, heredoc_pattern, '\1')
+
+  " we won't be needing the rest of the line
+  normal! "_D
+
+  if search('^\s*'.delimiter.'\s*$', 'W') <= 0
+    return 0
+  endif
+
+  let end_lineno = line('.')
+
+  if end_lineno - start_lineno > 1
+    let lines = sj#GetLines(start_lineno + 1, end_lineno - 1)
+    let lines = sj#TrimList(lines)
+    let body  = join(lines, " ")
+  else
+    let body = ''
+  endif
+
+  if body =~ '\%(#{\|''\)'
+    let quoted_body = '"'.escape(escape(body, '"'), '\').'"'
+  else
+    let quoted_body = "'".body."'"
+  endif
+
+  let replacement = getline(start_lineno).substitute(remainder_of_line, heredoc_pattern, quoted_body, '')
+  call sj#ReplaceLines(start_lineno, end_lineno, replacement)
+  undojoin " with the 'normal! D'
+
+  return 1
+endfunction
