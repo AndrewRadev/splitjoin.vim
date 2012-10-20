@@ -50,6 +50,8 @@ function! s:Split()
   " expand any folds under the cursor, or we might replace the wrong area
   silent! foldopen
 
+  let saved_view = winsaveview()
+
   for callback in b:splitjoin_split_callbacks
     try
       call sj#PushCursor()
@@ -63,6 +65,8 @@ function! s:Split()
       call sj#PopCursor()
     endtry
   endfor
+
+  call winrestview(saved_view)
 endfunction
 
 function! s:Join()
