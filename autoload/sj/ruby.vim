@@ -318,7 +318,7 @@ function! sj#ruby#JoinHeredoc()
 endfunction
 
 function! sj#ruby#SplitString()
-  let string_pattern       = '\%(\%(^\|[^\\]\)\zs[''"]\)\(.\{-}\)\%([^\\][''"]\)'
+  let string_pattern       = '\(\%(^\|[^\\]\)\zs\([''"]\)\).\{-}[^\\]\+\2'
   let empty_string_pattern = '\%(''''\|""\)'
 
   let [match_start, match_end] = sj#SearchposUnderCursor(string_pattern)
