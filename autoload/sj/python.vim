@@ -65,3 +65,31 @@ function! sj#python#JoinDict()
     return 0
   endif
 endfunction
+
+" TODO (2012-10-23) tests
+function! sj#python#SplitList()
+  if sj#SearchUnderCursor('\[.*]') <= 0
+    return 0
+  endif
+
+  let start = col('.')
+  normal! %h
+  let end = col('.')
+
+  " TODO (2012-10-23) Document sj#ParseJsonObjectBody better -- margins are a bit odd
+  let items = sj#ParseJsonObjectBody(start, end)
+  let body = '['.join(items, ",\n").']'
+
+  call sj#ReplaceMotion('va[', body)
+  return 1
+endfunction
+
+" TODO (2012-10-23) tests
+function! sj#python#JoinList()
+  if sj#SearchUnderCursor('\[[^]]*\s*$') <= 0
+    return 0
+  endif
+
+  normal! va[J
+  return 1
+endfunction
