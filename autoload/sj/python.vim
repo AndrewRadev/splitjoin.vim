@@ -66,9 +66,24 @@ function! sj#python#JoinDict()
   endif
 endfunction
 
-" TODO (2012-10-23) tests
-function! sj#python#SplitList()
-  if sj#SearchUnderCursor('\[.*]') <= 0
+function! sj#python#SplitArray()
+  return s:SplitList('\[.*]', '[', ']')
+endfunction
+
+function! sj#python#JoinArray()
+  return s:JoinList('\[[^]]*\s*$', '[')
+endfunction
+
+function! sj#python#SplitTuple()
+  return s:SplitList('(.*)', '(', ')')
+endfunction
+
+function! sj#python#JoinTuple()
+  return s:JoinList('([^)]*\s*$', '(')
+endfunction
+
+function! s:SplitList(regex, opening_char, closing_char)
+  if sj#SearchUnderCursor(a:regex) <= 0
     return 0
   endif
 
@@ -78,18 +93,17 @@ function! sj#python#SplitList()
 
   " TODO (2012-10-23) Document sj#ParseJsonObjectBody better -- margins are a bit odd
   let items = sj#ParseJsonObjectBody(start, end)
-  let body = '['.join(items, ",\n").']'
+  let body = a:opening_char.join(items, ",\n").a:closing_char
 
-  call sj#ReplaceMotion('va[', body)
+  call sj#ReplaceMotion('va'.a:opening_char, body)
   return 1
 endfunction
 
-" TODO (2012-10-23) tests
-function! sj#python#JoinList()
-  if sj#SearchUnderCursor('\[[^]]*\s*$') <= 0
+function! s:JoinList(regex, opening_char)
+  if sj#SearchUnderCursor(a:regex) <= 0
     return 0
   endif
 
-  normal! va[J
+  exe 'normal! va'.a:opening_char.'J'
   return 1
 endfunction
