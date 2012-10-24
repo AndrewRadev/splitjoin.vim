@@ -53,7 +53,6 @@ describe "ruby" do
     EOF
   end
 
-  # TODO (2012-05-24) Indentation breaks the "end" matching logic
   specify "caching constructs" do
     set_file_contents <<-EOF
       @two ||= 1 + 1
@@ -258,10 +257,8 @@ describe "ruby" do
       split
 
       assert_file_contents <<-EOF
-        foo(
-          :one => 1,
-          :two => 2
-        )
+        foo(:one => 1,
+            :two => 2)
       EOF
 
       join

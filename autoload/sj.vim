@@ -377,7 +377,7 @@ function! sj#LocateBracesOnLine(open, close)
   endif
 
   if found > 0
-    let from = col('.') - 1
+    let from = col('.')
     normal! %
     let to = col('.')
 

@@ -87,11 +87,12 @@ function! s:SplitList(regex, opening_char, closing_char)
     return 0
   endif
 
+  " TODO (2012-10-24) connect sj#SearchUnderCursor and sj#LocateBracesOnLine
+  normal! l
   let start = col('.')
-  normal! %h
+  normal! h%h
   let end = col('.')
 
-  " TODO (2012-10-23) Document sj#ParseJsonObjectBody better -- margins are a bit odd
   let items = sj#ParseJsonObjectBody(start, end)
   let body = a:opening_char.join(items, ",\n").a:closing_char
 

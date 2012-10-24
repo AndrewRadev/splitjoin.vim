@@ -134,12 +134,14 @@ function! sj#argparser#ruby#LocateFunction()
     let found = search(pattern, 'cWe', line('.'))
   endif
   if found > 0
-    let from      = col('.') - 1
+    let from      = col('.')
     let to        = -1 " we're not sure about the end right now
     let delimiter = getline('.')[col('.') - 2]
 
     if delimiter == '('
       let function_type = 'with_round_braces'
+      normal! h%h
+      let to = col('.')
     else
       let function_type = 'with_spaces'
     endif
@@ -157,5 +159,5 @@ endfunction
 function! sj#argparser#ruby#ParseArguments(start_index, end_index, line)
   let parser = sj#argparser#ruby#Construct(a:start_index, a:end_index, a:line)
   call parser.Process()
-  return [ a:start_index + 1, parser.index, parser.args, parser.opts, parser.hash_type ]
+  return [ a:start_index, parser.index, parser.args, parser.opts, parser.hash_type ]
 endfunction

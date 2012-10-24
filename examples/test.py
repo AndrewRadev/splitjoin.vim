@@ -1,6 +1,6 @@
-knights = { 'gallahad': 'the pure', 'robin': 'the brave' }
+knights = {'gallahad': 'the pure', 'robin': 'the brave'}
 
-spam = { 'spam': [1, 2, 3], 'spam, spam': { 'one': 'two' }, "spam, spam, spam...": ('spam', 'eggs') }
+spam = {'spam': [1, 2, 3], 'spam, spam': { 'one': 'two' }, "spam, spam, spam...": ('spam', 'eggs')}
 
 spam = [1, [2, 3], 4]
 spam = (1, (2, 3), 4)

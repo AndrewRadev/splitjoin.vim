@@ -84,8 +84,9 @@ User.new(
   :first_name => "Andrew",
   :last_name => "Radev"
 )
-User.new :one, :first_name => "Andrew", :last_name => "Radev"
-User.new(:one, :first_name => "Andrew", :last_name => "Radev")
+User.new :one, :first_name => "Andrew", :last_name  => "Radev"
+User.new(:one, :first_name => "Andrew", :last_name  => "Radev")
+User.new(:first_name => "Andrew", :last_name => "Radev")
 
 # caching constructs
 
@@ -117,7 +118,7 @@ foo = one.
 
 # heredocs
 
-do
+test do
   string = '"anything"'
   string = ''
   string = function_call("something, \'\"anything\"", something_else)

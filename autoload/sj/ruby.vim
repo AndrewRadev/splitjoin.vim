@@ -210,22 +210,39 @@ function! sj#ruby#SplitOptions()
 
   let replacement = ''
 
+  " first, prepare the already-existing arguments
   if len(args) > 0
     let replacement .= join(args, ', ') . ','
   endif
-  if !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces'
-    " don't add any opening delimiter, there's a "(" already
-  elseif option_type == 'hash' || len(args) == 0
-    let replacement .= '{'
+
+  " add opening brace
+  if !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces' && len(args) > 0
+    " Example: User.new(:one, :two => 'three')
+    "
+    let replacement .= "\n"
+  elseif !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_spaces' && len(args) > 0
+    " Example: User.new :one, :two => 'three'
+    "
+    let replacement .= "\n"
+  elseif !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces' && len(args) == 0
+    " Example: User.new(:two => 'three')
+    "
+    " no need to add anything
+  elseif g:splitjoin_ruby_curly_braces && (option_type == 'hash' || function_type == 'with_round_braces')
+    " Example: one = {:two => 'three'}
+    "
+    let replacement .= "{\n"
   elseif g:splitjoin_ruby_curly_braces
-    let replacement .= ' {'
+    " add braces in all other cases
+    let replacement .= " {\n"
   endif
-  let replacement .= "\n"
+
+  " add options
   let replacement .= join(opts, ",\n")
+
+  " add closing brace
   if !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces'
-    " add a newline, there's a ")" already
-    " Note: adding a space to avoid pasting issues
-    let replacement .= "\n "
+    " no need to add anything
   elseif g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
     let replacement .= "\n}"
   endif
