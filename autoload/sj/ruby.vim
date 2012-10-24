@@ -209,6 +209,7 @@ function! sj#ruby#SplitOptions()
   endif
 
   let replacement = ''
+  let alignment_start = line('.')
 
   " first, prepare the already-existing arguments
   if len(args) > 0
@@ -220,10 +221,12 @@ function! sj#ruby#SplitOptions()
     " Example: User.new(:one, :two => 'three')
     "
     let replacement .= "\n"
+    let alignment_start += 1
   elseif !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_spaces' && len(args) > 0
     " Example: User.new :one, :two => 'three'
     "
     let replacement .= "\n"
+    let alignment_start += 1
   elseif !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces' && len(args) == 0
     " Example: User.new(:two => 'three')
     "
@@ -232,9 +235,11 @@ function! sj#ruby#SplitOptions()
     " Example: one = {:two => 'three'}
     "
     let replacement .= "{\n"
+    let alignment_start += 1
   elseif g:splitjoin_ruby_curly_braces
     " add braces in all other cases
     let replacement .= " {\n"
+    let alignment_start += 1
   endif
 
   " add options
@@ -250,8 +255,7 @@ function! sj#ruby#SplitOptions()
   call sj#ReplaceCols(from, to, replacement)
 
   if g:splitjoin_align && hash_type != 'mixed'
-    let alignment_start = line('.') + 1
-    let alignment_end   = alignment_start + len(opts) - 1
+    let alignment_end = alignment_start + len(opts) - 1
 
     if hash_type == 'classic'
       call sj#Align(alignment_start, alignment_end, 'hashrocket')
