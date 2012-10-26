@@ -82,6 +82,46 @@ function! sj#python#JoinTuple()
   return s:JoinList('([^)]*\s*$', '(')
 endfunction
 
+function! sj#python#SplitImport()
+  let import_pattern = '^from \%(.*\) import \zs.*$'
+
+  normal! 0
+  if search(import_pattern, 'Wc', line('.')) <= 0
+    return 0
+  endif
+
+  let import_list = sj#GetMotion('vg_')
+
+  if stridx(import_list, ',') < 0
+    return 0
+  endif
+
+  let imports = split(import_list, ',\s*')
+
+  call sj#ReplaceMotion('vg_', join(imports, ",\\\n"))
+  return 1
+endfunction
+
+function! sj#python#JoinImport()
+  let import_pattern = '^from \%(.*\) import .*\\\s*$'
+
+  if getline('.') !~ import_pattern
+    return 0
+  endif
+
+  let start_lineno = line('.')
+  let current_lineno = nextnonblank(start_lineno + 1)
+
+  while getline(current_lineno) =~ '\\\s*$' && current_lineno < line('$')
+    let current_lineno = nextnonblank(current_lineno + 1)
+  endwhile
+
+  let end_lineno = current_lineno
+
+  exe start_lineno.','.end_lineno.'s/,\\\n\s*/, /e'
+  return 1
+endfunction
+
 function! s:SplitList(regex, opening_char, closing_char)
   if sj#SearchUnderCursor(a:regex) <= 0
     return 0
