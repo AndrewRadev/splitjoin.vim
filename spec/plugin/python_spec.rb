@@ -44,6 +44,21 @@ describe "python" do
     assert_file_contents 'spam = [1, [2, 3], 4]'
   end
 
+  specify "imports" do
+    set_file_contents 'from foo import bar, baz'
+
+    split
+
+    assert_file_contents <<-EOF
+      from foo import bar,\\
+              baz
+    EOF
+
+    join
+
+    assert_file_contents 'from foo import bar, baz'
+  end
+
   specify "statements" do
     set_file_contents 'while True: loop()'
 
