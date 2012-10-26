@@ -239,20 +239,42 @@ the dict having ":" characters in it).
 
 Dicts ~
 >
-    knights = { 'gallahad': 'the pure', 'robin': 'the brave' }
+    knights = {'gallahad': 'the pure', 'robin': 'the brave'}
 
     knights = {
             'gallahad': 'the pure',
             'robin': 'the brave'
             }
 <
+Lists ~
+>
+    spam = [1, 2, 3]
 
+    spam = [1,
+            2,
+            3]
+<
+Tuples ~
+>
+    spam = (1, 2, 3)
+
+    spam = (1,
+            2,
+            3)
+<
 Statements ~
 >
     if foo: bar()
 
     if foo:
         bar()
+<
+Imports ~
+>
+    from foo import bar, baz
+
+    from foo import bar,\
+            baz
 <
 
 ==============================================================================
