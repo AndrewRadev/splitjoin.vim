@@ -1,4 +1,8 @@
 function! sj#vim#Split()
+  if sj#BlankString(getline('.'))
+    return 0
+  endif
+
   let new_line = sj#GetMotion('vg_')
 
   if sj#BlankString(new_line)
