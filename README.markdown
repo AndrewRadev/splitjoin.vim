@@ -29,8 +29,20 @@ Into this:
       bar
     </div>
 
-And another binding for the opposite transformation. This currently works for
-various constructs in ruby and erb, and for tags in html/xml.
+And another binding for the opposite transformation.
+
+This currently works for:
+  * Various constructs in Ruby and Eruby
+  * Various constructs in Coffeescript
+  * Various constructs in Perl
+  * Various constructs in Python
+  * PHP arrays
+  * Javascript object literals and functions
+  * Tags in HTML/XML
+  * CSS, SCSS, LESS style declarations.
+  * YAML arrays
+  * Lua functions
+  * Vimscript line continuations
 
 For more information, try `:help splitjoin`, or take a look at the help file
 online at
@@ -41,3 +53,13 @@ here:
 [examples](https://github.com/AndrewRadev/splitjoin.vim/tree/master/examples).
 It's not present in the downloadable zip file to avoid cluttering your vimfiles
 with useless stuff.
+
+## Contributing
+
+If you'd like to hack on the plugin, please see
+[CONTRIBUTING.md](https://github.com/AndrewRadev/splitjoin.vim/blob/master/CONTRIBUTING.md) first.
+
+## Issues
+
+Any issues and suggestions are very welcome on the
+[github bugtracker](https://github.com/AndrewRadev/splitjoin.vim/issues).
