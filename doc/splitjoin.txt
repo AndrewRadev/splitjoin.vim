@@ -39,39 +39,39 @@ The command is (provided you're in ~/.vim):
 Another way is to simply copy all the essential directories inside the ~/.vim
 directory: plugin, ftplugin, autoload, doc.
 
-After the plugin is installed, the command :SplitjoinSplit will perform
-splitting and :SplitjoinJoin -- joining of the code under the cursor. It's
-highly recommended to map these to keybindings, since the idea of the plugin
-is to simplify these manipulations. An example keybinding that needs to go in
-.vimrc:
->
-    nmap <Leader>j :SplitjoinJoin<cr>
-    nmap <Leader>s :SplitjoinSplit<cr>
-<
-With these mappings, and if the <Leader> is set to, for example, "_", then
-"_j" would attempt to perform a join on the text block under the cursor and
-"_s" would perform a split on the line.
-
-My personal preference is to avoid mnemonics in this case and go for an
-approach that makes more sense to my fingers instead:
->
-    nmap sj :SplitjoinSplit<cr>
-    nmap sk :SplitjoinJoin<cr>
-<
-Note that I'm using "sj" for splitting, not joining. To me, "splitting" a line
-results in expanding it downwards, so using "j" seems more intuitive, likewise
-for "k". Also note that the "s" key is ordinarily taken (try :help s), but I
-don't use it, so I've mapped it to <Nop>.
-
 
 ==============================================================================
 USAGE                                                        *splitjoin-usage*
 
-As noted above, in |splitjoin-installation|, using the plugin consists in
-executing :SplitjoinSplit or :SplitjoinJoin on the current line, and it's
-recommended to have mappings for those commands. From now on, I'll just use
-the verbs "split" and "join" for the actions, regardless of the way you decide
-to execute them.
+After the plugin is installed, the mapping |gS| will perform splitting and |gJ|
+-- joining of the code under the cursor. These mappings are configurable
+with |g:splitjoin_split_mapping| and |g:splitjoin_join_mapping|, respectively.
+You could also use the commands |:SplitjoinSplit| and |:SplitjoinJoin|, either
+directly, or in your own scripts.
+
+Note that |gJ| is a built-in mapping that is used for joining lines while
+preserving whitespace. However, if no splitting/joining is possible at this
+point, the plugin will fall back to the default mapping. If you'd rather have
+the splitjoin mappings be no-ops in that case, you could set the mapping
+variables to empty strings, which will simply not create them at all. You can
+then make your own simple mappings by using the commands:
+>
+    let g:splitjoin_split_mapping = ''
+    let g:splitjoin_join_mapping = ''
+
+    nmap <Leader>j :SplitjoinJoin<cr>
+    nmap <Leader>s :SplitjoinSplit<cr>
+<
+For the record, my personal preference is to avoid mnemonics in this case and
+go for an approach that makes more sense to my fingers instead:
+>
+    nmap sj :SplitjoinSplit<cr>
+    nmap sk :SplitjoinJoin<cr>
+<
+Notice that I'm using "sj" for splitting, not joining. To me, "splitting" a
+line results in expanding it downwards, so using "j" seems more intuitive,
+likewise for "k". The "s" key is ordinarily taken (try :help s), but I don't
+use it, so I've mapped it to <Nop>. Your mileage may vary.
 
 Splitting a line consists of checking for blocks of text that the plugin knows
 how to split and, well, doing that. For example, if we have a ruby hash:
@@ -176,7 +176,6 @@ single line.
       return "the answer"
     end
 <
-
 Hashes ~
 
 To split a hash, you need to be within the curly brackets. Otherwise, the
@@ -192,7 +191,7 @@ plugin attempts to split it as a block.
 Option hashes ~
 
 There's an option, |g:splitjoin_ruby_curly_braces|, that controls whether the
-curly braces are present after splitting.
+curly braces are present after splitting or joining.
 >
     foo 1, 2, :one => 1, :two => 2
 
@@ -210,8 +209,8 @@ Caching constructs  ~
     @two ||= 1 + 1
 
     @two ||= begin
-      1 + 1
-    end
+               1 + 1
+             end
 <
 Blocks ~
 >
@@ -286,7 +285,6 @@ The variable |g:splitjoin_perl_brace_on_same_line| controls the format of the
 curly braces when joining. If it's set to 0, the opening curly brace will be
 on its own line. Otherwise, it'll be placed on the same line as the if-clause
 (the default behaviour).
-
 >
     print "a = $a\n" if $debug;
 
@@ -294,13 +292,11 @@ on its own line. Otherwise, it'll be placed on the same line as the if-clause
       print "a = $a\n";
     }
 <
-
 And/or clauses ~
 
 It only makes sense to split these -- joining results in joining an if/unless
-clause. variable |g:splitjoin_perl_brace_on_same_line| affects the results
+clause. The variable |g:splitjoin_perl_brace_on_same_line| affects the results
 just like explained above.
-
 >
     open PID, ">", $pidfile or die;
 
@@ -319,7 +315,6 @@ Functions ~
     (foo, bar) ->
       console.log foo
 <
-
 If/unless/while/until clauses ~
 
 Since it's possible to join a multiline if into either a postfix or suffix
@@ -336,7 +331,7 @@ the suffix format.
 Ternary operator ~
 
 Only splitting is available at this time, since joining an if-else clause into
-a ternary operator is a bit more complicated.
+a ternary operator is more complicated.
 >
     foo = if bar? then 'baz' else 'qux'
 
@@ -450,7 +445,6 @@ Vimscript can generally be split anywhere by simply placing the remainder of
 the line on the next one, prefixed by a backslash. That's why joining is
 fairly easy to do for the most general case -- anything that is followed by a
 line, starting with a backslash, can be joined with the current one.
-
 >
     let example_one = {
         \ 'one': 'two',
@@ -471,7 +465,6 @@ line, starting with a backslash, can be joined with the current one.
 
     command! Foo if one | 'two' | else | 'three' | endif
 <
-
 Splitting is a bit trickier, since anything can be split at any point. While
 it's possible to handle some specific cases like dictionaries, arrays, and
 commands, for now the plugin takes the simple approach of splitting precisely
@@ -494,7 +487,7 @@ Tags ~
 ==============================================================================
 CSS                                                             *splitjoin-css*
 
-These should also work for SCSS and LESS.
+These also work for SCSS and LESS.
 
 Style definitions ~
 >
@@ -549,7 +542,6 @@ Tags ~
       bar
     </div>
 <
-
 If/unless clauses ~
 >
     <%= foo if bar? %>
@@ -558,7 +550,6 @@ If/unless clauses ~
       <%= foo %>
     <% end %>
 <
-
 Hashes ~
 >
     <% foo = { :bar => 'baz', :one => :two, :five => 'six' } %>
@@ -569,7 +560,6 @@ Hashes ~
       :five => 'six'
     } %>
 <
-
 Option hashes ~
 >
     <%= link_to 'Google', 'http://google.com', :class => 'google', :id => 'google-link' %>
@@ -586,11 +576,11 @@ SETTINGS                                                  *splitjoin-settings*
 These are the variables that control the behaviour of the plugin.
 
 
-                                                 *b:splitjoin_join_callbacks*
                                                  *b:splitjoin_split_callbacks*
+                                                 *b:splitjoin_join_callbacks*
 >
-    b:splitjoin_join_callbacks
     b:splitjoin_split_callbacks
+    b:splitjoin_join_callbacks
 <
 
 Default value: depends on the filetype
@@ -605,6 +595,27 @@ for ruby files:
 >
     let b:splitjoin_join_callbacks = []
 <
+
+
+                                                    *g:splitjoin_split_mapping*
+                                                    *g:splitjoin_join_mapping*
+>
+    let g:splitjoin_split_mapping = 'cS'
+    let g:splitjoin_join_mapping  = 'cJ'
+<
+
+Default values: 'gS' and 'gJ'
+
+Changing these values changes the default mappings of the plugin. Note that,
+if no splitting or joining can be performed, these default mappings will fall
+back to performing the key sequence's built-in functionality.
+
+Set to a blank string to disable default mappings completely. You can still
+create your own mapping the old-fashioned way using the |SplitjoinSplit| and
+|SplitjoinJoin| commands, though in the case with no possible
+splitting/joining, nothing will happen.
+
+
 
                                             *g:splitjoin_normalize_whitespace*
 >

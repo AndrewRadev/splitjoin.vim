@@ -33,11 +33,27 @@ if !exists('g:splitjoin_perl_brace_on_same_line')
   let g:splitjoin_perl_brace_on_same_line = 1
 endif
 
+if !exists('g:splitjoin_join_mapping')
+  let g:splitjoin_join_mapping = 'gJ'
+endif
+
+if !exists('g:splitjoin_split_mapping')
+  let g:splitjoin_split_mapping = 'gS'
+endif
+
 " Public Interface:
 " =================
 
 command! SplitjoinSplit call s:Split()
 command! SplitjoinJoin  call s:Join()
+
+if g:splitjoin_join_mapping != ''
+  exe 'nnoremap <silent> '.g:splitjoin_join_mapping.' :<c-u>call <SID>Mapping(g:splitjoin_join_mapping, "SplitjoinJoin")<cr>'
+endif
+
+if g:splitjoin_split_mapping != ''
+  exe 'nnoremap <silent> '.g:splitjoin_split_mapping.' :<c-u>call <SID>Mapping(g:splitjoin_split_mapping, "SplitjoinSplit")<cr>'
+endif
 
 " Internal Functions:
 " ===================
@@ -90,6 +106,18 @@ function! s:Join()
       call sj#PopCursor()
     endtry
   endfor
+endfunction
+
+function! s:Mapping(mapping, command)
+  if !v:count
+    let tick = b:changedtick
+    exe a:command
+    if tick == b:changedtick
+      execute 'normal! '.a:mapping
+    endif
+  else
+    execute 'normal! '.v:count.a:mapping
+  endif
 endfunction
 
 let &cpo = s:keepcpo
