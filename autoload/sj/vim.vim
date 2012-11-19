@@ -18,20 +18,15 @@ endfunction
 
 function! sj#vim#Join()
   let continuation_pattern = '^\s*\\'
-  let next_line_no         = line('.') + 1
-  let next_line            = getline(next_line_no)
+  let current_lineno       = line('.')
+  let next_lineno          = current_lineno + 1
+  let next_line            = getline(next_lineno)
 
-  if next_line_no > line('$') || next_line !~ continuation_pattern
+  if next_lineno > line('$') || next_line !~ continuation_pattern
     return 0
   else
-    while next_line_no <= line('$') && next_line =~ continuation_pattern
-      let next_line_no = next_line_no + 1
-      let next_line    = getline(next_line_no)
-    endwhile
-
-    let range = line('.').','.(next_line_no - 1)
-    exe range.'substitute/'.continuation_pattern.'//'
-    exe range.'join'
+    exe next_lineno.'s/'.continuation_pattern.'//'
+    exe current_lineno.','.next_lineno.'join'
 
     if g:splitjoin_normalize_whitespace
       call sj#CompressWhitespaceOnLine()
