@@ -8,7 +8,7 @@ function! sj#vim#Split()
   if sj#BlankString(new_line)
     return 0
   else
-    let new_line = "\n\\ ".new_line
+    let new_line = "\n\\ ".sj#Trim(new_line)
     call sj#ReplaceMotion('vg_', new_line)
     s/\s\+$//e
 
