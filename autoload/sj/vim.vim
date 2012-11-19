@@ -10,6 +10,7 @@ function! sj#vim#Split()
   else
     let new_line = "\n\\ ".new_line
     call sj#ReplaceMotion('vg_', new_line)
+    s/\s\+$//e
 
     return 1
   endif
