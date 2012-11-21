@@ -64,14 +64,16 @@ endfunction
 " Note that the motion needs to include a visual mode key, like "V", "v" or
 " "gv"
 function! sj#ReplaceMotion(motion, text)
-  let original_reg      = getreg('z')
-  let original_reg_type = getregtype('z')
+  let register = s:DefaultRegister()
 
-  let @z = a:text
-  exec 'silent normal! '.a:motion.'"zp'
+  let saved_register_text = getreg(register, 1)
+  let saved_register_type = getregtype(register)
+
+  call setreg(register, a:text, 'v')
+  exec 'silent normal! '.a:motion.'"'.register.'p'
   silent normal! gv=
 
-  call setreg('z', original_reg, original_reg_type)
+  call setreg(register, saved_register_text, saved_register_type)
 endfunction
 
 " function! sj#ReplaceLines(start, end, text) {{{2
@@ -130,13 +132,13 @@ endfunction
 function! sj#GetMotion(motion)
   call sj#PushCursor()
 
-  let original_reg      = getreg('z')
-  let original_reg_type = getregtype('z')
+  let saved_register_text = getreg('z', 1)
+  let saved_register_type = getregtype('z')
 
-  exec 'normal! '.a:motion.'"zy'
+  exec 'silent normal! '.a:motion.'"zy'
   let text = @z
 
-  call setreg('z', original_reg, original_reg_type)
+  call setreg('z', saved_register_text, saved_register_type)
   call sj#PopCursor()
 
   return text
@@ -425,4 +427,16 @@ function! sj#ParseJsonObjectBody(from, to)
   let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
   call parser.Process()
   return parser.args
+endfunction
+
+" Finds the configuration's default paste register based on the 'clipboard'
+" option.
+function! s:DefaultRegister()
+  if &clipboard =~ 'unnamedplus'
+    return '+'
+  elseif &clipboard =~ 'unnamed'
+    return '*'
+  else
+    return '"'
+  endif
 endfunction
