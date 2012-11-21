@@ -72,7 +72,7 @@ function! s:Split()
     try
       call sj#PushCursor()
 
-      if call(callback, []) != 0
+      if call(callback, [])
         silent! call repeat#set(":SplitjoinSplit\<cr>")
         break
       endif
@@ -97,7 +97,7 @@ function! s:Join()
     try
       call sj#PushCursor()
 
-      if call(callback, []) != 0
+      if call(callback, [])
         silent! call repeat#set(":SplitjoinJoin\<cr>")
         break
       endif
