@@ -43,6 +43,9 @@ directory: plugin, ftplugin, autoload, doc.
 ==============================================================================
 USAGE                                                        *splitjoin-usage*
 
+                                                           *SplitjoinSplit* *gS*
+                                                           *SplitjoinJoin*  *gJ*
+
 After the plugin is installed, the mapping |gS| will perform splitting and |gJ|
 -- joining of the code under the cursor. These mappings are configurable
 with |g:splitjoin_split_mapping| and |g:splitjoin_join_mapping|, respectively.
