@@ -1,11 +1,13 @@
 function! sj#sh#SplitBySemicolon()
-  let line = getline('.')
+  let line   = getline('.')
+  let parser = sj#argparser#sh#Construct(0, col('$'), line)
+  call parser.Process()
 
-  if line !~ ';'
+  if len(parser.args) <= 1
     return 0
   endif
 
-  let body = join(split(line, ';\s*'), "\n")
+  let body = join(parser.args, "\n")
   call sj#ReplaceMotion('V', body)
   return 1
 endfunction
