@@ -18,7 +18,7 @@ GEM
       diff-lcs (~> 1.1.3)
     rspec-mocks (2.10.1)
     slop (2.4.4)
-    vimrunner (0.1.1)
+    vimrunner (0.2.0)
 
 PLATFORMS
   ruby

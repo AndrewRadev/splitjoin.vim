@@ -1,17 +1,15 @@
-require 'tmpdir'
 require 'vimrunner'
+require 'vimrunner/testing'
 require_relative './support/vim'
 
 RSpec.configure do |config|
+  config.include Vimrunner::Testing
   config.include Support::Vim
 
   # cd into a temporary directory for every example.
   config.around do |example|
-    Dir.mktmpdir do |dir|
-      Dir.chdir(dir) do
-        VIM.command("cd #{dir}")
-        example.call
-      end
+    tmpdir(VIM) do
+      example.call
     end
   end
 
