@@ -8,6 +8,8 @@
   <body>
     <%# hashes: %>
 
+    <% foo "#{one}", :two => 3 %>
+
     <% foo = { :bar => 'baz', :one => { :two => 'three', :four => 'five' }, :five => 'six' } %>
     <% foo = { bar: 'baz', :one => { :two => 'three', :four => 'five' }, :five => 'six' } %>
     <% foo = { bar: 'baz', one_two: :three } %>

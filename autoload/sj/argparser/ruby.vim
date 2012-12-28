@@ -153,7 +153,7 @@ function! sj#argparser#ruby#LocateFunction()
 endfunction
 
 function! sj#argparser#ruby#LocateHash()
-  return sj#LocateBracesOnLine('{', '}')
+  return sj#LocateBracesOnLine('{', '}', 'rubyInterpolationDelimiter', 'rubyString')
 endfunction
 
 function! sj#argparser#ruby#ParseArguments(start_index, end_index, line)

@@ -267,5 +267,28 @@ describe "ruby" do
         foo(:one => 1, :two => 2)
       EOF
     end
+
+    specify "doesn't get confused by interpolation" do
+      VIM.command('let g:splitjoin_ruby_curly_braces = 1')
+
+      set_file_contents <<-EOF
+        foo "\#{one}", :two => 3
+      EOF
+
+      VIM.search 'foo'
+      split
+
+      assert_file_contents <<-EOF
+        foo "\#{one}", {
+          :two => 3
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        foo "\#{one}", { :two => 3 }
+      EOF
+    end
   end
 end

@@ -31,6 +31,9 @@ foo 1, 2, :one => 1, :two => 2, :three => 'three' do |bar|
   something(bar)
 end
 
+# with interpolation
+foo "#{one}", :two => 3
+
 # 1.9 hashes:
 
 { one: 'two', two: 'three' }

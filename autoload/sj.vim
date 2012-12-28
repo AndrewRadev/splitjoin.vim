@@ -9,7 +9,7 @@
 "   call sj#PushCursor()
 "   " Do stuff that move the cursor around
 "   call sj#PopCursor()
-
+"
 " function! sj#PushCursor() {{{2
 "
 " Adds the current cursor position to the cursor stack.
@@ -117,7 +117,7 @@ endfunction
 "
 " These functions are similar to the text replacement functions, only retrieve
 " the text instead.
-
+"
 " function! sj#GetMotion(motion) {{{2
 "
 " Execute the normal mode motion "motion" and return the text it marks.
@@ -192,8 +192,8 @@ function! sj#TrimList(list)
 endfunction
 
 " Searching for patterns {{{1
-
-" function! sj#SearchUnderCursor(pattern, flags)
+"
+" function! sj#SearchUnderCursor(pattern, flags) {{{2
 "
 " Searches for a match for the given pattern under the cursor. Returns the
 " result of the |search()| call if a match was found, 0 otherwise.
@@ -212,7 +212,7 @@ function! sj#SearchUnderCursor(pattern, ...)
   endif
 endfunction
 
-" function! sj#SearchposUnderCursor(pattern, flags)
+" function! sj#SearchposUnderCursor(pattern, flags) {{{2
 "
 " Searches for a match for the given pattern under the cursor. Returns the
 " start and (end + 1) column positions of the match. If nothing was found,
@@ -284,9 +284,53 @@ function! sj#SearchposUnderCursor(pattern, ...)
   endtry
 endfunction
 
-" Regex helpers {{{1
+" function! sj#SearchSkip(pattern, skip, ...) {{{2
+" A partial replacement to search() that consults a skip pattern when
+" performing a search, just like searchpair().
+"
+" Note that it doesn't accept the "n" and "c" flags due to implementation
+" difficulties.
+function! sj#SearchSkip(pattern, skip, ...)
+  " collect all of our arguments
+  let pattern = a:pattern
+  let skip    = a:skip
 
-" function! sj#ExtractRx(expr, pat, sub)
+  if a:0 >= 1
+    let flags = a:1
+  else
+    let flags = ''
+  endif
+
+  if stridx(flags, 'n') > -1 || stridx(flags, 'c') > -1
+    echoerr "Doesn't work with 'n' or 'c' flags, was given: ".flags
+    return
+  endif
+
+  let stopline = (a:0 >= 2) ? a:2 : 0
+  let timeout  = (a:0 >= 3) ? a:3 : 0
+
+  " just delegate to search() directly if no skip expression was given
+  if skip == ''
+    return search(pattern, flags, stopline, timeout)
+  endif
+
+  " search for the pattern, skipping a match if necessary
+  let skip_match = 1
+  while skip_match
+    let match = search(pattern, flags, stopline, timeout)
+    if match && eval(skip)
+      let skip_match = 1
+    else
+      let skip_match = 0
+    endif
+  endwhile
+
+  return match
+endfunction
+
+" Regex helpers {{{1
+"
+" function! sj#ExtractRx(expr, pat, sub) {{{2
 "
 " Extract a regex match from a string. Ordinarily, substitute() would be used
 " for this, but it's a bit too cumbersome for extracting a particular grouped
@@ -361,16 +405,25 @@ endfunction
 "   let [start, end] = sj#LocateBracesOnLine('{', '}')
 "   let [start, end] = sj#LocateBracesOnLine('[', ']')
 "
-function! sj#LocateBracesOnLine(open, close)
+function! sj#LocateBracesOnLine(open, close, ...)
   let [_bufnum, line, col, _off] = getpos('.')
 
+  " bail early if there's obviously no match
   if getline('.') !~ a:open.'.*'.a:close
     return [-1, -1]
   endif
 
-  let found = searchpair(a:open, '', a:close, 'cb', '', line('.'))
+  " optional skip parameter
+  if a:0 > 0
+    let skip = s:SkipSyntax(a:1)
+  else
+    let skip = ''
+  endif
+
+  " try looking backwards, then forwards
+  let found = searchpair(a:open, '', a:close, 'cb', skip, line('.'))
   if found <= 0
-    let found = search(a:open, '', '', line('.'))
+    let found = sj#SearchSkip(a:open.'.*'.a:close, skip, '', line('.'))
   endif
 
   if found > 0
@@ -434,4 +487,11 @@ function! s:DefaultRegister()
   else
     return '"'
   endif
+endfunction
+
+function! s:SkipSyntax(...)
+  let syntax_groups = a:000
+  let skip_pattern  = '\%('.join(syntax_groups, '\|').'\)'
+
+  return "synIDattr(synID(line('.'),col('.'),1),'name') =~ 'rubyInterpolationDelimiter'"
 endfunction
