@@ -73,26 +73,6 @@ describe "ruby" do
     EOF
   end
 
-  specify "blocks" do
-    set_file_contents <<-EOF
-      Bar.new { |b| puts b.to_s }
-    EOF
-
-    split
-
-    assert_file_contents <<-EOF
-      Bar.new do |b|
-        puts b.to_s
-      end
-    EOF
-
-    join
-
-    assert_file_contents <<-EOF
-      Bar.new { |b| puts b.to_s }
-    EOF
-  end
-
   specify "method continuations" do
     set_file_contents <<-EOF
       one.
@@ -105,6 +85,63 @@ describe "ruby" do
     assert_file_contents <<-EOF
       one.two.three
     EOF
+  end
+
+  describe "blocks" do
+    it "splitjoins {}-blocks and do-end blocks" do
+      set_file_contents <<-EOF
+        Bar.new { |b| puts b.to_s }
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        Bar.new do |b|
+          puts b.to_s
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        Bar.new { |b| puts b.to_s }
+      EOF
+    end
+
+    it "handles trailing code" do
+      set_file_contents <<-EOF
+        Bar.new { |one| two }.map(&:name)
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        Bar.new do |one|
+          two
+        end.map(&:name)
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        Bar.new { |one| two }.map(&:name)
+      EOF
+    end
+
+    it "doesn't get confused by interpolation" do
+      set_file_contents <<-EOF
+        foo("\#{one}") { two }
+      EOF
+
+      vim.search 'two'
+      split
+
+      assert_file_contents <<-EOF
+        foo("\#{one}") do
+          two
+        end
+      EOF
+    end
   end
 
   describe "heredocs" do

@@ -398,11 +398,14 @@ endfunction
 " braces on the current line. The a:open and a:close parameters are the
 " opening and closing brace characters to look for.
 "
+" The optional parameters are the syntaxes to skip while searching.
+"
 " If a pair is not found on the line, returns [-1, -1]
 "
 " Examples:
 "
 "   let [start, end] = sj#LocateBracesOnLine('{', '}')
+"   let [start, end] = sj#LocateBracesOnLine('{', '}', 'rubyString')
 "   let [start, end] = sj#LocateBracesOnLine('[', ']')
 "
 function! sj#LocateBracesOnLine(open, close, ...)

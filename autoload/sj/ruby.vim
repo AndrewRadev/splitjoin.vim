@@ -45,22 +45,25 @@ endfunction
 " TODO rewrite using SearchUnderCursor?
 function! sj#ruby#SplitBlock()
   let line    = getline('.')
-  let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}\s*(#.*)?$'
+  let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}'
 
-  if line =~ pattern
-    call search('{', 'bc', line('.'))
-    call search('{', 'c', line('.'))
-
-    let body = sj#GetMotion('Va{')
-    let body = join(split(body, '\s*;\s*'), "\n")
-    let replacement = substitute(body, '^'.pattern.'$', 'do\1\n\2\nend', '')
-
-    call sj#ReplaceMotion('Va{', replacement)
-
-    return 1
-  else
+  if line !~ pattern
     return 0
   endif
+
+  let [start, end] = sj#LocateBracesOnLine('{', '}', 'rubyString', 'rubyInterpolationDelimiter')
+
+  if start < 0
+    return 0
+  endif
+
+  let body = sj#GetMotion('Va{')
+  let body = join(split(body, '\s*;\s*'), "\n")
+  let replacement = substitute(body, '^'.pattern.'$', 'do\1\n\2\nend', '')
+
+  call sj#ReplaceMotion('Va{', replacement)
+
+  return 1
 endfunction
 
 function! sj#ruby#JoinBlock()
