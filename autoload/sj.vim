@@ -375,6 +375,8 @@ function! s:Tabularize(from, to, type)
     let pattern = '^[^=>]*\zs=>'
   elseif a:type == 'css_declaration' || a:type == 'json_object'
     let pattern = '^[^:]*:\s*\zs\s/l0'
+  elseif a:type == 'lua_table'
+    let pattern = '^[^=]*\zs='
   else
     return
   endif

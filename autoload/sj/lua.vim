@@ -52,3 +52,47 @@ function! sj#lua#JoinFunction()
 
   return 1
 endfunction
+
+function! sj#lua#SplitTable()
+  let [from, to] = sj#LocateBracesOnLine('{', '}')
+
+  if from < 0 && to < 0
+    return 0
+  else
+    let parser = sj#argparser#js#Construct(from + 1, to -1, getline('.'))
+    call parser.Process()
+    let pairs = filter(parser.args, 'v:val !~ "^\s*$"')
+    let body  = "{\n".join(pairs, ",\n").",\n}"
+    call sj#ReplaceMotion('Va{', body)
+
+    if g:splitjoin_align
+      let body_start = line('.') + 1
+      let body_end   = body_start + len(pairs) - 1
+      call sj#Align(body_start, body_end, 'lua_table')
+    endif
+
+    return 1
+  endif
+endf
+
+" This doesn't take anonymous functions into account that have more than one
+" line to them. Perhaps the argparser can be extended to recognize these and
+" allow proper split\join functionality on them.
+function! sj#lua#JoinTable()
+  normal! $
+
+  if g:splitjoin_normalize_whitespace
+    let body = sj#GetMotion('Vi{',)
+    let body = substitute(body, '\s\+=\s\+', ' = ', 'g')
+    call sj#ReplaceMotion('Vi{', body)
+  endif
+
+  normal! Va{J
+
+  " Remove a trailing comma
+  let body = sj#GetMotion('Vi{')
+  let body = substitute(body, ',\s*$', ' ', '')
+  call sj#ReplaceMotion('Vi{', body)
+
+  return 1
+endf
