@@ -11,7 +11,7 @@ function! sj#lua#SplitFunction()
     if sj#BlankString(body)
       let body = ''
     else
-      let body = body."\n"
+      let body = substitute(body, "; ", "\n", "").'\n'
     endif
 
     let replacement = head."\n".body."end"
