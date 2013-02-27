@@ -25,7 +25,7 @@ endfunction
 
 function! sj#lua#JoinFunction()
   normal! 0
-  if search('\<function\>', 'W', line('.')) < 0
+  if search('\<function\>', 'W', line('.')) == 0
     return 0
   endif
 
