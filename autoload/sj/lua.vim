@@ -30,13 +30,13 @@ function! sj#lua#JoinFunction()
   endif
 
   let function_lineno = line('.')
-  if searchpair('\<function\>', '', '\<end\>', 'W') <= 0
+  if searchpair('\<function\>', '', '^\s*\<end\>', 'W') <= 0
     return 0
   endif
   let end_lineno = line('.')
 
   let function_line = getline(function_lineno)
-  let end_line      = getline(end_lineno)
+  let end_line      = sj#Trim(getline(end_lineno))
 
   if end_lineno - function_lineno > 1
     let body_lines = sj#GetLines(function_lineno + 1, end_lineno - 1)
