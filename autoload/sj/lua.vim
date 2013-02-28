@@ -25,7 +25,7 @@ endfunction
 
 function! sj#lua#JoinFunction()
   normal! 0
-  if search('\<function\>', 'W', line('.')) == 0
+  if search('\<function\>', 'cW', line('.')) < 0
     return 0
   endif
 
@@ -79,20 +79,24 @@ endf
 " line to them. Perhaps the argparser can be extended to recognize these and
 " allow proper split\join functionality on them.
 function! sj#lua#JoinTable()
-  normal! $
+  let line = getline('.')
 
-  if g:splitjoin_normalize_whitespace
-    let body = sj#GetMotion('Vi{',)
-    let body = substitute(body, '\s\+=\s\+', ' = ', 'g')
-    call sj#ReplaceMotion('Vi{', body)
-  endif
+  if line =~ '{\s*$'
+    call search('{', 'c', line('.'))
+    let body = sj#GetMotion('Vi{')
 
-  normal! Va{J
+    let lines = sj#TrimList(split(body, "\n"))
 
-  " Remove a trailing comma
-  let body = sj#GetMotion('Vi{')
-  let body = substitute(body, ',\s*$', ' ', '')
-  call sj#ReplaceMotion('Vi{', body)
+    if g:splitjoin_normalize_whitespace
+      let lines = map(lines, "substitute(v:val, '\\s\\+=\\s\\+', ' = ', 'g')")
+    endif
 
-  return 1
+    let body = substitute(join(lines, ' '), ',\s*$', '', '')
+
+    call sj#ReplaceMotion('Va{', '{ '.body.' }')
+
+    return 1
+  else
+    return 0
+  end
 endf
