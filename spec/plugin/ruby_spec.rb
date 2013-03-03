@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe "ruby" do
-  let(:vim) { VIM }
   let(:filename) { 'test.rb' }
 
   before :each do
@@ -152,7 +151,7 @@ describe "ruby" do
         ANYTHING
       EOF
 
-      VIM.search 'ANYTHING'
+      vim.search 'ANYTHING'
       join
 
       assert_file_contents <<-EOF
@@ -167,7 +166,7 @@ describe "ruby" do
         ANYTHING
       EOF
 
-      VIM.search 'ANYTHING'
+      vim.search 'ANYTHING'
       join
 
       assert_file_contents <<-EOF
@@ -182,7 +181,7 @@ describe "ruby" do
         ANYTHING
       EOF
 
-      VIM.search 'ANYTHING'
+      vim.search 'ANYTHING'
       join
 
       assert_file_contents <<-EOF
@@ -193,7 +192,7 @@ describe "ruby" do
     it "splits normal strings into heredocs" do
       set_file_contents 'string = "\"anything\""'
 
-      VIM.search 'anything'
+      vim.search 'anything'
       split
 
       assert_file_contents <<-OUTER
@@ -206,7 +205,7 @@ describe "ruby" do
     it "splits empty strings into empty heredocs" do
       set_file_contents 'string = ""'
 
-      VIM.search '"'
+      vim.search '"'
       split
 
       assert_file_contents <<-OUTER
@@ -222,8 +221,8 @@ describe "ruby" do
         end
       EOF
 
-      VIM.search 'something'
-      VIM.command('let g:splitjoin_ruby_heredoc_type = "<<"')
+      vim.search 'something'
+      vim.command('let g:splitjoin_ruby_heredoc_type = "<<"')
       split
 
       assert_file_contents <<-OUTER
@@ -234,13 +233,13 @@ describe "ruby" do
         end
       OUTER
 
-      VIM.command('let g:splitjoin_ruby_heredoc_type = "<<-"')
+      vim.command('let g:splitjoin_ruby_heredoc_type = "<<-"')
     end
   end
 
   describe "method options" do
     specify "with curly braces" do
-      VIM.command('let g:splitjoin_ruby_curly_braces = 1')
+      vim.command('let g:splitjoin_ruby_curly_braces = 1')
 
       set_file_contents <<-EOF
         foo 1, 2, :one => 1, :two => 2
@@ -263,7 +262,7 @@ describe "ruby" do
     end
 
     specify "without curly braces" do
-      VIM.command('let g:splitjoin_ruby_curly_braces = 0')
+      vim.command('let g:splitjoin_ruby_curly_braces = 0')
 
       set_file_contents <<-EOF
         foo 1, 2, :one => 1, :two => 2
@@ -285,7 +284,7 @@ describe "ruby" do
     end
 
     specify "with round braces" do
-      VIM.command('let g:splitjoin_ruby_curly_braces = 0')
+      vim.command('let g:splitjoin_ruby_curly_braces = 0')
 
       set_file_contents <<-EOF
         foo(:one => 1, :two => 2)
@@ -306,13 +305,13 @@ describe "ruby" do
     end
 
     specify "doesn't get confused by interpolation" do
-      VIM.command('let g:splitjoin_ruby_curly_braces = 1')
+      vim.command('let g:splitjoin_ruby_curly_braces = 1')
 
       set_file_contents <<-EOF
         foo "\#{one}", :two => 3
       EOF
 
-      VIM.search 'foo'
+      vim.search 'foo'
       split
 
       assert_file_contents <<-EOF

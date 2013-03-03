@@ -2,17 +2,17 @@ module Support
   module Vim
     def set_file_contents(string)
       write_file(filename, string)
-      VIM.edit(filename)
+      vim.edit(filename)
     end
 
     def split
-      VIM.command 'SplitjoinSplit'
-      VIM.write
+      vim.command 'SplitjoinSplit'
+      vim.write
     end
 
     def join
-      VIM.command 'SplitjoinJoin'
-      VIM.write
+      vim.command 'SplitjoinJoin'
+      vim.write
     end
 
     def assert_file_contents(string)

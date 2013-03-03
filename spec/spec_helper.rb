@@ -9,6 +9,10 @@ RSpec.configure do |config|
   # cd into a temporary directory for every example.
   config.around do |example|
     tmpdir(VIM) do
+      def vim
+        VIM
+      end
+
       example.call
     end
   end

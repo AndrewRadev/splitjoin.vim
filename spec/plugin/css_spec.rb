@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe "css" do
-  let(:vim) { VIM }
   let(:filename) { 'test.css' }
 
   before :each do

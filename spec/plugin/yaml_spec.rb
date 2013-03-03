@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe "yaml" do
-  let(:vim) { VIM }
   let(:filename) { 'test.yml' }
 
   before :each do

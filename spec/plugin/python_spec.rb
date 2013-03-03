@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe "python" do
-  let(:vim) { VIM }
   let(:filename) { 'test.py' }
 
   before :each do
