@@ -41,7 +41,7 @@ This currently works for:
   * Tags in HTML/XML
   * CSS, SCSS, LESS style declarations.
   * YAML arrays
-  * Lua functions
+  * Lua functions and tables
   * Vimscript line continuations
 
 For more information, try `:help splitjoin`, or take a look at the help file
