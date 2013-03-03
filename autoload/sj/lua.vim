@@ -1,23 +1,28 @@
-function! sj#lua#SplitFunction()
-  let function_pattern = '\(\<function\>.\{-}(.\{-})\)\(.*\)\<end\>'
-  let line             = getline('.')
+let s:function_pattern = '\(\<function\>.\{-}(.\{-})\)\(.*\)\<end\>'
 
-  if line !~ function_pattern
+function! sj#lua#SplitFunctionString(str)
+  let head = sj#ExtractRx(a:str, s:function_pattern, '\1')
+  let body = sj#Trim(sj#ExtractRx(a:str, s:function_pattern, '\2'))
+
+  if sj#BlankString(body)
+    let body = ''
+  else
+    let body = substitute(body, "; ", "\n", "").'\n'
+  endif
+
+  let replacement = head."\n".body."end"
+  let new_line    = substitute(a:str, s:function_pattern, replacement, '')
+
+  return new_line
+endfunction
+
+function! sj#lua#SplitFunction()
+  let line = getline('.')
+
+  if line !~ s:function_pattern
     return 0
   else
-    let head = sj#ExtractRx(line, function_pattern, '\1')
-    let body = sj#Trim(sj#ExtractRx(line, function_pattern, '\2'))
-
-    if sj#BlankString(body)
-      let body = ''
-    else
-      let body = substitute(body, "; ", "\n", "").'\n'
-    endif
-
-    let replacement = head."\n".body."end"
-    let new_line    = substitute(line, function_pattern, replacement, '')
-
-    call sj#ReplaceMotion('V', new_line)
+    call sj#ReplaceMotion('V', sj#lua#SplitFunctionString(line))
 
     return 1
   endif
@@ -62,6 +67,16 @@ function! sj#lua#SplitTable()
     let parser = sj#argparser#js#Construct(from + 1, to -1, getline('.'))
     call parser.Process()
     let pairs = filter(parser.args, 'v:val !~ "^\s*$"')
+
+    let idx = 0
+    while idx < len(pairs)
+      let item = pairs[idx]
+      if item =~ s:function_pattern
+        let pairs[idx] = sj#lua#SplitFunctionString(item)
+      endif
+      let idx = idx + 1
+    endwhile
+
     let body  = "{\n".join(pairs, ",\n").",\n}"
     call sj#ReplaceMotion('Va{', body)
 
@@ -75,9 +90,6 @@ function! sj#lua#SplitTable()
   endif
 endf
 
-" This doesn't take anonymous functions into account that have more than one
-" line to them. Perhaps the argparser can be extended to recognize these and
-" allow proper split\join functionality on them.
 function! sj#lua#JoinTable()
   let line = getline('.')
 
@@ -85,13 +97,30 @@ function! sj#lua#JoinTable()
     call search('{', 'c', line('.'))
     let body = sj#GetMotion('Vi{')
 
-    let lines = sj#TrimList(split(body, "\n"))
+    let parser = sj#argparser#js#Construct(0, strlen(body), body)
+    call parser.Process()
+
+    let lines = sj#TrimList(parser.args)
+
+    let idx = 0
+    while idx < len(lines)
+      let item = lines[idx]
+      if item =~ s:function_pattern
+        let head = sj#Trim(sj#ExtractRx(item, s:function_pattern, '\1'))
+        let body = sj#Trim(sj#ExtractRx(item, s:function_pattern, '\2'))
+        let body_lines = sj#TrimList(split(body, "\n"))
+        let replacement = head . ' ' . join(body_lines, '; '). ' end'
+
+        let lines[idx] = substitute(item, s:function_pattern, replacement, '')
+      endif
+      let idx = idx + 1
+    endwhile
 
     if g:splitjoin_normalize_whitespace
-      let lines = map(lines, "substitute(v:val, '\\s\\+=\\s\\+', ' = ', 'g')")
+      let lines = map(lines, "substitute(v:val, '\\s\\+=\\s\\+', ' = ', '')")
     endif
 
-    let body = substitute(join(lines, ' '), ',\s*$', '', '')
+    let body = substitute(join(lines, ', '), ',\s*$', '', '')
 
     call sj#ReplaceMotion('Va{', '{ '.body.' }')
 

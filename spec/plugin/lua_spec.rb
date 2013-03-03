@@ -52,7 +52,7 @@ describe "lua" do
 
   specify "tables" do
     set_file_contents <<-EOF
-      local something = {"a", 'b', 3, foo = bar}
+      local something = {"a", 'b', 3, foo = bar, ["a-d"] = function() print("foo"); print("bar") end}
     EOF
 
     split
@@ -63,13 +63,17 @@ describe "lua" do
         'b',
         3,
         foo = bar,
+        ["a-d"] = function()
+          print("foo")
+          print("bar")
+        end,
       }
     EOF
 
     join
 
     assert_file_contents <<-EOF
-      local something = { "a", 'b', 3, foo = bar }
+      local something = { "a", 'b', 3, foo = bar, ["a-d"] = function() print("foo"); print("bar") end }
     EOF
   end
 end
