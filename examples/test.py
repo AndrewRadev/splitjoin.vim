@@ -15,3 +15,5 @@ if something: something_else(":")
 while True: loop()
 
 class Foo: pass
+
+run("one", "two", "three {}".format(four))

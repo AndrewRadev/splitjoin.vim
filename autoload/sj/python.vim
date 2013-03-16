@@ -24,7 +24,7 @@ function! sj#python#JoinStatement()
 endfunction
 
 function! sj#python#SplitDict()
-  let [from, to] = sj#LocateBracesOnLine('{', '}')
+  let [from, to] = sj#LocateBracesOnLine('{', '}', 'pythonString')
 
   if from < 0 && to < 0
     return 0
@@ -127,6 +127,8 @@ function! s:SplitList(regex, opening_char, closing_char)
     return 0
   endif
 
+  call sj#PushCursor()
+
   " TODO (2012-10-24) connect sj#SearchUnderCursor and sj#LocateBracesOnLine
   normal! l
   let start = col('.')
@@ -135,6 +137,8 @@ function! s:SplitList(regex, opening_char, closing_char)
 
   let items = sj#ParseJsonObjectBody(start, end)
   let body = a:opening_char.join(items, ",\n").a:closing_char
+
+  call sj#PopCursor()
 
   call sj#ReplaceMotion('va'.a:opening_char, body)
   return 1
