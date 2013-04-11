@@ -60,4 +60,39 @@ describe "yaml" do
       EOF
     end
   end
+
+  describe "maps" do
+    specify "basic" do
+      set_file_contents <<-EOF
+        root:
+          one: { foo: bar }
+          two: { three: ['four', 'five'], six: seven }
+      EOF
+
+      vim.search 'one'
+      split
+      vim.search 'two'
+      split
+
+      assert_file_contents <<-EOF
+        root:
+          one:
+            foo: bar
+          two:
+            three: ['four', 'five']
+            six: seven
+      EOF
+
+      vim.search 'one'
+      join
+      vim.search 'two'
+      join
+
+      assert_file_contents <<-EOF
+        root:
+          one: { foo: bar }
+          two: { three: ['four', 'five'], six: seven }
+      EOF
+    end
+  end
 end

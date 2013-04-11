@@ -8,3 +8,6 @@ root:
   three: # comment
     - four
     - five
+
+  one: { foo: bar, bar: baz }
+  two: { three: ['four', 'five'], six: seven }
