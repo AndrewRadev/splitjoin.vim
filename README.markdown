@@ -40,7 +40,7 @@ This currently works for:
   * Javascript object literals and functions
   * Tags in HTML/XML
   * CSS, SCSS, LESS style declarations.
-  * YAML arrays
+  * YAML arrays and maps
   * Lua functions and tables
   * Vimscript line continuations
 

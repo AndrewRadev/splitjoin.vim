@@ -533,6 +533,19 @@ Arrays ~
         - 'three'
         - 'four'
 <
+Maps ~
+>
+    root:
+      one: { foo: bar }
+      two: { three: ['four', 'five'], six: seven }
+
+    root:
+      one:
+        foo: bar
+      two:
+        three: ['four', 'five']
+        six: seven
+<
 
 ==============================================================================
 ERUBY                                                        *splitjoin-eruby*
