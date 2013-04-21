@@ -1,28 +1,19 @@
 require 'vimrunner'
-require 'vimrunner/testing'
+require 'vimrunner/rspec'
 require_relative './support/vim'
 
+Vimrunner::RSpec.configure do |config|
+  config.reuse_server = true
+
+  plugin_path = File.expand_path('.')
+
+  config.start_vim do
+    vim = Vimrunner.start
+    vim.add_plugin(plugin_path, 'plugin/splitjoin.vim')
+    vim
+  end
+end
+
 RSpec.configure do |config|
-  config.include Vimrunner::Testing
   config.include Support::Vim
-
-  # cd into a temporary directory for every example.
-  config.around do |example|
-    tmpdir(VIM) do
-      def vim
-        VIM
-      end
-
-      example.call
-    end
-  end
-
-  config.before(:suite) do
-    VIM = Vimrunner.start
-    VIM.add_plugin(File.expand_path('.'), 'plugin/splitjoin.vim')
-  end
-
-  config.after(:suite) do
-    VIM.kill
-  end
 end
