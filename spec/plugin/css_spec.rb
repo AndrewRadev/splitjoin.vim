@@ -56,8 +56,7 @@ describe "css" do
     # assert_file_contents 'body { }'
   end
 
-  # TODO (2012-05-26) Joining not quite working for some reason
-  xspecify "multiline selectors" do
+  specify "multiline selectors" do
     set_file_contents <<-EOF
       h1, h2, h3 {
         font-size: 18px;
