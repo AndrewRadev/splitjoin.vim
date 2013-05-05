@@ -1,11 +1,13 @@
 function! sj#coffee#SplitFunction()
-  let line = getline('.')
+  let lineno = line('.')
+  let line   = getline('.')
+  let indent = indent(lineno)
 
   if line !~ '[-=]>'
     return 0
   else
     s/\([-=]\)>\s*/\1>\r/
-    normal! ==
+    call s:SetBaseIndent(lineno + 1, lineno + 1, indent + &sw)
     return 1
   endif
 endfunction
@@ -29,11 +31,11 @@ function! sj#coffee#SplitIfClause()
 
   if line =~ suffix_pattern
     call sj#ReplaceMotion('V', substitute(line, suffix_pattern, '\2 \3\n\1', ''))
-    call s:SetBaseIndent(line('.'), line('.') + 1, base_indent)
+    call s:SetBaseIndent(line('.') + 1, line('.') + 1, base_indent + &sw)
     return 1
   elseif line =~ postfix_pattern
     call sj#ReplaceMotion('V', substitute(line, postfix_pattern, '\1 \2\n\3', ''))
-    call s:SetBaseIndent(line('.'), line('.') + 1, base_indent)
+    call s:SetBaseIndent(line('.') + 1, line('.') + 1, base_indent + &sw)
     return 1
   else
     return 0
@@ -63,14 +65,18 @@ function! sj#coffee#JoinIfClause()
 endfunction
 
 function! sj#coffee#SplitTernaryClause()
-  let line = getline('.')
-  let pattern = '\v^(.*)if (.*) then (.*) else ([^)]*)(.*)$'
+  let lineno  = line('.')
+  let indent  = indent('.')
+  let line    = getline('.')
+  let pattern = '\v^(\s*)(.*)if (.*) then (.*) else ([^)]*)(.*)$'
 
   if line =~ pattern
-    let body_when_true  = sj#ExtractRx(line, pattern, '\3')
-    let body_when_false = sj#ExtractRx(line, pattern, '\4')
-    let replacement     = "if \\2\r\\1".body_when_true."\\5\relse\r\\1".body_when_false."\\5"
+    let body_when_true  = sj#ExtractRx(line, pattern, '\4')
+    let body_when_false = sj#ExtractRx(line, pattern, '\5')
+    let replacement     = "if \\3\r\\2".body_when_true."\\6\relse\r\\2".body_when_false."\\6"
     exe 's/'.pattern.'/'.escape(replacement, '/')
+
+    call s:SetBaseIndent(lineno, lineno + 3, indent)
     normal! >>kk>>
 
     return 1
@@ -85,12 +91,15 @@ function! sj#coffee#SplitObjectLiteral()
   if from < 0 && to < 0
     return 0
   else
-    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
-    let body  = "\n".join(pairs, "\n")
+    let indent = indent('.')
+    let pairs  = sj#ParseJsonObjectBody(from + 1, to - 1)
+    let body   = "\n".join(pairs, "\n")
     call sj#ReplaceMotion('Va{', body)
 
     " clean the remaining whitespace
     s/\s\+$//e
+
+    call s:SetIndent(line('.') + 1, line('.') + len(pairs), indent + &sw)
 
     if g:splitjoin_align
       let body_start = line('.') + 1
@@ -187,9 +196,18 @@ function! s:IndentedLinesBelow(line)
   return [first_line, current_line]
 endfunction
 
+" Looks at the first line, considers it a baseline for the next ones, and
+" changes that baseline to the given indent.
 function! s:SetBaseIndent(from, to, indent)
   let current_whitespace = matchstr(getline(a:from), '^\s*')
   let new_whitespace     = repeat(' ', a:indent)
 
   exe a:from.','.a:to.'s/^'.current_whitespace.'/'.new_whitespace
+endfunction
+
+" Sets the absolute indent of the given range of lines to the given indent
+function! s:SetIndent(from, to, indent)
+  let new_whitespace = repeat(' ', a:indent)
+
+  exe a:from.','.a:to.'s/^\s*/'.new_whitespace
 endfunction
