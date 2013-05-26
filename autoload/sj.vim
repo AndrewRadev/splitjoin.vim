@@ -64,16 +64,19 @@ endfunction
 " Note that the motion needs to include a visual mode key, like "V", "v" or
 " "gv"
 function! sj#ReplaceMotion(motion, text)
-  let register = s:DefaultRegister()
+  " reset clipboard to avoid problems with 'unnamed' and 'autoselect'
+  let saved_clipboard = &clipboard
+  set clipboard=
 
-  let saved_register_text = getreg(register, 1)
-  let saved_register_type = getregtype(register)
+  let saved_register_text = getreg('"', 1)
+  let saved_register_type = getregtype('"')
 
-  call setreg(register, a:text, 'v')
-  exec 'silent normal! '.a:motion.'"'.register.'p'
+  call setreg('"', a:text, 'v')
+  exec 'silent normal! '.a:motion.'p'
   silent normal! gv=
 
-  call setreg(register, saved_register_text, saved_register_type)
+  call setreg('"', saved_register_text, saved_register_type)
+  let &clipboard = saved_clipboard
 endfunction
 
 " function! sj#ReplaceLines(start, end, text) {{{2
@@ -480,18 +483,6 @@ function! sj#ParseJsonObjectBody(from, to)
   let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
   call parser.Process()
   return parser.args
-endfunction
-
-" Finds the configuration's default paste register based on the 'clipboard'
-" option.
-function! s:DefaultRegister()
-  if &clipboard =~ 'unnamedplus'
-    return '+'
-  elseif &clipboard =~ 'unnamed'
-    return '*'
-  else
-    return '"'
-  endif
 endfunction
 
 function! s:SkipSyntax(...)
