@@ -1,3 +1,5 @@
+*splitjoin.txt*	Switch between single-line and multiline forms of code
+
 ==============================================================================
 CONTENTS                                      *splitjoin* *splitjoin-contents*
 
