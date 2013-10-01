@@ -8,26 +8,34 @@ switching between a single-line statement and a multi-line one.
 I usually work with ruby and a lot of expressions can be written very concisely
 on a single line. A good example is the "if" statement:
 
-    puts "foo" if bar?
+``` ruby
+puts "foo" if bar?
+```
 
 This is a great feature of the language, but when you need to add more
 statements to the body of the "if", you need to rewrite it:
 
-    if bar?
-      puts "foo"
-      puts "baz"
-    end
+``` ruby
+if bar?
+  puts "foo"
+  puts "baz"
+end
+```
 
 The idea of this plugin is to introduce a single key binding for transforming a
 line like this:
 
-    <div id="foo">bar</div>
+``` html
+<div id="foo">bar</div>
+```
 
 Into this:
 
-    <div id="foo">
-      bar
-    </div>
+``` html
+<div id="foo">
+  bar
+</div>
+```
 
 And another binding for the opposite transformation.
 
