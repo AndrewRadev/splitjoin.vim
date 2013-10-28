@@ -1,4 +1,4 @@
-*splitjoin.txt*	Switch between single-line and multiline forms of code
+*splitjoin.txt* 	Switch between single-line and multiline forms of code
 
 ==============================================================================
 CONTENTS                                      *splitjoin* *splitjoin-contents*
@@ -17,6 +17,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     CSS....................................: |splitjoin-css|
     YAML...................................: |splitjoin-yaml|
     Eruby..................................: |splitjoin-eruby|
+    Go.....................................: |splitjoin-go|
     Settings...............................: |splitjoin-settings|
     Internals..............................: |splitjoin-internals|
     Issues.................................: |splitjoin-issues|
@@ -586,6 +587,20 @@ Option hashes ~
       :class => 'google',
       :id => 'google-link'
     } %>
+<
+
+==============================================================================
+GO                                                                *splitjoin-go*
+
+Structs ~
+>
+    StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+
+    StructType{
+        one: 1,
+        two: "asdf",
+        three: []int{1, 2, 3},
+    }
 <
 
 ==============================================================================

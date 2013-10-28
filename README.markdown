@@ -50,6 +50,7 @@ This currently works for:
   * CSS, SCSS, LESS style declarations.
   * YAML arrays and maps
   * Lua functions and tables
+  * Go structs
   * Vimscript line continuations
 
 For more information, try `:help splitjoin`, or take a look at the help file
