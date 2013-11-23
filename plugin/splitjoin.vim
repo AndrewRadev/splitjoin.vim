@@ -47,6 +47,9 @@ endif
 command! SplitjoinSplit call s:Split()
 command! SplitjoinJoin  call s:Join()
 
+nnoremap <silent> <plug>SplitjoinSplit :<c-u>call <SID>Split()<cr>
+nnoremap <silent> <plug>SplitjoinJoin  :<c-u>call <SID>Join()<cr>
+
 if g:splitjoin_join_mapping != ''
   exe 'nnoremap <silent> '.g:splitjoin_join_mapping.' :<c-u>call <SID>Mapping(g:splitjoin_join_mapping, "SplitjoinJoin")<cr>'
 endif
@@ -54,9 +57,6 @@ endif
 if g:splitjoin_split_mapping != ''
   exe 'nnoremap <silent> '.g:splitjoin_split_mapping.' :<c-u>call <SID>Mapping(g:splitjoin_split_mapping, "SplitjoinSplit")<cr>'
 endif
-
-nnoremap <silent> <plug>SplitjoinSplit  :<c-u>call <SID>Split()<cr>
-nnoremap <silent> <plug>SplitjoinJoin   :<c-u>call <SID>Join()<cr>
 
 " Internal Functions:
 " ===================
@@ -111,6 +111,9 @@ function! s:Join()
   endfor
 endfunction
 
+" Used to create a mapping for the given a:command that falls back to the
+" built-in key sequence (a:mapping) if the command did not change the buffer.
+"
 function! s:Mapping(mapping, command)
   if !v:count
     let tick = b:changedtick
