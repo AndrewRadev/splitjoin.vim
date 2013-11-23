@@ -55,6 +55,9 @@ if g:splitjoin_split_mapping != ''
   exe 'nnoremap <silent> '.g:splitjoin_split_mapping.' :<c-u>call <SID>Mapping(g:splitjoin_split_mapping, "SplitjoinSplit")<cr>'
 endif
 
+nnoremap <silent> <plug>SplitjoinSplit  :<c-u>call <SID>Split()<cr>
+nnoremap <silent> <plug>SplitjoinJoin   :<c-u>call <SID>Join()<cr>
+
 " Internal Functions:
 " ===================
 
@@ -73,7 +76,7 @@ function! s:Split()
       call sj#PushCursor()
 
       if call(callback, [])
-        silent! call repeat#set(":SplitjoinSplit\<cr>")
+        silent! call repeat#set("\<plug>SplitjoinSplit")
         break
       endif
 
@@ -98,7 +101,7 @@ function! s:Join()
       call sj#PushCursor()
 
       if call(callback, [])
-        silent! call repeat#set(":SplitjoinJoin\<cr>")
+        silent! call repeat#set("\<plug>SplitjoinJoin")
         break
       endif
 
