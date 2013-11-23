@@ -6,8 +6,6 @@ describe "go" do
   # Go is not built-in, so let's set it up manually
   def setup_go_filetype
     vim.set(:filetype, 'go')
-    vim.set(:expandtab) # not canonical, but easier to test
-    vim.set(:shiftwidth, 4)
   end
 
   specify "structs" do
@@ -18,11 +16,15 @@ describe "go" do
 
     split
 
+    # In case there are is no Go installed, deindent everything:
+    vim.normal '5<<5<<5<<'
+    vim.write
+
     assert_file_contents <<-EOF
       StructType{
-          one: 1,
-          two: "asdf",
-          three: []int{1, 2, 3},
+      one: 1,
+      two: "asdf",
+      three: []int{1, 2, 3},
       }
     EOF
 
