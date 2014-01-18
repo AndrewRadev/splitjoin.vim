@@ -8,7 +8,7 @@ Vimrunner::RSpec.configure do |config|
   plugin_path = File.expand_path('.')
 
   config.start_vim do
-    vim = Vimrunner.start
+    vim = Vimrunner.start_gvim
     vim.add_plugin(plugin_path, 'plugin/splitjoin.vim')
     vim
   end
