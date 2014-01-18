@@ -87,4 +87,18 @@ describe "python" do
       "three {}".format(four))
     EOF
   end
+
+  specify "chained method calls" do
+    set_file_contents <<-EOF
+      SomeModel.objects.filter(asdf=1, qwer=2).exclude(zxcv=2, tyui=3)
+    EOF
+
+    vim.search('zxcv')
+    split
+
+    assert_file_contents <<-EOF
+      SomeModel.objects.filter(asdf=1, qwer=2).exclude(zxcv=2,
+              tyui=3)
+    EOF
+  end
 end

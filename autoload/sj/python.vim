@@ -75,7 +75,7 @@ function! sj#python#JoinArray()
 endfunction
 
 function! sj#python#SplitTuple()
-  return s:SplitList('(.*)', '(', ')')
+  return s:SplitList('(.\{-})', '(', ')')
 endfunction
 
 function! sj#python#JoinTuple()
