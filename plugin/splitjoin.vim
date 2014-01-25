@@ -25,6 +25,10 @@ if !exists('g:splitjoin_ruby_heredoc_type')
   let g:splitjoin_ruby_heredoc_type = '<<-' " can be one of '<<-', '<<'
 endif
 
+if !exists('g:splitjoin_ruby_trailing_comma')
+  let g:splitjoin_ruby_trailing_comma = 1
+endif
+
 if !exists('g:splitjoin_coffee_suffix_if_clause')
   let g:splitjoin_coffee_suffix_if_clause = 1
 endif

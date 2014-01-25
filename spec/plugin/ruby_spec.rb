@@ -40,7 +40,7 @@ describe "ruby" do
     assert_file_contents <<-EOF
       foo = {
         :bar => 'baz',
-        :one => 'two'
+        :one => 'two',
       }
     EOF
 
@@ -50,6 +50,29 @@ describe "ruby" do
     assert_file_contents <<-EOF
       foo = { :bar => 'baz', :one => 'two' }
     EOF
+  end
+
+  specify "hashes without a trailing comma" do
+    begin
+      vim.command('let g:splitjoin_ruby_trailing_comma = 0')
+
+      set_file_contents <<-EOF
+      foo = { :bar => 'baz', :one => 'two' }
+      EOF
+
+      vim.search ':bar'
+      split
+
+      assert_file_contents <<-EOF
+      foo = {
+        :bar => 'baz',
+        :one => 'two'
+      }
+      EOF
+
+    ensure
+      vim.command('let g:splitjoin_ruby_trailing_comma = 1')
+    end
   end
 
   specify "caching constructs" do
@@ -215,25 +238,29 @@ describe "ruby" do
     end
 
     it "can use the << heredoc style" do
-      set_file_contents <<-EOF
-        do
-          string = "something"
-        end
-      EOF
+      begin
+        vim.command('let g:splitjoin_ruby_heredoc_type = "<<"')
 
-      vim.search 'something'
-      vim.command('let g:splitjoin_ruby_heredoc_type = "<<"')
-      split
-
-      assert_file_contents <<-OUTER
-        do
-          string = <<EOF
-        something
+        set_file_contents <<-EOF
+          do
+            string = "something"
+          end
         EOF
-        end
-      OUTER
 
-      vim.command('let g:splitjoin_ruby_heredoc_type = "<<-"')
+        vim.search 'something'
+        split
+
+        assert_file_contents <<-OUTER
+          do
+            string = <<EOF
+          something
+          EOF
+          end
+        OUTER
+
+      ensure
+        vim.command('let g:splitjoin_ruby_heredoc_type = "<<-"')
+      end
     end
   end
 
@@ -250,7 +277,7 @@ describe "ruby" do
       assert_file_contents <<-EOF
         foo 1, 2, {
           :one => 1,
-          :two => 2
+          :two => 2,
         }
       EOF
 
@@ -316,7 +343,7 @@ describe "ruby" do
 
       assert_file_contents <<-EOF
         foo "\#{one}", {
-          :two => 3
+          :two => 3,
         }
       EOF
 

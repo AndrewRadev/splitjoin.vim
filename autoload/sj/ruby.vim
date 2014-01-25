@@ -143,10 +143,18 @@ endfunction
 function! s:JoinHashWithCurlyBraces()
   normal! $
 
+  let original_body = sj#GetMotion('Vi{')
+  let body = original_body
+
   if g:splitjoin_normalize_whitespace
-    let body = sj#GetMotion('Vi{',)
     let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
     let body = substitute(body, '\s\+\k\+\zs:\s\+', ': ', 'g')
+  endif
+
+  " remove trailing comma
+  let body = substitute(body, ',\ze\_s*$', '', '')
+
+  if body != original_body
     call sj#ReplaceMotion('Vi{', body)
   endif
 
@@ -162,6 +170,10 @@ function! s:JoinHashWithRoundBraces()
   if g:splitjoin_normalize_whitespace
     let body = substitute(body, '\s*=>\s*', ' => ', 'g')
   endif
+
+  " remove trailing comma
+  let body = substitute(body, ',\ze\_s*$', '', '')
+
   let body = join(sj#TrimList(split(body, "\n")), ' ')
   call sj#ReplaceMotion('Va(', '('.body.')')
 
@@ -252,6 +264,10 @@ function! sj#ruby#SplitOptions()
   if !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces'
     " no need to add anything
   elseif g:splitjoin_ruby_curly_braces || option_type == 'hash' || len(args) == 0
+    if g:splitjoin_ruby_trailing_comma
+      let replacement .= ','
+    endif
+
     let replacement .= "\n}"
   endif
 

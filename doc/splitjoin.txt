@@ -747,6 +747,26 @@ if there are braces, so the first example will always be joined to:
     User.new :one, { :first_name => "Andrew", :last_name => "Radev" }
 <
 
+                                             *g:splitjoin_ruby_trailing_comma*
+>
+    g:splitjoin_ruby_trailing_comma
+<
+
+Default value: 1
+
+This controls whether to put a trailing comma on a split hash. With this set
+to 1 (the default), a hash will split like so:
+>
+    User.new :one, :first_name => "Andrew", :last_name => "Radev"
+
+    User.new :one, {
+      :first_name => "Andrew",
+      :last_name => "Radev",
+    }
+<
+Note the trailing comma for the last element.
+
+
                                          *g:splitjoin_coffee_suffix_if_clause*
 >
     g:splitjoin_coffee_suffix_if_clause
