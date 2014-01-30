@@ -29,6 +29,134 @@ describe "ruby" do
     EOF
   end
 
+  describe "ternaries" do
+    it "handles simplistic ternaries" do
+      set_file_contents <<-EOF
+          condition ? 'this' : 'that'
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+          if condition
+            'this'
+          else
+            'that'
+          end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+          condition ? 'this' : 'that'
+      EOF
+    end
+
+    it "works with unless" do
+      set_file_contents <<-EOF
+          unless condition
+            x = 'a'
+          else
+            y = 'b'
+          end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+          condition ? y = 'b' : x = 'a'
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+          if condition
+            y = 'b'
+          else
+            x = 'a'
+          end
+      EOF
+    end
+
+    it "extracts variable assignments" do
+      set_file_contents <<-EOF
+          if condition
+            x = 'a'
+          else
+            x = 'b'
+          end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+          x = (condition ? 'a' : 'b')
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+          x = if condition
+                'a'
+              else
+                'b'
+              end
+      EOF
+    end
+
+    it "handles assignments when joining, adding parentheses" do
+      set_file_contents <<-EOF
+          x = if condition
+                'a'
+              else
+                'b'
+              end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+          x = (condition ? 'a' : 'b')
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+          x = if condition
+                'a'
+              else
+                'b'
+              end
+      EOF
+    end
+
+    it "handles different formatting for assignments" do
+      set_file_contents <<-EOF
+          x = unless condition
+           'something'
+          else
+           'anything'
+          end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+          x = (condition ? 'anything' : 'something')
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+          x = if condition
+                'anything'
+              else
+                'something'
+              end
+      EOF
+    end
+  end
+
   specify "hashes" do
     set_file_contents <<-EOF
       foo = { :bar => 'baz', :one => 'two' }
