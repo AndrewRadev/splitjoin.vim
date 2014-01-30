@@ -10,6 +10,18 @@ function! sj#ruby#SplitIfClause()
   endif
 endfunction
 
+function! sj#ruby#SplitTernaryClause()
+  let line    = getline('.')
+  let pattern = '\v(\w.*) \? (.*) : (.*)'
+
+  if line =~ pattern
+    call sj#ReplaceMotion('V', substitute(line, pattern, 'if \1\n\2\nelse\n\3\nend', ''))
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
 function! sj#ruby#JoinTernaryClause()
   let line    = getline('.')
   let pattern = '\v^\s*(if|unless)'
