@@ -17,9 +17,11 @@ function! sj#ruby#SplitTernaryClause()
 
   if line =~ pattern
     let assignment = matchstr(line, ass_pat)
+
     if assignment != ''
       let line = substitute(line, ass_pat, '', '')
       let line = substitute(line, '(\(.*\))', '\1', '')
+
       call sj#ReplaceMotion('V', substitute(line, pattern,
             \ assignment.'if \1\n\2\nelse\n\3\nend', ''))
     else
@@ -39,14 +41,43 @@ function! sj#ruby#JoinTernaryClause()
 
   if line =~ pattern
     let if_line_no = line('.')
-    let else_line_pattern = '^'.repeat(' ', indent(if_line_no)).'else\s*$'
-    let end_line_pattern = '^'.repeat(' ', indent(if_line_no)).'end\s*$'
 
-    let else_line_no = search(else_line_pattern, 'W')
-    call cursor(if_line_no, 1)
-    let end_line_no = search(end_line_pattern, 'W')
+    let else_line_no = if_line_no + 2
+    let end_line_no  = if_line_no + 4
 
-    if if_line_no + 2 == else_line_no && else_line_no + 2 == end_line_no
+    let else_line = getline(else_line_no)
+    let end_line  = getline(end_line_no)
+
+    let clause_is_valid = 0
+    " Three formats are allowed
+    "
+    " if condition        " all ifs can be replaced with unless
+    "   true
+    " else
+    "   false
+    " end
+    "
+    " x = if condition    "     x = if condition
+    "       true          "       true
+    "     else            "     else
+    "       false         "       false
+    "     end             "     end
+    "
+
+    if else_line =~ '^\s*else\s*$' && end_line =~ '^\s*end\s*$'
+      let if_column = match(line, pattern)
+      let else_column = match(else_line, 'else')
+      let end_column = match(end_line, 'end')
+      let if_line_indent = indent(if_line_no)
+
+      if else_column == end_column
+        if (else_column == if_column) || (else_column == if_line_indent)
+          let clause_is_valid = 1
+        endif
+      endif
+    end
+
+    if clause_is_valid
       let upper_body = getline(if_line_no + 1)
       let lower_body = getline(else_line_no + 1)
       let upper_body = sj#Trim(upper_body)
