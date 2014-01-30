@@ -100,7 +100,6 @@ function! sj#ruby#JoinTernaryClause()
         let body = [lower_body, upper_body]
       endif
 
-
       let body_str = join(body, " : ")
       let condition = substitute(line, pattern, '', '')
       let condition = substitute(condition, '\v^(\s*)', '\1'.assignment, '')
@@ -133,7 +132,7 @@ function! sj#ruby#JoinIfClause()
     call cursor(if_line_no, 1)
     let end_line_no = search(end_line_pattern, 'W')
 
-    if else_line_no < end_line_no
+    if else_line_no && else_line_no < end_line_no
       return 0
     endif
 
