@@ -24,7 +24,7 @@ endfunction
 
 function! sj#ruby#JoinTernaryClause()
   let line    = getline('.')
-  let pattern = '\v^\s*(if|unless)'
+  let pattern = '\v(if|unless) '
 
   if line =~ pattern
     let if_line_no = line('.')
@@ -41,16 +41,34 @@ function! sj#ruby#JoinTernaryClause()
       let upper_body = sj#Trim(upper_body)
       let lower_body = sj#Trim(lower_body)
 
+      let assignment = matchstr(upper_body, '\v^.{-} \= ')
+
+      if assignment != '' && lower_body =~ '^'.assignment
+        let upper_body = substitute(upper_body, '^'.assignment, '', '')
+        let lower_body = substitute(lower_body, '^'.assignment, '', '')
+      else
+        " clean the assignment var if it's invalid, so we don't have
+        " to care about it later on
+        let assignment = ''
+      endif
+
       if line =~ 'if'
         let body = [upper_body, lower_body]
       else
         let body = [lower_body, upper_body]
       endif
 
+
       let body_str = join(body, " : ")
-      let condition = substitute(line, '\v(if|unless) ', '', '')
+      let condition = substitute(line, pattern, '', '')
+      let condition = substitute(condition, '\v^(\s*)', '\1'.assignment, '')
 
       let replacement = condition.' ? '.body_str
+
+      if line =~ '\v\= (if|unless)' || assignment != ''
+        let replacement = substitute(replacement, '\v(\= )(.*)', '\1(\2)', '')
+      endif
+
       call sj#ReplaceLines(if_line_no, end_line_no, replacement)
 
       return 1
