@@ -13,9 +13,20 @@ endfunction
 function! sj#ruby#SplitTernaryClause()
   let line    = getline('.')
   let pattern = '\v(\w.*) \? (.*) : (.*)'
+  let ass_pat = '\v^\s*\w* \= '
 
   if line =~ pattern
-    call sj#ReplaceMotion('V', substitute(line, pattern, 'if \1\n\2\nelse\n\3\nend', ''))
+    let assignment = matchstr(line, ass_pat)
+    if assignment != ''
+      let line = substitute(line, ass_pat, '', '')
+      let line = substitute(line, '(\(.*\))', '\1', '')
+      call sj#ReplaceMotion('V', substitute(line, pattern,
+            \ assignment.'if \1\n\2\nelse\n\3\nend', ''))
+    else
+      call sj#ReplaceMotion('V', substitute(line, pattern,
+            \'if \1\n\2\nelse\n\3\nend', ''))
+    endif
+
     return 1
   else
     return 0
