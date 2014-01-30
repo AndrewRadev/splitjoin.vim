@@ -10,6 +10,46 @@ function! sj#ruby#SplitIfClause()
   endif
 endfunction
 
+function! sj#ruby#JoinIfClause()
+  let line    = getline('.')
+  let pattern = '\v^\s*(if|unless|while|until)'
+
+  if line =~ pattern
+    let if_line_no = line('.')
+    let else_line_pattern = '^'.repeat(' ', indent(if_line_no)).'else\s*$'
+    let end_line_pattern = '^'.repeat(' ', indent(if_line_no)).'end\s*$'
+
+    let else_line_no = search(else_line_pattern, 'W')
+    call cursor(if_line_no, 1)
+    let end_line_no = search(end_line_pattern, 'W')
+
+    if else_line_no && else_line_no < end_line_no
+      return 0
+    endif
+
+    if end_line_no > 0
+      let lines = sj#GetLines(if_line_no, end_line_no)
+
+      let if_line  = lines[0]
+      let end_line = lines[-1]
+      echo lines
+      let body     = join(lines[1:-2], "\n")
+
+      let if_line = sj#Trim(if_line)
+      let body    = sj#Trim(body)
+      let body    = s:JoinLines(body)
+
+      let replacement = body.' '.if_line
+
+      call sj#ReplaceLines(if_line_no, end_line_no, replacement)
+
+      return 1
+    endif
+  endif
+
+  return 0
+endfunction
+
 function! sj#ruby#SplitTernaryClause()
   let line    = getline('.')
   let pattern = '\v(\w.*) \? (.*) : (.*)'
@@ -49,6 +89,7 @@ function! sj#ruby#JoinTernaryClause()
     let end_line  = getline(end_line_no)
 
     let clause_is_valid = 0
+
     " Three formats are allowed
     "
     " if condition        " all ifs can be replaced with unless
@@ -63,7 +104,6 @@ function! sj#ruby#JoinTernaryClause()
     "       false         "       false
     "     end             "     end
     "
-
     if else_line =~ '^\s*else\s*$' && end_line =~ '^\s*end\s*$'
       let if_column = match(line, pattern)
       let else_column = match(else_line, 'else')
@@ -109,46 +149,6 @@ function! sj#ruby#JoinTernaryClause()
       if line =~ '\v\= (if|unless)' || assignment != ''
         let replacement = substitute(replacement, '\v(\= )(.*)', '\1(\2)', '')
       endif
-
-      call sj#ReplaceLines(if_line_no, end_line_no, replacement)
-
-      return 1
-    endif
-  endif
-
-  return 0
-endfunction
-
-function! sj#ruby#JoinIfClause()
-  let line    = getline('.')
-  let pattern = '\v^\s*(if|unless|while|until)'
-
-  if line =~ pattern
-    let if_line_no = line('.')
-    let else_line_pattern = '^'.repeat(' ', indent(if_line_no)).'else\s*$'
-    let end_line_pattern = '^'.repeat(' ', indent(if_line_no)).'end\s*$'
-
-    let else_line_no = search(else_line_pattern, 'W')
-    call cursor(if_line_no, 1)
-    let end_line_no = search(end_line_pattern, 'W')
-
-    if else_line_no && else_line_no < end_line_no
-      return 0
-    endif
-
-    if end_line_no > 0
-      let lines = sj#GetLines(if_line_no, end_line_no)
-
-      let if_line  = lines[0]
-      let end_line = lines[-1]
-      echo lines
-      let body     = join(lines[1:-2], "\n")
-
-      let if_line = sj#Trim(if_line)
-      let body    = sj#Trim(body)
-      let body    = s:JoinLines(body)
-
-      let replacement = body.' '.if_line
 
       call sj#ReplaceLines(if_line_no, end_line_no, replacement)
 
