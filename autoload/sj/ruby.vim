@@ -16,9 +16,16 @@ function! sj#ruby#JoinIfClause()
 
   if line =~ pattern
     let if_line_no = line('.')
+    let else_line_pattern = '^'.repeat(' ', indent(if_line_no)).'else\s*$'
     let end_line_pattern = '^'.repeat(' ', indent(if_line_no)).'end\s*$'
 
+    let else_line_no = search(else_line_pattern, 'W')
+    call cursor(if_line_no, 1)
     let end_line_no = search(end_line_pattern, 'W')
+
+    if else_line_no < end_line_no
+      return 0
+    endif
 
     if end_line_no > 0
       let lines = sj#GetLines(if_line_no, end_line_no)
