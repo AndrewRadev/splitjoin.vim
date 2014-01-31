@@ -183,7 +183,6 @@ function! sj#ruby#JoinCase()
     if else_line =~ '^'.repeat(' ', indent(line)).'else\s*$'
       let lines = sj#GetLines(line_no + 1, else_line_no - 1)
       if call('s:AllLinesStartWithWhen', [lines])
-        echo 'yey'
         let next_line = getline(else_line_no + 1)
         let next_line = sj#Trim(next_line)
         let replacement = else_line.' '.next_line
@@ -199,6 +198,7 @@ function! sj#ruby#JoinCase()
       return 1
     endif
   endif
+
   return 0
 endfunction
 
