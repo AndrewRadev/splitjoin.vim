@@ -249,6 +249,56 @@ describe "ruby" do
         end
       EOF
     end
+
+    it "one-lines else as well" do
+      set_file_contents <<-EOF
+        case
+        when condition1
+          stuff1
+        when condition2
+          stuff2
+        else
+          stuff3
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        case
+        when condition1 then stuff1
+        when condition2 then stuff2
+        else stuff3
+        end
+      EOF
+    end
+
+    it "doesn't one line else when the case is not well formed" do
+      set_file_contents <<-EOF
+        case
+        when condition1
+          stuff1
+        when condition2
+          stuff2
+          stuff3
+        else
+          stuff3
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        case
+        when condition1 then stuff1
+        when condition2
+          stuff2
+          stuff3
+        else
+          stuff3
+        end
+      EOF
+    end
   end
 
   specify "hashes" do

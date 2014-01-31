@@ -167,21 +167,44 @@ function! sj#ruby#JoinCase()
     let end_line_no = search(end_line_pattern, 'W')
     let lines = sj#GetLines(line_no + 1, end_line_no - 1)
     let counter = 1
-    for line in lines
+    for body_line in lines
       call cursor(line_no + counter, 1)
       if ! call('sj#ruby#JoinWhenThen', [])
         let counter = counter + 1
       endif
     endfor
 
-    " check if anything has changed
     call cursor(line_no, 1)
     let new_end_line_no = search(end_line_pattern, 'W')
+
+    " try to join else for extremely well formed cases
+    let else_line_no = new_end_line_no - 2
+    let else_line = getline(else_line_no)
+    if else_line =~ '^'.repeat(' ', indent(line)).'else\s*$'
+      let lines = sj#GetLines(line_no + 1, else_line_no - 1)
+      if call('s:AllLinesStartWithWhen', [lines])
+        echo 'yey'
+        let next_line = getline(else_line_no + 1)
+        let next_line = sj#Trim(next_line)
+        let replacement = else_line.' '.next_line
+        call sj#ReplaceLines(else_line_no, else_line_no + 1, replacement)
+      endif
+    endif
+
     if end_line_no > new_end_line_no
       return 1
     endif
   endif
   return 0
+endfunction
+
+function! s:AllLinesStartWithWhen(lines)
+  for line in a:lines
+    if line !~ '\s*when'
+      return 0
+    end
+  endfor
+  return 1
 endfunction
 
 function! sj#ruby#SplitWhenThen()
