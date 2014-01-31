@@ -299,6 +299,30 @@ describe "ruby" do
         end
       EOF
     end
+
+    it "expands/split all one liners in a case" do
+      set_file_contents <<-EOF
+        case
+        when condition1 then stuff1
+        when condition2
+          stuff2
+        else stuff3
+        end
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        case
+        when condition1
+          stuff1
+        when condition2
+          stuff2
+        else
+          stuff3
+        end
+      EOF
+    end
   end
 
   specify "hashes" do

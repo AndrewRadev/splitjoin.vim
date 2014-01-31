@@ -191,6 +191,10 @@ function! sj#ruby#JoinCase()
       endif
     endif
 
+    " and check the new endline again for changes
+    call cursor(line_no, 1)
+    let new_end_line_no = search(end_line_pattern, 'W')
+
     if end_line_no > new_end_line_no
       return 1
     endif
@@ -205,6 +209,44 @@ function! s:AllLinesStartWithWhen(lines)
     end
   endfor
   return 1
+endfunction
+
+function! sj#ruby#SplitCase()
+  let line_no = line('.')
+  let line = getline('.')
+  if line =~ '.*case'
+    let end_line_pattern = '^'.repeat(' ', indent(line)).'end\s*$'
+    let end_line_no = search(end_line_pattern, 'W')
+    let lines = sj#GetLines(line_no + 1, end_line_no - 1)
+    let counter = 1
+    for body_line in lines
+      call cursor(line_no + counter, 1)
+      if call('sj#ruby#SplitWhenThen', [])
+        let counter = counter + 2
+      else
+        let counter = counter + 1
+      endif
+    endfor
+
+    call cursor(line_no, 1)
+    let new_end_line_no = search(end_line_pattern, 'W')
+
+    let else_line_no = new_end_line_no - 1
+    let else_line = getline(else_line_no)
+    if else_line =~ '^'.repeat(' ', indent(line)).'else.*'
+      call cursor(else_line_no, 1)
+      call sj#ReplaceMotion('V', substitute(else_line, '\v^(\s*else) (.*)', '\1\n\2', ''))
+      call cursor(else_line_no, 1)
+      let new_end_line_no = search(end_line_pattern, 'W')
+    endif
+
+
+    if end_line_no > new_end_line_no
+      return 1
+    endif
+  endif
+
+  return 0
 endfunction
 
 function! sj#ruby#SplitWhenThen()
