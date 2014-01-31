@@ -187,6 +187,7 @@ function! sj#ruby#JoinCase()
         let next_line = sj#Trim(next_line)
         let replacement = else_line.' '.next_line
         call sj#ReplaceLines(else_line_no, else_line_no + 1, replacement)
+        call sj#Align(line_no + 1, else_line_no, 'when_then')
       endif
     endif
 

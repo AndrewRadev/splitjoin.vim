@@ -273,6 +273,32 @@ describe "ruby" do
       EOF
     end
 
+    # Well, I guess we would need to stub the alignment
+    # engine here ;)
+    #
+    #it "aligns thens in supercompact cases" do
+    #  set_file_contents <<-EOF
+    #    case
+    #    when cond1
+    #      stuff1
+    #    when condition2
+    #      stuff2
+    #    else
+    #      stuff3
+    #    end
+    #  EOF
+
+    #  join
+
+    #  assert_file_contents <<-EOF
+    #    case
+    #    when cond1      then stuff1
+    #    when condition2 then stuff2
+    #    else stuff3
+    #    end
+    #  EOF
+    #end
+
     it "doesn't one line else when the case is not well formed" do
       set_file_contents <<-EOF
         case
