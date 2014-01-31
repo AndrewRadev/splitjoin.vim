@@ -203,6 +203,28 @@ describe "ruby" do
     end
   end
 
+  describe 'cases' do
+    it "joins cases with well formed when-thens" do
+      set_file_contents <<-EOF
+        case
+        when condition1
+          stuff1
+        when condition2
+          stuff2
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        case
+        when condition1 then stuff1
+        when condition2 then stuff2
+        end
+      EOF
+    end
+  end
+
   specify "hashes" do
     set_file_contents <<-EOF
       foo = { :bar => 'baz', :one => 'two' }

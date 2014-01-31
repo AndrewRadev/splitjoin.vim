@@ -159,6 +159,31 @@ function! sj#ruby#JoinTernaryClause()
   return 0
 endfunction
 
+function! sj#ruby#JoinCase()
+  let line_no = line('.')
+  let line = getline('.')
+  if line =~ '.*case'
+    let end_line_pattern = '^'.repeat(' ', indent(line)).'end\s*$'
+    let end_line_no = search(end_line_pattern, 'W')
+    let lines = sj#GetLines(line_no + 1, end_line_no - 1)
+    let counter = 1
+    for line in lines
+      call cursor(line_no + counter, 1)
+      if ! call('sj#ruby#JoinWhenThen', [])
+        let counter = counter + 1
+      endif
+    endfor
+
+    " check if anything has changed
+    call cursor(line_no, 1)
+    let new_end_line_no = search(end_line_pattern, 'W')
+    if end_line_no > new_end_line_no
+      return 1
+    endif
+  endif
+  return 0
+endfunction
+
 function! sj#ruby#SplitWhenThen()
   let line = getline('.')
   let pattern = '\v(s*when.*) then (.*)'

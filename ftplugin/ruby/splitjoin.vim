@@ -7,6 +7,7 @@ if !exists('b:splitjoin_split_callbacks')
         \ 'sj#ruby#SplitCachingConstruct',
         \ 'sj#ruby#SplitString',
         \ 'sj#ruby#SplitWhenThen',
+        \ 'sj#ruby#SplitCase',
         \ ]
 endif
 
@@ -20,5 +21,6 @@ if !exists('b:splitjoin_join_callbacks')
         \ 'sj#ruby#JoinContinuedMethodCall',
         \ 'sj#ruby#JoinHeredoc',
         \ 'sj#ruby#JoinWhenThen',
+        \ 'sj#ruby#JoinCase',
         \ ]
 endif
