@@ -157,6 +157,52 @@ describe "ruby" do
     end
   end
 
+  describe "when-then" do
+    it "joins when-then" do
+      set_file_contents <<-EOF
+        when condition
+          do_stuff
+        when condition
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        when condition then do_stuff
+        when condition
+      EOF
+    end
+
+    it "splits when-then" do
+      set_file_contents <<-EOF
+        when condition then do_stuff
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        when condition
+          do_stuff
+      EOF
+    end
+
+    it "works only when there is one line in the then body" do
+      set_file_contents <<-EOF
+        when condition
+          do_stuff
+          do_something_else
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        when condition
+          do_stuff
+          do_something_else
+      EOF
+    end
+  end
+
   specify "hashes" do
     set_file_contents <<-EOF
       foo = { :bar => 'baz', :one => 'two' }

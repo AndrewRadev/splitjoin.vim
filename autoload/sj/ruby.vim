@@ -159,6 +159,38 @@ function! sj#ruby#JoinTernaryClause()
   return 0
 endfunction
 
+function! sj#ruby#SplitWhenThen()
+  let line = getline('.')
+  let pattern = '\v(s*when.*) then (.*)'
+
+  if line =~ pattern
+    call sj#ReplaceMotion('V', substitute(line, pattern, '\1\n\2', ''))
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
+function! sj#ruby#JoinWhenThen()
+  let line = getline('.')
+
+  if line =~ '^\s*when'
+    let line_no = line('.')
+    let one_down = getline(line_no + 1)
+    let two_down = getline(line_no + 2)
+    let pattern = '\v^\s*(when|else|end)'
+
+    if one_down !~ pattern && two_down =~ pattern
+      let one_down = sj#Trim(one_down)
+      let replacement = line.' then '.one_down
+      call sj#ReplaceLines(line_no, line_no + 1, replacement)
+      return 1
+    end
+  end
+
+  return 0
+endfunction
+
 " TODO rewrite using SearchUnderCursor?
 function! sj#ruby#SplitBlock()
   let line    = getline('.')
