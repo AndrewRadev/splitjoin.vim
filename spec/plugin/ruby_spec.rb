@@ -223,6 +223,32 @@ describe "ruby" do
         end
       EOF
     end
+
+    it "passes over ill formed when thens do" do
+      set_file_contents <<-EOF
+        case
+        when condition1
+          stuff1
+        when condition2
+          stuff2
+          stuff3
+        when condition 3
+          stuff4
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        case
+        when condition1 then stuff1
+        when condition2
+          stuff2
+          stuff3
+        when condition 3 then stuff4
+        end
+      EOF
+    end
   end
 
   specify "hashes" do
