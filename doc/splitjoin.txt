@@ -234,6 +234,37 @@ Heredocs ~
     something
     EOF
 <
+Ternaries ~
+>
+    if condition
+      do_foo
+    else
+      do_bar
+    end
+
+    condition ? do_foo : do_bar
+<
+Cases ~
+
+Splits or joins single when clauses, if the cursors sits on the line of
+such a when, or the whole case, if you have or cursor in the line of the
+case-keyword, as shown in the example.
+>
+    case condition
+    when :a
+      do_foo
+    when :b
+      do_bar
+    else
+      do_baz
+    end
+
+    case condition
+    when :a then do_foo
+    when :b then do_bar
+    else do_baz
+    end
+>
 
 ==============================================================================
 PYTHON                                                      *splitjoin-python*
