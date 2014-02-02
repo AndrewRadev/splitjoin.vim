@@ -32,7 +32,6 @@ function! sj#ruby#JoinIfClause()
 
       let if_line  = lines[0]
       let end_line = lines[-1]
-      echo lines
       let body     = join(lines[1:-2], "\n")
 
       let if_line = sj#Trim(if_line)
@@ -52,20 +51,20 @@ endfunction
 
 function! sj#ruby#SplitTernaryClause()
   let line    = getline('.')
-  let pattern = '\v(\w.*) \? (.*) : (.*)'
-  let ass_pat = '\v^\s*\w* \= '
+  let ternary_pattern = '\v(\w.*) \? (.*) : (.*)'
+  let assignment_pattern = '\v^\s*\w* \= '
 
-  if line =~ pattern
-    let assignment = matchstr(line, ass_pat)
+  if line =~ ternary_pattern
+    let assignment = matchstr(line, assignment_pattern)
 
     if assignment != ''
-      let line = substitute(line, ass_pat, '', '')
+      let line = substitute(line, assignment_pattern, '', '')
       let line = substitute(line, '(\(.*\))', '\1', '')
 
-      call sj#ReplaceMotion('V', substitute(line, pattern,
+      call sj#ReplaceMotion('V', substitute(line, ternary_pattern,
             \ assignment.'if \1\n\2\nelse\n\3\nend', ''))
     else
-      call sj#ReplaceMotion('V', substitute(line, pattern,
+      call sj#ReplaceMotion('V', substitute(line, ternary_pattern,
             \'if \1\n\2\nelse\n\3\nend', ''))
     endif
 
@@ -90,9 +89,9 @@ function! sj#ruby#JoinTernaryClause()
 
     let clause_is_valid = 0
 
-    " Three formats are allowed
+    " Three formats are allowed, all ifs can be replaced with unless
     "
-    " if condition        " all ifs can be replaced with unless
+    " if condition
     "   true
     " else
     "   false
@@ -182,7 +181,7 @@ function! sj#ruby#JoinCase()
     let else_line = getline(else_line_no)
     if else_line =~ '^'.repeat(' ', indent(line)).'else\s*$'
       let lines = sj#GetLines(line_no + 1, else_line_no - 1)
-      if call('s:AllLinesStartWithWhen', [lines])
+      if s:AllLinesStartWithWhen(lines)
         let next_line = getline(else_line_no + 1)
         let next_line = sj#Trim(next_line)
         let replacement = else_line.' '.next_line
@@ -231,7 +230,6 @@ function! sj#ruby#SplitCase()
 
     call cursor(line_no, 1)
     let new_end_line_no = search(end_line_pattern, 'W')
-
     let else_line_no = new_end_line_no - 1
     let else_line = getline(else_line_no)
     if else_line =~ '^'.repeat(' ', indent(line)).'else.*'
@@ -240,7 +238,6 @@ function! sj#ruby#SplitCase()
       call cursor(else_line_no, 1)
       let new_end_line_no = search(end_line_pattern, 'W')
     endif
-
 
     if end_line_no > new_end_line_no
       return 1
