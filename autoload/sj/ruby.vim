@@ -173,10 +173,11 @@ function! sj#ruby#JoinCase()
       endif
     endfor
 
+
+    " try to join else for extremely well formed cases and use
+    " an alignment tool (optional)
     call cursor(line_no, 1)
     let new_end_line_no = search(end_line_pattern, 'W')
-
-    " try to join else for extremely well formed cases
     let else_line_no = new_end_line_no - 2
     let else_line = getline(else_line_no)
     if else_line =~ '^'.repeat(' ', indent(line)).'else\s*$'
@@ -186,7 +187,9 @@ function! sj#ruby#JoinCase()
         let next_line = sj#Trim(next_line)
         let replacement = else_line.' '.next_line
         call sj#ReplaceLines(else_line_no, else_line_no + 1, replacement)
-        call sj#Align(line_no + 1, else_line_no, 'when_then')
+        if g:splitjoin_align
+          call sj#Align(line_no + 1, else_line_no, 'when_then')
+        endif
       endif
     endif
 
