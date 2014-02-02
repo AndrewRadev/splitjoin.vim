@@ -32,127 +32,127 @@ describe "ruby" do
   describe "ternaries" do
     it "handles simplistic ternaries" do
       set_file_contents <<-EOF
-          condition ? 'this' : 'that'
+        condition ? 'this' : 'that'
       EOF
 
       split
 
       assert_file_contents <<-EOF
-          if condition
-            'this'
-          else
-            'that'
-          end
+        if condition
+          'this'
+        else
+          'that'
+        end
       EOF
 
       join
 
       assert_file_contents <<-EOF
-          condition ? 'this' : 'that'
+        condition ? 'this' : 'that'
       EOF
     end
 
     it "works with unless" do
       set_file_contents <<-EOF
-          unless condition
-            x = 'a'
-          else
-            y = 'b'
-          end
+        unless condition
+          x = 'a'
+        else
+          y = 'b'
+        end
       EOF
 
       join
 
       assert_file_contents <<-EOF
-          condition ? y = 'b' : x = 'a'
+        condition ? y = 'b' : x = 'a'
       EOF
 
       split
 
       assert_file_contents <<-EOF
-          if condition
-            y = 'b'
-          else
-            x = 'a'
-          end
+        if condition
+          y = 'b'
+        else
+          x = 'a'
+        end
       EOF
     end
 
     it "extracts variable assignments" do
       set_file_contents <<-EOF
-          if condition
-            x = 'a'
-          else
-            x = 'b'
-          end
+        if condition
+          x = 'a'
+        else
+          x = 'b'
+        end
       EOF
 
       join
 
       assert_file_contents <<-EOF
-          x = (condition ? 'a' : 'b')
+        x = (condition ? 'a' : 'b')
       EOF
 
       split
 
       assert_file_contents <<-EOF
-          x = if condition
-                'a'
-              else
-                'b'
-              end
+        x = if condition
+              'a'
+            else
+              'b'
+            end
       EOF
     end
 
     it "handles assignments when joining, adding parentheses" do
       set_file_contents <<-EOF
-          x = if condition
-                'a'
-              else
-                'b'
-              end
+        x = if condition
+              'a'
+            else
+              'b'
+            end
       EOF
 
       join
 
       assert_file_contents <<-EOF
-          x = (condition ? 'a' : 'b')
+        x = (condition ? 'a' : 'b')
       EOF
 
       split
 
       assert_file_contents <<-EOF
-          x = if condition
-                'a'
-              else
-                'b'
-              end
+        x = if condition
+              'a'
+            else
+              'b'
+            end
       EOF
     end
 
     it "handles different formatting for assignments" do
       set_file_contents <<-EOF
-          x = unless condition
-           'something'
-          else
-           'anything'
-          end
+        x = unless condition
+         'something'
+        else
+         'anything'
+        end
       EOF
 
       join
 
       assert_file_contents <<-EOF
-          x = (condition ? 'anything' : 'something')
+        x = (condition ? 'anything' : 'something')
       EOF
 
       split
 
       assert_file_contents <<-EOF
-          x = if condition
-                'anything'
-              else
-                'something'
-              end
+        x = if condition
+              'anything'
+            else
+              'something'
+            end
       EOF
     end
   end
@@ -273,31 +273,30 @@ describe "ruby" do
       EOF
     end
 
-    # Well, I guess we would need to stub the alignment
-    # engine here ;)
-    #
-    #it "aligns thens in supercompact cases" do
-    #  set_file_contents <<-EOF
-    #    case
-    #    when cond1
-    #      stuff1
-    #    when condition2
-    #      stuff2
-    #    else
-    #      stuff3
-    #    end
-    #  EOF
+    it "aligns thens in supercompact cases" do
+      pending('we need to add an alignment tool to the spec configuration')
 
-    #  join
+      set_file_contents <<-EOF
+        case
+        when cond1
+          stuff1
+        when condition2
+          stuff2
+        else
+          stuff3
+        end
+      EOF
 
-    #  assert_file_contents <<-EOF
-    #    case
-    #    when cond1      then stuff1
-    #    when condition2 then stuff2
-    #    else stuff3
-    #    end
-    #  EOF
-    #end
+      join
+
+      assert_file_contents <<-EOF
+        case
+        when cond1      then stuff1
+        when condition2 then stuff2
+        else stuff3
+        end
+      EOF
+    end
 
     it "doesn't one line else when the case is not well formed" do
       set_file_contents <<-EOF
