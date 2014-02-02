@@ -16,9 +16,16 @@ function! sj#ruby#JoinIfClause()
 
   if line =~ pattern
     let if_line_no = line('.')
+    let else_line_pattern = '^'.repeat(' ', indent(if_line_no)).'else\s*$'
     let end_line_pattern = '^'.repeat(' ', indent(if_line_no)).'end\s*$'
 
+    let else_line_no = search(else_line_pattern, 'W')
+    call cursor(if_line_no, 1)
     let end_line_no = search(end_line_pattern, 'W')
+
+    if else_line_no && else_line_no < end_line_no
+      return 0
+    endif
 
     if end_line_no > 0
       let lines = sj#GetLines(if_line_no, end_line_no)
@@ -38,6 +45,239 @@ function! sj#ruby#JoinIfClause()
       return 1
     endif
   endif
+
+  return 0
+endfunction
+
+function! sj#ruby#SplitTernaryClause()
+  let line    = getline('.')
+  let ternary_pattern = '\v(\w.*) \? (.*) : (.*)'
+  let assignment_pattern = '\v^\s*\w* \= '
+
+  if line =~ ternary_pattern
+    let assignment = matchstr(line, assignment_pattern)
+
+    if assignment != ''
+      let line = substitute(line, assignment_pattern, '', '')
+      let line = substitute(line, '(\(.*\))', '\1', '')
+
+      call sj#ReplaceMotion('V', substitute(line, ternary_pattern,
+            \ assignment.'if \1\n\2\nelse\n\3\nend', ''))
+    else
+      call sj#ReplaceMotion('V', substitute(line, ternary_pattern,
+            \'if \1\n\2\nelse\n\3\nend', ''))
+    endif
+
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
+function! sj#ruby#JoinTernaryClause()
+  let line    = getline('.')
+  let pattern = '\v(if|unless) '
+
+  if line =~ pattern
+    let if_line_no = line('.')
+
+    let else_line_no = if_line_no + 2
+    let end_line_no  = if_line_no + 4
+
+    let else_line = getline(else_line_no)
+    let end_line  = getline(end_line_no)
+
+    let clause_is_valid = 0
+
+    " Three formats are allowed, all ifs can be replaced with unless
+    "
+    " if condition
+    "   true
+    " else
+    "   false
+    " end
+    "
+    " x = if condition    "     x = if condition
+    "       true          "       true
+    "     else            "     else
+    "       false         "       false
+    "     end             "     end
+    "
+    if else_line =~ '^\s*else\s*$' && end_line =~ '^\s*end\s*$'
+      let if_column = match(line, pattern)
+      let else_column = match(else_line, 'else')
+      let end_column = match(end_line, 'end')
+      let if_line_indent = indent(if_line_no)
+
+      if else_column == end_column
+        if (else_column == if_column) || (else_column == if_line_indent)
+          let clause_is_valid = 1
+        endif
+      endif
+    end
+
+    if clause_is_valid
+      let upper_body = getline(if_line_no + 1)
+      let lower_body = getline(else_line_no + 1)
+      let upper_body = sj#Trim(upper_body)
+      let lower_body = sj#Trim(lower_body)
+
+      let assignment = matchstr(upper_body, '\v^.{-} \= ')
+
+      if assignment != '' && lower_body =~ '^'.assignment
+        let upper_body = substitute(upper_body, '^'.assignment, '', '')
+        let lower_body = substitute(lower_body, '^'.assignment, '', '')
+      else
+        " clean the assignment var if it's invalid, so we don't have
+        " to care about it later on
+        let assignment = ''
+      endif
+
+      if line =~ 'if'
+        let body = [upper_body, lower_body]
+      else
+        let body = [lower_body, upper_body]
+      endif
+
+      let body_str = join(body, " : ")
+      let condition = substitute(line, pattern, '', '')
+      let condition = substitute(condition, '\v^(\s*)', '\1'.assignment, '')
+
+      let replacement = condition.' ? '.body_str
+
+      if line =~ '\v\= (if|unless)' || assignment != ''
+        let replacement = substitute(replacement, '\v(\= )(.*)', '\1(\2)', '')
+      endif
+
+      call sj#ReplaceLines(if_line_no, end_line_no, replacement)
+
+      return 1
+    endif
+  endif
+
+  return 0
+endfunction
+
+function! sj#ruby#JoinCase()
+  let line_no = line('.')
+  let line = getline('.')
+  if line =~ '.*case'
+    let end_line_pattern = '^'.repeat(' ', indent(line)).'end\s*$'
+    let end_line_no = search(end_line_pattern, 'W')
+    let lines = sj#GetLines(line_no + 1, end_line_no - 1)
+    let counter = 1
+    for body_line in lines
+      call cursor(line_no + counter, 1)
+      if ! call('sj#ruby#JoinWhenThen', [])
+        let counter = counter + 1
+      endif
+    endfor
+
+
+    " try to join else for extremely well formed cases and use
+    " an alignment tool (optional)
+    call cursor(line_no, 1)
+    let new_end_line_no = search(end_line_pattern, 'W')
+    let else_line_no = new_end_line_no - 2
+    let else_line = getline(else_line_no)
+    if else_line =~ '^'.repeat(' ', indent(line)).'else\s*$'
+      let lines = sj#GetLines(line_no + 1, else_line_no - 1)
+      if s:AllLinesStartWithWhen(lines)
+        let next_line = getline(else_line_no + 1)
+        let next_line = sj#Trim(next_line)
+        let replacement = else_line.' '.next_line
+        call sj#ReplaceLines(else_line_no, else_line_no + 1, replacement)
+        if g:splitjoin_align
+          call sj#Align(line_no + 1, else_line_no, 'when_then')
+        endif
+      endif
+    endif
+
+    " and check the new endline again for changes
+    call cursor(line_no, 1)
+    let new_end_line_no = search(end_line_pattern, 'W')
+
+    if end_line_no > new_end_line_no
+      return 1
+    endif
+  endif
+
+  return 0
+endfunction
+
+function! s:AllLinesStartWithWhen(lines)
+  for line in a:lines
+    if line !~ '\s*when'
+      return 0
+    end
+  endfor
+  return 1
+endfunction
+
+function! sj#ruby#SplitCase()
+  let line_no = line('.')
+  let line = getline('.')
+  if line =~ '.*case'
+    let end_line_pattern = '^'.repeat(' ', indent(line)).'end\s*$'
+    let end_line_no = search(end_line_pattern, 'W')
+    let lines = sj#GetLines(line_no + 1, end_line_no - 1)
+    let counter = 1
+    for body_line in lines
+      call cursor(line_no + counter, 1)
+      if call('sj#ruby#SplitWhenThen', [])
+        let counter = counter + 2
+      else
+        let counter = counter + 1
+      endif
+    endfor
+
+    call cursor(line_no, 1)
+    let new_end_line_no = search(end_line_pattern, 'W')
+    let else_line_no = new_end_line_no - 1
+    let else_line = getline(else_line_no)
+    if else_line =~ '^'.repeat(' ', indent(line)).'else.*'
+      call cursor(else_line_no, 1)
+      call sj#ReplaceMotion('V', substitute(else_line, '\v^(\s*else) (.*)', '\1\n\2', ''))
+      call cursor(else_line_no, 1)
+      let new_end_line_no = search(end_line_pattern, 'W')
+    endif
+
+    if end_line_no > new_end_line_no
+      return 1
+    endif
+  endif
+
+  return 0
+endfunction
+
+function! sj#ruby#SplitWhenThen()
+  let line = getline('.')
+  let pattern = '\v(s*when.*) then (.*)'
+
+  if line =~ pattern
+    call sj#ReplaceMotion('V', substitute(line, pattern, '\1\n\2', ''))
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
+function! sj#ruby#JoinWhenThen()
+  let line = getline('.')
+
+  if line =~ '^\s*when'
+    let line_no = line('.')
+    let one_down = getline(line_no + 1)
+    let two_down = getline(line_no + 2)
+    let pattern = '\v^\s*(when|else|end)'
+
+    if one_down !~ pattern && two_down =~ pattern
+      let one_down = sj#Trim(one_down)
+      let replacement = line.' then '.one_down
+      call sj#ReplaceLines(line_no, line_no + 1, replacement)
+      return 1
+    end
+  end
 
   return 0
 endfunction

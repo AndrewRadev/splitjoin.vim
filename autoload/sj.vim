@@ -380,6 +380,8 @@ function! s:Tabularize(from, to, type)
     let pattern = '^[^:]*:\s*\zs\s/l0'
   elseif a:type == 'lua_table'
     let pattern = '^[^=]*\zs='
+  elseif a:type == 'when_then'
+    let pattern = 'then'
   else
     return
   endif
@@ -392,6 +394,8 @@ function! s:Align(from, to, type)
     let pattern = 'l: =>'
   elseif a:type == 'css_declaration' || a:type == 'json_object'
     let pattern = 'lp0W0 :\s*\zs'
+  elseif a:type == 'when_then'
+    let pattern = 'l: then'
   else
     return
   endif
