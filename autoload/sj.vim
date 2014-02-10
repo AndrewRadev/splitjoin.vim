@@ -37,6 +37,22 @@ function! sj#DropCursor()
   call remove(b:cursor_position_stack, -1)
 endfunction
 
+" Indenting {{{1
+"
+" Some languages don't have built-in support, and some languages have semantic
+" indentation. In such cases, code blocks might need to be reindented
+" manually.
+"
+
+" function! sj#SetIndent(lineno, indent) {{{2
+"
+" Sets the indent of the given lineno to "indent" amount of whitespace.
+" For now, works only with spaces, not with tabs.
+function! sj#SetIndent(lineno, indent)
+  let whitespace = repeat(' ', a:indent)
+  keeppatterns exe a:lineno.'s/^\s*/'.whitespace.'/e'
+endfunction
+
 " function! sj#PeekCursor() {{{2
 "
 " Returns the last saved cursor position from the cursor stack.
@@ -419,9 +435,10 @@ endfunction
 "
 function! sj#LocateBracesOnLine(open, close, ...)
   let [_bufnum, line, col, _off] = getpos('.')
+  let search_pattern = '\V'.a:open.'\m.*\V'.a:close
 
   " bail early if there's obviously no match
-  if getline('.') !~ a:open.'.*'.a:close
+  if getline('.') !~ search_pattern
     return [-1, -1]
   endif
 
@@ -433,9 +450,9 @@ function! sj#LocateBracesOnLine(open, close, ...)
   endif
 
   " try looking backwards, then forwards
-  let found = searchpair(a:open, '', a:close, 'cb', skip, line('.'))
+  let found = searchpair('\V'.a:open, '', '\V'.a:close, 'cb', skip, line('.'))
   if found <= 0
-    let found = sj#SearchSkip(a:open.'.*'.a:close, skip, '', line('.'))
+    let found = sj#SearchSkip(search_pattern, skip, '', line('.'))
   endif
 
   if found > 0
