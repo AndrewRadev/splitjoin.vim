@@ -27,7 +27,7 @@ describe "javascript" do
   end
 
   specify "lists" do
-    set_file_contents "['one', 'two', 'three', 'four']"
+    set_file_contents "[ 'one', 'two', 'three', 'four' ]"
 
     vim.search '['
     split
