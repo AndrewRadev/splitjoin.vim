@@ -50,7 +50,12 @@ endfunction
 " For now, works only with spaces, not with tabs.
 function! sj#SetIndent(lineno, indent)
   let whitespace = repeat(' ', a:indent)
-  keeppatterns exe a:lineno.'s/^\s*/'.whitespace.'/e'
+
+  exe a:lineno.'s/^\s*/'.whitespace.'/e'
+
+  " Don't leave a history entry
+  call histdel('search', -1)
+  let @/ = histget('search', -1)
 endfunction
 
 " function! sj#PeekCursor() {{{2
