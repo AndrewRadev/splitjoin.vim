@@ -88,7 +88,7 @@ function! sj#js#JoinArray()
   let lines = sj#TrimList(lines)
   let body  = join(lines, ' ')
 
-  call sj#ReplaceMotion('Va[', '[ '.body.' ]')
+  call sj#ReplaceMotion('Va[', '['.body.']')
 
   return 1
 endfunction

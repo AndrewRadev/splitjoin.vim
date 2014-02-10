@@ -27,7 +27,7 @@ describe "javascript" do
   end
 
   specify "lists" do
-    set_file_contents "[ 'one', 'two', 'three', 'four' ]"
+    set_file_contents "['one', 'two', 'three', 'four']"
 
     vim.search '['
     split
@@ -43,7 +43,7 @@ describe "javascript" do
 
     join
 
-    assert_file_contents "[ 'one', 'two', 'three', 'four' ]"
+    assert_file_contents "['one', 'two', 'three', 'four']"
   end
 
   specify "functions" do
