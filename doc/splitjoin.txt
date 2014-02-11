@@ -448,6 +448,16 @@ copy the "ftplugin/javascript/splitjoin.vim" file's contents into a
       three: "four"
     };
 <
+Arrays ~
+>
+    var one = ['two', 'three', 'four'];
+
+    var one = [
+      'two',
+      'three',
+      'four'
+    ];
+<
 Functions ~
 
 When the cursor is on the "function" keyword, the script attempts to split the
@@ -473,6 +483,16 @@ Arrays ~
       'one' => 'two',
       'two' => 'three'
     )
+<
+Short arrays ~
+>
+    $one = ['two', 'three', 'four']
+
+    $one = [
+      'two',
+      'three',
+      'four'
+    ]
 <
 
 ==============================================================================
