@@ -2,6 +2,7 @@ if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
         \ 'sj#js#SplitArray',
         \ 'sj#php#SplitArray',
+        \ 'sj#php#SplitShortArray',
         \ 'sj#html#SplitTags',
         \ ]
 endif
