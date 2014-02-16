@@ -31,9 +31,16 @@ function! sj#php#SplitArray()
 endfunction
 
 function! sj#php#JoinArray()
-  normal! $
+  let line = getline('.')
 
-  let body = sj#GetMotion('Vi(',)
+  if line !~ 'array(\s*$'
+    return 0
+  endif
+
+  call search('array(\s*$', 'ce', line('.'))
+
+  let body = sj#GetMotion('Vi(')
+
   if g:splitjoin_normalize_whitespace
     let body = substitute(body, '\s*=>\s*', ' => ', 'g')
   endif
@@ -41,4 +48,13 @@ function! sj#php#JoinArray()
   call sj#ReplaceMotion('Va(', '('.body.')')
 
   return 1
+endfunction
+
+function! sj#php#JoinHtmlTags()
+  if synIDattr(synID(line("."), col("."), 1), "name") =~ '^php'
+    " then we're in php, don't try to join tags
+    return 0
+  else
+    return sj#html#JoinTags()
+  endif
 endfunction

@@ -10,6 +10,6 @@ if !exists('b:splitjoin_join_callbacks')
   let b:splitjoin_join_callbacks = [
         \ 'sj#js#JoinArray',
         \ 'sj#php#JoinArray',
-        \ 'sj#html#JoinTags',
+        \ 'sj#php#JoinHtmlTags',
         \ ]
 endif
