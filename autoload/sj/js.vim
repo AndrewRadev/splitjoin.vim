@@ -69,7 +69,8 @@ function! sj#js#SplitArray()
     call sj#SetIndent(l, indent + &sw)
   endfor
   " closing bracket
-  call sj#SetIndent(lineno + len(items) + 1, indent)
+  let end_line = lineno + len(items) + 1
+  call sj#SetIndent(end_line, indent)
 
   return 1
 endfunction

@@ -44,14 +44,26 @@ endfunction
 " manually.
 "
 
-" function! sj#SetIndent(lineno, indent) {{{2
+" function! sj#SetIndent(start_lineno, end_lineno, indent) {{{2
+" function! sj#SetIndent(lineno, indent)
 "
-" Sets the indent of the given lineno to "indent" amount of whitespace.
+" Sets the indent of the given line numbers to "indent" amount of whitespace.
 " For now, works only with spaces, not with tabs.
-function! sj#SetIndent(lineno, indent)
-  let whitespace = repeat(' ', a:indent)
+"
+function! sj#SetIndent(...)
+  if a:0 == 3
+    let start_lineno = a:1
+    let end_lineno   = a:2
+    let indent       = a:3
+  elseif a:0 == 2
+    let start_lineno = a:1
+    let end_lineno   = a:1
+    let indent       = a:2
+  endif
 
-  exe a:lineno.'s/^\s*/'.whitespace.'/e'
+  let whitespace = repeat(' ', indent)
+
+  exe start_lineno.','.end_lineno.'s/^\s*/'.whitespace
 
   " Don't leave a history entry
   call histdel('search', -1)

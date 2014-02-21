@@ -7,7 +7,8 @@ function! sj#coffee#SplitFunction()
     return 0
   else
     s/\([-=]\)>\s*/\1>\r/
-    call s:SetBaseIndent(lineno + 1, lineno + 1, indent + &sw)
+    call sj#SetIndent(lineno, indent)
+    call sj#SetIndent(lineno + 1, indent + &sw)
     return 1
   endif
 endfunction
@@ -31,11 +32,13 @@ function! sj#coffee#SplitIfClause()
 
   if line =~ suffix_pattern
     call sj#ReplaceMotion('V', substitute(line, suffix_pattern, '\2 \3\n\1', ''))
-    call s:SetBaseIndent(line('.') + 1, line('.') + 1, base_indent + &sw)
+    call sj#SetIndent(line('.'), base_indent)
+    call sj#SetIndent(line('.') + 1, base_indent + &sw)
     return 1
   elseif line =~ postfix_pattern
     call sj#ReplaceMotion('V', substitute(line, postfix_pattern, '\1 \2\n\3', ''))
-    call s:SetBaseIndent(line('.') + 1, line('.') + 1, base_indent + &sw)
+    call sj#SetIndent(line('.'), base_indent)
+    call sj#SetIndent(line('.') + 1, base_indent + &sw)
     return 1
   else
     return 0
@@ -59,7 +62,7 @@ function! sj#coffee#JoinIfClause()
   else
     call sj#ReplaceMotion('Vj', if_clause.' then '.body)
   endif
-  call s:SetBaseIndent(line('.'), line('.'), base_indent)
+  call sj#SetIndent(line('.'), base_indent)
 
   return 1
 endfunction
@@ -76,7 +79,7 @@ function! sj#coffee#SplitTernaryClause()
     let replacement     = "if \\3\r\\2".body_when_true."\\6\relse\r\\2".body_when_false."\\6"
     exe 's/'.pattern.'/'.escape(replacement, '/')
 
-    call s:SetBaseIndent(lineno, lineno + 3, indent)
+    call sj#SetIndent(lineno, lineno + 3, indent)
     normal! >>kk>>
 
     return 1
@@ -99,7 +102,7 @@ function! sj#coffee#SplitObjectLiteral()
     " clean the remaining whitespace
     s/\s\+$//e
 
-    call s:SetIndent(line('.') + 1, line('.') + len(pairs), indent + &sw)
+    call sj#SetIndent(line('.') + 1, line('.') + len(pairs), indent + &sw)
 
     if g:splitjoin_align
       let body_start = line('.') + 1
@@ -194,20 +197,4 @@ function! s:IndentedLinesBelow(line)
   endwhile
 
   return [first_line, current_line]
-endfunction
-
-" Looks at the first line, considers it a baseline for the next ones, and
-" changes that baseline to the given indent.
-function! s:SetBaseIndent(from, to, indent)
-  let current_whitespace = matchstr(getline(a:from), '^\s*')
-  let new_whitespace     = repeat(' ', a:indent)
-
-  exe a:from.','.a:to.'s/^'.current_whitespace.'/'.new_whitespace
-endfunction
-
-" Sets the absolute indent of the given range of lines to the given indent
-function! s:SetIndent(from, to, indent)
-  let new_whitespace = repeat(' ', a:indent)
-
-  exe a:from.','.a:to.'s/^\s*/'.new_whitespace
 endfunction
