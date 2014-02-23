@@ -3,8 +3,10 @@ require 'spec_helper'
 describe "perl" do
   let(:filename) { 'test.pl' }
 
-  # open PID, ">", $pidfile or die;
-  # print "something" and exit;
+  before :each do
+    vim.set(:expandtab)
+    vim.set(:shiftwidth, 2)
+  end
 
   specify "if-clauses" do
     set_file_contents 'print "a = $a\n" if $debug;'
