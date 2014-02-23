@@ -13,3 +13,5 @@ if ($debug)
 
 open PID, ">", $pidfile or die;
 print "something" and exit;
+
+my $info = {name => $name, age => $age};

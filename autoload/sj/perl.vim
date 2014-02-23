@@ -63,6 +63,48 @@ function! sj#perl#SplitOrClause()
   return s:Split(pattern, replacement)
 endfunction
 
+function! sj#perl#SplitHash()
+  let [from, to] = sj#LocateBracesOnLine('{', '}')
+
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
+  let body  = "{\n".join(pairs, ",\n").",\n}"
+  call sj#ReplaceMotion('Va{', body)
+
+  if g:splitjoin_align
+    let body_start = line('.') + 1
+    let body_end   = body_start + len(pairs) - 1
+    call sj#Align(body_start, body_end, 'hashrocket')
+  endif
+
+  return 1
+endfunction
+
+function! sj#perl#JoinHash()
+  let line = getline('.')
+
+  if search('{\s*$', 'c', line('.')) <= 0
+    return 0
+  endif
+
+  let body = sj#GetMotion('Vi{')
+
+  let lines = split(body, ",\n")
+  let lines = sj#TrimList(lines)
+  if g:splitjoin_normalize_whitespace
+    let lines = map(lines, 'substitute(v:val, "=>\\s\\+", "=> ", "")')
+    let lines = map(lines, 'substitute(v:val, "\\s\\+=>", " =>", "")')
+  endif
+
+  let body = join(lines, ', ')
+
+  call sj#ReplaceMotion('Va{', '{'.body.'}')
+  return 1
+endfunction
+
 function! s:Split(pattern, replacement_pattern)
   let line = getline('.')
 
