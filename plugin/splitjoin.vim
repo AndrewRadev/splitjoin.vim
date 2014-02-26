@@ -10,7 +10,7 @@ set cpo&vim
 " =========
 
 if !exists('g:splitjoin_normalize_whitespace')
-  let g:splitjoin_normalize_whitespace = 0
+  let g:splitjoin_normalize_whitespace = 1
 endif
 
 if !exists('g:splitjoin_align')

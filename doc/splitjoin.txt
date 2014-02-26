@@ -706,17 +706,15 @@ splitting/joining, nothing will happen.
     g:splitjoin_normalize_whitespace
 <
 
-Default value: 0
+Default value: 1
 
 This variable controls whether duplicate whitespace should be reduced within a
-joined structure, which makes a lot of sense in some situations, particularly
-when the items are aligned. Set it to 1 to activate.
-
-Currently works for ruby hashes and CSS style definitions.
+joined structure, which makes a lot of sense in most situations, particularly
+when the items are aligned. Set it to 0 to disable this behaviour.
 
 Example:
-Setting the variable to 1 will reduce the extra whitespace around "=>" symbols
-in ruby hashes:
+When this setting is enabled, the extra whitespace around "=>" symbols in ruby
+hashes is removed:
 >
     one = {
       :one   => 'two',
