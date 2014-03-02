@@ -15,3 +15,6 @@ open PID, ">", $pidfile or die;
 print "something" and exit;
 
 my $info = {name => $name, age => $age};
+my @var = ['one', 'two', 'three'];
+my @var = ('one', 'two', 'three');
+my @var = qw(one two three);

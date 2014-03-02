@@ -105,6 +105,103 @@ function! sj#perl#JoinHash()
   return 1
 endfunction
 
+function! sj#perl#SplitSquareBracketedList()
+  let [from, to] = sj#LocateBracesOnLine('[', ']')
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  let items = sj#ParseJsonObjectBody(from + 1, to - 1)
+  let body  = "[\n".join(items, ",\n")."\n]"
+  call sj#ReplaceMotion('Va[', body)
+
+  return 1
+endfunction
+
+function! sj#perl#SplitRoundBracketedList()
+  let [from, to] = sj#LocateBracesOnLine('(', ')')
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  let items = sj#ParseJsonObjectBody(from + 1, to - 1)
+  let body  = "(\n".join(items, ",\n")."\n)"
+  call sj#ReplaceMotion('Va(', body)
+
+  return 1
+endfunction
+
+function! sj#perl#SplitWordList()
+  let [from, to] = sj#LocateBracesOnLine('qw(', ')')
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  call search('qw\zs(', 'b', line('.'))
+  let remainder_of_line = getline('.')[col('.') - 1 : -1]
+
+  if remainder_of_line !~ '\%(\w\|\s\)\+)'
+    return 0
+  endif
+
+  let items = split(matchstr(remainder_of_line, '\%(\w\|\s\)\+'), '\s\+')
+  let body  = "(\n".join(items, "\n")."\n)"
+  call sj#ReplaceMotion('Va(', body)
+
+  return 1
+endfunction
+
+function! sj#perl#JoinSquareBracketedList()
+  let line = getline('.')
+
+  if search('[\s*$', 'c', line('.')) <= 0
+    return 0
+  endif
+
+  let body = sj#GetMotion('Vi[')
+
+  let lines = split(body, ",\n")
+  let lines = sj#TrimList(lines)
+  let body = join(lines, ', ')
+
+  call sj#ReplaceMotion('Va[', '['.body.']')
+  return 1
+endfunction
+
+function! sj#perl#JoinRoundBracketedList()
+  let line = getline('.')
+
+  if search('(\s*$', 'c', line('.')) <= 0
+    return 0
+  endif
+
+  let body = sj#GetMotion('Vi(')
+
+  let lines = split(body, ",\n")
+  let lines = sj#TrimList(lines)
+  let body = join(lines, ', ')
+
+  call sj#ReplaceMotion('Va(', '('.body.')')
+  return 1
+endfunction
+
+function! sj#perl#JoinWordList()
+  let line = getline('.')
+
+  if search('qw\zs(\s*$', 'c', line('.')) <= 0
+    return 0
+  endif
+
+  let body = sj#GetMotion('Vi(')
+
+  let lines = split(body, "\n")
+  let lines = sj#TrimList(lines)
+  let body = join(lines, ' ')
+
+  call sj#ReplaceMotion('Va(', '('.body.')')
+  return 1
+endfunction
+
 function! s:Split(pattern, replacement_pattern)
   let line = getline('.')
 

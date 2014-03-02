@@ -56,4 +56,58 @@ describe "perl" do
 
     assert_file_contents "my $info = {name => $name, age => $age};"
   end
+
+  specify "square-bracketed list" do
+    set_file_contents "my @var = ['one', 'two', 'three'];"
+
+    split
+
+    assert_file_contents <<-EOF
+      my @var = [
+        'one',
+        'two',
+        'three'
+      ];
+    EOF
+
+    join
+
+    assert_file_contents "my @var = ['one', 'two', 'three'];"
+  end
+
+  specify "round-bracketed list" do
+    set_file_contents "my @var = ('one', 'two', 'three');"
+
+    split
+
+    assert_file_contents <<-EOF
+      my @var = (
+        'one',
+        'two',
+        'three'
+      );
+    EOF
+
+    join
+
+    assert_file_contents "my @var = ('one', 'two', 'three');"
+  end
+
+  specify "word lists" do
+    set_file_contents "my @var = qw(one two three);"
+
+    split
+
+    assert_file_contents <<-EOF
+      my @var = qw(
+      one
+      two
+      three
+      );
+    EOF
+
+    join
+
+    assert_file_contents "my @var = qw(one two three);"
+  end
 end
