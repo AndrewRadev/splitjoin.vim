@@ -8,6 +8,31 @@ describe "go" do
     vim.set(:filetype, 'go')
   end
 
+  specify "imports" do
+    set_file_contents <<-EOF
+      import "fmt"
+    EOF
+    setup_go_filetype
+
+    split
+
+    # In case there is no Go installed, deindent everything:
+    vim.normal '3<<'
+    vim.write
+
+    assert_file_contents <<-EOF
+    import (
+    "fmt"
+    )
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      import "fmt"
+    EOF
+  end
+
   specify "structs" do
     set_file_contents <<-EOF
       StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
@@ -16,7 +41,7 @@ describe "go" do
 
     split
 
-    # In case there are is no Go installed, deindent everything:
+    # In case there is no Go installed, deindent everything:
     vim.normal '5<<5<<5<<5<<'
     vim.write
 
