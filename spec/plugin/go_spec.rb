@@ -17,7 +17,7 @@ describe "go" do
     split
 
     # In case there is no Go installed, deindent everything:
-    vim.normal '3<<'
+    vim.normal '3<<3<<'
     vim.write
 
     assert_file_contents <<-EOF
