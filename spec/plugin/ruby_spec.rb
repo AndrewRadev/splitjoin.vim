@@ -431,11 +431,12 @@ describe "ruby" do
   end
 
   describe "blocks" do
-    it "splitjoins {}-blocks and do-end blocks" do
+    it "splitjoins {}-blocks with arguments and do-end blocks" do
       set_file_contents <<-EOF
         Bar.new { |b| puts b.to_s }
       EOF
 
+      vim.search('puts')
       split
 
       assert_file_contents <<-EOF
@@ -451,11 +452,33 @@ describe "ruby" do
       EOF
     end
 
+    it 'splitjoins {}-blocks without arguments and do-end blocks' do
+      set_file_contents <<-EOF
+        this { block doesnt, get: mangled }
+      EOF
+
+      vim.search 'block'
+      split
+
+      assert_file_contents <<-EOF
+        this do
+          block doesnt, get: mangled
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        this { block doesnt, get: mangled }
+      EOF
+    end
+
     it "handles trailing code" do
       set_file_contents <<-EOF
         Bar.new { |one| two }.map(&:name)
       EOF
 
+      vim.search 'one'
       split
 
       assert_file_contents <<-EOF

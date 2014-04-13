@@ -282,12 +282,10 @@ function! sj#ruby#JoinWhenThen()
   return 0
 endfunction
 
-" TODO rewrite using SearchUnderCursor?
 function! sj#ruby#SplitBlock()
-  let line    = getline('.')
   let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}'
 
-  if line !~ pattern
+  if sj#SearchUnderCursor('\v%(\k|\))\s*\zs'.pattern) <= 0
     return 0
   endif
 
