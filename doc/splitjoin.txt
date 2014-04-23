@@ -341,6 +341,36 @@ just like explained above.
       die;
     }
 <
+Lists ~
+
+>
+    my @var = ['one', 'two', 'three'];
+
+    my @var = [
+      'one',
+      'two',
+      'three'
+    ];
+
+    my @var = ('one', 'two', 'three');
+
+    my @var = (
+      'one',
+      'two',
+      'three'
+    );
+<
+Word lists ~
+
+>
+    my @var = qw(one two three);
+
+    my @var = qw(
+      one
+      two
+      three
+    );
+<
 
 ==============================================================================
 COFFEESCRIPT                                                *splitjoin-coffee*
