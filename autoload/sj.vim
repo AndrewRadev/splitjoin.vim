@@ -364,6 +364,13 @@ function! sj#SearchSkip(pattern, skip, ...)
   return match
 endfunction
 
+function! sj#SkipSyntax(...)
+  let syntax_groups = a:000
+  let skip_pattern  = '\%('.join(syntax_groups, '\|').'\)'
+
+  return "synIDattr(synID(line('.'),col('.'),1),'name') =~ '".skip_pattern."'"
+endfunction
+
 " Regex helpers {{{1
 "
 " function! sj#ExtractRx(expr, pat, sub) {{{2
@@ -461,7 +468,7 @@ function! sj#LocateBracesOnLine(open, close, ...)
 
   " optional skip parameter
   if a:0 > 0
-    let skip = s:SkipSyntax(a:1)
+    let skip = sj#SkipSyntax(a:1)
   else
     let skip = ''
   endif
@@ -521,11 +528,4 @@ function! sj#ParseJsonObjectBody(from, to)
   let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
   call parser.Process()
   return parser.args
-endfunction
-
-function! s:SkipSyntax(...)
-  let syntax_groups = a:000
-  let skip_pattern  = '\%('.join(syntax_groups, '\|').'\)'
-
-  return "synIDattr(synID(line('.'),col('.'),1),'name') =~ '".skip_pattern."'"
 endfunction

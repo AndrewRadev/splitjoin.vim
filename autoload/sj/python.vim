@@ -1,10 +1,9 @@
+let s:skip = sj#SkipSyntax('pythonString', 'pythonComment')
+
 function! sj#python#SplitStatement()
-  let line = getline('.')
-
-  if line =~ '^[^:]*:\s*\S'
-    let replacement = substitute(line, ':\s*', ":\n", '')
-    call sj#ReplaceMotion('V', replacement)
-
+  if sj#SearchSkip('^[^:]*\zs:\s*\S', s:skip, '', line('.'))
+    s/\%#:\s*/:\r/
+    normal! ==
     return 1
   else
     return 0
@@ -12,11 +11,8 @@ function! sj#python#SplitStatement()
 endfunction
 
 function! sj#python#JoinStatement()
-  let line = getline('.')
-
-  if line =~ '^[^:]*:\s*$'
+  if sj#SearchSkip(':\s*$', s:skip, '', line('.')) > 0
     join
-
     return 1
   else
     return 0
