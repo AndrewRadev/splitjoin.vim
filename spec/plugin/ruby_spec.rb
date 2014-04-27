@@ -616,6 +616,7 @@ describe "ruby" do
         foo 1, 2, :one => 1, :two => 2
       EOF
 
+      vim.search(':one')
       split
 
       assert_file_contents <<-EOF
@@ -639,6 +640,7 @@ describe "ruby" do
         foo 1, 2, :one => 1, :two => 2
       EOF
 
+      vim.search(':one')
       split
 
       assert_file_contents <<-EOF
@@ -682,7 +684,7 @@ describe "ruby" do
         foo "\#{one}", :two => 3
       EOF
 
-      vim.search 'foo'
+      vim.search ':two'
       split
 
       assert_file_contents <<-EOF

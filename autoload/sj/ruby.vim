@@ -457,6 +457,13 @@ function! sj#ruby#SplitOptions()
     return 0
   endif
 
+  if option_type == 'hash' && !sj#CursorBetween(from, to)
+    return 0
+  elseif option_type == 'option' && to < 0 && !sj#CursorBetween(from, col('$'))
+    " with options, we may not know the end, but we do know the start
+    return 0
+  endif
+
   let [from, to, args, opts, hash_type] = sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
   if len(opts) < 1
