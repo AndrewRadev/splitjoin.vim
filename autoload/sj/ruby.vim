@@ -289,9 +289,12 @@ function! sj#ruby#SplitBlock()
     return 0
   endif
 
-  let [start, end] = sj#LocateBracesOnLine('{', '}', 'rubyString', 'rubyInterpolationDelimiter')
+  let start = col('.')
+  normal! %
+  let end = col('.')
 
-  if start < 0
+  if start == end
+    " the cursor hasn't moved, bail out
     return 0
   endif
 
