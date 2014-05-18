@@ -51,6 +51,8 @@ endif
 command! SplitjoinSplit call s:Split()
 command! SplitjoinJoin  call s:Join()
 
+command! -count=0 VisualSplit call s:VisualSplit(<count>)
+
 nnoremap <silent> <plug>SplitjoinSplit :<c-u>call <SID>Split()<cr>
 nnoremap <silent> <plug>SplitjoinJoin  :<c-u>call <SID>Join()<cr>
 
@@ -64,6 +66,37 @@ endif
 
 " Internal Functions:
 " ===================
+
+function! s:VisualSplit(visual)
+  let saved_bufnr    = bufnr('%')
+  let saved_position = winsaveview()
+  let saved_filetype = &filetype
+  let text           = sj#GetMotion('gv')
+
+  new
+
+  call append(0, text)
+  $delete _
+  normal! gg0
+  set nomodified
+  let &ft = saved_filetype
+
+  call s:Split()
+
+  if &modified
+    let modified_text = sj#GetMotion('ggvG$')
+  else
+    let modified_text = ''
+  endif
+
+  bdelete!
+
+  if modified_text != ''
+    call sj#ReplaceMotion('gv', modified_text)
+  endif
+
+  call winrestview(saved_position)
+endfunction
 
 function! s:Split()
   if !exists('b:splitjoin_split_callbacks')
