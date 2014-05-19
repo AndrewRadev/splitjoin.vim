@@ -70,4 +70,25 @@ describe "tex" do
       \\begin{tabular}[]{cc} row1 \\\\ row2 \\end{tabular}
     EOF
   end
+
+  specify "itemized blocks" do
+    set_file_contents <<-EOF
+      \\begin{enumerate}\\item item1 \\item item2\\end{enumerate}
+    EOF
+
+    split
+
+    assert_file_contents <<-EOF
+      \\begin{enumerate}
+        \\item item1
+        \\item item2
+      \\end{enumerate}
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      \\begin{enumerate} \\item item1 \\item item2 \\end{enumerate}
+    EOF
+  end
 end
