@@ -52,6 +52,7 @@ This currently works for:
   * Lua functions and tables
   * Go structs
   * Vimscript line continuations
+  * TeX blocks
 
 For more information, try `:help splitjoin`, or take a look at the help file
 online at

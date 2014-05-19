@@ -18,6 +18,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     YAML...................................: |splitjoin-yaml|
     Eruby..................................: |splitjoin-eruby|
     Go.....................................: |splitjoin-go|
+    TeX....................................: |splitjoin-tex|
     Settings...............................: |splitjoin-settings|
     Internals..............................: |splitjoin-internals|
     Issues.................................: |splitjoin-issues|
@@ -682,6 +683,28 @@ Structs ~
         two: "asdf",
         three: []int{1, 2, 3},
     }
+<
+
+==============================================================================
+TEX                                                              *splitjoin-tex*
+
+Begin-end blocks ~
+>
+    \begin{align*} x = y\\  y = z \end{align*}
+
+    \begin{align*}
+      x = y\\
+      y = z
+    \end{align*}
+<
+Enumerations ~
+>
+    \begin{enumerate} \item item1 \item item2 \end{enumerate}
+
+    \begin{enumerate}
+       \item item1
+       \item item2
+    \end{enumerate}
 <
 
 ==============================================================================
