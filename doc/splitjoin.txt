@@ -19,6 +19,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Eruby..................................: |splitjoin-eruby|
     Go.....................................: |splitjoin-go|
     TeX....................................: |splitjoin-tex|
+    C......................................: |splitjoin-c|
     Settings...............................: |splitjoin-settings|
     Internals..............................: |splitjoin-internals|
     Issues.................................: |splitjoin-issues|
@@ -705,6 +706,27 @@ Enumerations ~
        \item item1
        \item item2
     \end{enumerate}
+<
+
+==============================================================================
+C                                                              *splitjoin-c*
+
+If clauses ~
+>
+    if (val1 && val2 || val3);
+
+    if (val1
+            && val2
+            || val3);
+<
+Function calls ~
+>
+    myfunction(arg1, arg2, arg3, arg4);
+
+    myfunction(arg1,
+            arg2,
+            arg3,
+            arg4);
 <
 
 ==============================================================================
