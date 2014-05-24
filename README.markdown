@@ -53,6 +53,7 @@ This currently works for:
   * Go structs
   * Vimscript line continuations
   * TeX blocks
+  * C if clauses and function calls
 
 For more information, try `:help splitjoin`, or take a look at the help file
 online at
