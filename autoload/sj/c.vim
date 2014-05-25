@@ -23,7 +23,6 @@ function! sj#c#SplitFuncall()
   return 1
 endfunction
 
-
 function! sj#c#SplitIfClause()
   if sj#SearchUnderCursor('if\s*(.\{-})') <= 0
     return 0
@@ -36,16 +35,14 @@ function! sj#c#SplitIfClause()
   return 1
 endfunction
 
-
 function! sj#c#JoinFuncall()
   if sj#SearchUnderCursor('([^)]*\s*$') <= 0
     return 0
   endif
 
-  exe 'normal! va(J'
+  normal! va(J
   return 1
 endfunction
-
 
 function! sj#c#JoinIfClause()
   if sj#SearchUnderCursor('if\s*([^)]*\s*$') <=  0
@@ -58,4 +55,3 @@ function! sj#c#JoinIfClause()
   call sj#PopCursor()
   return 1
 endfunction
-" Need to add something for splitting the if statement on || and &&
