@@ -4,7 +4,8 @@ describe "c" do
     let(:filename) { 'test.c' }
 
     before :each do
-        vim.set(:noexpandtab)
+        vim.set(:expandtab)
+        vim.set(:shiftwidth, 2)
     end
 
 
@@ -15,9 +16,9 @@ describe "c" do
         split
 
         assert_file_contents <<-EOF
-        if (val1 
-        		&& val2 
-        		|| val3);
+        if (val1
+            && val2
+            || val3);
         EOF
 
         join
@@ -33,9 +34,9 @@ describe "c" do
 
         assert_file_contents <<-EOF
         myfunction(lots,
-        		of,
-        		different,
-        		parameters)
+            of,
+            different,
+            parameters)
         EOF
 
         join

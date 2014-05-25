@@ -29,7 +29,7 @@ function! sj#c#SplitIfClause()
         return 0
     endif
 
-    let items = split(getline('.'), '\ze\(&&\|||\)')
+    let items = sj#TrimList(split(getline('.'), '\ze\(&&\|||\)'))
     let body  = join(items, "\n")
 
     call sj#ReplaceMotion('V', body)
