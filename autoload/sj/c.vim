@@ -1,11 +1,10 @@
 " Only real syntax that's interesting is cParen and cConditional
-let s:skip = sj#SkipSyntax('cComment', 'cCommentL', 'cString', 'cBlock')
+let s:skip = sj#SkipSyntax('cComment', 'cCommentL', 'cString', 'cCppString', 'cBlock')
 
 function! sj#c#SplitFuncall()
-  if sj#SearchUnderCursor('(.\{-})') <= 0
+  if sj#SearchUnderCursor('(.\{-})', '', s:skip) <= 0
     return 0
   endif
-  echom "Looking for function call"
 
   call sj#PushCursor()
 
@@ -24,7 +23,7 @@ function! sj#c#SplitFuncall()
 endfunction
 
 function! sj#c#SplitIfClause()
-  if sj#SearchUnderCursor('if\s*(.\{-})') <= 0
+  if sj#SearchUnderCursor('if\s*(.\{-})', '', s:skip) <= 0
     return 0
   endif
 
@@ -36,7 +35,7 @@ function! sj#c#SplitIfClause()
 endfunction
 
 function! sj#c#JoinFuncall()
-  if sj#SearchUnderCursor('([^)]*\s*$') <= 0
+  if sj#SearchUnderCursor('([^)]*\s*$', '', s:skip) <= 0
     return 0
   endif
 
@@ -45,7 +44,7 @@ function! sj#c#JoinFuncall()
 endfunction
 
 function! sj#c#JoinIfClause()
-  if sj#SearchUnderCursor('if\s*([^)]*\s*$') <=  0
+  if sj#SearchUnderCursor('if\s*([^)]*\s*$', '', s:skip) <=  0
     return 0
   endif
 
