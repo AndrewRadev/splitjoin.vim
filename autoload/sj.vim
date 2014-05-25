@@ -229,7 +229,7 @@ endfunction
 
 " Searching for patterns {{{1
 "
-" function! sj#SearchUnderCursor(pattern, flags) {{{2
+" function! sj#SearchUnderCursor(pattern, flags, skip) {{{2
 "
 " Searches for a match for the given pattern under the cursor. Returns the
 " result of the |search()| call if a match was found, 0 otherwise.
@@ -248,7 +248,7 @@ function! sj#SearchUnderCursor(pattern, ...)
   endif
 endfunction
 
-" function! sj#SearchposUnderCursor(pattern, flags) {{{2
+" function! sj#SearchposUnderCursor(pattern, flags, skip) {{{2
 "
 " Searches for a match for the given pattern under the cursor. Returns the
 " start and (end + 1) column positions of the match. If nothing was found,
@@ -256,13 +256,21 @@ endfunction
 "
 " Moves the cursor unless the 'n' flag is given.
 "
+" Respects the skip expression if it's given.
+"
 " See sj#SearchUnderCursor for the behaviour of a:flags
 "
 function! sj#SearchposUnderCursor(pattern, ...)
-  if a:0 > 0
+  if a:0 >= 1
     let given_flags = a:1
   else
     let given_flags = ''
+  endif
+
+  if a:0 >= 2
+    let skip = a:2
+  else
+    let skip = ''
   endif
 
   let lnum        = line('.')
@@ -282,7 +290,7 @@ function! sj#SearchposUnderCursor(pattern, ...)
 
     " find the start of the pattern
     call search(pattern, 'bcW', lnum)
-    let search_result = search(pattern, 'cW'.extra_flags, lnum)
+    let search_result = sj#SearchSkip(pattern, skip, 'cW'.extra_flags, lnum)
     if search_result <= 0
       return [0, 0]
     endif
@@ -290,7 +298,7 @@ function! sj#SearchposUnderCursor(pattern, ...)
 
     " find the end of the pattern
     call sj#PushCursor()
-    call search(pattern, 'cWe', lnum)
+    call sj#SearchSkip(pattern, skip, 'cWe', lnum)
     let match_end = col('.')
 
     " set the end of the pattern to the next character, or EOL. Extra logic
@@ -337,8 +345,8 @@ function! sj#SearchSkip(pattern, skip, ...)
     let flags = ''
   endif
 
-  if stridx(flags, 'n') > -1 || stridx(flags, 'c') > -1
-    echoerr "Doesn't work with 'n' or 'c' flags, was given: ".flags
+  if stridx(flags, 'n') > -1
+    echoerr "Doesn't work with 'n' flag, was given: ".flags
     return
   endif
 
@@ -354,6 +362,10 @@ function! sj#SearchSkip(pattern, skip, ...)
   let skip_match = 1
   while skip_match
     let match = search(pattern, flags, stopline, timeout)
+
+    " remove 'c' flag for any run after the first
+    let flags = substitute(flags, 'c', '', 'g')
+
     if match && eval(skip)
       let skip_match = 1
     else
