@@ -282,18 +282,19 @@ function! sj#ruby#JoinWhenThen()
   return 0
 endfunction
 
-" TODO rewrite using SearchUnderCursor?
 function! sj#ruby#SplitBlock()
-  let line    = getline('.')
   let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}'
 
-  if line !~ pattern
+  if sj#SearchUnderCursor('\v%(\k|\))\s*\zs'.pattern) <= 0
     return 0
   endif
 
-  let [start, end] = sj#LocateBracesOnLine('{', '}', 'rubyString', 'rubyInterpolationDelimiter')
+  let start = col('.')
+  normal! %
+  let end = col('.')
 
-  if start < 0
+  if start == end
+    " the cursor hasn't moved, bail out
     return 0
   endif
 
@@ -453,6 +454,13 @@ function! sj#ruby#SplitOptions()
   endif
 
   if from < 0
+    return 0
+  endif
+
+  if option_type == 'hash' && !sj#CursorBetween(from, to)
+    return 0
+  elseif option_type == 'option' && to < 0 && !sj#CursorBetween(from, col('$'))
+    " with options, we may not know the end, but we do know the start
     return 0
   endif
 

@@ -312,7 +312,7 @@ function! sj#SearchposUnderCursor(pattern, ...)
     endif
     call sj#PopCursor()
 
-    if match_start > col || match_end <= col
+    if !sj#ColBetween(col, match_start, match_end)
       " then the cursor is not in the pattern
       return [0, 0]
     else
@@ -381,6 +381,18 @@ function! sj#SkipSyntax(...)
   let skip_pattern  = '\%('.join(syntax_groups, '\|').'\)'
 
   return "synIDattr(synID(line('.'),col('.'),1),'name') =~ '".skip_pattern."'"
+endfunction
+
+" Checks if the current position of the cursor is within the given limits.
+"
+function! sj#CursorBetween(start, end)
+  return sj#ColBetween(col('.'), a:start, a:end)
+endfunction
+
+" Checks if the given column is within the given limits.
+"
+function! sj#ColBetween(col, start, end)
+  return a:start <= a:col && a:end > a:col
 endfunction
 
 " Regex helpers {{{1

@@ -114,6 +114,8 @@ foo 'line with do in it' do |something|
   something
 end
 
+this { block doesnt, get: mangled }
+
 # method continuations
 
 foo = one.
