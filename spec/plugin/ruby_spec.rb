@@ -431,6 +431,111 @@ describe "ruby" do
   end
 
   describe "blocks" do
+    it "splitjoins {}-blocks prepended by ?" do
+      set_file_contents <<-EOF
+        pens.any?{ |pen| pen.name.to_sym.in? names.flatten }
+      EOF
+
+      vim.search('to_sym')
+      split
+
+      assert_file_contents <<-EOF
+        pens.any? do |pen|
+          pen.name.to_sym.in? names.flatten
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        pens.any? { |pen| pen.name.to_sym.in? names.flatten }
+      EOF
+    end
+
+    it "splitjoins {}-blocks prepended by !" do
+      set_file_contents <<-EOF
+        pens.find!{ |pen| pen.name.to_sym.in? names.flatten }
+      EOF
+
+      vim.search('to_sym')
+      split
+
+      assert_file_contents <<-EOF
+        pens.find! do |pen|
+          pen.name.to_sym.in? names.flatten
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        pens.find! { |pen| pen.name.to_sym.in? names.flatten }
+      EOF
+    end
+
+    it "splitjoins {}-blocks prepended by -> ()" do
+      set_file_contents <<-EOF
+        -> (pen){ |pen| pen.name.to_sym.in? names.flatten }
+      EOF
+
+      vim.search('to_sym')
+      split
+
+      assert_file_contents <<-EOF
+       -> (pen) do |pen|
+         pen.name.to_sym.in? names.flatten
+       end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        -> (pen) { |pen| pen.name.to_sym.in? names.flatten }
+      EOF
+    end
+
+    it "splitjoins {}-blocks prepended by ->" do
+      set_file_contents <<-EOF
+        -> { |pen| pen.name.to_sym.in? names.flatten }
+      EOF
+
+      vim.search('to_sym')
+      split
+
+      assert_file_contents <<-EOF
+       -> do |pen|
+         pen.name.to_sym.in? names.flatten
+       end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        -> { |pen| pen.name.to_sym.in? names.flatten }
+      EOF
+    end
+
+    it "splitjoins {}-blocks without leading whitespace" do
+      set_file_contents <<-EOF
+        Bar.new{ |b| puts b.to_s }
+      EOF
+
+      vim.search('puts')
+      split
+
+      assert_file_contents <<-EOF
+        Bar.new do |b|
+          puts b.to_s
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        Bar.new { |b| puts b.to_s }
+      EOF
+    end
+
     it "splitjoins {}-blocks with arguments and do-end blocks" do
       set_file_contents <<-EOF
         Bar.new { |b| puts b.to_s }
