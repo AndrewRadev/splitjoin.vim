@@ -526,6 +526,14 @@ Short arrays ~
       'four'
     ]
 <
+If-clauses ~
+>
+    if ($foo) { $a = "bar"; }
+
+    if ($foo) {
+      $a = "bar";
+    }
+<
 
 ==============================================================================
 VIMSCRIPT                                                *splitjoin-vimscript*

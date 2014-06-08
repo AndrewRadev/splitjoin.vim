@@ -58,3 +58,39 @@ function! sj#php#JoinHtmlTags()
     return sj#html#JoinTags()
   endif
 endfunction
+
+function! sj#php#SplitIfClause()
+  let pattern = '\<if\s*(.\{-})\s*{.*}'
+
+  if search(pattern, 'Wbc') <= 0
+    return 0
+  endif
+
+  normal! f(
+  normal %
+  normal! f{
+
+  let body = sj#GetMotion('Va{')
+  let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', "{\n\\1\n}", '')
+  call sj#ReplaceMotion('Va{', body)
+
+  return 1
+endfunction
+
+function! sj#php#JoinIfClause()
+  let pattern = '\<if\s*(.\{-})\s*{\s*$'
+
+  if search(pattern, 'Wbc') <= 0
+    return 0
+  endif
+
+  normal! f(
+  normal %
+  normal! f{
+
+  let body = sj#GetMotion('Va{')
+  let body = substitute(body, "\\s*\n\\s*", ' ', 'g')
+  call sj#ReplaceMotion('Va{', body)
+
+  return 1
+endfunction
