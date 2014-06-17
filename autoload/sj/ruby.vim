@@ -286,7 +286,8 @@ endfunction
 function! sj#ruby#SplitBlock()
   let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}'
 
-  if sj#SearchUnderCursor('\v%(\k|\))\s*\zs'.pattern) <= 0
+
+  if sj#SearchUnderCursor('\v%(\k|!|\>|\?|\))\s*\zs'.pattern) <= 0
     return 0
   endif
 
@@ -300,8 +301,15 @@ function! sj#ruby#SplitBlock()
   endif
 
   let body = sj#GetMotion('Va{')
+  let multiline_block = 'do\1\n\2\nend'
+
+  normal! %
+  if search('\S\%#', 'Wbn')
+    let multiline_block = ' '.multiline_block
+  endif
+
   let body = join(split(body, '\s*;\s*'), "\n")
-  let replacement = substitute(body, '^'.pattern.'$', 'do\1\n\2\nend', '')
+  let replacement = substitute(body, '^'.pattern.'$', multiline_block, '')
 
   call sj#ReplaceMotion('Va{', replacement)
 
