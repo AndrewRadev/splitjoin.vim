@@ -3,8 +3,8 @@
 ## Usage
 
 This plugin is meant to simplify a task I've found too common in my workflow:
-switching between a single-line statement and a multi-line one. This plugin
-offers the following default keybindings, which can be customized:
+switching between a single-line statement and a multi-line one. It offers the
+following default keybindings, which can be customized:
 * `gS` to split a one-liner into multiple lines
 * `gJ` (with the cursor on the first line of a block) to join a block into a
   single-line statement.
@@ -26,7 +26,7 @@ if bar?
 end
 ```
 
-The idea of this plugin is to introduce a single key binding(default: `gS`) for transforming a
+The idea of this plugin is to introduce a single key binding (default: `gS`) for transforming a
 line like this:
 
 ``` html
