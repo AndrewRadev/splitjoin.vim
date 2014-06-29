@@ -43,19 +43,29 @@ describe "php" do
   end
 
   specify "if-clauses" do
-    set_file_contents '<?php if ($foo) { $a = "bar"; } ?>'
+    set_file_contents <<-EOF
+      <?php
+      if ($foo) { $a = "bar"; }
+      ?>
+    EOF
 
     vim.search('if')
     split
 
     assert_file_contents <<-EOF
-      <?php if ($foo) {
+      <?php
+      if ($foo) {
         $a = "bar";
-      } ?>
+      }
+      ?>
     EOF
 
     join
 
-    assert_file_contents '<?php if ($foo) { $a = "bar"; } ?>'
+    assert_file_contents <<-EOF
+      <?php
+      if ($foo) { $a = "bar"; }
+      ?>
+    EOF
   end
 end
