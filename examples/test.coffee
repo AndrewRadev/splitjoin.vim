@@ -19,3 +19,5 @@ foo = 'example with \'escaped\' single quotes'
 foo = if bar? then 'baz' else 'qux'
 functionCall(if bar? then 'baz' else 'qux')
 functionCall('one', 'two', if bar? then 'baz' else 'qux')
+
+foo = functionCall(one, two, three: four, five: six)

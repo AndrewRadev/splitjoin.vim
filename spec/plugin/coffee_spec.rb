@@ -99,6 +99,23 @@ describe "coffee" do
     assert_file_contents 'one = { one: "two", three: "four" }'
   end
 
+  specify "function calls with object literals" do
+    set_file_contents 'foo = functionCall(one, two, three: four, five: six)'
+    setup_coffee_filetype
+
+    split
+
+    assert_file_contents <<-EOF
+      foo = functionCall one, two,
+        three: four
+        five: six
+    EOF
+
+    join
+
+    assert_file_contents 'foo = functionCall one, two, { three: four, five: six }'
+  end
+
   specify "strings" do
     set_file_contents <<-EOF
       foo = "example with \#{interpolation} and \\"nested\\" quotes"

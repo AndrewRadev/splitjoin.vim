@@ -1,5 +1,6 @@
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
+        \ 'sj#php#SplitIfClause',
         \ 'sj#perl#SplitIfClause',
         \ 'sj#perl#SplitAndClause',
         \ 'sj#perl#SplitOrClause',

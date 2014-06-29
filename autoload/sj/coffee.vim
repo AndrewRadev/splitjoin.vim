@@ -90,28 +90,60 @@ endfunction
 
 function! sj#coffee#SplitObjectLiteral()
   let [from, to] = sj#LocateBracesOnLine('{', '}')
+  let bracket    = '{'
+
+  if from < 0 && to < 0
+    let [from, to] = sj#LocateBracesOnLine('(', ')')
+    let bracket    = '('
+  endif
 
   if from < 0 && to < 0
     return 0
-  else
-    let indent = indent('.')
-    let pairs  = sj#ParseJsonObjectBody(from + 1, to - 1)
-    let body   = "\n".join(pairs, "\n")
-    call sj#ReplaceMotion('Va{', body)
-
-    " clean the remaining whitespace
-    s/\s\+$//e
-
-    call sj#SetIndent(line('.') + 1, line('.') + len(pairs), indent + &sw)
-
-    if g:splitjoin_align
-      let body_start = line('.') + 1
-      let body_end   = body_start + len(pairs) - 1
-      call sj#Align(body_start, body_end, 'json_object')
-    endif
-
-    return 1
   endif
+
+  let lineno = line('.')
+  let indent = indent(lineno)
+  let pairs  = sj#ParseJsonObjectBody(from + 1, to - 1)
+
+  " Some are arguments, some are real pairs
+  let arguments  = []
+  while len(pairs) > 0
+    let item = pairs[0]
+
+    if item =~ '^\k\+:'
+      " we've reached the pairs, stop here
+      break
+    else
+      call add(arguments, remove(pairs, 0))
+    endif
+  endwhile
+
+  if len(pairs) == 0
+    " nothing to split
+    return 0
+  endif
+
+  if len(arguments) > 0
+    let argument_list = ' '.join(arguments, ', ').', '
+  else
+    let argument_list = ''
+  endif
+
+  let body = argument_list."\n".join(pairs, "\n")
+  call sj#ReplaceMotion('Va'.bracket, body)
+
+  " clean the remaining whitespace
+  s/\s\+$//e
+
+  call sj#SetIndent(lineno + 1, lineno + len(pairs), indent + &sw)
+
+  if g:splitjoin_align
+    let body_start = lineno + 1
+    let body_end   = body_start + len(pairs) - 1
+    call sj#Align(body_start, body_end, 'json_object')
+  endif
+
+  return 1
 endfunction
 
 function! sj#coffee#JoinObjectLiteral()

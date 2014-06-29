@@ -417,6 +417,17 @@ Object literals ~
       one: "two"
       three: "four"
 <
+Object literals in function calls ~
+
+Only splitting works this way for now, the reverse direction falls back to the
+normal object literal joining.
+>
+    foo = functionCall(one, two, three: four, five: six)
+
+    foo = functionCall one, two,
+        three: four
+        five: six
+<
 Multiline strings ~
 
 Note that strings are split only at the end of the line. This seems to be the
