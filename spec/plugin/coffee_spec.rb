@@ -137,4 +137,26 @@ describe "coffee" do
       foo = "example with \#{interpolation} and \\"nested\\" quotes"
     EOF
   end
+
+  specify "triple strings" do
+    set_file_contents <<-EOF
+      foo = """example with \#{interpolation} and "nested" quotes"""
+    EOF
+    setup_coffee_filetype
+
+    vim.search 'example'
+    split
+
+    assert_file_contents <<-EOF
+      foo = """
+        example with \#{interpolation} and "nested" quotes
+      """
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      foo = "example with \#{interpolation} and \\"nested\\" quotes"
+    EOF
+  end
 end

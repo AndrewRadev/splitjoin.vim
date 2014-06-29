@@ -169,6 +169,32 @@ function! sj#coffee#JoinObjectLiteral()
   return 1
 endfunction
 
+function! sj#coffee#SplitTripleString()
+  if search('["'']\{3}.\{-}["'']\{3}\s*$', 'Wbc', line('.')) <= 0
+    return 0
+  endif
+
+  let start_col = col('.')
+  let quote       = getline('.')[col('.') - 1]
+  let double_quote = repeat(quote, 2)
+  let triple_quote = repeat(quote, 3)
+
+  normal! lll
+  if search(double_quote.'\zs'.quote, 'W', line('.')) <= 0
+    return 0
+  endif
+  let end_col = col('.')
+
+  let body     = sj#GetCols(start_col, end_col)
+  let new_body = substitute(body, '^'.triple_quote.'\(.*\)'.triple_quote.'$', '\1', '')
+  let new_body = triple_quote."\n".new_body."\n".triple_quote
+
+  call sj#ReplaceCols(start_col, end_col, new_body)
+  normal! j>>j<<
+
+  return 1
+endfunction
+
 function! sj#coffee#SplitString()
   if search('["''].\{-}["'']\s*$', 'Wbc', line('.')) <= 0
     return 0
