@@ -1,4 +1,4 @@
-function! sj#perl#SplitIfClause()
+function! sj#perl#SplitSuffixIfClause()
   let pattern = '\(.*\) \(if\|unless\|while\|until\) \(.*\);\s*$'
 
   if g:splitjoin_perl_brace_on_same_line
@@ -8,6 +8,24 @@ function! sj#perl#SplitIfClause()
   endif
 
   return s:Split(pattern, replacement)
+endfunction
+
+function! sj#perl#SplitPrefixIfClause()
+  let pattern = '\<if\s*(.\{-})\s*{.*}'
+
+  if search(pattern, 'Wbc') <= 0
+    return 0
+  endif
+
+  normal! f(
+  normal %
+  normal! f{
+
+  let body = sj#GetMotion('Va{')
+  let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', "{\n\\1\n}", '')
+  call sj#ReplaceMotion('Va{', body)
+
+  return 1
 endfunction
 
 function! sj#perl#JoinIfClause()

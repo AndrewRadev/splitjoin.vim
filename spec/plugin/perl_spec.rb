@@ -8,7 +8,7 @@ describe "perl" do
     vim.set(:shiftwidth, 2)
   end
 
-  specify "if-clauses" do
+  specify "suffix if-clauses" do
     set_file_contents 'print "a = $a\n" if $debug;'
 
     split
@@ -22,6 +22,18 @@ describe "perl" do
     join
 
     assert_file_contents 'print "a = $a\n" if $debug;'
+  end
+
+  specify "postfix if-clauses" do
+    set_file_contents 'if ($debug) { print "a = $a\\n"; }'
+
+    split
+
+    assert_file_contents <<-EOF
+      if ($debug) {
+        print "a = $a\\n";
+      }
+    EOF
   end
 
   specify "and/or control flow" do

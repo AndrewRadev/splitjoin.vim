@@ -6,6 +6,8 @@ if ($debug) {
   print "b = $b\n";
 }
 
+if ($debug) { print "foo"; }
+
 if ($debug)
 {
   print "a = $a\n";

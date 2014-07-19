@@ -174,7 +174,6 @@ function! sj#ruby#JoinCase()
       endif
     endfor
 
-
     " try to join else for extremely well formed cases and use
     " an alignment tool (optional)
     call cursor(line_no, 1)
@@ -285,7 +284,6 @@ endfunction
 
 function! sj#ruby#SplitBlock()
   let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}'
-
 
   if sj#SearchUnderCursor('\v%(\k|!|\>|\?|\))\s*\zs'.pattern) <= 0
     return 0
