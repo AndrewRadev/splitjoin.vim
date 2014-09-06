@@ -613,7 +613,11 @@ function! sj#ruby#SplitArrayLiteral()
     return 0
   endif
 
-  if search('%[wiWI]', 'Wbce', line('.')) <= 0
+  let lineno = line('.')
+  let indent = indent('.')
+
+  if search('%[wiWI]', 'Wbce', line('.')) <= 0 &&
+        \ search('%[wiWI]', 'Wce', line('.')) <= 0
     return 0
   endif
 
@@ -642,12 +646,16 @@ function! sj#ruby#SplitArrayLiteral()
   if start_col == end_col - 1
     " just insert a newline, nothing inside the list
     exe "normal! i\<cr>"
+    call sj#SetIndent(end_col, indent)
     return 1
   endif
 
   let array_body = sj#GetCols(start_col, end_col - 1)
   let array_items = split(array_body, '\s\+')
   call sj#ReplaceCols(start_col, end_col - 1, "\n".join(array_items, "\n")."\n")
+
+  call sj#SetIndent(lineno + 1, lineno + len(array_items), indent + &sw)
+  call sj#SetIndent(lineno + len(array_items) + 1, indent)
 
   return 0
 endfunction
@@ -690,7 +698,7 @@ function! sj#ruby#JoinArrayLiteral()
     return 1
   endif
 
-  let words = sj#GetLines(start_lineno + 1, end_lineno - 1)
+  let words = sj#TrimList(sj#GetLines(start_lineno + 1, end_lineno - 1))
   call sj#ReplaceLines(start_lineno + 1, end_lineno, join(words, ' ').closing_bracket)
   exe start_lineno
   call sj#Keeppatterns('s/\n\_s*//')

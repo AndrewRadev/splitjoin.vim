@@ -864,9 +864,9 @@ describe "ruby" do
 
       assert_file_contents <<-EOF
         array = %w{
-        one
-        two
-        three
+          one
+          two
+          three
         }
       EOF
 
@@ -884,9 +884,9 @@ describe "ruby" do
 
       assert_file_contents <<-EOF
         array = %w|
-        one
-        two
-        three
+          one
+          two
+          three
         |
       EOF
 
