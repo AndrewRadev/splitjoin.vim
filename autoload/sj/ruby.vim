@@ -608,6 +608,96 @@ function! sj#ruby#SplitString()
   return 1
 endfunction
 
+function! sj#ruby#SplitArrayLiteral()
+  if synIDattr(synID(line('.'), col('.'), 1), "name") !~ 'rubyString\%(Delimiter\)\='
+    return 0
+  endif
+
+  if search('%[wiWI]', 'Wbce', line('.')) <= 0
+    return 0
+  endif
+
+  if col('.') == col('$')
+    " we're at the end of the line, bail out
+    return 0
+  endif
+
+  normal! l
+  let opening_bracket = getline('.')[col('.') - 1]
+
+  if col('.') == col('$')
+    " we're at the end of the line, bail out
+    return 0
+  endif
+  normal! l
+
+  let closing_bracket = s:ArrayLiteralClosingBracket(opening_bracket)
+
+  let array_pattern = '\%(\k\|\s\)*\ze\V'.closing_bracket
+  let [start_col, end_col] = sj#SearchposUnderCursor(array_pattern)
+  if start_col <= 0
+    return 0
+  endif
+
+  if start_col == end_col - 1
+    " just insert a newline, nothing inside the list
+    exe "normal! i\<cr>"
+    return 1
+  endif
+
+  let array_body = sj#GetCols(start_col, end_col - 1)
+  let array_items = split(array_body, '\s\+')
+  call sj#ReplaceCols(start_col, end_col - 1, "\n".join(array_items, "\n")."\n")
+
+  return 0
+endfunction
+
+function! sj#ruby#JoinArrayLiteral()
+  if synIDattr(synID(line('.'), col('.'), 1), "name") != 'rubyStringDelimiter'
+    return 0
+  endif
+
+  if search('%[wiWI].$', 'Wce', line('.')) <= 0
+    return 0
+  endif
+
+  let opening_bracket = getline('.')[col('.') - 1]
+  let closing_bracket = s:ArrayLiteralClosingBracket(opening_bracket)
+
+  let start_lineno = line('.')
+  let end_lineno   = start_lineno + 1
+  let end_pattern  = '^\s*\V'.closing_bracket.'\m\s*$'
+  let word_pattern =  '^\%(\k\|\s\)*$'
+
+  while end_lineno <= line('$') && getline(end_lineno) !~ end_pattern
+    if getline(end_lineno) !~ word_pattern
+      return 0
+    endif
+    let end_lineno += 1
+  endwhile
+
+  if getline(end_lineno) !~ end_pattern
+    return 0
+  endif
+
+  if end_lineno - start_lineno < 1
+    " nothing to join, bail out
+    return 0
+  endif
+
+  if end_lineno - start_lineno == 1
+    call sj#Keeppatterns('s/\n\_s*//')
+    return 1
+  endif
+
+  let words = sj#GetLines(start_lineno + 1, end_lineno - 1)
+  call sj#ReplaceLines(start_lineno + 1, end_lineno, join(words, ' ').closing_bracket)
+  exe start_lineno
+  call sj#Keeppatterns('s/\n\_s*//')
+
+  return 1
+endfunction
+
 " Helper functions
 
 function! s:JoinHashWithCurlyBraces()
@@ -751,4 +841,22 @@ function! s:MigrateComments(comments, start_line_no, end_line_no)
   call sj#PopCursor()
 
   return [start_line_no, end_line_no]
+endfunction
+
+function! s:ArrayLiteralClosingBracket(opening_bracket)
+  let opening_bracket = a:opening_bracket
+
+  if opening_bracket == '{'
+    let closing_bracket = '}'
+  elseif opening_bracket == '('
+    let closing_bracket = ')'
+  elseif opening_bracket == '<'
+    let closing_bracket = '>'
+  elseif opening_bracket == '['
+    let closing_bracket = ']'
+  else
+    let closing_bracket = opening_bracket
+  endif
+
+  return closing_bracket
 endfunction

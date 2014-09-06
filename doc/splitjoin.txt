@@ -267,6 +267,16 @@ case-keyword, as shown in the example.
     else do_baz
     end
 >
+Array literals ~
+>
+    list = %w{one two three}
+
+    list = %w{
+    one
+    two
+    three
+    }
+<
 
 ==============================================================================
 PYTHON                                                      *splitjoin-python*
