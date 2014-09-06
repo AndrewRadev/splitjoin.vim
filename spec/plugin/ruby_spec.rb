@@ -29,6 +29,22 @@ describe "ruby" do
     EOF
   end
 
+  specify "if-clauses with comments" do
+    set_file_contents <<-EOF
+      if 6 * 9 == 42
+        return "the answer" # comment
+      end
+    EOF
+
+    vim.search 'if'
+    join
+
+    assert_file_contents <<-EOF
+      # comment
+      return "the answer" if 6 * 9 == 42
+    EOF
+  end
+
   describe "ternaries" do
     it "handles simplistic ternaries" do
       set_file_contents <<-EOF
@@ -48,6 +64,23 @@ describe "ruby" do
       join
 
       assert_file_contents <<-EOF
+        condition ? 'this' : 'that'
+      EOF
+    end
+
+    it "handles comments" do
+      set_file_contents <<-EOF
+        if condition
+          'this' # comment
+        else
+          'that'
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        # comment
         condition ? 'this' : 'that'
       EOF
     end
@@ -611,6 +644,22 @@ describe "ruby" do
         foo("\#{one}") do
           two
         end
+      EOF
+    end
+
+    it "migrates inline comments when joining" do
+      set_file_contents <<-EOF
+        foo do
+          example # comment
+        end
+      EOF
+
+      vim.search 'do'
+      join
+
+      assert_file_contents <<-EOF
+        # comment
+        foo { example }
       EOF
     end
   end

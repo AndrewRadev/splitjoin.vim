@@ -19,8 +19,8 @@ function! sj#ruby#JoinIfClause()
   endif
 
   let if_line_no = line('.')
-  let else_line_pattern = '^'.repeat(' ', indent(if_line_no)).'else\s*$'
-  let end_line_pattern = '^'.repeat(' ', indent(if_line_no)).'end\s*$'
+  let else_line_pattern = '^'.repeat(' ', indent(if_line_no)).'else\s*\%(#.*\)\=$'
+  let end_line_pattern = '^'.repeat(' ', indent(if_line_no)).'end\s*\%(#.*\)\=$'
 
   let else_line_no = search(else_line_pattern, 'W')
   call cursor(if_line_no, 1)
@@ -33,6 +33,13 @@ function! sj#ruby#JoinIfClause()
   if else_line_no && else_line_no < end_line_no
     return 0
   endif
+
+  let [result, offset] = s:HandleComments(if_line_no, end_line_no)
+  if !result
+    return 0
+  endif
+  let if_line_no += offset
+  let end_line_no += offset
 
   let lines = sj#GetLines(if_line_no, end_line_no)
 
@@ -118,6 +125,14 @@ function! sj#ruby#JoinTernaryClause()
     end
 
     if clause_is_valid
+      let [result, offset] = s:HandleComments(if_line_no, end_line_no)
+      if !result
+        return 0
+      endif
+      let if_line_no   += offset
+      let else_line_no += offset
+      let end_line_no  += offset
+
       let upper_body = getline(if_line_no + 1)
       let lower_body = getline(else_line_no + 1)
       let upper_body = sj#Trim(upper_body)
@@ -322,25 +337,32 @@ function! sj#ruby#JoinBlock()
     let do_line_no = search(do_pattern, 'bcW', line('.'))
   endif
 
-  if do_line_no > 0
-    let end_line_no = searchpair(do_pattern, '', '\<end\>', 'W')
-
-    let lines = sj#GetLines(do_line_no, end_line_no)
-    let lines = sj#TrimList(lines)
-
-    let do_line  = substitute(lines[0], do_pattern, '{\1', '')
-    let body     = join(lines[1:-2], '; ')
-    let body     = sj#Trim(body)
-    let end_line = substitute(lines[-1], 'end', '}', '')
-
-    let replacement = do_line.' '.body.' '.end_line
-
-    call sj#ReplaceLines(do_line_no, end_line_no, replacement)
-
-    return 1
-  else
+  if do_line_no <= 0
     return 0
-  end
+  endif
+
+  let end_line_no = searchpair(do_pattern, '', '\<end\>', 'W')
+
+  let [result, offset] = s:HandleComments(do_line_no, end_line_no)
+  if !result
+    return 0
+  endif
+  let do_line_no += offset
+  let end_line_no += offset
+
+  let lines = sj#GetLines(do_line_no, end_line_no)
+  let lines = sj#TrimList(lines)
+
+  let do_line  = substitute(lines[0], do_pattern, '{\1', '')
+  let body     = join(lines[1:-2], '; ')
+  let body     = sj#Trim(body)
+  let end_line = substitute(lines[-1], 'end', '}', '')
+
+  let replacement = do_line.' '.body.' '.end_line
+
+  call sj#ReplaceLines(do_line_no, end_line_no, replacement)
+
+  return 1
 endfunction
 
 function! sj#ruby#SplitCachingConstruct()
@@ -386,63 +408,6 @@ function! sj#ruby#JoinHash()
   else
     return 0
   endif
-endfunction
-
-function! s:JoinHashWithCurlyBraces()
-  normal! $
-
-  let original_body = sj#GetMotion('Vi{')
-  let body = original_body
-
-  if g:splitjoin_normalize_whitespace
-    let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
-    let body = substitute(body, '\s\+\k\+\zs:\s\+', ': ', 'g')
-  endif
-
-  " remove trailing comma
-  let body = substitute(body, ',\ze\_s*$', '', '')
-
-  if body != original_body
-    call sj#ReplaceMotion('Vi{', body)
-  endif
-
-  normal! Va{J
-
-  return 1
-endfunction
-
-function! s:JoinHashWithRoundBraces()
-  normal! $
-
-  let body = sj#GetMotion('Vi(',)
-  if g:splitjoin_normalize_whitespace
-    let body = substitute(body, '\s*=>\s*', ' => ', 'g')
-  endif
-
-  " remove trailing comma
-  let body = substitute(body, ',\ze\_s*$', '', '')
-
-  let body = join(sj#TrimList(split(body, "\n")), ' ')
-  call sj#ReplaceMotion('Va(', '('.body.')')
-
-  return 1
-endfunction
-
-function! s:JoinHashWithoutBraces()
-  let start_lineno = line('.')
-  let end_lineno   = start_lineno
-  let lineno       = nextnonblank(start_lineno + 1)
-  let line         = getline(lineno)
-  let indent       = repeat(' ', indent(lineno))
-
-  while lineno <= line('$') && ((line =~ '^'.indent && line =~ '=>') || line =~ '^\s*)')
-    let end_lineno = lineno
-    let lineno     = nextnonblank(lineno + 1)
-    let line       = getline(lineno)
-  endwhile
-
-  call cursor(start_lineno, 0)
-  exe "normal! V".(end_lineno - start_lineno)."jJ"
 endfunction
 
 function! sj#ruby#SplitOptions()
@@ -539,18 +504,6 @@ function! sj#ruby#SplitOptions()
   endif
 
   return 1
-endfunction
-
-" Helper functions
-
-function! s:JoinLines(text)
-  let lines = sj#TrimList(split(a:text, "\n"))
-
-  if len(lines) > 1
-    return '('.join(lines, '; ').')'
-  else
-    return join(lines, '; ')
-  endif
 endfunction
 
 function! sj#ruby#JoinContinuedMethodCall()
@@ -653,4 +606,149 @@ function! sj#ruby#SplitString()
   endif
 
   return 1
+endfunction
+
+" Helper functions
+
+function! s:JoinHashWithCurlyBraces()
+  normal! $
+
+  let original_body = sj#GetMotion('Vi{')
+  let body = original_body
+
+  if g:splitjoin_normalize_whitespace
+    let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
+    let body = substitute(body, '\s\+\k\+\zs:\s\+', ': ', 'g')
+  endif
+
+  " remove trailing comma
+  let body = substitute(body, ',\ze\_s*$', '', '')
+
+  if body != original_body
+    call sj#ReplaceMotion('Vi{', body)
+  endif
+
+  normal! Va{J
+
+  return 1
+endfunction
+
+function! s:JoinHashWithRoundBraces()
+  normal! $
+
+  let body = sj#GetMotion('Vi(',)
+  if g:splitjoin_normalize_whitespace
+    let body = substitute(body, '\s*=>\s*', ' => ', 'g')
+  endif
+
+  " remove trailing comma
+  let body = substitute(body, ',\ze\_s*$', '', '')
+
+  let body = join(sj#TrimList(split(body, "\n")), ' ')
+  call sj#ReplaceMotion('Va(', '('.body.')')
+
+  return 1
+endfunction
+
+function! s:JoinHashWithoutBraces()
+  let start_lineno = line('.')
+  let end_lineno   = start_lineno
+  let lineno       = nextnonblank(start_lineno + 1)
+  let line         = getline(lineno)
+  let indent       = repeat(' ', indent(lineno))
+
+  while lineno <= line('$') && ((line =~ '^'.indent && line =~ '=>') || line =~ '^\s*)')
+    let end_lineno = lineno
+    let lineno     = nextnonblank(lineno + 1)
+    let line       = getline(lineno)
+  endwhile
+
+  call cursor(start_lineno, 0)
+  exe "normal! V".(end_lineno - start_lineno)."jJ"
+endfunction
+
+function! s:JoinLines(text)
+  let lines = sj#TrimList(split(a:text, "\n"))
+
+  if len(lines) > 1
+    return '('.join(lines, '; ').')'
+  else
+    return join(lines, '; ')
+  endif
+endfunction
+
+function! s:HandleComments(start_line_no, end_line_no)
+  let start_line_no = a:start_line_no
+  let end_line_no   = a:end_line_no
+
+  let [success, failure] = [1, 0]
+  let offset = 0
+
+  let comments = s:FindComments(start_line_no, end_line_no)
+
+  if len(comments) > 1
+    echomsg "Splitjoin: Can't join this due to the inline comments. Please remove them first."
+    return [failure, 0]
+  endif
+
+  if len(comments) == 1
+    let [start_line_no, end_line_no] = s:MigrateComments(comments, a:start_line_no, a:end_line_no)
+    let offset = start_line_no - a:start_line_no
+  else
+    let offset = 0
+  endif
+
+  return [success, offset]
+endfunction
+
+function! s:FindComments(start_line_no, end_line_no)
+  call sj#PushCursor()
+
+  let comments = []
+
+  for lineno in range(a:start_line_no, a:end_line_no)
+    exe lineno
+    normal! 0
+
+    while search('\s*#.*$', 'W', lineno) > 0
+      let col = col('.')
+
+      normal! f#
+      if synIDattr(synID(lineno, col('.'), 1), "name") == 'rubyComment'
+        let comment = sj#GetCols(col, col('$'))
+        call add(comments, [lineno, col, comment])
+        break
+      endif
+    endwhile
+  endfor
+
+  call sj#PopCursor()
+
+  return comments
+endfunction
+
+function! s:MigrateComments(comments, start_line_no, end_line_no)
+  call sj#PushCursor()
+
+  let start_line_no = a:start_line_no
+  let end_line_no   = a:end_line_no
+
+  for [line, col, _c] in a:comments
+    call cursor(line, col)
+    normal! "_D
+  endfor
+
+  for [_l, _c, comment] in a:comments
+    call append(start_line_no - 1, comment)
+
+    exe start_line_no
+    normal! ==
+
+    let start_line_no = start_line_no + 1
+    let end_line_no   = end_line_no + 1
+  endfor
+
+  call sj#PopCursor()
+
+  return [start_line_no, end_line_no]
 endfunction
