@@ -36,7 +36,7 @@ function! sj#ruby#JoinIfClause()
 
   let [result, offset] = s:HandleComments(if_line_no, end_line_no)
   if !result
-    return 0
+    return 1
   endif
   let if_line_no += offset
   let end_line_no += offset
@@ -127,7 +127,7 @@ function! sj#ruby#JoinTernaryClause()
     if clause_is_valid
       let [result, offset] = s:HandleComments(if_line_no, end_line_no)
       if !result
-        return 0
+        return 1
       endif
       let if_line_no   += offset
       let else_line_no += offset
@@ -345,7 +345,7 @@ function! sj#ruby#JoinBlock()
 
   let [result, offset] = s:HandleComments(do_line_no, end_line_no)
   if !result
-    return 0
+    return 1
   endif
   let do_line_no += offset
   let end_line_no += offset
