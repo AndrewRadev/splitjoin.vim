@@ -68,4 +68,22 @@ describe "php" do
       ?>
     EOF
   end
+
+  specify "<?php markers" do
+    set_file_contents "<?php example(); ?>"
+
+    vim.search('example')
+    split
+
+    assert_file_contents <<-EOF
+      <?php
+      example();
+      ?>
+    EOF
+
+    vim.search('php')
+    join
+
+    assert_file_contents "<?php example(); ?>"
+  end
 end

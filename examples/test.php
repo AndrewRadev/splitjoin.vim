@@ -12,3 +12,7 @@ if ($foo) {
 }
 
 ?>
+
+<div>
+<?php echo "OK"; ?>
+</div>

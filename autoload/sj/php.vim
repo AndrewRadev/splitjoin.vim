@@ -94,3 +94,39 @@ function! sj#php#JoinIfClause()
 
   return 1
 endfunction
+
+function! sj#php#SplitPhpMarker()
+  if sj#SearchUnderCursor('<?php.\{-}?>') <= 0
+    return 0
+  endif
+
+  let start_col = col('.')
+  let skip = sj#SkipSyntax('phpStringSingle', 'phpStringDouble', 'phpComment')
+  if sj#SearchSkip('?>', skip, 'We', line('.')) <= 0
+    return 0
+  endif
+  let end_col = col('.')
+
+  let body = sj#GetCols(start_col, end_col)
+  let body = substitute(body, '^<?php', "<?php\n", '')
+  let body = substitute(body, '\s*?>$', "\n?>", '')
+
+  call sj#ReplaceCols(start_col, end_col, body)
+  return 1
+endfunction
+
+function! sj#php#JoinPhpMarker()
+  if sj#SearchUnderCursor('<?php\s*$') <= 0
+    return 0
+  endif
+
+  let start_lineno = line('.')
+  let skip = sj#SkipSyntax('phpStringSingle', 'phpStringDouble', 'phpComment')
+  if sj#SearchSkip('?>', skip, 'We') <= 0
+    return 0
+  endif
+  let end_lineno = line('.')
+
+  exe start_lineno.','.end_lineno.'join'
+  return 1
+endfunction
