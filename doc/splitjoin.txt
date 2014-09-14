@@ -545,6 +545,14 @@ If-clauses ~
       $a = "bar";
     }
 <
+PHP markers ~
+>
+    <?php echo "OK"; ?>
+
+    <?php
+    echo "OK";
+    ?>
+<
 
 ==============================================================================
 VIMSCRIPT                                                *splitjoin-vimscript*
