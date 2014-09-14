@@ -62,7 +62,7 @@ endfunction
 function! sj#php#SplitIfClause()
   let pattern = '\<if\s*(.\{-})\s*{.*}'
 
-  if search(pattern, 'Wbc') <= 0
+  if search(pattern, 'Wbc', line('.')) <= 0
     return 0
   endif
 
@@ -80,7 +80,7 @@ endfunction
 function! sj#php#JoinIfClause()
   let pattern = '\<if\s*(.\{-})\s*{\s*$'
 
-  if search(pattern, 'Wbc') <= 0
+  if search(pattern, 'Wbc', line('.')) <= 0
     return 0
   endif
 
