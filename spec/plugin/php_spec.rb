@@ -86,4 +86,40 @@ describe "php" do
 
     assert_file_contents "<?php example(); ?>"
   end
+
+  specify "<?= markers" do
+    set_file_contents "<?= 'example'; ?>"
+
+    vim.search('example')
+    split
+
+    assert_file_contents <<-EOF
+      <?=
+      'example';
+      ?>
+    EOF
+
+    vim.search('<?')
+    join
+
+    assert_file_contents "<?= 'example'; ?>"
+  end
+
+  specify "<? markers" do
+    set_file_contents "<? example(); ?>"
+
+    vim.search('example')
+    split
+
+    assert_file_contents <<-EOF
+      <?
+      example();
+      ?>
+    EOF
+
+    vim.search('<?')
+    join
+
+    assert_file_contents "<? example(); ?>"
+  end
 end
