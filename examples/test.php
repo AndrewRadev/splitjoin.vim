@@ -15,4 +15,7 @@ if ($foo) {
 
 <div>
 <?php echo "OK"; ?>
+
+<? example(); ?>
+<?= example(); ?>
 </div>

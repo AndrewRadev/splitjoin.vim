@@ -96,7 +96,7 @@ function! sj#php#JoinIfClause()
 endfunction
 
 function! sj#php#SplitPhpMarker()
-  if sj#SearchUnderCursor('<?php.\{-}?>') <= 0
+  if sj#SearchUnderCursor('<?=\=\%(php\)\=.\{-}?>') <= 0
     return 0
   endif
 
@@ -108,7 +108,7 @@ function! sj#php#SplitPhpMarker()
   let end_col = col('.')
 
   let body = sj#GetCols(start_col, end_col)
-  let body = substitute(body, '^<?php', "<?php\n", '')
+  let body = substitute(body, '^<?\(=\=\%(php\)\=\)\s*', "<?\\1\n", '')
   let body = substitute(body, '\s*?>$', "\n?>", '')
 
   call sj#ReplaceCols(start_col, end_col, body)
@@ -116,7 +116,7 @@ function! sj#php#SplitPhpMarker()
 endfunction
 
 function! sj#php#JoinPhpMarker()
-  if sj#SearchUnderCursor('<?php\s*$') <= 0
+  if sj#SearchUnderCursor('<?=\=\%(php\)\=\s*$') <= 0
     return 0
   endif
 
@@ -127,6 +127,10 @@ function! sj#php#JoinPhpMarker()
   endif
   let end_lineno = line('.')
 
+  let saved_joinspaces = &joinspaces
+  set nojoinspaces
   exe start_lineno.','.end_lineno.'join'
+  let &joinspaces = saved_joinspaces
+
   return 1
 endfunction
