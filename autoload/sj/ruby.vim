@@ -300,7 +300,7 @@ endfunction
 function! sj#ruby#SplitBlock()
   let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}'
 
-  if sj#SearchUnderCursor('\v%(\k|!|\>|\?|\))\s*\zs'.pattern) <= 0
+  if sj#SearchUnderCursor('\v%(\k|!|\-\>|\?|\))\s*\zs'.pattern) <= 0
     return 0
   endif
 
