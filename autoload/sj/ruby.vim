@@ -438,9 +438,15 @@ function! sj#ruby#SplitOptions()
 
   let [from, to, args, opts, hash_type] = sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
-  if len(opts) < 1
-    " no options found, leave it as it is
-    return 0
+  if len(opts) < 1 && len(args) > 0 && option_type == 'option'
+    " no options found, but there are arguments, split those
+    let replacement = join(args, ",\n")
+    if function_type == 'with_spaces'
+      let replacement = "(\n".replacement."\n)"
+    endif
+
+    call sj#ReplaceCols(from, to, replacement)
+    return 1
   endif
 
   let replacement = ''
