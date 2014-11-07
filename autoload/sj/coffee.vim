@@ -61,6 +61,18 @@ function! sj#coffee#JoinIfElseClause()
   let else_clause = sj#Trim(else_line)
   let false_body  = sj#Trim(getline(line('.') + 3))
 
+  let assignment_pattern = '^\(\w\+\)\s*=\s*'
+  if true_body =~ assignment_pattern && false_body =~ assignment_pattern
+    " it might start with the assignment of a single variable, let's see
+    let match_index = matchend(true_body, assignment_pattern)
+    if strpart(true_body, 0, match_index) == strpart(false_body, 0, match_index)
+      " assignment, change the components a bit
+      let if_clause  = strpart(true_body, 0, match_index).if_clause
+      let true_body  = strpart(true_body, match_index)
+      let false_body = strpart(false_body, match_index)
+    endif
+  endif
+
   call sj#ReplaceMotion('Vjjj', if_clause.' then '.true_body.' else '.false_body)
   call sj#SetIndent(line('.'), base_indent)
 

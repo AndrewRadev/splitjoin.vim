@@ -80,14 +80,22 @@ describe "coffee" do
         else
           foo = 'qux'
     EOF
+
+    vim.search 'bar'
+    join
+
+    set_file_contents <<-EOF
+      do ->
+        foo = if bar? then 'baz' else 'qux'
+    EOF
   end
 
-  specify "joining a simple ternary operator" do
+  specify "joining ternary operator without any assignment magic" do
     set_file_contents <<-EOF
       if bar?
-        console.log("BAR")
+        foo = "baz"
       else
-        console.log("BAZ")
+        baz = "qux"
     EOF
     setup_coffee_filetype
 
@@ -95,7 +103,7 @@ describe "coffee" do
     join
 
     assert_file_contents <<-EOF
-      if bar? then console.log("BAR") else console.log("BAZ")
+      if bar? then foo = "baz" else baz = "qux"
     EOF
   end
 

@@ -399,11 +399,13 @@ the suffix format.
 <
 Ternary operator ~
 
-Splitting works well, and joining works in the most straightforward way
-possible -- by just taking the clauses and putting them in the if-clause
-as-is. This is usually not what you want for ternary clauses (it would make
-sense to take assignment out of the if-then-else), but it works for simple
-cases and arguably still provides some benefit.
+Splitting takes into account the entire line. If the line starts with
+assignment, it tries to squeeze in the assignment part on both lines.
+
+Joining attempts to do the same process in reverse -- if the same variable is
+being assigned to different things in both cases, that variable is moved out
+in front of the if-clause. Otherwise, it just joins the if-then-else without
+any magic.
 >
     foo = if bar? then 'baz' else 'qux'
 
@@ -412,7 +414,7 @@ cases and arguably still provides some benefit.
     else
       foo = 'qux'
 
-    if bar? then foo = 'baz' else foo = 'qux'
+    foo = if bar? then 'baz' else 'qux'
 <
 Object literals ~
 >
