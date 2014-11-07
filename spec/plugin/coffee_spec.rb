@@ -82,6 +82,23 @@ describe "coffee" do
     EOF
   end
 
+  specify "joining a simple ternary operator" do
+    set_file_contents <<-EOF
+      if bar?
+        console.log("BAR")
+      else
+        console.log("BAZ")
+    EOF
+    setup_coffee_filetype
+
+    vim.search 'bar'
+    join
+
+    assert_file_contents <<-EOF
+      if bar? then console.log("BAR") else console.log("BAZ")
+    EOF
+  end
+
   specify "object literals" do
     set_file_contents 'one = { one: "two", three: "four" }'
     setup_coffee_filetype

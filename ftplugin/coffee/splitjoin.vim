@@ -13,6 +13,7 @@ if !exists('b:splitjoin_join_callbacks')
   let b:splitjoin_join_callbacks = [
         \ 'sj#coffee#JoinString',
         \ 'sj#coffee#JoinFunction',
+        \ 'sj#coffee#JoinIfElseClause',
         \ 'sj#coffee#JoinIfClause',
         \ 'sj#coffee#JoinObjectLiteral',
         \ ]

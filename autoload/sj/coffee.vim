@@ -45,6 +45,28 @@ function! sj#coffee#SplitIfClause()
   endif
 endfunction
 
+function! sj#coffee#JoinIfElseClause()
+  let if_line      = getline('.')
+  let else_line    = getline(line('.') + 2)
+  let base_indent  = indent('.')
+  let if_pattern   = '\v^\s*(if|unless|while|until|for)\s'
+  let else_pattern = '\v^\s*else$'
+
+  if if_line !~ if_pattern || else_line !~ else_pattern
+    return 0
+  endif
+
+  let if_clause   = sj#Trim(if_line)
+  let true_body   = sj#Trim(getline(line('.') + 1))
+  let else_clause = sj#Trim(else_line)
+  let false_body  = sj#Trim(getline(line('.') + 3))
+
+  call sj#ReplaceMotion('Vjjj', if_clause.' then '.true_body.' else '.false_body)
+  call sj#SetIndent(line('.'), base_indent)
+
+  return 1
+endfunction
+
 function! sj#coffee#JoinIfClause()
   let line        = getline('.')
   let base_indent = indent('.')
