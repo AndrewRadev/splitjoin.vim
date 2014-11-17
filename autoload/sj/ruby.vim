@@ -441,8 +441,14 @@ function! sj#ruby#SplitOptions()
   if len(opts) < 1 && len(args) > 0 && option_type == 'option'
     " no options found, but there are arguments, split those
     let replacement = join(args, ",\n")
+
+    if !g:splitjoin_ruby_hanging_args
+      let replacement = "\n".replacement."\n"
+    endif
+
     if function_type == 'with_spaces'
-      let replacement = "(\n".replacement."\n)"
+      let replacement = "(".replacement.")"
+      let from -= 1 " Also replace the space before the argument list
     endif
 
     call sj#ReplaceCols(from, to, replacement)
