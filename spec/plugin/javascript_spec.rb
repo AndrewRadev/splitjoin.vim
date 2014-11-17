@@ -23,7 +23,7 @@ describe "javascript" do
 
     join
 
-    assert_file_contents "{ one: two, 'three': four }"
+    assert_file_contents "{one: two, 'three': four}"
   end
 
   specify "lists" do
@@ -58,8 +58,30 @@ describe "javascript" do
       };
     EOF
 
+    set_file_contents <<-EOF
+      var foo = function() {
+        one();
+        two()
+        return 'bar'
+      };
+    EOF
+
     join
 
-    assert_file_contents "var foo = function() { return 'bar' };"
+    assert_file_contents "var foo = function() { one(); two(); return 'bar' };"
+  end
+
+  specify "named functions" do
+    set_file_contents <<-EOF
+      function example() {
+        return 'bar'
+      };
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      function example() { return 'bar' };
+    EOF
   end
 end

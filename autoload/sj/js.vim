@@ -41,8 +41,29 @@ function! sj#js#JoinObjectLiteral()
     endif
 
     let body = join(lines, ' ')
+    let body = '{'.body.'}'
 
-    call sj#ReplaceMotion('Va{', '{ '.body.' }')
+    call sj#ReplaceMotion('Va{', body)
+
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
+function! sj#js#JoinFunction()
+  let line = getline('.')
+
+  if line =~ 'function\%(\s\+\k\+\)\=(.*) {\s*$'
+    call search('{', 'c', line('.'))
+    let body = sj#GetMotion('Vi{')
+
+    let lines = split(body, ';\=\s*\n')
+    let lines = sj#TrimList(lines)
+    let body = join(lines, '; ')
+    let body = '{ '.body.' }'
+
+    call sj#ReplaceMotion('Va{', body)
 
     return 1
   else

@@ -491,7 +491,7 @@ you're using a plugin to set a specific "json" filetype instead, you could
 copy the "ftplugin/javascript/splitjoin.vim" file's contents into a
 "ftplugin/json.vim" file.
 >
-    var one = { one: "two", three: "four" };
+    var one = {one: "two", three: "four"};
 
     var one = {
       one: "two",
@@ -512,8 +512,7 @@ Functions ~
 
 When the cursor is on the "function" keyword, the script attempts to split the
 curly braces of the function. This is a bit more convenient for the common
-use-case of one-line to multi-line functions. Joining functions also works,
-because it falls back to the above object joining.
+use-case of one-line to multi-line functions.
 >
     var callback = function (something, other) { something_else; };
 
