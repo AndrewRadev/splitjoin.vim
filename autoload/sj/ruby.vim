@@ -444,6 +444,10 @@ function! sj#ruby#SplitOptions()
 
     if !g:splitjoin_ruby_hanging_args
       let replacement = "\n".replacement."\n"
+    elseif len(args) == 1
+      " if there's only one argument, there's nothing to do in the "hanging"
+      " case
+      return 0
     endif
 
     if function_type == 'with_spaces'
