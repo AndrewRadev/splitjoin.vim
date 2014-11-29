@@ -478,10 +478,15 @@ function! sj#ruby#SplitOptions()
     " Example: User.new(:two => 'three')
     "
     " no need to add anything
-  elseif g:splitjoin_ruby_curly_braces && (option_type == 'hash' || function_type == 'with_round_braces')
+  elseif g:splitjoin_ruby_curly_braces && option_type == 'hash'
     " Example: one = {:two => 'three'}
     "
     let replacement .= "{\n"
+    let alignment_start += 1
+  elseif g:splitjoin_ruby_curly_braces && function_type == 'with_round_braces'
+    " Example: create(:inquiry, :state => state)
+    "
+    let replacement .= " {\n"
     let alignment_start += 1
   elseif g:splitjoin_ruby_curly_braces
     " add braces in all other cases

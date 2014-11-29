@@ -894,6 +894,23 @@ describe "ruby" do
       EOF
     end
 
+    specify "with arguments, round braces, curly braces" do
+      vim.command('let g:splitjoin_ruby_curly_braces = 1')
+
+      set_file_contents <<-EOF
+        foo(one, :two => 2, :three => 3)
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        foo(one, {
+          :two => 2,
+          :three => 3,
+        })
+      EOF
+    end
+
     specify "doesn't get confused by interpolation" do
       vim.command('let g:splitjoin_ruby_curly_braces = 1')
 
