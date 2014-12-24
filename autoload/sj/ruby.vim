@@ -411,6 +411,12 @@ function! sj#ruby#JoinHash()
 endfunction
 
 function! sj#ruby#SplitOptions()
+  " Variables:
+  "
+  " option_type:   ['option', 'hash']
+  " function_type: ['with_spaces', 'with_round_braces']
+  "
+
   call sj#PushCursor()
   let [from, to] = sj#argparser#ruby#LocateHash()
   call sj#PopCursor()
@@ -468,34 +474,47 @@ function! sj#ruby#SplitOptions()
   endif
 
   " add opening brace
-  if !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces' && len(args) > 0
-    " Example: User.new(:one, :two => 'three')
-    "
-    let replacement .= "\n"
-    let alignment_start += 1
-  elseif !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_spaces' && len(args) > 0
-    " Example: User.new :one, :two => 'three'
-    "
-    let replacement .= "\n"
-    let alignment_start += 1
-  elseif !g:splitjoin_ruby_curly_braces && option_type == 'option' && function_type == 'with_round_braces' && len(args) == 0
-    " Example: User.new(:two => 'three')
-    "
-    " no need to add anything
-  elseif g:splitjoin_ruby_curly_braces && option_type == 'hash'
-    " Example: one = {:two => 'three'}
-    "
-    let replacement .= "{\n"
-    let alignment_start += 1
-  elseif g:splitjoin_ruby_curly_braces && function_type == 'with_round_braces'
-    " Example: create(:inquiry, :state => state)
-    "
-    let replacement .= " {\n"
-    let alignment_start += 1
-  elseif g:splitjoin_ruby_curly_braces
-    " add braces in all other cases
-    let replacement .= " {\n"
-    let alignment_start += 1
+  if g:splitjoin_ruby_curly_braces
+
+    if option_type == 'hash'
+      " Example: one = {:two => 'three'}
+      "
+      let replacement .= "{\n"
+      let alignment_start += 1
+    elseif function_type == 'with_round_braces' && len(args) > 0
+      " Example: create(:inquiry, :state => state)
+      "
+      let replacement .= " {\n"
+      let alignment_start += 1
+    elseif function_type == 'with_round_braces' && len(args) == 0
+      " Example: create(one: 'two', three: 'four')
+      "
+      let replacement .= "{\n"
+      let alignment_start += 1
+    else
+      " add braces in all other cases
+      let replacement .= " {\n"
+      let alignment_start += 1
+    endif
+
+  else " !g:splitjoin_ruby_curly_braces
+
+    if option_type == 'option' && function_type == 'with_round_braces' && len(args) > 0
+      " Example: User.new(:one, :two => 'three')
+      "
+      let replacement .= "\n"
+      let alignment_start += 1
+    elseif option_type == 'option' && function_type == 'with_spaces' && len(args) > 0
+      " Example: User.new :one, :two => 'three'
+      "
+      let replacement .= "\n"
+      let alignment_start += 1
+    elseif option_type == 'option' && function_type == 'with_round_braces' && len(args) == 0
+      " Example: User.new(:two => 'three')
+      "
+      " no need to add anything
+    endif
+
   endif
 
   " add options
