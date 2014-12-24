@@ -212,6 +212,36 @@ curly braces are present after splitting or joining.
 
     foo 1, 2, { :one => 1, :two => 2 }
 <
+Method arguments ~
+
+These only get split if there is no option hash at the end.
+
+The variable |g:splitjoin_ruby_hanging_args| controls whether the arguments
+will be left "hanging", aligned near the brackets, or if the brackets will be
+put on their own lines.
+
+Joining for the "hanging" style doesn't really work, since there's no easy,
+reliable way to detect the continued arguments. However, a simple vanilla-vim
+J should do the trick.
+>
+    params.permit(:title, :action, :subject_type, :subject_id, :own)
+
+    params.permit(:title,
+                  :action,
+                  :subject_type,
+                  :subject_id,
+                  :own)
+
+    # with g:splitjoin_ruby_hanging_args == 0
+
+    params.permit(
+      :title,
+      :action,
+      :subject_type,
+      :subject_id,
+      :own
+    )
+<
 Caching constructs  ~
 >
     @two ||= 1 + 1
@@ -923,6 +953,27 @@ to 1 (the default), a hash will split like so:
 <
 Note the trailing comma for the last element.
 
+                                              *g:splitjoin_ruby_hanging_args*
+>
+    g:splitjoin_ruby_hanging_args
+<
+
+Default value: 1
+
+This controls whether to split function arguments in the "hanging" style:
+>
+    params.permit(:title,
+                  :action,
+                  :subject)
+<
+If it is set to 0, the result will be:
+>
+    params.permit(
+      :title,
+      :action,
+      :subject
+    )
+>
 
                                          *g:splitjoin_coffee_suffix_if_clause*
 >

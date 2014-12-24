@@ -762,6 +762,69 @@ describe "ruby" do
     end
   end
 
+  describe "method arguments" do
+    specify "with hanging args" do
+      vim.command('let g:splitjoin_ruby_hanging_args = 1')
+
+      set_file_contents(<<-EOF)
+        params.permit(:title, :action, :subject_type, :subject_id, :own)
+      EOF
+
+      vim.search(':title')
+      split
+
+      assert_file_contents(<<-EOF)
+        params.permit(:title,
+                      :action,
+                      :subject_type,
+                      :subject_id,
+                      :own)
+      EOF
+    end
+
+    specify "without hanging args" do
+      vim.command('let g:splitjoin_ruby_hanging_args = 0')
+
+      set_file_contents(<<-EOF)
+        params.permit(:title, :action, :subject_type, :subject_id, :own)
+      EOF
+
+      vim.search(':title')
+      split
+
+      assert_file_contents(<<-EOF)
+        params.permit(
+          :title,
+          :action,
+          :subject_type,
+          :subject_id,
+          :own
+        )
+      EOF
+    end
+
+    specify "without brackets" do
+      vim.command('let g:splitjoin_ruby_hanging_args = 0')
+
+      set_file_contents(<<-EOF)
+        params.permit :title, :action, :subject_type, :subject_id, :own
+      EOF
+
+      vim.search(':title')
+      split
+
+      assert_file_contents(<<-EOF)
+        params.permit(
+          :title,
+          :action,
+          :subject_type,
+          :subject_id,
+          :own
+        )
+      EOF
+    end
+  end
+
   describe "method options" do
     specify "with curly braces" do
       vim.command('let g:splitjoin_ruby_curly_braces = 1')
@@ -828,6 +891,23 @@ describe "ruby" do
 
       assert_file_contents <<-EOF
         foo(:one => 1, :two => 2)
+      EOF
+    end
+
+    specify "with arguments, round braces, curly braces" do
+      vim.command('let g:splitjoin_ruby_curly_braces = 1')
+
+      set_file_contents <<-EOF
+        foo(one, :two => 2, :three => 3)
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        foo(one, {
+          :two => 2,
+          :three => 3,
+        })
       EOF
     end
 
