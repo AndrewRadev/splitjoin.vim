@@ -537,7 +537,22 @@ Arrays ~
       'three',
       'four'
     ];
+
 <
+
+Function Arguments ~
+
+>
+    var foo = bar('one', 'two', 'three');
+
+    var foo = bar(
+      'one',
+      'two',
+      'three'
+    );
+<
+
+
 Functions ~
 
 When the cursor is on the "function" keyword, the script attempts to split the
