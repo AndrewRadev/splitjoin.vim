@@ -114,3 +114,22 @@ function! sj#js#JoinArray()
 
   return 1
 endfunction
+
+function! sj#js#SplitOneLineIf()
+  let line = getline('.')
+  if line =~ '^\s*if (.\+) .\+;'
+    let lines = []
+    " use regular vim movements to know where we have to split
+    normal! ^w%
+    let end_if = getpos('.')[2]
+    call add(lines, line[0:end_if] . '{')
+    call add(lines, sj#Trim(line[end_if :]))
+    call add(lines, '}')
+
+    call sj#ReplaceMotion('V', join(lines, "\n"))
+
+    return 1
+  else
+    return 0
+  endif
+endfunction
