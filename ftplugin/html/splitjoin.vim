@@ -7,7 +7,7 @@ endif
 
 if !exists('b:splitjoin_join_callbacks')
   let b:splitjoin_join_callbacks = [
-        \ 'sj#html#JoinTags',
-        \ 'sj#html#JoinAttributes'
+        \ 'sj#html#JoinAttributes',
+        \ 'sj#html#JoinTags'
         \ ]
 endif
