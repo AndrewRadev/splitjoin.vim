@@ -84,4 +84,15 @@ describe "javascript" do
       function example() { return 'bar' };
     EOF
   end
+
+  specify "one-line ifs" do
+    joined_if = "if (isTrue()) do();"
+    split_if  = "if (isTrue()) {\n  do();\n}"
+
+    set_file_contents(joined_if)
+    split
+    assert_file_contents(split_if)
+    join
+    assert_file_contents(joined_if)
+  end
 end
