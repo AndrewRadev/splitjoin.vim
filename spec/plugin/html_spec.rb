@@ -28,31 +28,17 @@ describe "html" do
     simple_test(joined_html, split_html)
   end
 
-  describe "attributes" do
-    let(:long_list_joined) do
-      '<div id="test" class="foo bar baz" style="width: 500px; height: 500px"></div>'
-    end
+  specify "attributes" do
+    joined_html = '<div id="test" token class="foo bar baz" style="width: 500px; height: 500px">'
+    split_html = <<-EOF
+      <div
+        id="test"
+        token
+        class="foo bar baz"
+        style="width: 500px; height: 500px">
+    EOF
 
-    let(:long_list_split) do
-      <<-EOF
-        <div
-          id="test"
-          class="foo bar baz"
-          style="width: 500px; height: 500px">
-        </div>'
-      EOF
-    end
-
-    let(:short_list_joined) { '<div id="test" class="foo bar baz"></div>' }
-    let(:short_list_split) { %{<div id="test" class="foo bar baz">\n\n</div>} }
-
-    specify "with a long list" do
-      simple_test(long_list_joined, long_list_split)
-    end
-
-    specify "with a short list" do
-      simple_test(short_list_joined, short_list_split)
-    end
+    simple_test(joined_html, split_html)
   end
 end
 
