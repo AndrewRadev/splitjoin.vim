@@ -113,4 +113,34 @@ describe "javascript" do
     split
     assert_file_contents(split_args)
   end
+
+  specify "arguments racing with others" do
+    joined_args = "function test(arg1, arg2, arg3) { return true; };"
+    split_args_once  = <<-EOF
+      function test(arg1, arg2, arg3) {
+        return true;
+      };
+    EOF
+
+    # Spec failing due to an unrelated bug with semicola - fixed with
+    # the next commit
+    split_args_twice = <<-EOF
+      function test(
+        arg1,
+        arg2,
+        arg3
+      ) {
+        return true;
+      };
+    EOF
+    set_file_contents(joined_args)
+    split
+    assert_file_contents(split_args_once)
+    split
+    assert_file_contents(split_args_twice)
+    join
+    assert_file_contents(split_args_once)
+    join
+    assert_file_contents(joined_args)
+  end
 end
