@@ -95,4 +95,22 @@ describe "javascript" do
     join
     assert_file_contents(joined_if)
   end
+
+  specify "arguments" do
+    joined_args = "var x = foo(arg1, arg2, 'arg3', 'arg4');"
+    split_args  = <<-EOF
+      var x = foo(
+        arg1,
+        arg2,
+        'arg3',
+        'arg4'
+      );
+    EOF
+
+    set_file_contents(split_args)
+    join
+    assert_file_contents(joined_args)
+    split
+    assert_file_contents(split_args)
+  end
 end
