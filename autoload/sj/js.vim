@@ -133,3 +133,22 @@ function! sj#js#SplitOneLineIf()
     return 0
   endif
 endfunction
+
+function! sj#js#JoinOneLineIf()
+  let if_line_no = line('.')
+  let if_line = getline('.')
+  let end_line_no = if_line_no + 2
+  let end_line = getline(end_line_no)
+
+  if if_line !~ '^\s*if (.+) {' && end_line !~ '^\s*}\s*$'
+    return 0
+  endif
+
+  let body = sj#Trim(getline(if_line_no + 1))
+  echo if_line[:-2]
+  echo body
+  let new  = if_line[:-2] . body
+
+  call sj#ReplaceLines(if_line_no, end_line_no, new)
+  return 1
+endfunction

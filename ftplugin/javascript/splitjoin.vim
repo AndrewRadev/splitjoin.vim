@@ -11,6 +11,7 @@ if !exists('b:splitjoin_join_callbacks')
   let b:splitjoin_join_callbacks = [
         \ 'sj#js#JoinArray',
         \ 'sj#js#JoinFunction',
+        \ 'sj#js#JoinOneLineIf',
         \ 'sj#js#JoinObjectLiteral',
         \ 'sj#js#JoinOneLineIf'
         \ ]
