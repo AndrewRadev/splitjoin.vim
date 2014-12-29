@@ -17,7 +17,7 @@ module Support
 
     def assert_file_contents(string)
       string = normalize_string_indent(string)
-      IO.read(filename).strip.should eq string
+      expect(IO.read(filename).strip).to eq(string)
     end
   end
 end
