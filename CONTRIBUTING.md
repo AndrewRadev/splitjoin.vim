@@ -26,4 +26,17 @@ $ bundle install
 $ bundle exec rspec spec
 ```
 
+Instead of running `rspec` by hand you can also use:
+
+```
+$ guard
+```
+
+This will trigger `rspec` automatically every time you make a change
+either to a spec file like `spec/plugin/coffee_spec.rb` or one of sj's
+autoload files like `autoload/sj/coffee.vim`. This has the additional
+benefit of only running the specs for the file you are currently working
+one, which shortens your feedback loop considerably. E.g. when you work
+on `autoload/sj/sh_vim` only shell specs will be run.
+
 Depending on what kind of Vim you have installed, this may spawn a GUI Vim instance, or even several. You can read up on [vimrunner's README](https://github.com/AndrewRadev/vimrunner/blob/master/README.md) to understand how that works.
