@@ -42,9 +42,21 @@ function! s:withIndentation(str, indent)
 endfunction
 
 function! sj#html#JoinAttributes()
-  if s:noTagUnderCursor()
+  let line = getline('.')
+  let indent = repeat(' ', indent('.'))
+
+  " Check if we are on a tag of splitted attributes
+  if !(line =~ '^\s*<' && line !~ '>\s*$')
     return 0
   endif
+
+  let start = line('.')
+  let end   = search('>\s*$', 'W')
+
+  let lines = sj#GetLines(start, end)
+  let joined = join(sj#TrimList(lines), ' ')
+
+  call sj#ReplaceLines(start, end, indent . joined)
 
   return 1
 endfunction
