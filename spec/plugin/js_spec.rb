@@ -47,41 +47,41 @@ describe "javascript" do
   end
 
   specify "functions" do
-    set_file_contents "var foo = function() { return 'bar' };"
+    set_file_contents "var foo = function() { return 'bar'; };"
 
     vim.search 'function'
     split
 
     assert_file_contents <<-EOF
       var foo = function() {
-        return 'bar'
+        return 'bar';
       };
     EOF
 
     set_file_contents <<-EOF
       var foo = function() {
         one();
-        two()
-        return 'bar'
+        two();
+        return 'bar';
       };
     EOF
 
     join
 
-    assert_file_contents "var foo = function() { one(); two(); return 'bar' };"
+    assert_file_contents "var foo = function() { one(); two(); return 'bar'; };"
   end
 
   specify "named functions" do
     set_file_contents <<-EOF
       function example() {
-        return 'bar'
+        return 'bar';
       };
     EOF
 
     join
 
     assert_file_contents <<-EOF
-      function example() { return 'bar' };
+      function example() { return 'bar'; };
     EOF
   end
 
