@@ -33,3 +33,9 @@ function! sj#html#JoinTags()
 
   return 1
 endfunction
+
+function! sj#html#JoinLongAttributes()
+endfunction
+
+function! sj#html#SplitLongAttributes()
+endfunction
