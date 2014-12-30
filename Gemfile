@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'rake'
-gem 'rspec', '~> 2.14.0'
+gem 'rspec'
 gem 'vimrunner', '0.3.0'
 gem 'pry'
 
