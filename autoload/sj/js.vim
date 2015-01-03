@@ -145,8 +145,6 @@ function! sj#js#JoinOneLineIf()
   endif
 
   let body = sj#Trim(getline(if_line_no + 1))
-  echo if_line[:-2]
-  echo body
   let new  = if_line[:-2] . body
 
   call sj#ReplaceLines(if_line_no, end_line_no, new)

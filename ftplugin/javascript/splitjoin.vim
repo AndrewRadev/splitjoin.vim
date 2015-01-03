@@ -13,6 +13,5 @@ if !exists('b:splitjoin_join_callbacks')
         \ 'sj#js#JoinFunction',
         \ 'sj#js#JoinOneLineIf',
         \ 'sj#js#JoinObjectLiteral',
-        \ 'sj#js#JoinOneLineIf'
         \ ]
 endif
