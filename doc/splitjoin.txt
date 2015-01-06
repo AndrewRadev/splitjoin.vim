@@ -653,12 +653,27 @@ HTML                                                          *splitjoin-html*
 
 Tags ~
 >
-    <div class="foo">bar</div>
+   <div class="foo">bar</div>
 
     <div class="foo">
       bar
     </div>
 <
+
+Attributes ~
+>
+    <button class="foo bar" ng-click="click()" ng-class="{ clicked: clicked }">
+      Click me!
+    </button>
+
+    <button
+      class="foo bar"
+      ng-click="click()"
+      ng-class="{ clicked: clicked }">
+      Click me!
+    </button>
+<
+
 
 ==============================================================================
 CSS                                                             *splitjoin-css*
