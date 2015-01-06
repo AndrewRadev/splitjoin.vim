@@ -551,6 +551,15 @@ use-case of one-line to multi-line functions.
     };
 <
 
+One-line if conditionals ~
+>
+    if (isTrue()) {
+      doSomething();
+    }
+
+
+    if (isTrue()) doSomething;
+<
 ==============================================================================
 PHP                                                            *splitjoin-php*
 
