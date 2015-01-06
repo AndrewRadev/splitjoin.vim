@@ -60,7 +60,7 @@ function! sj#js#JoinFunction()
 
     let lines = split(body, ';\=\s*\n')
     let lines = sj#TrimList(lines)
-    let body = join(lines, '; ')
+    let body = join(lines, '; ').';'
     let body = '{ '.body.' }'
 
     call sj#ReplaceMotion('Va{', body)
@@ -71,19 +71,22 @@ function! sj#js#JoinFunction()
   endif
 endfunction
 
-function! sj#js#SplitArray()
+function! s:SplitList(delimiter)
+  let start = a:delimiter[0]
+  let end   = a:delimiter[1]
+
   let lineno = line('.')
   let indent = indent('.')
 
-  let [from, to] = sj#LocateBracesOnLine('[', ']')
+  let [from, to] = sj#LocateBracesOnLine(start, end)
 
   if from < 0 && to < 0
     return 0
   endif
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
-  let body  = "[\n".join(items, ",\n")."\n]"
-  call sj#ReplaceMotion('Va[', body)
+  let body  = start."\n".join(items, ",\n")."\n".end
+  call sj#ReplaceMotion('Va'.start, body)
 
   " built-in js indenting doesn't indent this properly
   for l in range(lineno + 1, lineno + len(items))
@@ -96,23 +99,42 @@ function! sj#js#SplitArray()
   return 1
 endfunction
 
-function! sj#js#JoinArray()
+function! sj#js#SplitArray()
+  return s:SplitList(['[', ']'])
+endfunction
+
+function! sj#js#SplitArgs()
+  return s:SplitList(['(', ')'])
+endfunction
+
+function! s:JoinList(delimiter)
+  let start = a:delimiter[0]
+  let end   = a:delimiter[1]
+
   let line = getline('.')
 
-  if line !~ '[\s*$'
+  if line !~ start . '\s*$'
     return 0
   endif
 
-  call search('[', 'c', line('.'))
-  let body = sj#GetMotion('Vi[')
+  call search(start, 'c', line('.'))
+  let body = sj#GetMotion('Vi'.start)
 
   let lines = split(body, "\n")
   let lines = sj#TrimList(lines)
   let body  = sj#Trim(join(lines, ' '))
 
-  call sj#ReplaceMotion('Va[', '['.body.']')
+  call sj#ReplaceMotion('Va'.start, start.body.end)
 
   return 1
+endfunction
+
+function! sj#js#JoinArray()
+  return s:JoinList(['[', ']'])
+endfunction
+
+function! sj#js#JoinArgs()
+  return s:JoinList(['(', ')'])
 endfunction
 
 function! sj#js#SplitOneLineIf()
