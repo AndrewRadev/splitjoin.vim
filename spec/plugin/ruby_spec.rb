@@ -823,6 +823,24 @@ describe "ruby" do
         )
       EOF
     end
+
+    specify "with spaces around brackets" do
+      vim.command('let g:splitjoin_ruby_hanging_args = 0')
+
+      set_file_contents(<<-EOF)
+        foo = bar( "one", "two" )
+      EOF
+
+      vim.search('one')
+      split
+
+      assert_file_contents(<<-EOF)
+        foo = bar(
+          "one",
+          "two"
+        )
+      EOF
+    end
   end
 
   describe "method options" do
