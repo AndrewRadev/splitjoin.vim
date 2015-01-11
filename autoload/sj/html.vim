@@ -65,57 +65,31 @@ function! sj#html#SplitAttributes()
   let line = getline('.')
 
   " Check if we are really on a single tag line
-  if !(line =~ '^\s*<' && line =~ '>\s*$')
+  if search('^\s*<', 'bcWe', line('.')) <= 0
     return 0
   endif
+  let start = col('.')
+
+  if search('>\s*$', 'W', line('.')) <= 0
+    return 0
+  endif
+  let end = col('.')
 
   let result = []
   let indent = indent('.')
 
-  " To handle edge cases, we split at mere spaces first and then
-  " look at each item separately
-  let split_body = split(line, '\s')
+  let argparser = sj#argparser#html_args#Construct(start, end, getline('.'))
+  call argparser.Process()
+  let args = argparser.args
+
+  if len(args) == 0
+    return 0
+  endif
 
   " The first item contains the tag and needs slightly different handling
-  let first = split_body[0]
-  let attrs = split_body[1:-1]
+  let args[0] = s:withIndentation(args[0], indent)
 
-  " Add the opening tag with indentation
-  call add(result, s:withIndentation(first, indent))
-
-  " Iterate over the attribute list
-  let cache = ''
-  let inside_attr = 0
-  let attr_indent = indent + &shiftwidth
-  for attr in attrs
-    " a complete attribute
-    if attr =~ '=".*"'
-      call add(result, s:withIndentation(attr, attr_indent))
-    elseif attr =~ '"'
-      if inside_attr
-        " We've reached the end of an attribute
-        let str = s:withIndentation(sj#Trim(cache . ' ' . attr), attr_indent)
-        call add(result, str)
-        let cache = ''
-        let inside_attr = 0
-      else
-        " We're looking at an attribute, but an incomplete one
-        let inside_attr = 1
-        let cache = cache . ' ' . attr
-      endif
-    else
-      if inside_attr
-        " We're looking at a part of an attribute
-        let cache = cache . ' ' . attr
-      else
-        " We're looking at a plain attribute without an assignment,
-        " as in `token` instead of `token="something"`
-        call add(result, s:withIndentation(attr, attr_indent))
-      endif
-    endif
-  endfor
-
-  let body = join(result, "\n")
+  let body = join(args, "\n")
   call sj#ReplaceMotion('V', body)
 
   return 1
