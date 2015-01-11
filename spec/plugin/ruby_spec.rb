@@ -394,7 +394,7 @@ describe "ruby" do
     assert_file_contents <<-EOF
       foo = {
         :bar => 'baz',
-        :one => 'two',
+        :one => 'two'
       }
     EOF
 

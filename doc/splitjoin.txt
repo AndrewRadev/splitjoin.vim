@@ -978,10 +978,10 @@ if there are braces, so the first example will always be joined to:
     g:splitjoin_ruby_trailing_comma
 <
 
-Default value: 1
+Default value: 0
 
 This controls whether to put a trailing comma on a split hash. With this set
-to 1 (the default), a hash will split like so:
+to 1, a hash will split like so:
 >
     User.new :one, :first_name => "Andrew", :last_name => "Radev"
 
