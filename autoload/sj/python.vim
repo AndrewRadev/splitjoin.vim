@@ -26,15 +26,12 @@ function! sj#python#SplitDict()
     return 0
   else
     let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
-    let body  = "{\n".join(pairs, ",\n")."\n}"
+    call add(pairs, '')
+    let body  = "{\n".join(pairs, ",\n")."}"
     call sj#ReplaceMotion('Va{', body)
 
     let body_start = line('.') + 1
     let body_end   = body_start + len(pairs)
-
-    call sj#PushCursor()
-    exe "normal! jV".(body_end - body_start)."j2>"
-    call sj#PopCursor()
 
     return 1
   endif
@@ -132,7 +129,8 @@ function! s:SplitList(regex, opening_char, closing_char)
   let end = col('.')
 
   let items = sj#ParseJsonObjectBody(start, end)
-  let body = a:opening_char.join(items, ",\n").a:closing_char
+  call add(items, '')
+  let body = a:opening_char."\n".join(items, ",\n").a:closing_char
 
   call sj#PopCursor()
 
