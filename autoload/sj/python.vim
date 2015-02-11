@@ -132,7 +132,8 @@ function! s:SplitList(regex, opening_char, closing_char)
   let end = col('.')
 
   let items = sj#ParseJsonObjectBody(start, end)
-  let body = a:opening_char.join(items, ",\n").a:closing_char
+  call add(items, '')
+  let body = a:opening_char."\n".join(items, ",\n").a:closing_char
 
   call sj#PopCursor()
 
