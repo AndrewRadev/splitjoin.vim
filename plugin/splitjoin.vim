@@ -41,6 +41,10 @@ if !exists('g:splitjoin_perl_brace_on_same_line')
   let g:splitjoin_perl_brace_on_same_line = 1
 endif
 
+if !exists('g:splitjoin_python_brackets_on_separate_lines')
+  let g:splitjoin_python_brackets_on_separate_lines = 0
+endif
+
 if !exists('g:splitjoin_join_mapping')
   let g:splitjoin_join_mapping = 'gJ'
 endif

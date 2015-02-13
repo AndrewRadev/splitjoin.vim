@@ -1084,6 +1084,32 @@ If it's set to "<<", the result is this:
     EOF
     end
 <
+                               *g:splitjoin_python_brackets_on_separate_lines*
+>
+    g:splitjoin_python_brackets_on_separate_lines
+<
+
+Default value: 0
+
+If set to 1, then python will split lists and tuples so that the opening and
+closing bracket are placed on separate lines. If it's 0, the first argument
+will remain where it is, and the rest will be split on separate lines.
+
+Example:
+>
+    # let g:splitjoin_python_brackets_on_separate_lines = 0
+    some_method(
+            one,
+            two
+            )
+
+    # let g:splitjoin_python_brackets_on_separate_lines = 1
+    some_method(one,
+            two)
+<
+The first example might look a bit odd, but if you have the python-pep8-indent
+plugin (https://github.com/hynek/vim-python-pep8-indent), it should look quite
+reasonable.
 
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*
