@@ -67,7 +67,7 @@ function! sj#python#SplitArray()
 endfunction
 
 function! sj#python#JoinArray()
-  return s:JoinList('\[[^]]*\s*$', '[')
+  return s:JoinList('\[[^]]*\s*$', '[', ']')
 endfunction
 
 function! sj#python#SplitTuple()
@@ -75,7 +75,7 @@ function! sj#python#SplitTuple()
 endfunction
 
 function! sj#python#JoinTuple()
-  return s:JoinList('([^)]*\s*$', '(')
+  return s:JoinList('([^)]*\s*$', '(', ')')
 endfunction
 
 function! sj#python#SplitImport()
@@ -140,11 +140,17 @@ function! s:SplitList(regex, opening_char, closing_char)
   return 1
 endfunction
 
-function! s:JoinList(regex, opening_char)
+function! s:JoinList(regex, opening_char, closing_char)
   if sj#SearchUnderCursor(a:regex) <= 0
     return 0
   endif
 
-  exe 'normal! va'.a:opening_char.'J'
+  let body = sj#GetMotion('va'.a:opening_char)
+  let body = substitute(body, '\_s\+', ' ', 'g')
+  let body = substitute(body, '^'.a:opening_char.'\s\+', a:opening_char, '')
+  let body = substitute(body, '\s\+'.a:closing_char.'$', a:closing_char, '')
+
+  call sj#ReplaceMotion('va'.a:opening_char, body)
+
   return 1
 endfunction
