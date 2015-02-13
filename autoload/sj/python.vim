@@ -32,10 +32,6 @@ function! sj#python#SplitDict()
     let body_start = line('.') + 1
     let body_end   = body_start + len(pairs)
 
-    call sj#PushCursor()
-    exe "normal! jV".(body_end - body_start)."j2>"
-    call sj#PopCursor()
-
     return 1
   endif
 endfunction
