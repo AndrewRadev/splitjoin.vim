@@ -26,6 +26,24 @@ describe "python" do
     assert_file_contents "spam = {'spam': [1, 2, 3], 'spam, spam': 'eggs'}"
   end
 
+  specify "dictionaries with non-string keys" do
+    set_file_contents "spam = {spam: [1, 2, 3], 'spam, spam': 'eggs'}"
+
+    vim.search '{'
+    split
+
+    assert_file_contents <<-EOF
+      spam = {
+              spam: [1, 2, 3],
+              'spam, spam': 'eggs'
+              }
+    EOF
+
+    join
+
+    assert_file_contents "spam = {spam: [1, 2, 3], 'spam, spam': 'eggs'}"
+  end
+
   specify "lists" do
     set_file_contents 'spam = [1, [2, 3], 4]'
 

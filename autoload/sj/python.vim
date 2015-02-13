@@ -32,6 +32,15 @@ function! sj#python#SplitDict()
     let body_start = line('.') + 1
     let body_end   = body_start + len(pairs)
 
+    let base_indent = indent('.')
+    for line in range(body_start, body_end + 1)
+      if base_indent == indent(line)
+        " then indentation didn't work quite right, let's just indent it
+        " ourselves
+        exe line.'normal! >>>>'
+      endif
+    endfor
+
     return 1
   endif
 endfunction
