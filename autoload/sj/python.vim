@@ -41,6 +41,8 @@ function! sj#python#SplitDict()
       endif
     endfor
 
+    exe body_start.','.body_end.'normal! =='
+
     return 1
   endif
 endfunction
