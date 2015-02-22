@@ -419,6 +419,31 @@ function! sj#ExtractRx(expr, pat, sub)
   return substitute(a:expr, rx, a:sub, '')
 endfunction
 
+" Compatibility {{{1
+"
+" Functionality that is present in newer versions of Vim, but needs a
+" compatibility layer for older ones.
+"
+" function! sj#Keeppatterns(command) {{{2
+"
+" Executes the given command, but attempts to keep search patterns as they
+" were.
+"
+function! sj#Keeppatterns(command)
+  if exists(':keeppatterns')
+    exe 'keeppatterns '.a:command
+  else
+    let histnr = histnr('search')
+
+    exe a:command
+
+    if histnr != histnr('search')
+      call histdel('search', -1)
+      let @/ = histget('search', -1)
+    endif
+  endif
+endfunction
+
 " Splitjoin-specific helpers {{{1
 
 " These functions are not general-purpose, but can be used all around the

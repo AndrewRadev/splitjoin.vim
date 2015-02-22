@@ -952,4 +952,46 @@ describe "ruby" do
       EOF
     end
   end
+
+  describe "array literals" do
+    specify "simple case with {" do
+      set_file_contents "array = %w{one two three}"
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        array = %w{
+          one
+          two
+          three
+        }
+      EOF
+
+      vim.search '%w{'
+      join
+
+      assert_file_contents "array = %w{one two three}"
+    end
+
+    specify "simple case with |" do
+      set_file_contents "array = %w|one two three|"
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        array = %w|
+          one
+          two
+          three
+        |
+      EOF
+
+      vim.search '%w|'
+      join
+
+      assert_file_contents "array = %w|one two three|"
+    end
+  end
 end
