@@ -440,6 +440,11 @@ function! sj#ruby#SplitOptions()
     return 0
   endif
 
+  " if we know both start and end, but the cursor is not there, bail out
+  if option_type == 'option' && to >= 0 && !sj#CursorBetween(from, to)
+    return 0
+  endif
+
   let [from, to, args, opts, hash_type] = sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
   if len(opts) < 1 && len(args) > 0 && option_type == 'option'

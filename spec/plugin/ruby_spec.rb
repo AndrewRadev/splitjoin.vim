@@ -898,6 +898,7 @@ describe "ruby" do
         foo(:one => 1, :two => 2)
       EOF
 
+      vim.search 'one'
       split
 
       assert_file_contents <<-EOF
@@ -919,6 +920,7 @@ describe "ruby" do
         foo(one, :two => 2, :three => 3)
       EOF
 
+      vim.search 'one'
       split
 
       assert_file_contents <<-EOF
