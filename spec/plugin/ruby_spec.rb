@@ -611,6 +611,34 @@ describe "ruby" do
       EOF
     end
 
+    it "optimizes particular cases to &-shorthands" do
+      set_file_contents <<-EOF
+        [1, 2, 3, 4].map(&:to_s)
+      EOF
+
+      vim.search 'to_s'
+      split
+
+      assert_file_contents <<-EOF
+        [1, 2, 3, 4].map do |i|
+          i.to_s
+        end
+      EOF
+
+      set_file_contents <<-EOF
+        [1, 2, 3, 4].map do |whatever|
+          whatever.to_s
+        end
+      EOF
+
+      vim.search 'whatever|'
+      join
+
+      assert_file_contents <<-EOF
+        [1, 2, 3, 4].map(&:to_s)
+      EOF
+    end
+
     it "handles trailing code" do
       set_file_contents <<-EOF
         Bar.new { |one| two }.map(&:name)

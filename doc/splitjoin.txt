@@ -258,6 +258,14 @@ Blocks ~
       puts b.to_s
     end
 <
+Block &-shorthand ~
+>
+    [1, 2, 3].map(&:to_s)
+
+    [1, 2, 3].map do |i|
+      i.to_s
+    end
+<
 Heredocs ~
 >
     string = 'something'

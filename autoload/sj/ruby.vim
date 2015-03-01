@@ -297,6 +297,24 @@ function! sj#ruby#JoinWhenThen()
   return 0
 endfunction
 
+function! sj#ruby#SplitProcShorthand()
+  let pattern = '(&:\k\+)'
+
+  if sj#SearchUnderCursor(pattern) <= 0
+    return 0
+  endif
+
+  if search('(&:\zs\k\+)', '', line('.')) <= 0
+    return 0
+  endif
+
+  let method_name = expand('<cword>')
+  let body = " do |i|\ni.".method_name."\nend"
+
+  call sj#ReplaceMotion('Va(', body)
+  return 1
+endfunction
+
 function! sj#ruby#SplitBlock()
   let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}'
 
@@ -359,6 +377,9 @@ function! sj#ruby#JoinBlock()
   let end_line = substitute(lines[-1], 'end', '}', '')
 
   let replacement = do_line.' '.body.' '.end_line
+
+  " shorthand to_proc if possible
+  let replacement = substitute(replacement, '\s*{ |\(\k\+\)| \1\.\(\k\+\) }$', '(\&:\2)', '')
 
   call sj#ReplaceLines(do_line_no, end_line_no, replacement)
 

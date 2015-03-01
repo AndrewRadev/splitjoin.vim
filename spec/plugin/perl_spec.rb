@@ -8,6 +8,11 @@ describe "perl" do
     vim.set(:shiftwidth, 2)
   end
 
+  after :all do
+    # The perl filetype messes with iskeyword...
+    vim.command('set iskeyword-=:')
+  end
+
   specify "suffix if-clauses" do
     set_file_contents 'print "a = $a\n" if $debug;'
 
