@@ -1,8 +1,8 @@
-function! sj#php#SplitArray()
-  let arraypattern = '\(array\)\s*(\(.*\))'
+function! sj#php#SplitBraces()
+  let bracedpattern = '(\(.*\))'
   let line         = getline('.')
 
-  if line !~? arraypattern
+  if line !~? bracedpattern
     return 0
   else
     let [from, to] = sj#LocateBracesOnLine('(', ')')
@@ -30,14 +30,14 @@ function! sj#php#SplitArray()
   endif
 endfunction
 
-function! sj#php#JoinArray()
+function! sj#php#JoinBraces()
   let line = getline('.')
 
-  if line !~ 'array(\s*$'
+  if line !~ '(\s*$'
     return 0
   endif
 
-  call search('array(\s*$', 'ce', line('.'))
+  call search('(\s*$', 'ce', line('.'))
 
   let body = sj#GetMotion('Vi(')
 
