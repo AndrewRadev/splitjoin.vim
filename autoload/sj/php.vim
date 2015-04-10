@@ -11,6 +11,11 @@ function! sj#php#SplitBraces()
       return 0
     else
       let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
+
+      if len(pairs) <= 1
+        return 0
+      endif
+
       let body  = "(\n".join(pairs, ",\n")."\n)"
       call sj#ReplaceMotion('Va(', body)
 

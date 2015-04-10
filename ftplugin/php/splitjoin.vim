@@ -1,7 +1,7 @@
 let b:splitjoin_split_callbacks = [
       \ 'sj#js#SplitArray',
-      \ 'sj#php#SplitBraces',
       \ 'sj#php#SplitIfClause',
+      \ 'sj#php#SplitBraces',
       \ 'sj#html#SplitTags',
       \ 'sj#php#SplitPhpMarker',
       \ ]
