@@ -1,9 +1,9 @@
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
         \ 'sj#ruby#SplitArrayLiteral',
-        \ 'sj#ruby#SplitIfClause',
         \ 'sj#ruby#SplitProcShorthand',
         \ 'sj#ruby#SplitBlock',
+        \ 'sj#ruby#SplitIfClause',
         \ 'sj#ruby#SplitOptions',
         \ 'sj#ruby#SplitCachingConstruct',
         \ 'sj#ruby#SplitString',
