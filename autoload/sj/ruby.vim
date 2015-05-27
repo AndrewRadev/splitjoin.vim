@@ -586,6 +586,7 @@ function! sj#ruby#JoinContinuedMethodCall()
   let end_lineno = line('.') - 1
 
   exe start_lineno.','.end_lineno.'s/\n\_s*//'
+  return 1
 endfunction
 
 function! sj#ruby#JoinHeredoc()
