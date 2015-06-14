@@ -20,6 +20,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Go.....................................: |splitjoin-go|
     TeX....................................: |splitjoin-tex|
     C......................................: |splitjoin-c|
+    Elixir.................................: |splitjoin-elixir|
     Settings...............................: |splitjoin-settings|
     Internals..............................: |splitjoin-internals|
     Issues.................................: |splitjoin-issues|
@@ -847,6 +848,18 @@ Function calls ~
             arg2,
             arg3,
             arg4);
+<
+
+==============================================================================
+ELIXIR                                                      *splitjoin-elixir*
+
+Functions ~
+>
+    def function(arguments) when condition, do: body
+
+    def function(arguments) when condition do
+      body
+    end
 <
 
 ==============================================================================
