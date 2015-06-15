@@ -1,5 +1,5 @@
 function! sj#elixir#SplitDef()
-  let function_pattern = '^\s*def \%(\k\+\).*\zs,\s*do:'
+  let function_pattern = '^\s*\%(defmodule\|def\|if\) \%(\k\+\).*\zs,\s*do:'
   let line             = getline('.')
 
   if line !~ function_pattern
@@ -15,7 +15,7 @@ function! sj#elixir#SplitDef()
 endfunction
 
 function! sj#elixir#JoinDef()
-  let function_pattern = '^\s*def \%(\k\+\).\{-}\zs\s*do\s*\%(#.*\)\=$'
+  let function_pattern = '^\s*\%(defmodule\|def\|if\) \%(\k\+\).\{-}\zs\s*do\s*\%(#.*\)\=$'
   let def_lineno       = line('.')
   let def_line         = getline(def_lineno)
 
