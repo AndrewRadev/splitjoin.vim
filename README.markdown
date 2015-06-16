@@ -58,6 +58,7 @@ This currently works for:
   * Vimscript line continuations
   * TeX blocks
   * C if clauses and function calls
+  * Do-blocks in Elixir
 
 For more information, try `:help splitjoin`, or take a look at the help file
 online at

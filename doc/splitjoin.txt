@@ -853,7 +853,7 @@ Function calls ~
 ==============================================================================
 ELIXIR                                                      *splitjoin-elixir*
 
-Functions ~
+Do-blocks ~
 >
     def function(arguments) when condition, do: body
 
