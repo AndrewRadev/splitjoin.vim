@@ -18,7 +18,7 @@ function! sj#css#SplitDefinition()
     let body .= ";"
   endif
 
-  call sj#ReplaceMotion('Va{', "{\n".body."\n}")
+  call sj#ReplaceMotion('va{', "{\n".body."\n}")
 
   if g:splitjoin_align
     let alignment_start = line('.') + 1
@@ -53,9 +53,11 @@ function! sj#css#JoinDefinition()
   let body = substitute(body, '\S.*\zs;\?$', ';', '')
   let body = substitute(body, '{;', '{', '') " for SCSS
 
-  " TODO bug in Vim? (empty CSS body)
-  " Decho "OK"
-  call sj#ReplaceMotion('Va{', '{ '.body.' }')
+  if body == ''
+    call sj#ReplaceMotion('va{', '{}')
+  else
+    call sj#ReplaceMotion('va{', '{ '.body.' }')
+  endif
 
   return 1
 endfunction

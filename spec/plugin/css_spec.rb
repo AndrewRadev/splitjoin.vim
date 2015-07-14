@@ -37,7 +37,7 @@ describe "css" do
     EOF
 
     join
-    assert_file_contents 'body {  }'
+    assert_file_contents 'body {}'
 
     split
     assert_file_contents <<-EOF
@@ -46,14 +46,13 @@ describe "css" do
       }
     EOF
 
-    # TODO Bug in Vim?
-    # set_file_contents <<-EOF
-    #   body {
-    #   }
-    # EOF
+    set_file_contents <<-EOF
+      body {
+      }
+    EOF
 
-    # join
-    # assert_file_contents 'body { }'
+    join
+    assert_file_contents 'body {}'
   end
 
   specify "multiline selectors" do
