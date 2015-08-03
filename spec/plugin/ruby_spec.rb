@@ -188,6 +188,28 @@ describe "ruby" do
             end
       EOF
     end
+
+    it "handles ivars" do
+      set_file_contents <<-EOF
+        @variable.nil? ? do_something : do_something_else
+      EOF
+
+      split
+
+      assert_file_contents <<-EOF
+        if @variable.nil?
+          do_something
+        else
+          do_something_else
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        @variable.nil? ? do_something : do_something_else
+      EOF
+    end
   end
 
   describe "when-then" do

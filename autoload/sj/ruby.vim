@@ -59,7 +59,7 @@ endfunction
 
 function! sj#ruby#SplitTernaryClause()
   let line    = getline('.')
-  let ternary_pattern = '\v(\w.*) \? (.*) : (.*)'
+  let ternary_pattern = '\v(\@{0,2}\w.*) \? (.*) : (.*)'
   let assignment_pattern = '\v^\s*\w* \= '
 
   if line =~ ternary_pattern
