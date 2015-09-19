@@ -123,6 +123,7 @@ function! s:JoinList(delimiter)
   let lines = split(body, "\n")
   let lines = sj#TrimList(lines)
   let body  = sj#Trim(join(lines, ' '))
+  let body  = substitute(body, ',\s*$', '', '')
 
   call sj#ReplaceMotion('Va'.start, start.body.end)
 

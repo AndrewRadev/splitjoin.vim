@@ -46,6 +46,19 @@ describe "javascript" do
     assert_file_contents "['one', 'two', 'three', 'four']"
   end
 
+  specify "lists (with trailing comma)" do
+    set_file_contents <<-EOF
+      [
+        'one',
+        'two',
+      ]
+    EOF
+
+    join
+
+    assert_file_contents "['one', 'two']"
+  end
+
   specify "functions" do
     set_file_contents "var foo = function() { return 'bar'; };"
 
