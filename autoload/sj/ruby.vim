@@ -316,7 +316,7 @@ function! sj#ruby#SplitProcShorthand()
 endfunction
 
 function! sj#ruby#SplitBlock()
-  let pattern = '\v\{(\s*\|.{-}\|)?\s*(.{-})\s*\}'
+  let pattern = '\v\{(\s*\|.{-}\|)?\s*(.*)\s*\}'
 
   if sj#SearchUnderCursor('\v%(\k|!|\-\>|\?|\))\s*\zs'.pattern) <= 0
     return 0
@@ -341,6 +341,8 @@ function! sj#ruby#SplitBlock()
 
   let body = join(split(body, '\s*;\s*'), "\n")
   let replacement = substitute(body, '^'.pattern.'$', multiline_block, '')
+  " remove leftover whitespace
+  let replacement = substitute(replacement, '\s*\n', '\n', 'g')
 
   call sj#ReplaceMotion('Va{', replacement)
 
