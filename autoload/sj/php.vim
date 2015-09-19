@@ -12,7 +12,7 @@ function! sj#php#SplitBraces()
     else
       let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
 
-      if len(pairs) <= 1
+      if len(pairs) < 1
         return 0
       endif
 
