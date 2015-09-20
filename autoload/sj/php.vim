@@ -26,7 +26,7 @@ function! sj#php#SplitBraces()
       exe "normal! jV".(body_end - body_start)."j2="
       call sj#PopCursor()
 
-      if g:splitjoin_align
+      if sj#settings#Read('align')
         call sj#Align(body_start, body_end, 'hashrocket')
       endif
     endif
@@ -46,7 +46,7 @@ function! sj#php#JoinBraces()
 
   let body = sj#GetMotion('Vi(')
 
-  if g:splitjoin_normalize_whitespace
+  if sj#settings#Read('normalize_whitespace')
     let body = substitute(body, '\s*=>\s*', ' => ', 'g')
   endif
   let body = join(sj#TrimList(split(body, "\n")), ' ')

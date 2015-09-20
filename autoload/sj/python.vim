@@ -55,7 +55,7 @@ function! sj#python#JoinDict()
     let body = sj#GetMotion('Vi{')
 
     let lines = sj#TrimList(split(body, "\n"))
-    if g:splitjoin_normalize_whitespace
+    if sj#settings#Read('normalize_whitespace')
       let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
     endif
 
@@ -140,7 +140,7 @@ function! s:SplitList(regex, opening_char, closing_char)
 
   let items = sj#ParseJsonObjectBody(start, end)
 
-  if g:splitjoin_python_brackets_on_separate_lines
+  if sj#settings#Read('python_brackets_on_separate_lines')
     let body = a:opening_char."\n".join(items, ",\n")."\n".a:closing_char
   else
     let body = a:opening_char.join(items, ",\n").a:closing_char

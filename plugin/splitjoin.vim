@@ -9,41 +9,15 @@ set cpo&vim
 " Defaults:
 " =========
 
-if !exists('g:splitjoin_normalize_whitespace')
-  let g:splitjoin_normalize_whitespace = 1
-endif
-
-if !exists('g:splitjoin_align')
-  let g:splitjoin_align = 0
-end
-
-if !exists('g:splitjoin_ruby_curly_braces')
-  let g:splitjoin_ruby_curly_braces = 1
-end
-
-if !exists('g:splitjoin_ruby_heredoc_type')
-  let g:splitjoin_ruby_heredoc_type = '<<-' " can be one of '<<-', '<<'
-endif
-
-if !exists('g:splitjoin_ruby_trailing_comma')
-  let g:splitjoin_ruby_trailing_comma = 0
-endif
-
-if !exists('g:splitjoin_ruby_hanging_args')
-  let g:splitjoin_ruby_hanging_args = 1
-endif
-
-if !exists('g:splitjoin_coffee_suffix_if_clause')
-  let g:splitjoin_coffee_suffix_if_clause = 1
-endif
-
-if !exists('g:splitjoin_perl_brace_on_same_line')
-  let g:splitjoin_perl_brace_on_same_line = 1
-endif
-
-if !exists('g:splitjoin_python_brackets_on_separate_lines')
-  let g:splitjoin_python_brackets_on_separate_lines = 0
-endif
+call sj#settings#SetDefault('normalize_whitespace',              1)
+call sj#settings#SetDefault('align',                             0)
+call sj#settings#SetDefault('ruby_curly_braces',                 1)
+call sj#settings#SetDefault('ruby_heredoc_type',                 '<<-')
+call sj#settings#SetDefault('ruby_trailing_comma',               0)
+call sj#settings#SetDefault('ruby_hanging_args',                 1)
+call sj#settings#SetDefault('coffee_suffix_if_clause',           1)
+call sj#settings#SetDefault('perl_brace_on_same_line',           1)
+call sj#settings#SetDefault('python_brackets_on_separate_lines', 0)
 
 if !exists('g:splitjoin_join_mapping')
   let g:splitjoin_join_mapping = 'gJ'

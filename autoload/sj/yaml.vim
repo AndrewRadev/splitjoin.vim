@@ -65,7 +65,7 @@ function! sj#yaml#SplitMap()
     call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(pairs), whitespace)
     exe line_no.'s/\s*$//e'
 
-    if g:splitjoin_align
+    if sj#settings#Read('align')
       let body_start = line_no + 1
       let body_end   = body_start + len(pairs) - 1
       call sj#Align(body_start, body_end, 'json_object')
@@ -86,7 +86,7 @@ function! sj#yaml#JoinMap()
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = sj#TrimList(lines)
 
-    if g:splitjoin_normalize_whitespace
+    if sj#settings#Read('normalize_whitespace')
       let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
     endif
 

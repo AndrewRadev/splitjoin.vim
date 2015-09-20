@@ -1,7 +1,7 @@
 function! sj#perl#SplitSuffixIfClause()
   let pattern = '\(.*\) \(if\|unless\|while\|until\) \(.*\);\s*$'
 
-  if g:splitjoin_perl_brace_on_same_line
+  if sj#settings#Read('perl_brace_on_same_line')
     let replacement = "\\2 (\\3) {\n\\1;\n}"
   else
     let replacement = "\\2 (\\3) \n{\n\\1;\n}"
@@ -60,7 +60,7 @@ endfunction
 function! sj#perl#SplitAndClause()
   let pattern = '\(.*\) and \(.*\);\s*$'
 
-  if g:splitjoin_perl_brace_on_same_line
+  if sj#settings#Read('perl_brace_on_same_line')
     let replacement = "if (\\1) {\n\\2;\n}"
   else
     let replacement = "if (\\1) \n{\n\\2;\n}"
@@ -72,7 +72,7 @@ endfunction
 function! sj#perl#SplitOrClause()
   let pattern = '\(.*\) or \(.*\);\s*$'
 
-  if g:splitjoin_perl_brace_on_same_line
+  if sj#settings#Read('perl_brace_on_same_line')
     let replacement = "unless (\\1) {\n\\2;\n}"
   else
     let replacement = "unless (\\1) \n{\n\\2;\n}"
@@ -92,7 +92,7 @@ function! sj#perl#SplitHash()
   let body  = "{\n".join(pairs, ",\n").",\n}"
   call sj#ReplaceMotion('Va{', body)
 
-  if g:splitjoin_align
+  if sj#settings#Read('align')
     let body_start = line('.') + 1
     let body_end   = body_start + len(pairs) - 1
     call sj#Align(body_start, body_end, 'hashrocket')
@@ -112,7 +112,7 @@ function! sj#perl#JoinHash()
 
   let lines = split(body, ",\n")
   let lines = sj#TrimList(lines)
-  if g:splitjoin_normalize_whitespace
+  if sj#settings#Read('normalize_whitespace')
     let lines = map(lines, 'substitute(v:val, "=>\\s\\+", "=> ", "")')
     let lines = map(lines, 'substitute(v:val, "\\s\\+=>", " =>", "")')
   endif

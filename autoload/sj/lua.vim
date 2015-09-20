@@ -80,7 +80,7 @@ function! sj#lua#SplitTable()
     let body  = "{\n".join(pairs, ",\n").",\n}"
     call sj#ReplaceMotion('Va{', body)
 
-    if g:splitjoin_align
+    if sj#settings#Read('align')
       let body_start = line('.') + 1
       let body_end   = body_start + len(pairs) - 1
       call sj#Align(body_start, body_end, 'lua_table')
@@ -116,7 +116,7 @@ function! sj#lua#JoinTable()
       let idx = idx + 1
     endwhile
 
-    if g:splitjoin_normalize_whitespace
+    if sj#settings#Read('normalize_whitespace')
       let lines = map(lines, "substitute(v:val, '\\s\\+=\\s\\+', ' = ', '')")
     endif
 

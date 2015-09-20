@@ -28,7 +28,7 @@ function! sj#vim#Join()
     exe next_lineno.'s/'.continuation_pattern.'//'
     exe current_lineno.','.next_lineno.'join'
 
-    if g:splitjoin_normalize_whitespace
+    if sj#settings#Read('normalize_whitespace')
       call sj#CompressWhitespaceOnLine()
     endif
 

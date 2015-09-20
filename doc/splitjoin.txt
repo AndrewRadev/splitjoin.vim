@@ -82,6 +82,8 @@ line results in expanding it downwards, so using "j" seems more intuitive,
 likewise for "k". The "s" key is ordinarily taken (try :help s), but I don't
 use it, so I've mapped it to <Nop>. Your mileage may vary.
 
+Splitting ~
+
 Splitting a line consists of checking for blocks of text that the plugin knows
 how to split and, well, doing that. For example, if we have a ruby hash:
 >
@@ -133,6 +135,8 @@ In general, if you're trying to split a structure, try to "be inside" when you
 do so. This doesn't make sense in cases like the "if" statement, but it does
 for hashes.
 
+Joining ~
+
 Joining might impose more constraints. Take this as an example:
 >
     if foo?
@@ -167,6 +171,19 @@ line.
 
 The basic rule of thumb here is that, to join a structure, the cursor should
 usually be at its beginning (the opening tag, the opening brace, etc.).
+
+Settings ~
+
+The plugin has many settings that implement different coding styles. It can be
+made to align dictionary items, leave or remove trailing commas, and so on.
+See |splitjoin-settings| for the full list.
+
+Note that all of the settings apart from mapping ones can be set as both
+global variables, and buffer-local ones. So, for instance, you could set
+|g:splitjoin_align| to 0 in order to avoid aligning code in most cases, but
+set |b:splitjoin_align| to 1 in your `~/.vim/ftplugin/ruby.vim` file to align
+ruby code in particular. The buffer-local variables will take precedence.
+
 
 Now for some examples for the filetypes that have splitjoin implementations.
 
@@ -934,6 +951,7 @@ hashes is removed:
 <
 
                                                            *g:splitjoin_align*
+                                                           *b:splitjoin_align*
 >
     g:splitjoin_align
 <

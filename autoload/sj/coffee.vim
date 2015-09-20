@@ -91,7 +91,7 @@ function! sj#coffee#JoinIfClause()
   let if_clause = sj#Trim(getline('.'))
   let body      = sj#Trim(getline(line('.') + 1))
 
-  if g:splitjoin_coffee_suffix_if_clause
+  if sj#settings#Read('coffee_suffix_if_clause')
     call sj#ReplaceMotion('Vj', body.' '.if_clause)
   else
     call sj#ReplaceMotion('Vj', if_clause.' then '.body)
@@ -171,7 +171,7 @@ function! sj#coffee#SplitObjectLiteral()
 
   call sj#SetIndent(lineno + 1, lineno + len(pairs), indent + &sw)
 
-  if g:splitjoin_align
+  if sj#settings#Read('align')
     let body_start = lineno + 1
     let body_end   = body_start + len(pairs) - 1
     call sj#Align(body_start, body_end, 'json_object')
@@ -194,7 +194,7 @@ function! sj#coffee#JoinObjectLiteral()
   let lines = sj#GetLines(start_line, end_line)
   let lines = sj#TrimList(lines)
   let lines = map(lines, 'sj#Trim(v:val)')
-  if g:splitjoin_normalize_whitespace
+  if sj#settings#Read('normalize_whitespace')
     let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
   endif
   let body = getline('.').' { '.join(lines, ', ').' }'
