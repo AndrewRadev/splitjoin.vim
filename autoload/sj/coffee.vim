@@ -46,13 +46,19 @@ function! sj#coffee#SplitIfClause()
 endfunction
 
 function! sj#coffee#JoinIfElseClause()
-  let if_line      = getline('.')
-  let else_line    = getline(line('.') + 2)
+  let if_lineno    = line('.')
+  let else_lineno  = line('.') + 2
+  let if_line      = getline(if_lineno)
+  let else_line    = getline(else_lineno)
   let base_indent  = indent('.')
   let if_pattern   = '\v^\s*(if|unless|while|until|for)\s'
   let else_pattern = '\v^\s*else$'
 
   if if_line !~ if_pattern || else_line !~ else_pattern
+    return 0
+  endif
+
+  if indent(if_lineno) != indent(else_lineno)
     return 0
   endif
 
