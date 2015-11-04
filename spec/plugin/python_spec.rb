@@ -101,8 +101,8 @@ describe "python" do
 
     assert_file_contents <<-EOF
       run("one",
-      "two",
-      "three {}".format(four))
+              "two",
+              "three {}".format(four))
     EOF
   end
 
