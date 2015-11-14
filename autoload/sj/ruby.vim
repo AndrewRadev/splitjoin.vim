@@ -30,6 +30,10 @@ function! sj#ruby#JoinIfClause()
     return 0
   endif
 
+  if end_line_no - if_line_no != 2
+    return 0
+  endif
+
   if else_line_no && else_line_no < end_line_no
     return 0
   endif
@@ -49,7 +53,6 @@ function! sj#ruby#JoinIfClause()
 
   let if_line = sj#Trim(if_line)
   let body    = sj#Trim(body)
-  let body    = s:JoinLines(body)
 
   let replacement = body.' '.if_line
 
@@ -830,16 +833,6 @@ function! s:JoinHashWithoutBraces()
 
   call cursor(start_lineno, 0)
   exe "normal! V".(end_lineno - start_lineno)."jJ"
-endfunction
-
-function! s:JoinLines(text)
-  let lines = sj#TrimList(split(a:text, "\n"))
-
-  if len(lines) > 1
-    return '('.join(lines, '; ').')'
-  else
-    return join(lines, '; ')
-  endif
 endfunction
 
 function! s:HandleComments(start_line_no, end_line_no)
