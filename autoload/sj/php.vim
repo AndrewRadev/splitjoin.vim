@@ -112,7 +112,12 @@ function! s:SplitList(start_char, end_char)
     return 0
   endif
 
-  let body  = a:start_char."\n".join(pairs, ",\n")."\n".a:end_char
+  let body  = a:start_char."\n".join(pairs, ",\n")
+  if sj#settings#Read('trailing_comma')
+    let body = body.','
+  endif
+  let body = body."\n".a:end_char
+
   call sj#ReplaceMotion('Va'.a:start_char, body)
 
   let body_start = line('.') + 1
@@ -138,7 +143,8 @@ function! s:JoinList(start_char, end_char)
 
   call search(a:start_char.'\s*$', 'ce', line('.'))
 
-  let body = sj#GetMotion('Vi'.a:start_char)
+  let body = sj#Trim(sj#GetMotion('Vi'.a:start_char))
+  let body = substitute(body, ',$', '', '')
 
   if sj#settings#Read('normalize_whitespace')
     let body = substitute(body, '\s*=>\s*', ' => ', 'g')

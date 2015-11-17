@@ -553,7 +553,7 @@ function! sj#ruby#SplitOptions()
   if !sj#settings#Read('ruby_curly_braces') && option_type == 'option' && function_type == 'with_round_braces'
     " no need to add anything
   elseif sj#settings#Read('ruby_curly_braces') || option_type == 'hash' || len(args) == 0
-    if sj#settings#Read('ruby_trailing_comma')
+    if sj#settings#Read('ruby_trailing_comma') || sj#settings#Read('trailing_comma')
       let replacement .= ','
     endif
 

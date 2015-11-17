@@ -10,6 +10,7 @@ set cpo&vim
 " =========
 
 call sj#settings#SetDefault('normalize_whitespace',              1)
+call sj#settings#SetDefault('trailing_comma',                    0)
 call sj#settings#SetDefault('align',                             0)
 call sj#settings#SetDefault('ruby_curly_braces',                 1)
 call sj#settings#SetDefault('ruby_heredoc_type',                 '<<-')
