@@ -216,7 +216,7 @@ plugin attempts to split it as a block.
 <
 Option hashes ~
 
-There's an option, |g:splitjoin_ruby_curly_braces|, that controls whether the
+There's an option, |splitjoin_ruby_curly_braces|, that controls whether the
 curly braces are present after splitting or joining.
 >
     foo 1, 2, :one => 1, :two => 2
@@ -234,7 +234,7 @@ Method arguments ~
 
 These only get split if there is no option hash at the end.
 
-The variable |g:splitjoin_ruby_hanging_args| controls whether the arguments
+The variable |splitjoin_ruby_hanging_args| controls whether the arguments
 will be left "hanging", aligned near the brackets, or if the brackets will be
 put on their own lines.
 
@@ -250,7 +250,7 @@ J should do the trick.
                   :subject_id,
                   :own)
 
-    # with g:splitjoin_ruby_hanging_args == 0
+    # with splitjoin_ruby_hanging_args == 0
 
     params.permit(
       :title,
@@ -386,7 +386,7 @@ PERL                                                          *splitjoin-perl*
 
 If/unless/while/until clauses ~
 
-The variable |g:splitjoin_perl_brace_on_same_line| controls the format of the
+The variable |splitjoin_perl_brace_on_same_line| controls the format of the
 curly braces when joining. If it's set to 0, the opening curly brace will be
 on its own line. Otherwise, it'll be placed on the same line as the if-clause
 (the default behaviour).
@@ -400,7 +400,7 @@ on its own line. Otherwise, it'll be placed on the same line as the if-clause
 And/or clauses ~
 
 It only makes sense to split these -- joining results in joining an if/unless
-clause. The variable |g:splitjoin_perl_brace_on_same_line| affects the results
+clause. The variable |splitjoin_perl_brace_on_same_line| affects the results
 just like explained above.
 >
     open PID, ">", $pidfile or die;
@@ -454,7 +454,7 @@ If/unless/while/until clauses ~
 
 Since it's possible to join a multiline if into either a postfix or suffix
 variant, a variable controls which one it'll be,
-|g:splitjoin_coffee_suffix_if_clause|. By default, it's 1, which joins into
+|:splitjoin_coffee_suffix_if_clause|. By default, it's 1, which joins into
 the suffix format.
 >
     console.log bar if foo?
@@ -926,7 +926,7 @@ splitting/joining, nothing will happen.
 
 
 
-                                            *g:splitjoin_normalize_whitespace*
+                                              *splitjoin_normalize_whitespace*
 >
     g:splitjoin_normalize_whitespace
 <
@@ -950,10 +950,12 @@ hashes is removed:
     one = { :one => 'two', :three => 'four', :a => 'b' }
 <
 
+                                                             *splitjoin_align*
                                                            *g:splitjoin_align*
                                                            *b:splitjoin_align*
 >
     g:splitjoin_align
+    b:splitjoin_align
 <
 
 Default value: 0
@@ -982,7 +984,30 @@ Example:
     }
 <
 
-                                               *g:splitjoin_ruby_curly_braces*
+                                                    *splitjoin_trailing_comma*
+>
+    g:splitjoin_trailing_comma
+    b:splitjoin_trailing_comma
+<
+
+Default value: 0
+
+This adds a trailing comma when splitting lists of things. There is a
+ruby-specific setting called |g:splitjoin_ruby_trailing_comma|, but it's
+preferred to use this one. You can easily set it per-filetype by using the
+buffer-local variable with the same name.
+
+Example:
+>
+    one = { :one => 'two', :a => 'b' }
+
+    one = {
+      :one => 'two',
+      :a => 'b',
+    }
+<
+
+                                                 *splitjoin_ruby_curly_braces*
 >
     g:splitjoin_ruby_curly_braces
 <
@@ -1022,7 +1047,7 @@ if there are braces, so the first example will always be joined to:
     User.new :one, { :first_name => "Andrew", :last_name => "Radev" }
 <
 
-                                             *g:splitjoin_ruby_trailing_comma*
+                                               *splitjoin_ruby_trailing_comma*
 >
     g:splitjoin_ruby_trailing_comma
 <
@@ -1041,7 +1066,7 @@ to 1, a hash will split like so:
 <
 Note the trailing comma for the last element.
 
-                                              *g:splitjoin_ruby_hanging_args*
+                                                *splitjoin_ruby_hanging_args*
 >
     g:splitjoin_ruby_hanging_args
 <
@@ -1061,9 +1086,9 @@ If it is set to 0, the result will be:
       :action,
       :subject
     )
->
+<
 
-                                         *g:splitjoin_coffee_suffix_if_clause*
+                                           *splitjoin_coffee_suffix_if_clause*
 >
     g:splitjoin_coffee_suffix_if_clause
 <
@@ -1087,7 +1112,7 @@ in:
     if foo? then console.log bar
 <
 
-                                         *g:splitjoin_perl_brace_on_same_line*
+                                           *splitjoin_perl_brace_on_same_line*
 >
     g:splitjoin_perl_brace_on_same_line
 <
@@ -1109,7 +1134,7 @@ If it's set to 0, the brace will get its own line:
     }
 <
 
-                                               *g:splitjoin_ruby_heredoc_type*
+                                                 *splitjoin_ruby_heredoc_type*
 >
     g:splitjoin_ruby_heredoc_type
 <
@@ -1133,7 +1158,7 @@ If it's set to "<<", the result is this:
     EOF
     end
 <
-                               *g:splitjoin_python_brackets_on_separate_lines*
+                                 *splitjoin_python_brackets_on_separate_lines*
 >
     g:splitjoin_python_brackets_on_separate_lines
 <
