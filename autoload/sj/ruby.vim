@@ -319,7 +319,7 @@ function! sj#ruby#SplitProcShorthand()
 endfunction
 
 function! sj#ruby#SplitBlock()
-  let pattern = '\v\{(\s*\|.{-}\|)?\s*(.*)\s*\}'
+  let pattern = '\v\{\s*(\|.{-}\|)?\s*(.*)\s*\}'
 
   if sj#SearchUnderCursor('\v%(\k|!|\-\>|\?|\))\s*\zs'.pattern) <= 0
     return 0
@@ -335,7 +335,7 @@ function! sj#ruby#SplitBlock()
   endif
 
   let body = sj#GetMotion('Va{')
-  let multiline_block = 'do\1\n\2\nend'
+  let multiline_block = 'do \1\n\2\nend'
 
   normal! %
   if search('\S\%#', 'Wbn')
