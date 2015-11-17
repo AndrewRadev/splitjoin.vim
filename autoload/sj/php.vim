@@ -1,58 +1,17 @@
 function! sj#php#SplitBraces()
-  let bracedpattern = '(\(.*\))'
-  let line         = getline('.')
+  return s:SplitList('(', ')')
+endfunction
 
-  if line !~? bracedpattern
-    return 0
-  else
-    let [from, to] = sj#LocateBracesOnLine('(', ')')
-
-    if from < 0 && to < 0
-      return 0
-    else
-      let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
-
-      if len(pairs) < 1
-        return 0
-      endif
-
-      let body  = "(\n".join(pairs, ",\n")."\n)"
-      call sj#ReplaceMotion('Va(', body)
-
-      let body_start = line('.') + 1
-      let body_end   = body_start + len(pairs)
-
-      call sj#PushCursor()
-      exe "normal! jV".(body_end - body_start)."j2="
-      call sj#PopCursor()
-
-      if sj#settings#Read('align')
-        call sj#Align(body_start, body_end, 'hashrocket')
-      endif
-    endif
-
-    return 1
-  endif
+function! sj#php#SplitArray()
+  return s:SplitList('[', ']')
 endfunction
 
 function! sj#php#JoinBraces()
-  let line = getline('.')
+  return s:JoinList('(', ')')
+endfunction
 
-  if line !~ '(\s*$'
-    return 0
-  endif
-
-  call search('(\s*$', 'ce', line('.'))
-
-  let body = sj#GetMotion('Vi(')
-
-  if sj#settings#Read('normalize_whitespace')
-    let body = substitute(body, '\s*=>\s*', ' => ', 'g')
-  endif
-  let body = join(sj#TrimList(split(body, "\n")), ' ')
-  call sj#ReplaceMotion('Va(', '('.body.')')
-
-  return 1
+function! sj#php#JoinArray()
+  return s:JoinList('[', ']')
 endfunction
 
 function! sj#php#JoinHtmlTags()
@@ -136,6 +95,56 @@ function! sj#php#JoinPhpMarker()
   set nojoinspaces
   exe start_lineno.','.end_lineno.'join'
   let &joinspaces = saved_joinspaces
+
+  return 1
+endfunction
+
+function! s:SplitList(start_char, end_char)
+  let [from, to] = sj#LocateBracesOnLine(a:start_char, a:end_char)
+
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
+
+  if len(pairs) < 1
+    return 0
+  endif
+
+  let body  = a:start_char."\n".join(pairs, ",\n")."\n".a:end_char
+  call sj#ReplaceMotion('Va'.a:start_char, body)
+
+  let body_start = line('.') + 1
+  let body_end   = body_start + len(pairs)
+
+  call sj#PushCursor()
+  exe "normal! jV".(body_end - body_start)."j2="
+  call sj#PopCursor()
+
+  if sj#settings#Read('align')
+    call sj#Align(body_start, body_end, 'hashrocket')
+  endif
+
+  return 1
+endfunction
+
+function! s:JoinList(start_char, end_char)
+  let line = getline('.')
+
+  if line !~ a:start_char.'\s*$'
+    return 0
+  endif
+
+  call search(a:start_char.'\s*$', 'ce', line('.'))
+
+  let body = sj#GetMotion('Vi'.a:start_char)
+
+  if sj#settings#Read('normalize_whitespace')
+    let body = substitute(body, '\s*=>\s*', ' => ', 'g')
+  endif
+  let body = join(sj#TrimList(split(body, "\n")), ' ')
+  call sj#ReplaceMotion('Va'.a:start_char, a:start_char.body.a:end_char)
 
   return 1
 endfunction
