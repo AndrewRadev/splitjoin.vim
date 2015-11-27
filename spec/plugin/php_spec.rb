@@ -24,7 +24,9 @@ describe "php" do
     assert_file_contents '<?php $foo = array("one" => "two", "three" => "four"); ?>'
   end
 
-  xspecify "square-bracketed lists" do
+  specify "square-bracketed lists" do
+    pending('PHP indentation seems to differ locally and on travis')
+
     set_file_contents '<?php $foo = [1, 2, 3]; ?>'
 
     split
