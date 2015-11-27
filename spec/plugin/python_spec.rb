@@ -91,21 +91,19 @@ describe "python" do
     assert_file_contents 'while True: loop()'
   end
 
-  pending "python default indentation update" do
-    specify "splitting within a string" do
-      set_file_contents <<-EOF
-        run("one", "two", "three {}".format(four))
-      EOF
+  xspecify "splitting within a string" do
+    set_file_contents <<-EOF
+      run("one", "two", "three {}".format(four))
+    EOF
 
-      vim.search('one')
-      split
+    vim.search('one')
+    split
 
-      assert_file_contents <<-EOF
-        run("one",
-                "two",
-                "three {}".format(four))
-      EOF
-    end
+    assert_file_contents <<-EOF
+      run("one",
+              "two",
+              "three {}".format(four))
+    EOF
   end
 
   specify "chained method calls" do
