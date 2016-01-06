@@ -354,6 +354,7 @@ endfunction
 
 function! sj#ruby#JoinBlock()
   let do_pattern = '\<do\>\(\s*|.*|\s*\)\?$'
+  let end_pattern = '\%(^\|[^.:@$]\)\@<=\<end:\@!\>'
 
   let do_line_no = search(do_pattern, 'cW', line('.'))
   if do_line_no <= 0
@@ -364,7 +365,7 @@ function! sj#ruby#JoinBlock()
     return 0
   endif
 
-  let end_line_no = searchpair(do_pattern, '', '\<end\>', 'W')
+  let end_line_no = searchpair(do_pattern, '', end_pattern, 'W')
 
   let [result, offset] = s:HandleComments(do_line_no, end_line_no)
   if !result
