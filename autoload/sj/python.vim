@@ -27,6 +27,9 @@ function! sj#python#SplitDict()
   else
     let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body  = "{\n".join(pairs, ",\n")."\n}"
+    if sj#settings#Read('trailing_comma')
+      let body = substitute(body, ',\?\n}', ',\n}', '')
+    endif
     call sj#ReplaceMotion('Va{', body)
 
     let body_start = line('.') + 1
@@ -60,6 +63,9 @@ function! sj#python#JoinDict()
     endif
 
     let body = join(lines, ' ')
+    if sj#settings#Read('trailing_comma')
+      let body = substitute(body, ',\?$', '', '')
+    endif
 
     call sj#ReplaceMotion('Va{', '{'.body.'}')
 
@@ -141,7 +147,11 @@ function! s:SplitList(regex, opening_char, closing_char)
   let items = sj#ParseJsonObjectBody(start, end)
 
   if sj#settings#Read('python_brackets_on_separate_lines')
-    let body = a:opening_char."\n".join(items, ",\n")."\n".a:closing_char
+    if sj#settings#Read('trailing_comma')
+      let body = a:opening_char."\n".join(items, ",\n").",\n".a:closing_char
+    else
+      let body = a:opening_char."\n".join(items, ",\n")."\n".a:closing_char
+    endif
   else
     let body = a:opening_char.join(items, ",\n").a:closing_char
   endif
@@ -160,7 +170,11 @@ function! s:JoinList(regex, opening_char, closing_char)
   let body = sj#GetMotion('va'.a:opening_char)
   let body = substitute(body, '\_s\+', ' ', 'g')
   let body = substitute(body, '^'.a:opening_char.'\s\+', a:opening_char, '')
-  let body = substitute(body, '\s\+'.a:closing_char.'$', a:closing_char, '')
+  if sj#settings#Read('trailing_comma')
+    let body = substitute(body, ',\?\s\+'.a:closing_char.'$', a:closing_char, '')
+  else
+    let body = substitute(body, '\s\+'.a:closing_char.'$', a:closing_char, '')
+  endif
 
   call sj#ReplaceMotion('va'.a:opening_char, body)
 
