@@ -39,6 +39,7 @@ describe "go" do
     set_file_contents <<-EOF
       var foo string
       const bar string
+      type ChanDir int
     EOF
     setup_go_filetype
 
@@ -46,9 +47,11 @@ describe "go" do
     split
     vim.search('const')
     split
+    vim.search('type')
+    split
 
     # In case there is no Go installed, deindent everything:
-    vim.normal 'gg6<<6<<'
+    vim.normal 'gg9<<9<<'
     vim.write
 
     assert_file_contents <<-EOF
@@ -58,16 +61,22 @@ describe "go" do
     const (
     bar string
     )
+    type (
+    ChanDir int
+    )
     EOF
 
     vim.search('var')
     join
     vim.search('const')
     join
+    vim.search('type')
+    join
 
     assert_file_contents <<-EOF
       var foo string
       const bar string
+      type ChanDir int
     EOF
   end
 

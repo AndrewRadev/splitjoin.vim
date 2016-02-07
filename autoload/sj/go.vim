@@ -20,8 +20,8 @@ function! sj#go#JoinImports()
 endfunction
 
 function! sj#go#SplitVars()
-  if getline('.') =~ '^\(var\|const\) \k\+ .*$'
-    s/^\(var\|const\) \(\k\+ .*\)$/\1 (\r\2\r)/
+  if getline('.') =~ '^\(var\|type\|const\) \k\+ .*$'
+    s/^\(var\|type\|const\) \(\k\+ .*\)$/\1 (\r\2\r)/
     normal! k==
     return 1
   else
@@ -30,10 +30,10 @@ function! sj#go#SplitVars()
 endfunction
 
 function! sj#go#JoinVars()
-  if getline('.') =~ '^\(var\|const\) ($' &&
+  if getline('.') =~ '^\(var\|type\|const\) ($' &&
         \ getline(line('.') + 1) =~ '^\s*\k\+ .*$' &&
         \ getline(line('.') + 2) =~ '^)$'
-    s/^\(var\|const\) (\_s\+\(\k\+ .*\)\_s\+)$/\1 \2/
+    s/^\(var\|type\|const\) (\_s\+\(\k\+ .*\)\_s\+)$/\1 \2/
     return 1
   else
     return 0
