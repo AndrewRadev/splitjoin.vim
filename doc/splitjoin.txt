@@ -813,6 +813,22 @@ Option hashes ~
 ==============================================================================
 GO                                                                *splitjoin-go*
 
+Imports ~
+>
+    import "fmt"
+
+    import (
+        "fmt"
+    )
+<
+Var/const ~
+>
+    var foo string
+
+    var (
+        foo string
+    )
+<
 Structs ~
 >
     StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
