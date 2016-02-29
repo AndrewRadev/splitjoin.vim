@@ -1104,6 +1104,31 @@ If it is set to 0, the result will be:
     )
 <
 
+                                              *splitjoin_ruby_do_block_split*
+>
+    g:splitjoin_ruby_do_block_split
+<
+
+Default value: 1
+
+This controls whether to convert split blocks to their do-form. It's set to
+"1" by default, so block split like so:
+>
+    [1, 2, 3].map { |n| n ** 2 }
+
+    [1, 2, 3].map do |n|
+      n ** 2
+    end
+<
+If it is set to 0, the result will be:
+>
+    [1, 2, 3].map { |n| n ** 2 }
+
+    [1, 2, 3].map { |n|
+      n ** 2
+    }
+<
+
                                            *splitjoin_coffee_suffix_if_clause*
 >
     g:splitjoin_coffee_suffix_if_clause

@@ -335,7 +335,12 @@ function! sj#ruby#SplitBlock()
   endif
 
   let body = sj#GetMotion('Va{')
-  let multiline_block = 'do \1\n\2\nend'
+
+  if sj#settings#Read('ruby_do_block_split')
+    let multiline_block = 'do \1\n\2\nend'
+  else
+    let multiline_block = '{ \1\n\2\n}'
+  endif
 
   normal! %
   if search('\S\%#', 'Wbn')

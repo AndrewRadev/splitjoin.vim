@@ -12,6 +12,7 @@ describe "ruby" do
     vim.command('silent! unlet g:splitjoin_ruby_trailing_comma')
     vim.command('silent! unlet g:splitjoin_ruby_heredoc_type')
     vim.command('silent! unlet g:splitjoin_ruby_hanging_args')
+    vim.command('silent! unlet g:splitjoin_ruby_do_block_split')
   end
 
   specify "if-clauses" do
@@ -631,6 +632,23 @@ describe "ruby" do
 
       assert_file_contents <<-EOF
         this { block doesnt, get: mangled }
+      EOF
+    end
+
+    it "splits {}-blocks into {}-blocks depending on a setting" do
+      vim.command('let g:splitjoin_ruby_do_block_split = 0')
+
+      set_file_contents <<-EOF
+        [1, 2, 3, 4].map { |i| i.to_s }
+      EOF
+
+      vim.search 'to_s'
+      split
+
+      assert_file_contents <<-EOF
+        [1, 2, 3, 4].map { |i|
+          i.to_s
+        }
       EOF
     end
 
