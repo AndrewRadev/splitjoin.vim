@@ -49,10 +49,10 @@ directory: plugin, ftplugin, autoload, doc.
 ==============================================================================
 USAGE                                                        *splitjoin-usage*
 
-                                                           *SplitjoinSplit* *gS*
-                                                           *SplitjoinJoin*  *gJ*
+                                                             *:SplitjoinSplit*
+                                                             *:SplitjoinJoin*
 
-After the plugin is installed, the mapping |gS| will perform splitting and |gJ|
+After the plugin is installed, the mapping `gS` will perform splitting and |gJ|
 -- joining of the code under the cursor. These mappings are configurable
 with |g:splitjoin_split_mapping| and |g:splitjoin_join_mapping|, respectively.
 You could also use the commands |:SplitjoinSplit| and |:SplitjoinJoin|, either
@@ -454,8 +454,8 @@ If/unless/while/until clauses ~
 
 Since it's possible to join a multiline if into either a postfix or suffix
 variant, a variable controls which one it'll be,
-|:splitjoin_coffee_suffix_if_clause|. By default, it's 1, which joins into
-the suffix format.
+|splitjoin_coffee_suffix_if_clause|. By default, it's 1, which joins into the
+suffix format.
 >
     console.log bar if foo?
     if foo? then console.log bar
@@ -936,8 +936,8 @@ if no splitting or joining can be performed, these default mappings will fall
 back to performing the key sequence's built-in functionality.
 
 Set to a blank string to disable default mappings completely. You can still
-create your own mapping the old-fashioned way using the |SplitjoinSplit| and
-|SplitjoinJoin| commands, though in the case with no possible
+create your own mapping the old-fashioned way using the |:SplitjoinSplit| and
+|:SplitjoinJoin| commands, though in the case with no possible
 splitting/joining, nothing will happen.
 
 
@@ -978,7 +978,7 @@ Default value: 0
 
 This is a flag that controls whether a few constructs should be aligned by a
 certain character. As a specific example, when you split ruby hashes, this can
-align them by the "=>" signs. In a way, |g:splitjoin_normalize_whitespace| is
+align them by the "=>" signs. In a way, |splitjoin_normalize_whitespace| is
 a complement to this setting, since you'd probably want to reduce the extra
 whitespace when joining.
 
@@ -1009,7 +1009,7 @@ Example:
 Default value: 0
 
 This adds a trailing comma when splitting lists of things. There is a
-ruby-specific setting called |g:splitjoin_ruby_trailing_comma|, but it's
+ruby-specific setting called |splitjoin_ruby_trailing_comma|, but it's
 preferred to use this one. You can easily set it per-filetype by using the
 buffer-local variable with the same name.
 
@@ -1142,13 +1142,12 @@ if-clauses in coffeescript. Given the following example:
     if foo?
       console.log bar
 <
-Joining this construct with |g:splitjoin_coffee_suffix_if_clause| set to 1
-(the default) would produce:
+Joining this construct with |splitjoin_coffee_suffix_if_clause| set to 1 (the
+default) would produce:
 >
     console.log bar if foo?
 <
-Doing that with |g:splitjoin_coffee_suffix_if_clause| set to 0 would result
-in:
+Doing that with |splitjoin_coffee_suffix_if_clause| set to 0 would result in:
 >
     if foo? then console.log bar
 <
@@ -1230,7 +1229,7 @@ reasonable.
 INTERNALS                                                *splitjoin-internals*
 
 The only interface of the plugin is in 'plugin/splitjoin.vim'. It's a fairly
-short file containing two commands, |SplitjoinSplit| and |SplitjoinJoin|.  All
+short file containing two commands, |:SplitjoinSplit| and |:SplitjoinJoin|.  All
 of the actual splitting and joining logic is in autoloaded files. The only
 things that these two commands do are:
 
