@@ -7,7 +7,12 @@ function! sj#css#SplitDefinition()
     return 0
   endif
 
-  let body = sj#GetMotion('Vi{')
+  if getline('.')[col('.') - 1 : col('.')] == '{}'
+    " nothing in the body
+    let body = ''
+  else
+    let body = sj#GetMotion('vi{')
+  endif
 
   let lines = split(body, ";\s*")
   let lines = sj#TrimList(lines)
@@ -40,7 +45,13 @@ function! sj#css#JoinDefinition()
 
   normal! 0
   call search('{', 'Wc', line('.'))
-  let body = sj#GetMotion('Vi{')
+
+  if getline(line('.') + 1) =~ '^}'
+    " nothing in the body
+    let body = ''
+  else
+    let body = sj#GetMotion('Vi{')
+  endif
 
   let lines = split(body, ";\\?\s*\n")
   let lines = sj#TrimList(lines)
