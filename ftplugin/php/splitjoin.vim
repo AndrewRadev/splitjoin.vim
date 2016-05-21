@@ -1,4 +1,5 @@
 let b:splitjoin_split_callbacks = [
+      \ 'sj#php#SplitMethodChain',
       \ 'sj#php#SplitArray',
       \ 'sj#php#SplitIfClause',
       \ 'sj#php#SplitBraces',
@@ -8,6 +9,7 @@ let b:splitjoin_split_callbacks = [
 
 let b:splitjoin_join_callbacks = [
       \ 'sj#php#JoinPhpMarker',
+      \ 'sj#php#JoinMethodChain',
       \ 'sj#php#JoinArray',
       \ 'sj#php#JoinBraces',
       \ 'sj#php#JoinIfClause',

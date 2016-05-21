@@ -154,3 +154,42 @@ function! s:JoinList(start_char, end_char)
 
   return 1
 endfunction
+
+function! sj#php#SplitMethodChain()
+  let pattern = '->\%(\k\+\)'
+
+  if sj#SearchUnderCursor('\S'.pattern) <= 0
+    return 0
+  endif
+
+  call search(pattern, 'W', line('.'))
+  let start_col = col('.')
+  call search(pattern, 'We', line('.'))
+  let end_col = col('.')
+
+  " try to find a (...) after the keyword
+  let current_line = line('.')
+  normal! l
+  if getline('.')[col('.') - 1] == '('
+    normal! %
+    if line('.') == current_line
+      " the closing ) is on the same line, grab that one as well
+      let end_col = col('.')
+    endif
+  endif
+
+  let body = sj#GetCols(start_col, end_col)
+  call sj#ReplaceCols(start_col, end_col, "\n".body)
+  return 1
+endfunction
+
+function! sj#php#JoinMethodChain()
+  let next_line = nextnonblank(line('.') + 1)
+
+  if getline(next_line) !~ '->'
+    return 0
+  endif
+
+  s/\n\_s*//g
+  return 1
+endfunction
