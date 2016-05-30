@@ -685,7 +685,7 @@ function! sj#ruby#SplitString()
 endfunction
 
 function! sj#ruby#SplitArrayLiteral()
-  if synIDattr(synID(line('.'), col('.'), 1), "name") !~ 'rubyString\%(Delimiter\)\='
+  if synIDattr(synID(line('.'), col('.'), 1), "name") !~ 'ruby\(String\|Symbol\)\%(Delimiter\)\='
     return 0
   endif
 
