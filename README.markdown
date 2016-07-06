@@ -51,6 +51,7 @@ This currently works for:
   * PHP arrays
   * Javascript object literals and functions
   * Tags in HTML/XML
+  * Handlebars components
   * CSS, SCSS, LESS style declarations.
   * YAML arrays and maps
   * Lua functions and tables

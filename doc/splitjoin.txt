@@ -14,6 +14,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     PHP....................................: |splitjoin-php|
     Vimscript..............................: |splitjoin-vimscript|
     HTML...................................: |splitjoin-html|
+    Handlebars.............................: |splitjoin-handlebars|
     CSS....................................: |splitjoin-css|
     YAML...................................: |splitjoin-yaml|
     Eruby..................................: |splitjoin-eruby|
@@ -710,6 +711,17 @@ Attributes ~
     </button>
 <
 
+==============================================================================
+HANDLEBARS                                                 plitjoin-handlebars*
+
+Components ~
+>
+    {{some/component-name foo=bar bar=baz}}
+
+    {{some/component-name
+    foo=bar
+    bar=baz}}
+<
 
 ==============================================================================
 CSS                                                             *splitjoin-css*
