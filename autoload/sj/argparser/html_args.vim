@@ -16,8 +16,8 @@ function! sj#argparser#html_args#Process() dict
       endif
       call self.Next()
       continue
-    elseif self.body[0] =~ '["'']'
-      call self.JumpPair('"''', '"''')
+    elseif self.body[0] =~ '["''{]'
+      call self.JumpPair('"''{', '"''}')
     endif
 
     call self.PushChar()
