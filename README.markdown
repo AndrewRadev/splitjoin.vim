@@ -61,15 +61,9 @@ This currently works for:
   * C if clauses and function calls
   * Do-blocks in Elixir
 
-For more information, try `:help splitjoin`, or take a look at the help file
-online at
+For more information, including examples for all of those languages, try `:help
+splitjoin`, or take a look at the help file online at
 [doc/splitjoin.txt](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt)
-
-For more examples and corner cases, you can explore the "examples" directory
-here:
-[examples](https://github.com/AndrewRadev/splitjoin.vim/tree/master/examples).
-It's not present in the downloadable zip file to avoid cluttering your vimfiles
-with useless stuff.
 
 ## Contributing
 
