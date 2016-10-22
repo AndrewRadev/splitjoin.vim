@@ -9,6 +9,8 @@ following default keybindings, which can be customized:
 * `gJ` (with the cursor on the first line of a block) to join a block into a
   single-line statement.
 
+![Demo](http://i.andrewradev.com/df1c7b895602352d7ce3122196c3e6df.gif)
+
 I usually work with ruby and a lot of expressions can be written very concisely
 on a single line. A good example is the "if" statement:
 
