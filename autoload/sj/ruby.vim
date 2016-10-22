@@ -206,8 +206,13 @@ function! sj#ruby#JoinCase()
         let replacement = else_line.' '.next_line
         call sj#ReplaceLines(else_line_no, else_line_no + 1, replacement)
         if sj#settings#Read('align')
-          call sj#Align(line_no + 1, else_line_no, 'when_then')
+          call sj#Align(line_no + 1, else_line_no - 1, 'when_then')
         endif
+      endif
+    else
+      " no else line
+      if sj#settings#Read('align')
+        call sj#Align(line_no + 1, new_end_line_no - 1, 'when_then')
       endif
     endif
 
