@@ -719,8 +719,17 @@ Components ~
     {{some/component-name foo=bar bar=baz}}
 
     {{some/component-name
-    foo=bar
-    bar=baz}}
+      foo=bar
+      bar=baz
+    }}
+<
+Block components ~
+>
+    {{#component-name foo=bar}}Some content{{/component-name}}
+
+    {{#component-name foo=bar}}
+      Some contents
+    {{/component-name}}
 <
 
 ==============================================================================

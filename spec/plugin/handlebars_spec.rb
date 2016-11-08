@@ -50,4 +50,21 @@ describe "handlebars" do
 
     assert_file_contents "{{some/component-name foo=bar bar=baz}}"
   end
+
+  specify "block components" do
+    set_file_contents "{{#some-component foo=bar}}Some content{{/some-component}}"
+    setup_handlebars_filetype
+
+    split
+
+    assert_file_contents <<-EOF
+      {{#some-component foo=bar}}
+      Some content
+      {{/some-component}}
+    EOF
+
+    join
+
+    assert_file_contents "{{#some-component foo=bar}}Some content{{/some-component}}"
+  end
 end
