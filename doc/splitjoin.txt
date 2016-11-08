@@ -712,7 +712,7 @@ Attributes ~
 <
 
 ==============================================================================
-HANDLEBARS                                                 plitjoin-handlebars*
+HANDLEBARS                                                *splitjoin-handlebars*
 
 Components ~
 >
@@ -1236,6 +1236,20 @@ Example:
 The first example might look a bit odd, but if you have the python-pep8-indent
 plugin (https://github.com/hynek/vim-python-pep8-indent), it should look quite
 reasonable.
+
+                             *splitjoin_handlebars_closing_bracket_on_same_line*
+>
+    g:splitjoin_handlebars_closing_bracket_on_same_line
+<
+
+Default value: 0
+
+If set to 1, then handlebars will keep the closing "}}" on the same line as
+the last line of the component. At the time of writing, this isn't indented
+very well, but it might be improved in the future.
+
+If it's 0, the closing "}}" will be placed on its own line.
+
 
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*

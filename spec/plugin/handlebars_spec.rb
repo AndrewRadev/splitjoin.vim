@@ -24,6 +24,25 @@ describe "handlebars" do
     assert_file_contents <<-EOF
       {{some/component-name
       foo=bar
+      bar=baz
+      }}
+    EOF
+
+    join
+
+    assert_file_contents "{{some/component-name foo=bar bar=baz}}"
+  end
+
+  specify "components (bracket on the same line)" do
+    set_file_contents "{{some/component-name foo=bar bar=baz}}"
+    setup_handlebars_filetype
+    vim.command('let b:splitjoin_handlebars_closing_bracket_on_same_line = 1')
+
+    split
+
+    assert_file_contents <<-EOF
+      {{some/component-name
+      foo=bar
       bar=baz}}
     EOF
 
