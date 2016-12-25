@@ -71,6 +71,36 @@ describe "php" do
     EOF
   end
 
+  specify "else-clauses" do
+    set_file_contents <<-EOF
+      <?php
+      if ($foo) { $a = "bar"; }
+      else { $a = "baz"; }
+      ?>
+    EOF
+
+    vim.search('else')
+    split
+
+    assert_file_contents <<-EOF
+      <?php
+      if ($foo) { $a = "bar"; }
+      else {
+        $a = "baz";
+      }
+      ?>
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      <?php
+      if ($foo) { $a = "bar"; }
+      else { $a = "baz"; }
+      ?>
+    EOF
+  end
+
   specify "<?php markers" do
     set_file_contents "<?php example(); ?>"
 

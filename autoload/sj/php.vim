@@ -41,6 +41,22 @@ function! sj#php#SplitIfClause()
   return 1
 endfunction
 
+function! sj#php#SplitElseClause()
+  let pattern = '\<else\s*{.*}'
+
+  if search(pattern, 'Wbc', line('.')) <= 0
+    return 0
+  endif
+
+  normal! f{
+
+  let body = sj#GetMotion('Va{')
+  let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', "{\n\\1\n}", '')
+  call sj#ReplaceMotion('Va{', body)
+
+  return 1
+endfunction
+
 function! sj#php#JoinIfClause()
   let pattern = '\<if\s*(.\{-})\s*{\s*$'
 
@@ -50,6 +66,22 @@ function! sj#php#JoinIfClause()
 
   normal! f(
   normal %
+  normal! f{
+
+  let body = sj#GetMotion('Va{')
+  let body = substitute(body, "\\s*\n\\s*", ' ', 'g')
+  call sj#ReplaceMotion('Va{', body)
+
+  return 1
+endfunction
+
+function! sj#php#JoinElseClause()
+  let pattern = '\<else\s*{\s*$'
+
+  if search(pattern, 'Wbc', line('.')) <= 0
+    return 0
+  endif
+
   normal! f{
 
   let body = sj#GetMotion('Va{')
