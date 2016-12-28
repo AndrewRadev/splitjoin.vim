@@ -586,6 +586,41 @@ function! sj#ruby#SplitOptions()
   return 1
 endfunction
 
+function! sj#ruby#SplitArray()
+  call sj#PushCursor()
+  let [from, to] = sj#LocateBracesOnLine('[', ']', 'rubyInterpolationDelimiter', 'rubyString')
+  call sj#PopCursor()
+
+  if from < 0
+    return 0
+  endif
+
+  let [from, to, args; _rest] = sj#argparser#ruby#ParseArguments(from + 1, to - 1, getline('.'))
+  if from < 0
+    return 0
+  endif
+
+  let replacement = "\n".join(args, ",\n")."\n"
+  call sj#ReplaceCols(from, to, replacement)
+  return 1
+endfunction
+
+function! sj#ruby#JoinArray()
+  normal! $
+
+  if getline('.')[col('.') - 1] != '['
+    return 0
+  endif
+
+  let body = sj#Trim(sj#GetMotion('Vi['))
+  " remove trailing comma
+  let body = substitute(body, ',\ze\_s*$', '', '')
+  let body = join(sj#TrimList(split(body, ",\s*\n")), ', ')
+  call sj#ReplaceMotion('Va[', '['.body.']')
+
+  return 1
+endfunction
+
 function! sj#ruby#JoinContinuedMethodCall()
   if getline('.') !~ '\.$'
     return 0

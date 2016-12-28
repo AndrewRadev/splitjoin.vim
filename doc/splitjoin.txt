@@ -324,6 +324,16 @@ case-keyword, as shown in the example.
     else do_baz
     end
 >
+Arrays ~
+>
+    list = ['one', 'two', 'three']
+
+    list = [
+      'one',
+      'two',
+      'three'
+    ]
+<
 Array literals ~
 >
     list = %w{one two three}

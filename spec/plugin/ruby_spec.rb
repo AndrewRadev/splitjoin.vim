@@ -1019,6 +1019,28 @@ describe "ruby" do
     end
   end
 
+  describe "arrays" do
+    specify "simple case" do
+      set_file_contents "array = ['one', 'two', 'three']"
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        array = [
+          'one',
+          'two',
+          'three'
+        ]
+      EOF
+
+      vim.search 'array ='
+      join
+
+      assert_file_contents "array = ['one', 'two', 'three']"
+    end
+  end
+
   describe "array literals" do
     specify "simple case with {" do
       set_file_contents "array = %w{one two three}"
