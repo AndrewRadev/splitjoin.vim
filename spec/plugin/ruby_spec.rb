@@ -1039,9 +1039,37 @@ describe "ruby" do
 
       assert_file_contents "array = ['one', 'two', 'three']"
     end
+
+    specify "multiple lines join case" do
+      set_file_contents <<-EOF
+        array = [
+          'one', 'two', 'three',
+          'four', 'five', 'six'
+        ]
+      EOF
+
+      vim.search '= ['
+      join
+
+      vim.search 'array ='
+      assert_file_contents "array = ['one', 'two', 'three', 'four', 'five', 'six']"
+    end
+
+    specify "single indent join case" do
+      set_file_contents <<-EOF
+        array = ['one', 'two', 'three',
+          'four', 'five', 'six']
+      EOF
+
+      vim.search '= ['
+      join
+
+      vim.search 'array ='
+      assert_file_contents "array = ['one', 'two', 'three', 'four', 'five', 'six']"
+    end
   end
 
-  describe "array literals" do
+  describe "string array literals" do
     specify "simple case with {" do
       set_file_contents "array = %w{one two three}"
 
@@ -1080,6 +1108,128 @@ describe "ruby" do
       join
 
       assert_file_contents "array = %w|one two three|"
+    end
+
+    specify "simple case with (" do
+      set_file_contents "array = %w(one two three)"
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        array = %w(
+          one
+          two
+          three
+        )
+      EOF
+
+      vim.search '%w('
+      join
+
+      assert_file_contents "array = %w(one two three)"
+    end
+
+    specify "simple case with [" do
+      set_file_contents "array = %w[one two three]"
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        array = %w[
+          one
+          two
+          three
+        ]
+      EOF
+
+      vim.search '%w['
+      join
+
+      assert_file_contents "array = %w[one two three]"
+    end
+  end
+
+  describe "symbol array literals" do
+    specify "simple case with {" do
+      set_file_contents "array = %i{one two three}"
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        array = %i{
+          one
+          two
+          three
+        }
+      EOF
+
+      vim.search '%i{'
+      join
+
+      assert_file_contents "array = %i{one two three}"
+    end
+
+    specify "simple case with |" do
+      set_file_contents "array = %i|one two three|"
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        array = %i|
+          one
+          two
+          three
+        |
+      EOF
+
+      vim.search '%i|'
+      join
+
+      assert_file_contents "array = %i|one two three|"
+    end
+
+    specify "simple case with (" do
+      set_file_contents "array = %i(one two three)"
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        array = %i(
+          one
+          two
+          three
+        )
+      EOF
+
+      vim.search '%i('
+      join
+
+      assert_file_contents "array = %i(one two three)"
+    end
+
+    specify "simple case with [" do
+      set_file_contents "array = %i[one two three]"
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        array = %i[
+          one
+          two
+          three
+        ]
+      EOF
+
+      vim.search '%i['
+      join
+
+      assert_file_contents "array = %w[one two three]"
     end
   end
 end
