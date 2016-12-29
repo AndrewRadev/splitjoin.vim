@@ -97,7 +97,7 @@ function! sj#php#SplitPhpMarker()
   endif
 
   let start_col = col('.')
-  let skip = sj#SkipSyntax('phpStringSingle', 'phpStringDouble', 'phpComment')
+  let skip = sj#SkipSyntax(['phpStringSingle', 'phpStringDouble', 'phpComment'])
   if sj#SearchSkip('?>', skip, 'We', line('.')) <= 0
     return 0
   endif
@@ -117,7 +117,7 @@ function! sj#php#JoinPhpMarker()
   endif
 
   let start_lineno = line('.')
-  let skip = sj#SkipSyntax('phpStringSingle', 'phpStringDouble', 'phpComment')
+  let skip = sj#SkipSyntax(['phpStringSingle', 'phpStringDouble', 'phpComment'])
   if sj#SearchSkip('?>', skip, 'We') <= 0
     return 0
   endif

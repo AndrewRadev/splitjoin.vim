@@ -588,7 +588,12 @@ endfunction
 
 function! sj#ruby#SplitArray()
   call sj#PushCursor()
-  let [from, to] = sj#LocateBracesOnLine('[', ']', 'rubyInterpolationDelimiter', 'rubyString')
+  let [from, to] = sj#LocateBracesOnLine('[', ']', [
+        \ 'rubyInterpolationDelimiter',
+        \ 'rubyString',
+        \ 'rubyStringDelimiter',
+        \ 'rubySymbolDelimiter'
+        \ ])
   call sj#PopCursor()
 
   if from < 0
@@ -609,6 +614,11 @@ function! sj#ruby#JoinArray()
   normal! $
 
   if getline('.')[col('.') - 1] != '['
+    return 0
+  endif
+
+  let syntax_group = synIDattr(synID(line('.'), col('.'), 1), "name")
+  if index(['rubyStringDelimiter', 'rubySymbolDelimiter'], syntax_group) >= 0
     return 0
   endif
 
@@ -777,7 +787,8 @@ function! sj#ruby#SplitArrayLiteral()
 endfunction
 
 function! sj#ruby#JoinArrayLiteral()
-  if synIDattr(synID(line('.'), col('.'), 1), "name") != 'rubyStringDelimiter'
+  let syntax_group = synIDattr(synID(line('.'), col('.'), 1), "name")
+  if index(['rubyStringDelimiter', 'rubySymbolDelimiter'], syntax_group) < 0
     return 0
   endif
 

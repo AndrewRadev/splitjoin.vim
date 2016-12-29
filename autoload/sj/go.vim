@@ -41,7 +41,7 @@ function! sj#go#JoinVars()
 endfunction
 
 function! sj#go#SplitStruct()
-  let [start, end] = sj#LocateBracesOnLine('{', '}', 'goString', 'goComment')
+  let [start, end] = sj#LocateBracesOnLine('{', '}', ['goString', 'goComment'])
   if start < 0 && end < 0
     return 0
   endif

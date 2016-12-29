@@ -1,5 +1,5 @@
 " Only real syntax that's interesting is cParen and cConditional
-let s:skip = sj#SkipSyntax('cComment', 'cCommentL', 'cString', 'cCppString', 'cBlock')
+let s:skip = sj#SkipSyntax(['cComment', 'cCommentL', 'cString', 'cCppString', 'cBlock'])
 
 function! sj#c#SplitFuncall()
   if sj#SearchUnderCursor('(.\{-})', '', s:skip) <= 0

@@ -1,4 +1,4 @@
-let s:skip = sj#SkipSyntax('pythonString', 'pythonComment')
+let s:skip = sj#SkipSyntax(['pythonString', 'pythonComment'])
 
 function! sj#python#SplitStatement()
   if sj#SearchSkip('^[^:]*\zs:\s*\S', s:skip, '', line('.'))
@@ -20,7 +20,7 @@ function! sj#python#JoinStatement()
 endfunction
 
 function! sj#python#SplitDict()
-  let [from, to] = sj#LocateBracesOnLine('{', '}', 'pythonString')
+  let [from, to] = sj#LocateBracesOnLine('{', '}', ['pythonString'])
 
   if from < 0 && to < 0
     return 0
