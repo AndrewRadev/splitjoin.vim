@@ -1229,7 +1229,7 @@ describe "ruby" do
       vim.search '%i['
       join
 
-      assert_file_contents "array = %w[one two three]"
+      assert_file_contents "array = %i[one two three]"
     end
   end
 end
