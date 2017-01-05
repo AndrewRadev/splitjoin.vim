@@ -1242,13 +1242,13 @@ will remain where it is, and the rest will be split on separate lines.
 
 Example:
 >
-    # let g:splitjoin_python_brackets_on_separate_lines = 0
+    # let g:splitjoin_python_brackets_on_separate_lines = 1
     some_method(
             one,
             two
             )
 
-    # let g:splitjoin_python_brackets_on_separate_lines = 1
+    # let g:splitjoin_python_brackets_on_separate_lines = 0
     some_method(one,
             two)
 <
