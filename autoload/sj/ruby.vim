@@ -587,14 +587,12 @@ function! sj#ruby#SplitOptions()
 endfunction
 
 function! sj#ruby#SplitArray()
-  call sj#PushCursor()
-  let [from, to] = sj#LocateBracesOnLine('[', ']', [
+  let [from, to] = sj#LocateBracesAroundCursor('[', ']', [
         \ 'rubyInterpolationDelimiter',
         \ 'rubyString',
         \ 'rubyStringDelimiter',
         \ 'rubySymbolDelimiter'
         \ ])
-  call sj#PopCursor()
 
   if from < 0
     return 0

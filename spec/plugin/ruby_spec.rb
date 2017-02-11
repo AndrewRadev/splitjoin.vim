@@ -1067,6 +1067,21 @@ describe "ruby" do
       vim.search 'array ='
       assert_file_contents "array = ['one', 'two', 'three', 'four', 'five', 'six']"
     end
+
+    specify "only works within the actual array" do
+      set_file_contents <<-EOF
+        before { forked_project.team << [project.creator, :developer] }
+      EOF
+
+      vim.search 'forked_project'
+      split
+
+      assert_file_contents <<-EOF
+        before do
+          forked_project.team << [project.creator, :developer]
+        end
+      EOF
+    end
   end
 
   describe "string array literals" do

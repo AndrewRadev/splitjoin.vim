@@ -539,6 +539,36 @@ function! sj#LocateBracesOnLine(open, close, ...)
   endif
 endfunction
 
+" Returns a pair with the column positions of the closest opening and closing
+" braces on the current line, but only if the cursor is between them.
+"
+" The optional parameter is the list of syntax groups to skip while searching.
+"
+" If a pair is not found around the cursor, returns [-1, -1]
+"
+" Examples:
+"
+"   let [start, end] = sj#LocateBracesAroundCursor('{', '}')
+"   let [start, end] = sj#LocateBracesAroundCursor('{', '}', ['rubyString'])
+"   let [start, end] = sj#LocateBracesAroundCursor('[', ']')
+"
+function! sj#LocateBracesAroundCursor(open, close, ...)
+  let args = [a:open, a:close]
+  if a:0 > 0
+    call extend(args, a:000)
+  endif
+
+  call sj#PushCursor()
+  let [start, end] = call('sj#LocateBracesOnLine', args)
+  call sj#PopCursor()
+
+  if sj#CursorBetween(start, end)
+    return [start, end]
+  else
+    return [-1, -1]
+  endif
+endfunction
+
 " Removes all extra whitespace on the current line. Such is often left when
 " joining lines that have been aligned.
 "
