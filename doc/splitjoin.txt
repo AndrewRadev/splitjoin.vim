@@ -1269,6 +1269,31 @@ very well, but it might be improved in the future.
 
 If it's 0, the closing "}}" will be placed on its own line.
 
+handlebars_hanging_arguments
+
+                                        *splitjoin_handlebars_hanging_arguments*
+>
+    g:splitjoin_handlebars_hanging_arguments
+<
+
+Default value: 0
+
+If set to 1, then handlebars will keep one argument on the first line when
+splitting, so the component will look "hanging". With the closing bracket on
+the same line, as above, and the right indentation (my own fork of
+mustache-handlebars, for example:
+https://github.com/AndrewRadev/vim-mustache-handlebars), it might look like
+this:
+>
+    {{foo-bar one="two"
+              three="four"}}
+<
+If it's 0, the default, all parameters will be on their own line:
+>
+    {{foo-bar
+      one="two"
+      three="four"}}
+<
 
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*

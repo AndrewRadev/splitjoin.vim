@@ -1,5 +1,5 @@
 function! sj#handlebars#SplitComponent()
-  if !sj#SearchUnderCursor('{{\%(\k\|-\|\/\)\+ .\{-}}}')
+  if !sj#SearchUnderCursor('{{#\=\%(\k\|-\|\/\)\+ .\{-}}}')
     return 0
   endif
 
@@ -9,12 +9,17 @@ function! sj#handlebars#SplitComponent()
     let body = substitute(body, '}$', "\n}", '')
   endif
 
+  if sj#settings#Read('handlebars_hanging_arguments')
+    " substitute just the first newline with a space
+    let body = substitute(body, '\n', ' ', '')
+  endif
+
   call sj#ReplaceMotion('vi{', body)
   return 1
 endfunction
 
 function! sj#handlebars#JoinComponent()
-  if !(sj#SearchUnderCursor('{{\%(\k\|-\|\/\)\+') && getline('.') !~ '}}')
+  if !(sj#SearchUnderCursor('{{#\=\%(\k\|-\|\/\)\+.*$') && getline('.') !~ '}}')
     return 0
   endif
 
