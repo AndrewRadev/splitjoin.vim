@@ -140,13 +140,14 @@ function! sj#python#SplitAssignment()
   normal! f=
   call search('\S', 'W', line('.'))
   let values = sj#ParseJsonObjectBody(col('.'), col('$'))
+  let indent = substitute(getline('.'), '^\(\s*\).*', '\1', '')
 
   let lines = []
 
   if len(variables) == len(values)
     let index = 0
     for variable in variables
-      call add(lines, variable.' = '.values[index])
+      call add(lines, indent.variable.' = '.values[index])
       let index += 1
     endfor
   elseif len(values) == 1
@@ -154,7 +155,7 @@ function! sj#python#SplitAssignment()
     let index = 0
     let array = values[0]
     for variable in variables
-      call add(lines, variable.' = '.array.'['.index.']')
+      call add(lines, indent.variable.' = '.array.'['.index.']')
       let index += 1
     endfor
   else
