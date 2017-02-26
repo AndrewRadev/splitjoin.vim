@@ -197,6 +197,10 @@ function! sj#python#JoinAssignment()
     endif
   endwhile
 
+  if len(variables) <= 1
+    return 0
+  endif
+
   if len(values) > 1 && values[0] =~ '\[0\]$'
     " it might be an array, so we could simplify it
     let is_array = 1
@@ -218,6 +222,7 @@ function! sj#python#JoinAssignment()
 
   let body = join(variables, ', ').' = '.join(values, ', ')
   call sj#ReplaceLines(start_line, end_line, body)
+  return 1
 endfunction
 
 function! s:SplitList(regex, opening_char, closing_char)

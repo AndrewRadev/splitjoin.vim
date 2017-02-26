@@ -118,7 +118,11 @@ endfunction
 function! sj#ReplaceLines(start, end, text)
   let interval = a:end - a:start
 
-  return sj#ReplaceMotion(a:start.'GV'.interval.'j', a:text)
+  if interval == 0
+    return sj#ReplaceMotion(a:start.'GV', a:text)
+  else
+    return sj#ReplaceMotion(a:start.'GV'.interval.'j', a:text)
+  endif
 endfunction
 
 " function! sj#ReplaceCols(start, end, text) {{{2
