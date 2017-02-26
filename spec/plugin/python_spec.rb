@@ -121,4 +121,49 @@ describe "python" do
               tyui=3)
     EOF
   end
+
+  specify "variable assignment" do
+    set_file_contents <<-EOF
+      one, two, three = foo("bar"), ["one", "two"], {foo: "bar"}
+    EOF
+
+    vim.search('two')
+    split
+
+    assert_file_contents <<-EOF
+      one = foo("bar")
+      two = ["one", "two"]
+      three = {foo: "bar"}
+    EOF
+
+    vim.search('two')
+    join
+
+    assert_file_contents <<-EOF
+      one = foo("bar")
+      two, three = ["one", "two"], {foo: "bar"}
+    EOF
+  end
+
+  specify "variable assignment of an array" do
+    set_file_contents <<-EOF
+      one, two, three = Some.expression("that returns an array")
+    EOF
+
+    vim.search('two')
+    split
+
+    assert_file_contents <<-EOF
+      one = Some.expression("that returns an array")[0]
+      two = Some.expression("that returns an array")[1]
+      three = Some.expression("that returns an array")[2]
+    EOF
+
+    vim.search('one')
+    join
+
+    assert_file_contents <<-EOF
+      one, two, three = Some.expression("that returns an array")
+    EOF
+  end
 end

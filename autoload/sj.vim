@@ -471,6 +471,8 @@ function! s:Tabularize(from, to, type)
     let pattern = '^[^=]*\zs='
   elseif a:type == 'when_then'
     let pattern = 'then'
+  elseif a:type == 'equals'
+    let pattern = '='
   else
     return
   endif
@@ -485,6 +487,8 @@ function! s:Align(from, to, type)
     let pattern = 'lp0W0 :\s*\zs'
   elseif a:type == 'when_then'
     let pattern = 'l: then'
+  elseif a:type == 'equals'
+    let pattern = '='
   else
     return
   endif

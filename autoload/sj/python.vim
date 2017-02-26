@@ -131,6 +131,94 @@ function! sj#python#JoinImport()
   return 1
 endfunction
 
+function! sj#python#SplitAssignment()
+  if sj#SearchUnderCursor('^\s*\%(\k\+,\s*\)\+\k\+\s*=\s*\S') <= 0
+    return 0
+  endif
+
+  let variables = split(sj#Trim(sj#GetMotion('vt=')), ',\s*')
+  normal! f=
+  call search('\S', 'W', line('.'))
+  let values = sj#ParseJsonObjectBody(col('.'), col('$'))
+
+  let lines = []
+
+  if len(variables) == len(values)
+    let index = 0
+    for variable in variables
+      call add(lines, variable.' = '.values[index])
+      let index += 1
+    endfor
+  elseif len(values) == 1
+    " consider it an array, and index it
+    let index = 0
+    let array = values[0]
+    for variable in variables
+      call add(lines, variable.' = '.array.'['.index.']')
+      let index += 1
+    endfor
+  else
+    " the sides don't match, let's give up
+    return 0
+  endif
+
+  call sj#ReplaceMotion('V', join(lines, "\n"))
+  if sj#settings#Read('align')
+    call sj#Align(line('.'), line('.') + len(lines) - 1, 'equals')
+  endif
+endfunction
+
+function! sj#python#JoinAssignment()
+  let assignment_pattern = '^\s*\k\+\zs\s*=\s*\ze\S'
+
+  if search(assignment_pattern, 'W', line('.')) <= 0
+    return 0
+  endif
+
+  let start_line = line('.')
+  let [first_variable, first_value] = split(getline('.'), assignment_pattern)
+  let variables = [ first_variable ]
+  let values = [ first_value ]
+
+  let end_line = start_line
+  let next_line = line('.') + 1
+  while next_line > 0 && next_line <= line('$')
+    exe next_line
+
+    if search(assignment_pattern, 'W', line('.')) <= 0
+      break
+    else
+      let [variable, value] = split(getline(next_line), assignment_pattern)
+      call add(variables, sj#Trim(variable))
+      call add(values, sj#Trim(value))
+      let end_line = next_line
+      let next_line += 1
+    endif
+  endwhile
+
+  if len(values) > 1 && values[0] =~ '\[0\]$'
+    " it might be an array, so we could simplify it
+    let is_array = 1
+    let index = 1
+    let array_name = substitute(values[0], '\[0\]$', '', '')
+    for value in values[1:]
+      if value !~ '^'.array_name.'\s*\['.index.'\]'
+        let is_array = 0
+        break
+      endif
+      let index += 1
+    endfor
+
+    if is_array
+      " the entire right-hand side can be just one item
+      let values = [ array_name ]
+    endif
+  endif
+
+  let body = join(variables, ', ').' = '.join(values, ', ')
+  call sj#ReplaceLines(start_line, end_line, body)
+endfunction
+
 function! s:SplitList(regex, opening_char, closing_char)
   if sj#SearchUnderCursor(a:regex) <= 0
     return 0

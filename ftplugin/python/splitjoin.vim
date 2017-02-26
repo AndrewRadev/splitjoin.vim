@@ -1,10 +1,11 @@
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
+        \ 'sj#python#SplitAssignment',
         \ 'sj#python#SplitDict',
         \ 'sj#python#SplitArray',
         \ 'sj#python#SplitTuple',
         \ 'sj#python#SplitStatement',
-        \ 'sj#python#SplitImport'
+        \ 'sj#python#SplitImport',
         \ ]
 endif
 
@@ -14,6 +15,7 @@ if !exists('b:splitjoin_join_callbacks')
         \ 'sj#python#JoinArray',
         \ 'sj#python#JoinTuple',
         \ 'sj#python#JoinStatement',
-        \ 'sj#python#JoinImport'
+        \ 'sj#python#JoinImport',
+        \ 'sj#python#JoinAssignment',
         \ ]
 endif

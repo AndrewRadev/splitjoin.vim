@@ -391,6 +391,21 @@ Imports ~
     from foo import bar,\
             baz
 <
+Assignment ~
+>
+    a, b = foo("bar"), [one, two, three]
+
+    a = foo("bar")
+    b = [one, two, three]
+
+    un, pack = something
+
+    un = something[0]
+    pack = something[1]
+<
+Note that splitting `a, b = b, a` would not result in an expression that works
+the same way, due to the special handling by python of this case to swap two
+values.
 
 ==============================================================================
 PERL                                                          *splitjoin-perl*
