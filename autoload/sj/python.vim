@@ -132,7 +132,7 @@ function! sj#python#JoinImport()
 endfunction
 
 function! sj#python#SplitAssignment()
-  if sj#SearchUnderCursor('^\s*\%(\%(\k\|\.\)\+,\s*\)\+\k\+\s*=\s*\S') <= 0
+  if sj#SearchUnderCursor('^\s*\%(\%(\k\|\.\)\+,\s*\)\+\%(\k\|\.\)\+\s*=\s*\S') <= 0
     return 0
   endif
 
