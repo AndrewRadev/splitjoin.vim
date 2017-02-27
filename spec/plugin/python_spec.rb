@@ -124,17 +124,17 @@ describe "python" do
 
   specify "variable assignment" do
     set_file_contents <<-EOF
-      def example():
-          one, two, three = foo("bar"), ["one", "two"], {foo: "bar"}
+      def example(self):
+          one, self.two, three = foo("bar"), ["one", "two"], {foo: "bar"}
     EOF
 
     vim.search('two')
     split
 
     assert_file_contents <<-EOF
-      def example():
+      def example(self):
           one = foo("bar")
-          two = ["one", "two"]
+          self.two = ["one", "two"]
           three = {foo: "bar"}
     EOF
 
@@ -142,9 +142,9 @@ describe "python" do
     join
 
     assert_file_contents <<-EOF
-      def example():
+      def example(self):
           one = foo("bar")
-          two, three = ["one", "two"], {foo: "bar"}
+          self.two, three = ["one", "two"], {foo: "bar"}
     EOF
   end
 

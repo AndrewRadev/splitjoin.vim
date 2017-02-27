@@ -132,7 +132,7 @@ function! sj#python#JoinImport()
 endfunction
 
 function! sj#python#SplitAssignment()
-  if sj#SearchUnderCursor('^\s*\%(\k\+,\s*\)\+\k\+\s*=\s*\S') <= 0
+  if sj#SearchUnderCursor('^\s*\%(\%(\k\|\.\)\+,\s*\)\+\k\+\s*=\s*\S') <= 0
     return 0
   endif
 
@@ -170,7 +170,7 @@ function! sj#python#SplitAssignment()
 endfunction
 
 function! sj#python#JoinAssignment()
-  let assignment_pattern = '^\s*\k\+\zs\s*=\s*\ze\S'
+  let assignment_pattern = '^\s*\%(\k\|\.\)\+\zs\s*=\s*\ze\S'
 
   if search(assignment_pattern, 'W', line('.')) <= 0
     return 0
