@@ -23,7 +23,7 @@ describe "javascript" do
 
     join
 
-    assert_file_contents "{one: two, 'three': four}"
+    assert_file_contents "{ one: two, 'three': four }"
   end
 
   specify "lists" do
