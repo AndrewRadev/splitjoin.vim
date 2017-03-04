@@ -41,7 +41,12 @@ function! sj#js#JoinObjectLiteral()
     endif
 
     let body = join(lines, ' ')
-    let body = '{'.body.'}'
+
+    if sj#settings#Read('curly_brace_padding')
+      let body = '{ '.body.' }'
+    else
+      let body = '{'.body.'}'
+    endif
 
     call sj#ReplaceMotion('Va{', body)
 

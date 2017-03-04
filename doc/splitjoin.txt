@@ -1033,8 +1033,6 @@ that you have either Tabular (https://github.com/godlygeek/tabular) or Align
 (http://www.vim.org/scripts/script.php?script_id=294) installed. If that's not
 the case, the value of this setting will be ignored.
 
-Currently works for ruby hashes and CSS style definitions.
-
 Example:
 >
     one = { :one => 'two', :three => 'four', :a => 'b' }
@@ -1045,6 +1043,22 @@ Example:
       :a     => 'b'
     }
 <
+
+                                               *splitjoin_curly_brace_padding*
+>
+    g:splitjoin_curly_brace_padding
+    b:splitjoin_curly_brace_padding
+<
+
+Default value: 1
+
+Controls whether joining things with curly braces will add a space between the
+brackets and the joined body. So, setting it to 0 or 1 results in, respectively:
+>
+    import {one, two, three} from 'foo';
+    import { one, two, three } from 'foo';
+<
+
 
                                                     *splitjoin_trailing_comma*
 >
