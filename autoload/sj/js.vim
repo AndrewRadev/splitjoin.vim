@@ -76,63 +76,12 @@ function! sj#js#JoinFunction()
   endif
 endfunction
 
-function! s:SplitList(delimiter)
-  let start = a:delimiter[0]
-  let end   = a:delimiter[1]
-
-  let lineno = line('.')
-  let indent = indent('.')
-
-  let [from, to] = sj#LocateBracesOnLine(start, end)
-
-  if from < 0 && to < 0
-    return 0
-  endif
-
-  let items = sj#ParseJsonObjectBody(from + 1, to - 1)
-  let body  = start."\n".join(items, ",\n")."\n".end
-  call sj#ReplaceMotion('Va'.start, body)
-
-  " built-in js indenting doesn't indent this properly
-  for l in range(lineno + 1, lineno + len(items))
-    call sj#SetIndent(l, indent + &sw)
-  endfor
-  " closing bracket
-  let end_line = lineno + len(items) + 1
-  call sj#SetIndent(end_line, indent)
-
-  return 1
-endfunction
-
 function! sj#js#SplitArray()
   return s:SplitList(['[', ']'])
 endfunction
 
 function! sj#js#SplitArgs()
   return s:SplitList(['(', ')'])
-endfunction
-
-function! s:JoinList(delimiter)
-  let start = a:delimiter[0]
-  let end   = a:delimiter[1]
-
-  let line = getline('.')
-
-  if line !~ start . '\s*$'
-    return 0
-  endif
-
-  call search(start, 'c', line('.'))
-  let body = sj#GetMotion('Vi'.start)
-
-  let lines = split(body, "\n")
-  let lines = sj#TrimList(lines)
-  let body  = sj#Trim(join(lines, ' '))
-  let body  = substitute(body, ',\s*$', '', '')
-
-  call sj#ReplaceMotion('Va'.start, start.body.end)
-
-  return 1
 endfunction
 
 function! sj#js#JoinArray()
@@ -176,5 +125,56 @@ function! sj#js#JoinOneLineIf()
   let new  = if_line[:-2] . body
 
   call sj#ReplaceLines(if_line_no, end_line_no, new)
+  return 1
+endfunction
+
+function! s:SplitList(delimiter)
+  let start = a:delimiter[0]
+  let end   = a:delimiter[1]
+
+  let lineno = line('.')
+  let indent = indent('.')
+
+  let [from, to] = sj#LocateBracesOnLine(start, end)
+
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  let items = sj#ParseJsonObjectBody(from + 1, to - 1)
+  let body  = start."\n".join(items, ",\n")."\n".end
+  call sj#ReplaceMotion('Va'.start, body)
+
+  " built-in js indenting doesn't indent this properly
+  for l in range(lineno + 1, lineno + len(items))
+    call sj#SetIndent(l, indent + &sw)
+  endfor
+  " closing bracket
+  let end_line = lineno + len(items) + 1
+  call sj#SetIndent(end_line, indent)
+
+  return 1
+endfunction
+
+function! s:JoinList(delimiter)
+  let start = a:delimiter[0]
+  let end   = a:delimiter[1]
+
+  let line = getline('.')
+
+  if line !~ start . '\s*$'
+    return 0
+  endif
+
+  call search(start, 'c', line('.'))
+  let body = sj#GetMotion('Vi'.start)
+
+  let lines = split(body, "\n")
+  let lines = sj#TrimList(lines)
+  let body  = sj#Trim(join(lines, ' '))
+  let body  = substitute(body, ',\s*$', '', '')
+
+  call sj#ReplaceMotion('Va'.start, start.body.end)
+
   return 1
 endfunction
