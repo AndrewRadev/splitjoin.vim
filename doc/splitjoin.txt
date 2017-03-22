@@ -1335,6 +1335,31 @@ If it's 0, the default, all parameters will be on their own line:
       three="four"}}
 <
 
+                                 *splitjoin_html_attributes_bracket_on_new_line*
+>
+    g:splitjoin_html_attributes_bracket_on_new_line
+<
+
+Default value: 0
+
+If set to 1, then splitting HTML attributes will put the closing angle bracket
+on a new line on its own, like this:
+>
+    <div
+      class="whatever"
+      >
+      text
+    </div>
+<
+When set to 0, as is the default, it will look like this:
+>
+    <div
+      class="whatever">
+      text
+    </div>
+<
+
+
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*
 
