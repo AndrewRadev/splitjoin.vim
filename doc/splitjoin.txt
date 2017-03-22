@@ -11,6 +11,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     Coffeescript...........................: |splitjoin-coffee|
     Lua....................................: |splitjoin-lua|
     Javascript.............................: |splitjoin-javascript|
+    Rust...................................: |splitjoin-rust|
     PHP....................................: |splitjoin-php|
     Vimscript..............................: |splitjoin-vimscript|
     HTML...................................: |splitjoin-html|
@@ -577,11 +578,8 @@ Objects ~
 Just like in ruby and python, the cursor needs to be inside the object in
 order to split it.
 
-This could also work just fine for JSON. If you're dealing with files with
-that kind of content, you could simply set the filetype to "javascript". If
-you're using a plugin to set a specific "json" filetype instead, you could
-copy the "ftplugin/javascript/splitjoin.vim" file's contents into a
-"ftplugin/json.vim" file.
+This and the array splitting also work for JSON, if it's set as a separate
+filetype. (If it's just set to "javascript", it'll work fine as well).
 >
     var one = {one: "two", three: "four"};
 
@@ -637,6 +635,19 @@ One-line if conditionals ~
 
     if (isTrue()) doSomething;
 <
+==============================================================================
+RUST                                                          *splitjoin-rust*
+
+Structs ~
+>
+    Scanner { source: String::new(), line: 1 }
+
+    Scanner {
+        source: String::new(),
+        line: 1
+    }
+<
+
 ==============================================================================
 PHP                                                            *splitjoin-php*
 
