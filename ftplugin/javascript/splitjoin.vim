@@ -1,7 +1,7 @@
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
-        \ 'sj#js#SplitArray',
         \ 'sj#js#SplitObjectLiteral',
+        \ 'sj#js#SplitArray',
         \ 'sj#js#SplitFunction',
         \ 'sj#js#SplitOneLineIf',
         \ 'sj#js#SplitArgs'
