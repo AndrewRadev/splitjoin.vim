@@ -598,10 +598,7 @@ Arrays ~
       'four'
     ];
 
-<
-
 Function Arguments ~
-
 >
     var foo = bar('one', 'two', 'three');
 
@@ -611,8 +608,6 @@ Function Arguments ~
       'three'
     );
 <
-
-
 Functions ~
 
 When the cursor is on the "function" keyword, the script attempts to split the
@@ -625,16 +620,23 @@ use-case of one-line to multi-line functions.
       something_else;
     };
 <
-
 One-line if conditionals ~
 >
     if (isTrue()) {
       doSomething();
     }
 
-
     if (isTrue()) doSomething;
 <
+Fat-arrow functions ~
+>
+    some_function(foo => "bar");
+
+    some_function(foo => {
+      return "bar";
+    });
+<
+
 ==============================================================================
 RUST                                                          *splitjoin-rust*
 

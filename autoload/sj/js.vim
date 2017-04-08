@@ -178,3 +178,75 @@ function! s:JoinList(delimiter)
 
   return 1
 endfunction
+
+function! sj#js#SplitFatArrowFunction()
+  if !sj#SearchUnderCursor('\%((.\{})\|\k\+\)\s*=>\s*.*$')
+    return 0
+  endif
+
+  call search('\%((.\{})\|\k\+\)\s*=>\s*\zs.*$', 'W', line('.'))
+
+  if strpart(getline('.'), col('.') - 1) =~ '^\s*{'
+    " then we have a curly bracket group, easy split:
+    let body = sj#GetMotion('vi{')
+    call sj#ReplaceMotion('vi{', "\n".sj#Trim(body)."\n")
+    return 1
+  endif
+
+  let start_col = col('.')
+  let end_col = col('$')
+  let line = getline('.')
+  while search('[\])};]', 'W', line('.'))
+    let char = line[col('.') - 1]
+
+    if char == ';'
+      let end_col = col('.') - 1
+      break
+    endif
+
+    " it's a bracket, try to find its closing one
+    let opening_col = s:SearchOpeningBracketOnLine(char)
+    if opening_col <= start_col
+      " either there's no opening bracket (0), or it's before the expression,
+      " both mean it's an unmatched one
+      let end_col = col('.') - 1
+      break
+    endif
+  endwhile
+
+  let body = sj#GetCols(start_col, end_col)
+  if line =~ ';\s*\%(//.*\)\=$'
+    let replacement = "{\nreturn ".body.";\n}"
+  else
+    let replacement = "{\nreturn ".body."\n}"
+  endif
+
+  call sj#ReplaceCols(start_col, end_col, replacement)
+  return 1
+endfunction
+
+function! sj#js#JoinFatArrowFunction()
+  if !sj#SearchUnderCursor('\%((.\{})\|\k\+\)\s*=>\s*{\s*$')
+    return 0
+  endif
+
+  call search('{\s*$', 'W', line('.'))
+
+  normal! va{J
+  let body = sj#Trim(sj#GetMotion('vi{'))
+  let body = substitute(body, '^return\s*', '', '')
+  let body = substitute(body, ';$', '', '')
+  call sj#ReplaceMotion('va{', body)
+  return 1
+endfunction
+
+function! s:SearchOpeningBracketOnLine(closing_bracket)
+  let skip_expr =
+        \ "synIDattr(synID(line('.'),col('.'),1),'name') =~ 'string\\|comment'"
+  let bracket_pair = strpart('(){}[]', stridx(')}]', a:closing_bracket) * 2, 2)
+  let [lineno, col] = searchpairpos(
+        \   escape(bracket_pair[0], '\['), '', bracket_pair[1],
+        \   'bWn', skip_expr, line('.')
+        \ )
+  return col
+endfunction

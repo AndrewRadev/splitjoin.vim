@@ -8,6 +8,127 @@ describe "javascript" do
     vim.set(:shiftwidth, 2)
   end
 
+  describe "fat-arrow functions" do
+    specify "no arguments, no curly braces, semicolon at the end" do
+      set_file_contents 'let foo = () => "bar";'
+
+      vim.search '()'
+      split
+
+      assert_file_contents <<-EOF
+        let foo = () => {
+          return "bar";
+        };
+      EOF
+
+      join
+
+      assert_file_contents 'let foo = () => "bar";'
+    end
+
+    specify "no arguments, curly braces, semicolon at the end" do
+      set_file_contents 'let foo = () => { return "bar"; };'
+
+      vim.search '()'
+      split
+
+      assert_file_contents <<-EOF
+        let foo = () => {
+          return "bar";
+        };
+      EOF
+
+      join
+
+      assert_file_contents 'let foo = () => "bar";'
+    end
+
+    specify "arguments, curly braces, semicolon at the end" do
+      set_file_contents 'let foo = (one, two) => { return "bar"; };'
+
+      vim.search '(one, two)'
+      split
+
+      assert_file_contents <<-EOF
+        let foo = (one, two) => {
+          return "bar";
+        };
+      EOF
+
+      join
+
+      assert_file_contents 'let foo = (one, two) => "bar";'
+    end
+
+    specify "one argument, curly braces, no semicolon at the end" do
+      set_file_contents 'let foo = arg => { return "bar" }'
+
+      vim.search 'arg'
+      split
+
+      assert_file_contents <<-EOF
+        let foo = arg => {
+          return "bar"
+        }
+      EOF
+
+      join
+
+      assert_file_contents 'let foo = arg => "bar"'
+    end
+
+    specify "in a function call, semicolon at the end" do
+      set_file_contents 'foo(bar => "baz");'
+
+      vim.search 'bar'
+      split
+
+      assert_file_contents <<-EOF
+        foo(bar => {
+          return "baz";
+        });
+      EOF
+
+      join
+
+      assert_file_contents 'foo(bar => "baz");'
+    end
+
+    specify "in a list, no semicolon at the end" do
+      set_file_contents 'let foo = [bar => "baz"]'
+
+      vim.search 'bar'
+      split
+
+      assert_file_contents <<-EOF
+        let foo = [bar => {
+          return "baz"
+        }]
+      EOF
+
+      join
+
+      assert_file_contents 'let foo = [bar => "baz"]'
+    end
+
+    specify "in an object, semicolon at the end" do
+      set_file_contents 'let foo = {"key": bar => "baz"};'
+
+      vim.search 'bar'
+      split
+
+      assert_file_contents <<-EOF
+        let foo = {"key": bar => {
+          return "baz";
+        }};
+      EOF
+
+      join
+
+      assert_file_contents 'let foo = {"key": bar => "baz"};'
+    end
+  end
+
   specify "object literals" do
     set_file_contents "{ one: two, 'three': four }"
 
