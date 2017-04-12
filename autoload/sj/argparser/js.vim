@@ -21,7 +21,7 @@ function! sj#argparser#js#Process() dict
     call self.PushChar()
   endwhile
 
-  if len(self.current_arg) > 0
+  if len(sj#Trim(self.current_arg)) > 0
     call self.PushArg()
   endif
 endfunction

@@ -5,7 +5,11 @@ function! sj#js#SplitObjectLiteral()
     return 0
   else
     let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
-    let body  = "{\n".join(pairs, ",\n")."\n}"
+    let body = join(pairs, ",\n")
+    if sj#settings#Read('trailing_comma')
+      let body .= ','
+    endif
+    let body  = "{\n".body."\n}"
     call sj#ReplaceMotion('Va{', body)
 
     if sj#settings#Read('align')
@@ -41,6 +45,7 @@ function! sj#js#JoinObjectLiteral()
     endif
 
     let body = join(lines, ' ')
+    let body = substitute(body, ',$', '', '')
 
     if sj#settings#Read('curly_brace_padding')
       let body = '{ '.body.' }'
