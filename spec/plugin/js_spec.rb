@@ -135,10 +135,14 @@ describe "javascript" do
     vim.search '{'
     split
 
+    # Fix issue with inconsistent indenting
+    vim.normal 'gg<G'
+    vim.write
+
     assert_file_contents <<-EOF
       {
-        one: two,
-        'three': four
+      one: two,
+      'three': four
       }
     EOF
 
