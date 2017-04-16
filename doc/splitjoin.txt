@@ -649,6 +649,18 @@ Structs ~
         line: 1
     }
 <
+Match clauses ~
+>
+    match one {
+        Ok(two) => some_expression(three),
+    }
+
+    match one {
+        Ok(two) => {
+            some_expression(three)
+        },
+    }
+<
 
 ==============================================================================
 PHP                                                            *splitjoin-php*
