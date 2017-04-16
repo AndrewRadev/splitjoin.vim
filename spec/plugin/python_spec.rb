@@ -91,21 +91,21 @@ describe "python" do
     assert_file_contents 'while True: loop()'
   end
 
-  pending 'Python indentation broken on TravisCI' do
-    specify "splitting within a string" do
-      set_file_contents <<-EOF
+  specify "splitting within a string" do
+    pending 'Python indentation broken on TravisCI'
+
+    set_file_contents <<-EOF
       run("one", "two", "three {}".format(four))
-      EOF
+    EOF
 
-      vim.search('one')
-      split
+    vim.search('one')
+    split
 
-      assert_file_contents <<-EOF
+    assert_file_contents <<-EOF
       run("one",
               "two",
               "three {}".format(four))
-      EOF
-    end
+    EOF
   end
 
   specify "chained method calls" do

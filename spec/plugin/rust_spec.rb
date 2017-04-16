@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe "rust" do
-  pending "Broken on TravisCI due to old Vim version"
-
   let(:filename) { 'test.rs' }
 
   specify "match clauses" do
+    pending "Broken on TravisCI due to old Vim version"
+
     set_file_contents <<-EOF
       match one {
           Ok(two) => some_expression(three),
@@ -33,6 +33,8 @@ describe "rust" do
   end
 
   specify "structs" do
+    pending "Broken on TravisCI due to old Vim version"
+
     set_file_contents <<-EOF
       SomeStruct { foo: bar, bar: baz }
     EOF
@@ -55,6 +57,8 @@ describe "rust" do
   end
 
   specify "structs (trailing comma)" do
+    pending "Broken on TravisCI due to old Vim version"
+
     set_file_contents <<-EOF
       SomeStruct { foo: bar, bar: baz }
     EOF
