@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe "rust" do
+  pending "Broken on TravisCI due to old Vim version"
+
   let(:filename) { 'test.rs' }
 
   specify "match clauses" do
