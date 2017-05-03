@@ -4,7 +4,8 @@ let s:node = '\("*[^\"]\{-}"\|\i\+\)'
 function! sj#dot#ExtractNodes(side)
   " Just split on comma
   " FIXME will fail on \" , \"
-  return sj#TrimList(split(side, ','))
+  let nodes = split(a:side, ',')
+  return sj#TrimList(nodes)
 endfunction
 
 function! sj#dot#SplitEdges()
