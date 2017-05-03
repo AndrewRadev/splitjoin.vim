@@ -1,6 +1,12 @@
 let s:edge = '->'
 let s:node = '\("*[^\"]\{-}"\|\i\+\)'
 
+function! sj#dot#ExtractNodes(side)
+  " Just split on comma
+  " FIXME will fail on \" , \"
+  return sj#TrimList(split(side, ','))
+endfunction
+
 function! sj#dot#SplitEdges()
   " if sj#SearchUnderCursor('[.\{-}]', '') <= 0
   "   " No split if line contains []
@@ -17,18 +23,20 @@ function! sj#dot#SplitEdges()
   " in case there are mor than one
   let sides = split(statements[-1], s:edge) 
 
-  " FIXME will fail on \" , \"
-  let lhs = sj#TrimList(split(get(sides, 0, ''), ','))
-  let rhs = sj#TrimList(split(get(sides, 1, ''), ','))
-
-  if len(lhs) < 2 && len(rhs) < 2
-    " nothing to do here: A -> B; or incomplete
-    return 0
-  endif
-  let edges = []
-  for source_node in lhs
-    for dest_node in rhs
-      let edges += [source_node . ' ' . s:edge . ' ' . dest_node . ';']
+  let [edges, idx] = [[], 0]
+  while idx < len(sides) - 1
+    " handling of chained expressions
+    " A -> B -> C
+    let edges += [sj#dot#ExtractNodes(get(sides, idx)),
+          \ sj#dot#ExtractNodes(get(sides, idx + 1))]
+  endwhile
+  let new_edges= []
+  for edge in edges
+    [lhs, rhs] = edge
+    for source_node in lhs
+      for dest_node in rhs
+        let new_edges += [source_node . ' ' . s:edge . ' ' . dest_node . ';']
+      endfor
     endfor
   endfor
   let body = join(edges, "\n")
