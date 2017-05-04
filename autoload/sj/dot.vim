@@ -98,6 +98,7 @@ function! s:MergeEdges(edges)
 endfunction
 
 function! s:ChainTransitiveEdges(edges)
+  " FIXME BUG IN HERE
   let edges = copy(a:edges)
   let finished = 0
   while !finished
@@ -110,12 +111,10 @@ function! s:ChainTransitiveEdges(edges)
           " FIXME
           let edges[idx] += [edges[jdx][-1]]
           let finished = 0
-        endif
-        if !finished
           unlet edges[jdx]
-        else
-          let jdx += 1
+          break
         endif
+        let jdx += 1
       endwhile
       let idx += 1
     endwhile
@@ -134,8 +133,8 @@ function! sj#dot#SplitStatement()
 endfunction
 
 function! sj#dot#JoinStatement()
-  " unused
-  join
+  " TODO guard for comments etc
+  normal! J
 endfunction
 
 function! sj#dot#SplitChainedEdge()
@@ -179,10 +178,14 @@ function! sj#dot#SplitMultiEdge()
 endfunction
 
 function! sj#dot#JoinMultiEdge()
+  " TODO guard for comments or blank lines
+  " Check whether two lines are 
   let edges = s:ParseConsecutiveLines()
+  if len(edges) < 2 | return 0 | endif
   let edges = s:MergeEdges(edges)
   if len(edges) > 1 | return 0 | endif
   call sj#ReplaceMotion('Vj', s:Edge2string(edges[0]))
+  echom "Joined Multi-edge"
   return 1
 endfunction
 " }}}
