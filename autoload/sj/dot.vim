@@ -30,6 +30,38 @@ endfunction
 
 " Callback functions {{{
 
+function! sj#dot#SplitChainedEdge
+  let line = getline('.')
+  let statement = substitute(getline('.'), ';$', '', '')
+  let edges = sj#dot#ExtractEdges(statement)
+  if len(edges) < 1 | return 0 | endif
+  call map(statements, 'v:val . ";"')
+  call sj#ReplaceMotion('V', join(edges, "\n"))
+  return 1
+endfunction
+
+function s:ParseConsecutiveLines(...)
+  " Could accept parameter for amount of lines to parse
+  call sj#PushCursor()
+  let s1 = substitute(getline('.'), ';$', '', '')
+  normal! j
+  let s2 = substitute(getline('.'), ';$', '', '')
+  call sj#PopCursor()
+  let edges1 = sj#dot#ExtractEdges(s1)
+  let edges2 = sj#dot#ExtractEdges(s2)
+  let edges = edges1 + edges2
+  return edges
+endfunction
+
+function! sj#dot#JoinChainedEdge
+  " TODO 
+  let edges = s:ParseConsecutiveLines()
+  let edges = s:ChainTransitiveEdges(edges)
+  if len(edges) > 1 | return 0 | endif
+  call sj#ReplaceMotion('Vj', 'todo') 
+endif
+endfunction
+
 function! sj#dot#SplitStatement()
   let statements = split(getline('.'), ';')
   if len(statements) < 2 | return 0 | endif
@@ -43,7 +75,7 @@ function! sj#dot#JoinStatement()
   join
 endfunction
 
-function! sj#dot#SplitEdge()
+function! sj#dot#SplitMultiEdge()
   let line = getline('.')
   " chop off potential trailing ;
   let statement = split(line, ';')[-1]
@@ -153,17 +185,8 @@ function! s:Edge2string(edge)
 endfunction
 
 function! sj#dot#JoinEdge()
-  call sj#PushCursor()
-  let s1 = substitute(getline('.'), ';$', '', '')
-  normal! j
-  let s2 = substitute(getline('.'), ';$', '', '')
-  call sj#PopCursor()
-  let edges1 = sj#dot#ExtractEdges(s1)
-  let edges2 = sj#dot#ExtractEdges(s2)
-  let edges = edges1 + edges2
+  let edges = s:ParseConsecutiveLines()
   let edges = s:MergeEdges(edges)
-  echo edges
-  let edges = s:ChainTransitiveEdges(edges)
   if len(edges) > 1 | return 0 | endif
   call sj#ReplaceMotion('Vj', s:Edge2string(edges[0]))
   return 1
