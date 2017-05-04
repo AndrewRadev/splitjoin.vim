@@ -135,6 +135,7 @@ endfunction
 function! sj#dot#JoinStatement()
   " TODO guard for comments etc
   normal! J
+  return 1
 endfunction
 
 function! sj#dot#SplitChainedEdge()
@@ -148,6 +149,7 @@ function! sj#dot#SplitChainedEdge()
 endfunction
 
 function! sj#dot#JoinChainedEdge()
+  " TODO initial guard 
   let edges = s:ParseConsecutiveLines()
   let edges = s:ChainTransitiveEdges(edges)
   if len(edges) > 1 | return 0 | endif
