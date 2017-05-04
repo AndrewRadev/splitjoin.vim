@@ -5,16 +5,26 @@ let s:node = '\("*[^\"]\{-}"\|\i\+\)'
 " Helper functions {{{
 function! sj#dot#ExtractNodes(side)
   " Split multiple nodes into single elements
-  " Just split on comma
-  " FIXME will fail on \" , \"
+  " INPUT: 'A, B, C'
+  " OUTPUT: ['A', 'B', 'C']
+  " FIXME will fail on 'A, B, "some,label"'
   let nodes = split(a:side, ',')
   call sj#TrimList(nodes)
   call uniq(sort(nodes))
   return nodes
 endfunction
 
+function! s:TrimSemicolon(statement)
+  return substitute(a:statement, ';$', '', '') 
+endfunction
+
 function! sj#dot#ExtractEdges(statement)
-  let sides = split(a:statement, s:edge) 
+  " Extract elements of potentially chained edges as [src,dst] pairs
+  " INPUT: 'A, B -> C -> D'
+  " OUTPUT: [[[A, B], [C]], [[C], [D]]]
+  let statement = s:TrimSemicolon(a:statement)
+  " FIXME will fail if '->' inside "s
+  let sides = split(statement, s:edge) 
   if len(sides) < 2 | return [] | endif
   let [edges, idx] = [[], 0]
   while idx < len(sides) - 1
@@ -26,26 +36,13 @@ function! sj#dot#ExtractEdges(statement)
   endwhile
   return edges
 endfunction
-" }}}
 
-" Callback functions {{{
-
-function! sj#dot#SplitChainedEdge
-  let line = getline('.')
-  let statement = substitute(getline('.'), ';$', '', '')
-  let edges = sj#dot#ExtractEdges(statement)
-  if len(edges) < 1 | return 0 | endif
-  call map(statements, 'v:val . ";"')
-  call sj#ReplaceMotion('V', join(edges, "\n"))
-  return 1
-endfunction
-
-function s:ParseConsecutiveLines(...)
+function! s:ParseConsecutiveLines(...)
   " Could accept parameter for amount of lines to parse
   call sj#PushCursor()
-  let s1 = substitute(getline('.'), ';$', '', '')
+  let s1 = s:TrimSemicolon(getline('.'))
   normal! j
-  let s2 = substitute(getline('.'), ';$', '', '')
+  let s2 = s:TrimSemicolon(getline('.'))
   call sj#PopCursor()
   let edges1 = sj#dot#ExtractEdges(s1)
   let edges2 = sj#dot#ExtractEdges(s2)
@@ -53,62 +50,12 @@ function s:ParseConsecutiveLines(...)
   return edges
 endfunction
 
-function! sj#dot#JoinChainedEdge
-  " TODO 
-  let edges = s:ParseConsecutiveLines()
-  let edges = s:ChainTransitiveEdges(edges)
-  if len(edges) > 1 | return 0 | endif
-  call sj#ReplaceMotion('Vj', 'todo') 
-endif
-endfunction
-
-function! sj#dot#SplitStatement()
-  let statements = split(getline('.'), ';')
-  if len(statements) < 2 | return 0 | endif
-  call map(statements, 'v:val . ";"')
-  call sj#ReplaceMotion('V', join(statements, "\n"))
-  return 1
-endfunction
-
-function! sj#dot#JoinStatement()
-  " unused
-  join
-endfunction
-
-function! sj#dot#SplitMultiEdge()
-  let line = getline('.')
-  " chop off potential trailing ;
-  let statement = split(line, ';')[-1]
-  " Split to elements of an edge
-  " let sides = split(statement, s:edge) 
-  " if len(sides) < 2
-  "   return 0
-  " endif
-
-  " let [edges, idx] = [[], 0]
-  " while idx < len(sides) - 1
-  "   " handling of chained expressions
-  "   " such as A -> B -> C
-  "   let edges += [[sj#dot#ExtractNodes(get(sides, idx)),
-  "         \ sj#dot#ExtractNodes(get(sides, idx + 1))]]
-  "   let idx = idx + 1
-  " endwhile
-  let edges = sj#dot#ExtractEdges(statement)
-
-  if !len(edges) | return 0 | endif
-
-  let new_edges = []
-  for edge in edges
-    let [lhs, rhs] = edge
-    for source_node in lhs
-      for dest_node in rhs
-        let new_edges += [source_node . ' ' . s:edge . ' ' . dest_node . ';']
-      endfor
-    endfor
-  endfor
-  let body = join(new_edges, "\n")
-  call sj#ReplaceMotion('V', body)
-  return 1
+function! s:Edge2string(edge)
+  let edge = copy(a:edge)
+  let edge = map(edge, 'join(v:val, ", ")')
+  let edge = join(edge, ' -> ')
+  let edge = edge . ';'
+  return edge
 endfunction
 
 function! s:MergeEdges(edges)
@@ -161,7 +108,7 @@ function! s:ChainTransitiveEdges(edges)
       while jdx < len(edges)
         if edges[idx][-1] == edges[jdx][0]
           " FIXME
-          let edges[idx] = edges[idx][0] + edges[jdx][-1]
+          let edges[idx] += [edges[jdx][-1]]
           let finished = 0
         endif
         if !finished
@@ -173,18 +120,65 @@ function! s:ChainTransitiveEdges(edges)
       let idx += 1
     endwhile
   endwhile
+  return edges
 endfunction
 
-function! s:Edge2string(edge)
-  " FIXME
-  let edge = copy(a:edge)
-  let edge = map(edge, 'join(v:val, ", ")'})
-  let edge = join(edge, ' -> ')
-  let edge = edge . ';'
-  return edge
+" }}}
+" Callback functions {{{
+function! sj#dot#SplitStatement()
+  let statements = split(getline('.'), ';')
+  if len(statements) < 2 | return 0 | endif
+  call map(statements, 'v:val . ";"')
+  call sj#ReplaceMotion('V', join(statements, "\n"))
+  return 1
 endfunction
 
-function! sj#dot#JoinEdge()
+function! sj#dot#JoinStatement()
+  " unused
+  join
+endfunction
+
+function! sj#dot#SplitChainedEdge()
+  let line = getline('.')
+  if line !~ s:edge . '.*' . s:edge | return 0 | endif
+  let statement = s:TrimSemicolon(line)
+  let edges = sj#dot#ExtractEdges(statement)
+  call map(edges, 's:Edge2string(v:val)')
+  call sj#ReplaceMotion('V', join(edges, "\n"))
+  return 1
+endfunction
+
+function! sj#dot#JoinChainedEdge()
+  let edges = s:ParseConsecutiveLines()
+  let edges = s:ChainTransitiveEdges(edges)
+  if len(edges) > 1 | return 0 | endif
+  let edge_string = s:Edge2string(edges[0])
+  call sj#ReplaceMotion('Vj', edge_string) 
+  return 1
+endif
+endfunction
+
+function! sj#dot#SplitMultiEdge()
+  " chop off potential trailing ';'
+  let statement = substitute(getline('.'), ';$', '', '') 
+  let edges = sj#dot#ExtractEdges(statement)
+  if !len(edges) | return 0 | endif
+
+  let new_edges = []
+  for edge in edges
+    let [lhs, rhs] = edge
+    for source_node in lhs
+      for dest_node in rhs
+        let new_edges += [source_node . ' ' . s:edge . ' ' . dest_node . ';']
+      endfor
+    endfor
+  endfor
+  let body = join(new_edges, "\n")
+  call sj#ReplaceMotion('V', body)
+  return 1
+endfunction
+
+function! sj#dot#JoinMultiEdge()
   let edges = s:ParseConsecutiveLines()
   let edges = s:MergeEdges(edges)
   if len(edges) > 1 | return 0 | endif
