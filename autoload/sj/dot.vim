@@ -38,25 +38,36 @@ function! sj#dot#ExtractEdges(statement)
 endfunction
 
 function! s:ParseConsecutiveLines(...)
-  " This should could also parse consecutive statements instead, only potentially on
-  " 2 consecutive lines
+  " OUTPUT: Either [edges, 0] when 2 statements on first line, else [edges, 1]
+  " when two statements on two lines
 
   " Safety guard, because multiple statements are not handled at the moment
   let statements = split(getline('.'), ';')
-  if len(statements) > 1
-    " dont do anything if there is more than one statement in this line
-    " else we have to inform calling function that we actually did not use the
-    " 2nd line so that it would not get removed by 'Vj' replace motion
-    return []
+  if len(statements) > 2
+    return [[], 0]
+  elseif len(statements) == 2
+    " only if exactly 2 edges in one line, else replacemotion fails (atm)
+    let edges = sj#dot#ExtractEdges(statements[0]) +
+          \ sj#dot#ExtractEdges(statements[1])
+    return [edges, 0]
+  elseif len(statements) == 0
+    return [[], 0]
   endif
+  " Exactly one statement found on the first lien
+  " Try to eat the next line
 
   call sj#PushCursor()
-  let edges1 = sj#dot#ExtractEdges(getline('.'))
+  " FIXME Dangerous on EOF?
   normal! j
-  let edges2 = sj#dot#ExtractEdges(getline('.'))
+  let statements2 = split(getline('.'), ';')
+  echo statements2
+  if len(statements2) > 1
+    return [[], 1]
+  endif
+  let edges = sj#dot#ExtractEdges(statements[0]) + 
+        \ sj#dot#ExtractEdges(statements2[0])
   call sj#PopCursor()
-  let edges = edges1 + edges2
-  return edges
+  return [edges, 1]
 endfunction
 
 function! s:Edge2string(edge)
@@ -163,12 +174,12 @@ endfunction
 
 function! sj#dot#JoinChainedEdge()
   " TODO initial guard 
-  let edges = s:ParseConsecutiveLines()
+  let [edges, ate] = s:ParseConsecutiveLines()
   let edges = s:ChainTransitiveEdges(edges)
   " should not be more than one, but also not zero
   if len(edges) != 1 | return 0 | endif
   let edge_string = s:Edge2string(edges[0])
-  call sj#ReplaceMotion('Vj', edge_string) 
+  call sj#ReplaceMotion(ate ? 'Vj' : 'V', edge_string) 
   return 1
 endfunction
 
@@ -196,11 +207,11 @@ endfunction
 function! sj#dot#JoinMultiEdge()
   " TODO guard for comments or blank lines
   " Check whether two lines are 
-  let edges = s:ParseConsecutiveLines()
+  let [edges, ate] = s:ParseConsecutiveLines()
   if len(edges) < 2 | return 0 | endif
   let edges = s:MergeEdges(edges)
   if len(edges) != 1 | return 0 | endif
-  call sj#ReplaceMotion('Vj', s:Edge2string(edges[0]))
+  call sj#ReplaceMotion(ate ? 'Vj' : 'V', s:Edge2string(edges[0]))
   return 1
 endfunction
 " }}}
