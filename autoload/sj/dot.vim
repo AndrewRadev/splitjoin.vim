@@ -60,7 +60,6 @@ function! s:ParseConsecutiveLines(...)
   " FIXME Dangerous on EOF?
   normal! j
   let statements2 = split(getline('.'), ';')
-  echo statements2
   if len(statements2) > 1
     return [[], 1]
   endif
