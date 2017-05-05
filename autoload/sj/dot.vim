@@ -38,14 +38,17 @@ function! sj#dot#ExtractEdges(statement)
 endfunction
 
 function! s:ParseConsecutiveLines(...)
-  " Could accept parameter for amount of lines to parse
+  " This should could also parse consecutive statements instead, only potentially on
+  " 2 consecutive lines
+
+  " Safety guard, because multiple statements are not handled at the moment
+  if getline('.') =~ ';.*;' | return [] | endif
+
   call sj#PushCursor()
-  let s1 = s:TrimSemicolon(getline('.'))
+  let edges1 = sj#dot#ExtractEdges(getline('.'))
   normal! j
-  let s2 = s:TrimSemicolon(getline('.'))
+  let edges2 = sj#dot#ExtractEdges(getline('.'))
   call sj#PopCursor()
-  let edges1 = sj#dot#ExtractEdges(s1)
-  let edges2 = sj#dot#ExtractEdges(s2)
   let edges = edges1 + edges2
   return edges
 endfunction
@@ -151,10 +154,13 @@ endfunction
 function! sj#dot#JoinChainedEdge()
   " TODO initial guard 
   let edges = s:ParseConsecutiveLines()
+  echo edges
   let edges = s:ChainTransitiveEdges(edges)
-  if len(edges) > 1 | return 0 | endif
+  " should not be more than one, but also not zero
+  if len(edges) != 1 | return 0 | endif
   let edge_string = s:Edge2string(edges[0])
   call sj#ReplaceMotion('Vj', edge_string) 
+  echom "Joined chained edge"
   return 1
 endif
 endfunction
@@ -187,7 +193,7 @@ function! sj#dot#JoinMultiEdge()
   let edges = s:MergeEdges(edges)
   if len(edges) > 1 | return 0 | endif
   call sj#ReplaceMotion('Vj', s:Edge2string(edges[0]))
-  echom "Joined Multi-edge"
+  echom "Joined multi-edge"
   return 1
 endfunction
 " }}}
