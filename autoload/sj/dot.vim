@@ -42,7 +42,13 @@ function! s:ParseConsecutiveLines(...)
   " 2 consecutive lines
 
   " Safety guard, because multiple statements are not handled at the moment
-  if getline('.') =~ ';.*;' | return [] | endif
+  let statements = split(getline('.'), ';')
+  if len(statements) > 1
+    " dont do anything if there is more than one statement in this line
+    " else we have to inform calling function that we actually did not use the
+    " 2nd line so that it would not get removed by 'Vj' replace motion
+    return []
+  endif
 
   call sj#PushCursor()
   let edges1 = sj#dot#ExtractEdges(getline('.'))
@@ -154,15 +160,12 @@ endfunction
 function! sj#dot#JoinChainedEdge()
   " TODO initial guard 
   let edges = s:ParseConsecutiveLines()
-  echo edges
   let edges = s:ChainTransitiveEdges(edges)
   " should not be more than one, but also not zero
   if len(edges) != 1 | return 0 | endif
   let edge_string = s:Edge2string(edges[0])
   call sj#ReplaceMotion('Vj', edge_string) 
-  echom "Joined chained edge"
   return 1
-endif
 endfunction
 
 function! sj#dot#SplitMultiEdge()
@@ -170,13 +173,14 @@ function! sj#dot#SplitMultiEdge()
   let statement = substitute(getline('.'), ';$', '', '') 
   let edges = sj#dot#ExtractEdges(statement)
   if !len(edges) | return 0 | endif
-
+  " Note that this is something else than applying map -> Edge2string
+  " since we need to expand all-to-all property of multi-edges
   let new_edges = []
   for edge in edges
     let [lhs, rhs] = edge
     for source_node in lhs
       for dest_node in rhs
-        let new_edges += [source_node . ' ' . s:edge . ' ' . dest_node . ';']
+        let new_edges += [s:Edge2string([[source_node], [dest_node]])]
       endfor
     endfor
   endfor
@@ -191,9 +195,8 @@ function! sj#dot#JoinMultiEdge()
   let edges = s:ParseConsecutiveLines()
   if len(edges) < 2 | return 0 | endif
   let edges = s:MergeEdges(edges)
-  if len(edges) > 1 | return 0 | endif
+  if len(edges) != 1 | return 0 | endif
   call sj#ReplaceMotion('Vj', s:Edge2string(edges[0]))
-  echom "Joined multi-edge"
   return 1
 endfunction
 " }}}
