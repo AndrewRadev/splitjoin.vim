@@ -60,6 +60,8 @@ function! s:ParseConsecutiveLines(...)
 endfunction
 
 function! s:Edge2string(edge)
+  " INPUT: [[src_nodes], [dst_nodes]]
+  " OUTPUT: string representation of the aequivalent statement
   let edge = copy(a:edge)
   let edge = map(edge, 'join(v:val, ", ")')
   let edge = join(edge, ' -> ')
@@ -68,6 +70,8 @@ function! s:Edge2string(edge)
 endfunction
 
 function! s:MergeEdges(edges)
+  " INPUT: Set of potentially mergable edges
+  " OUTPUT: Set of edges containing multi-edges
   let edges = copy(a:edges)
   let finished = 0
   for [src_nodes, dst_nodes] in edges
@@ -107,7 +111,8 @@ function! s:MergeEdges(edges)
 endfunction
 
 function! s:ChainTransitiveEdges(edges)
-  " FIXME BUG IN HERE
+  " INPUT: set of potentially transitive edges
+  " OUTPUT: all transitive edges are merged into chained edges
   let edges = copy(a:edges)
   let finished = 0
   while !finished
@@ -117,7 +122,6 @@ function! s:ChainTransitiveEdges(edges)
       let jdx = idx + 1
       while jdx < len(edges)
         if edges[idx][-1] == edges[jdx][0]
-          " FIXME
           let edges[idx] += [edges[jdx][-1]]
           let finished = 0
           unlet edges[jdx]
