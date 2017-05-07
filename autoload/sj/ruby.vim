@@ -451,21 +451,31 @@ function! sj#ruby#SplitOptions()
   " Variables:
   "
   " option_type:   ['option', 'hash']
-  " function_type: ['with_spaces', 'with_round_braces']
+  " function_type: ['none', 'with_spaces', 'with_round_braces']
   "
 
   call sj#PushCursor()
-  let [from, to] = sj#argparser#ruby#LocateHash()
+  let [function_from, function_to, function_type] = sj#argparser#ruby#LocateFunction()
   call sj#PopCursor()
 
-  if from < 0 || !sj#CursorBetween(from, to)
-    call sj#PushCursor()
-    let [from, to, function_type] = sj#argparser#ruby#LocateFunction()
-    call sj#PopCursor()
+  call sj#PushCursor()
+  let [hash_from, hash_to] = sj#argparser#ruby#LocateHash()
+  call sj#PopCursor()
 
-    let option_type = 'option'
-  else
+  if function_from < 0 ||
+        \ (function_to >= 0 && !sj#CursorBetween(function_from, function_to)) ||
+        \ (function_to < 0 && col('.') < function_from)
     let option_type = 'hash'
+  else
+    let option_type = 'option'
+  endif
+
+  if function_from >= 0
+    let from = function_from
+    let to = function_to
+  else
+    let from = hash_from
+    let to = hash_to
   endif
 
   if from < 0
@@ -482,7 +492,8 @@ function! sj#ruby#SplitOptions()
     return 0
   endif
 
-  let [from, to, args, opts, hash_type] = sj#argparser#ruby#ParseArguments(from, to, getline('.'))
+  let [from, to, args, opts, hash_type] =
+        \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
   if len(opts) < 1 && len(args) > 0 && option_type == 'option'
     " no options found, but there are arguments, split those
@@ -544,15 +555,22 @@ function! sj#ruby#SplitOptions()
       "
       let replacement .= "\n"
       let alignment_start += 1
+
+      if !sj#settings#Read('ruby_hanging_args')
+        " Adjust alignment: the args will get their own row, so don't align them
+        let alignment_start += 1
+      endif
     elseif option_type == 'option' && function_type == 'with_spaces' && len(args) > 0
       " Example: User.new :one, :two => 'three'
       "
       let replacement .= "\n"
       let alignment_start += 1
-    elseif option_type == 'option' && function_type == 'with_round_braces' && len(args) == 0
-      " Example: User.new(:two => 'three')
+    elseif option_type == 'hash' && function_type == 'none'
+      " Not a function call, but a hash
+      " Example: one = {:two => "three"}
       "
-      " no need to add anything
+      let replacement .= "{\n"
+      let alignment_start += 1
     endif
 
   endif
@@ -562,7 +580,11 @@ function! sj#ruby#SplitOptions()
 
   " add closing brace
   if !sj#settings#Read('ruby_curly_braces') && option_type == 'option' && function_type == 'with_round_braces'
-    " no need to add anything
+    if sj#settings#Read('ruby_hanging_args')
+      " no need to do anything
+    else
+      let replacement = "\n".replacement."\n"
+    endif
   elseif sj#settings#Read('ruby_curly_braces') || option_type == 'hash' || len(args) == 0
     if sj#settings#Read('ruby_trailing_comma') || sj#settings#Read('trailing_comma')
       let replacement .= ','
@@ -864,6 +886,7 @@ function! s:JoinHashWithRoundBraces()
   let body = sj#GetMotion('Vi(',)
   if sj#settings#Read('normalize_whitespace')
     let body = substitute(body, '\s*=>\s*', ' => ', 'g')
+    let body = substitute(body, '\s\+\k\+\zs:\s\+', ': ', 'g')
   endif
 
   " remove trailing comma
