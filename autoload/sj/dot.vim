@@ -2,8 +2,77 @@ let s:edge = '->'
 " node regexp unused
 let s:node = '\("*[^\"]\{-}"\|\i\+\)'
 
+" Callback functions {{{
+function! sj#dot#SplitStatement()
+  let statements = split(getline('.'), ';')
+  if len(statements) < 2 | return 0 | endif
+  call map(statements, 'v:val . ";"')
+  call sj#ReplaceMotion('V', join(statements, "\n"))
+  return 1
+endfunction
+
+function! sj#dot#JoinStatement()
+  " TODO guard for comments etc
+  normal! J
+  return 1
+endfunction
+
+function! sj#dot#SplitChainedEdge()
+  let line = getline('.')
+  if line !~ s:edge . '.*' . s:edge | return 0 | endif
+  let statement = s:TrimSemicolon(line)
+  let edges = s:ExtractEdges(statement)
+  call map(edges, 's:Edge2string(v:val)')
+  call sj#ReplaceMotion('V', join(edges, "\n"))
+  return 1
+endfunction
+
+function! sj#dot#JoinChainedEdge()
+  " TODO initial guard 
+  let [edges, ate] = s:ParseConsecutiveLines()
+  let edges = s:ChainTransitiveEdges(edges)
+  " should not be more than one, but also not zero
+  if len(edges) != 1 | return 0 | endif
+  let edge_string = s:Edge2string(edges[0])
+  call sj#ReplaceMotion(ate ? 'Vj' : 'V', edge_string) 
+  return 1
+endfunction
+
+function! sj#dot#SplitMultiEdge()
+  " chop off potential trailing ';'
+  let statement = substitute(getline('.'), ';$', '', '') 
+  let edges = s:ExtractEdges(statement)
+  if !len(edges) | return 0 | endif
+  " Note that this is something else than applying map -> Edge2string
+  " since we need to expand all-to-all property of multi-edges
+  let new_edges = []
+  for edge in edges
+    let [lhs, rhs] = edge
+    for source_node in lhs
+      for dest_node in rhs
+        let new_edges += [s:Edge2string([[source_node], [dest_node]])]
+      endfor
+    endfor
+  endfor
+  let body = join(new_edges, "\n")
+  call sj#ReplaceMotion('V', body)
+  return 1
+endfunction
+
+function! sj#dot#JoinMultiEdge()
+  " TODO guard for comments or blank lines
+  " Check whether two lines are 
+  let [edges, ate] = s:ParseConsecutiveLines()
+  if len(edges) < 2 | return 0 | endif
+  let edges = s:MergeEdges(edges)
+  if len(edges) != 1 | return 0 | endif
+  call sj#ReplaceMotion(ate ? 'Vj' : 'V', s:Edge2string(edges[0]))
+  return 1
+endfunction
+" }}}
+
 " Helper functions {{{
-function! sj#dot#ExtractNodes(side)
+function! s:ExtractNodes(side)
   " Split multiple nodes into single elements
   " INPUT: 'A, B, C'
   " OUTPUT: ['A', 'B', 'C']
@@ -18,7 +87,7 @@ function! s:TrimSemicolon(statement)
   return substitute(a:statement, ';$', '', '') 
 endfunction
 
-function! sj#dot#ExtractEdges(statement)
+function! s:ExtractEdges(statement)
   " Extract elements of potentially chained edges as [src,dst] pairs
   " INPUT: 'A, B -> C -> D'
   " OUTPUT: [[[A, B], [C]], [[C], [D]]]
@@ -30,8 +99,8 @@ function! sj#dot#ExtractEdges(statement)
   while idx < len(sides) - 1
     " handling of chained expressions
     " such as A -> B -> C
-    let edges += [[sj#dot#ExtractNodes(get(sides, idx)),
-          \ sj#dot#ExtractNodes(get(sides, idx + 1))]]
+    let edges += [[s:ExtractNodes(get(sides, idx)),
+          \ s:ExtractNodes(get(sides, idx + 1))]]
     let idx = idx + 1
   endwhile
   return edges
@@ -47,8 +116,8 @@ function! s:ParseConsecutiveLines(...)
     return [[], 0]
   elseif len(statements) == 2
     " only if exactly 2 edges in one line, else replacemotion fails (atm)
-    let edges = sj#dot#ExtractEdges(statements[0]) +
-          \ sj#dot#ExtractEdges(statements[1])
+    let edges = s:ExtractEdges(statements[0]) +
+          \ s:ExtractEdges(statements[1])
     return [edges, 0]
   elseif len(statements) == 0
     return [[], 0]
@@ -63,8 +132,8 @@ function! s:ParseConsecutiveLines(...)
   if len(statements2) > 1
     return [[], 1]
   endif
-  let edges = sj#dot#ExtractEdges(statements[0]) + 
-        \ sj#dot#ExtractEdges(statements2[0])
+  let edges = s:ExtractEdges(statements[0]) + 
+        \ s:ExtractEdges(statements2[0])
   call sj#PopCursor()
   return [edges, 1]
 endfunction
@@ -145,72 +214,4 @@ function! s:ChainTransitiveEdges(edges)
   return edges
 endfunction
 
-" }}}
-" Callback functions {{{
-function! sj#dot#SplitStatement()
-  let statements = split(getline('.'), ';')
-  if len(statements) < 2 | return 0 | endif
-  call map(statements, 'v:val . ";"')
-  call sj#ReplaceMotion('V', join(statements, "\n"))
-  return 1
-endfunction
-
-function! sj#dot#JoinStatement()
-  " TODO guard for comments etc
-  normal! J
-  return 1
-endfunction
-
-function! sj#dot#SplitChainedEdge()
-  let line = getline('.')
-  if line !~ s:edge . '.*' . s:edge | return 0 | endif
-  let statement = s:TrimSemicolon(line)
-  let edges = sj#dot#ExtractEdges(statement)
-  call map(edges, 's:Edge2string(v:val)')
-  call sj#ReplaceMotion('V', join(edges, "\n"))
-  return 1
-endfunction
-
-function! sj#dot#JoinChainedEdge()
-  " TODO initial guard 
-  let [edges, ate] = s:ParseConsecutiveLines()
-  let edges = s:ChainTransitiveEdges(edges)
-  " should not be more than one, but also not zero
-  if len(edges) != 1 | return 0 | endif
-  let edge_string = s:Edge2string(edges[0])
-  call sj#ReplaceMotion(ate ? 'Vj' : 'V', edge_string) 
-  return 1
-endfunction
-
-function! sj#dot#SplitMultiEdge()
-  " chop off potential trailing ';'
-  let statement = substitute(getline('.'), ';$', '', '') 
-  let edges = sj#dot#ExtractEdges(statement)
-  if !len(edges) | return 0 | endif
-  " Note that this is something else than applying map -> Edge2string
-  " since we need to expand all-to-all property of multi-edges
-  let new_edges = []
-  for edge in edges
-    let [lhs, rhs] = edge
-    for source_node in lhs
-      for dest_node in rhs
-        let new_edges += [s:Edge2string([[source_node], [dest_node]])]
-      endfor
-    endfor
-  endfor
-  let body = join(new_edges, "\n")
-  call sj#ReplaceMotion('V', body)
-  return 1
-endfunction
-
-function! sj#dot#JoinMultiEdge()
-  " TODO guard for comments or blank lines
-  " Check whether two lines are 
-  let [edges, ate] = s:ParseConsecutiveLines()
-  if len(edges) < 2 | return 0 | endif
-  let edges = s:MergeEdges(edges)
-  if len(edges) != 1 | return 0 | endif
-  call sj#ReplaceMotion(ate ? 'Vj' : 'V', s:Edge2string(edges[0]))
-  return 1
-endfunction
 " }}}
