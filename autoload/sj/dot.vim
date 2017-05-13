@@ -127,6 +127,7 @@ function! s:ParseConsecutiveLines(...)
 
   call sj#PushCursor()
   " FIXME Dangerous on EOF?
+  if line('.') + 1 == line('$') | return [[], 0] | endif
   normal! j
   let statements2 = split(getline('.'), ';')
   if len(statements2) > 1
