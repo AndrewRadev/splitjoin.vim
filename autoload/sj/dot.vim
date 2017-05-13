@@ -72,10 +72,10 @@ endfunction
 " }}}
 
 " Helper functions {{{
+" Split multiple nodes into single elements
+" INPUT: 'A, B, C'
+" OUTPUT: ['A', 'B', 'C']
 function! s:ExtractNodes(side)
-  " Split multiple nodes into single elements
-  " INPUT: 'A, B, C'
-  " OUTPUT: ['A', 'B', 'C']
   " FIXME will fail on 'A, B, "some,label"'
   let nodes = split(a:side, ',')
   call sj#TrimList(nodes)
@@ -87,10 +87,10 @@ function! s:TrimSemicolon(statement)
   return substitute(a:statement, ';$', '', '') 
 endfunction
 
+" Extract elements of potentially chained edges as [src,dst] pairs
+" INPUT: 'A, B -> C -> D'
+" OUTPUT: [[[A, B], [C]], [[C], [D]]]
 function! s:ExtractEdges(statement)
-  " Extract elements of potentially chained edges as [src,dst] pairs
-  " INPUT: 'A, B -> C -> D'
-  " OUTPUT: [[[A, B], [C]], [[C], [D]]]
   let statement = s:TrimSemicolon(a:statement)
   " FIXME will fail if '->' inside "s
   let sides = split(statement, s:edge) 
@@ -106,10 +106,9 @@ function! s:ExtractEdges(statement)
   return edges
 endfunction
 
+" OUTPUT: Either [edges, 0] when 2 statements on first line, else [edges, 1]
+" when two statements on two lines
 function! s:ParseConsecutiveLines(...)
-  " OUTPUT: Either [edges, 0] when 2 statements on first line, else [edges, 1]
-  " when two statements on two lines
-
   " Safety guard, because multiple statements are not handled at the moment
   let statements = split(getline('.'), ';')
   if len(statements) > 2
@@ -126,7 +125,6 @@ function! s:ParseConsecutiveLines(...)
   " Try to eat the next line
 
   call sj#PushCursor()
-  " FIXME Dangerous on EOF?
   if line('.') + 1 == line('$') | return [[], 0] | endif
   normal! j
   let statements2 = split(getline('.'), ';')
@@ -139,9 +137,9 @@ function! s:ParseConsecutiveLines(...)
   return [edges, 1]
 endfunction
 
+" INPUT: [[src_nodes], [dst_nodes]]
+" OUTPUT: string representation of the aequivalent statement
 function! s:Edge2string(edge)
-  " INPUT: [[src_nodes], [dst_nodes]]
-  " OUTPUT: string representation of the aequivalent statement
   let edge = copy(a:edge)
   let edge = map(edge, 'join(v:val, ", ")')
   let edge = join(edge, ' -> ')
@@ -149,9 +147,9 @@ function! s:Edge2string(edge)
   return edge
 endfunction
 
+" INPUT: Set of potentially mergable edges
+" OUTPUT: Set of edges containing multi-edges
 function! s:MergeEdges(edges)
-  " INPUT: Set of potentially mergable edges
-  " OUTPUT: Set of edges containing multi-edges
   let edges = copy(a:edges)
   let finished = 0
   for [src_nodes, dst_nodes] in edges
@@ -190,9 +188,9 @@ function! s:MergeEdges(edges)
   return edges
 endfunction
 
+" INPUT: set of potentially transitive edges
+" OUTPUT: all transitive edges are merged into chained edges
 function! s:ChainTransitiveEdges(edges)
-  " INPUT: set of potentially transitive edges
-  " OUTPUT: all transitive edges are merged into chained edges
   let edges = copy(a:edges)
   let finished = 0
   while !finished
