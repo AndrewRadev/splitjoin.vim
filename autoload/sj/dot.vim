@@ -1,14 +1,15 @@
+let s:skip = sj#SkipSyntax(['dotString','dotComment'])
 let s:edge = '->'
-" node regexp unused
-let s:node = '\("*[^\"]\{-}"\|\i\+\)'
+
 
 " Callback functions {{{
 function! sj#dot#SplitStatement()
-  let statements = split(getline('.'), ';')
-  if len(statements) < 2 | return 0 | endif
-  call map(statements, 'v:val . ";"')
-  call sj#ReplaceMotion('V', join(statements, "\n"))
-  return 1
+  if sj#SearchSkip(';\s*\S', s:skip, '', line('.'))
+    execute "normal! a\<CR>"
+    return 1
+  else
+    return 0
+  endif
 endfunction
 
 function! sj#dot#JoinStatement()
@@ -18,12 +19,14 @@ function! sj#dot#JoinStatement()
 endfunction
 
 function! sj#dot#SplitChainedEdge()
-  let line = getline('.')
-  if line !~ s:edge . '.*' . s:edge | return 0 | endif
-  let statement = s:TrimSemicolon(line)
-  let edges = s:ExtractEdges(statement)
-  call map(edges, 's:Edge2string(v:val)')
-  call sj#ReplaceMotion('V', join(edges, "\n"))
+  " FIXME Now sj#dot#SplitStatement does not assert only single line statements afterwards,
+  " so there might occur an error here.  let line = getline('.')
+  let l:line = getline('.')
+  if l:line !~ s:edge . '.*' . s:edge | return 0 | endif
+  let l:statement = s:TrimSemicolon(l:line)
+  let l:edges = s:ExtractEdges(l:statement)
+  call map(l:edges, 's:Edge2string(v:val)')
+  call sj#ReplaceMotion('V', join(l:edges, "\n"))
   return 1
 endfunction
 
@@ -77,10 +80,11 @@ endfunction
 " OUTPUT: ['A', 'B', 'C']
 function! s:ExtractNodes(side)
   " FIXME will fail on 'A, B, "some,label"'
-  let nodes = split(a:side, ',')
-  call sj#TrimList(nodes)
-  call uniq(sort(nodes))
-  return nodes
+  let l:nodes = split(a:side, ',')
+  call sj#TrimList(l:nodes)
+  call uniq(sort(l:nodes))
+  echo l:nodes
+  return l:nodes
 endfunction
 
 function! s:TrimSemicolon(statement)
@@ -89,36 +93,36 @@ endfunction
 
 " Extract elements of potentially chained edges as [src,dst] pairs
 " INPUT: 'A, B -> C -> D'
-" OUTPUT: [[[A, B], [C]], [[C], [D]]]
+" OUTPUT: List of edges [[[A, B], [C]], [[C], [D]]]
 function! s:ExtractEdges(statement)
-  let statement = s:TrimSemicolon(a:statement)
+  let l:statement = s:TrimSemicolon(a:statement)
   " FIXME will fail if '->' inside "s
-  let sides = split(statement, s:edge) 
-  if len(sides) < 2 | return [] | endif
-  let [edges, idx] = [[], 0]
-  while idx < len(sides) - 1
+  let l:sides = split(l:statement, s:edge) 
+  if len(l:sides) < 2 | return [] | endif
+  let [l:edges, l:idx] = [[], 0]
+  while l:idx < len(l:sides) - 1
     " handling of chained expressions
     " such as A -> B -> C
-    let edges += [[s:ExtractNodes(get(sides, idx)),
-          \ s:ExtractNodes(get(sides, idx + 1))]]
-    let idx = idx + 1
+    let l:edges += [[s:ExtractNodes(get(l:sides, l:idx)),
+          \ s:ExtractNodes(get(l:sides, l:idx + 1))]]
+    let l:idx = l:idx + 1
   endwhile
-  return edges
+  return l:edges
 endfunction
 
 " OUTPUT: Either [edges, 0] when 2 statements on first line, else [edges, 1]
 " when two statements on two lines
 function! s:ParseConsecutiveLines(...)
   " Safety guard, because multiple statements are not handled at the moment
-  let statements = split(getline('.'), ';')
-  if len(statements) > 2
+  let l:statements = split(getline('.'), ';')
+  if len(l:statements) > 2
     return [[], 0]
-  elseif len(statements) == 2
+  elseif len(l:statements) == 2
     " only if exactly 2 edges in one line, else replacemotion fails (atm)
-    let edges = s:ExtractEdges(statements[0]) +
-          \ s:ExtractEdges(statements[1])
-    return [edges, 0]
-  elseif len(statements) == 0
+    let l:edges = s:ExtractEdges(l:statements[0]) +
+          \ s:ExtractEdges(l:statements[1])
+    return [l:edges, 0]
+  elseif len(l:statements) == 0
     return [[], 0]
   endif
   " Exactly one statement found on the first lien
@@ -127,24 +131,24 @@ function! s:ParseConsecutiveLines(...)
   call sj#PushCursor()
   if line('.') + 1 == line('$') | return [[], 0] | endif
   normal! j
-  let statements2 = split(getline('.'), ';')
-  if len(statements2) > 1
+  let l:statements2 = split(getline('.'), ';')
+  if len(l:statements2) > 1
     return [[], 1]
   endif
-  let edges = s:ExtractEdges(statements[0]) + 
-        \ s:ExtractEdges(statements2[0])
+  let l:edges = s:ExtractEdges(l:statements[0]) + 
+        \ s:ExtractEdges(l:statements2[0])
   call sj#PopCursor()
-  return [edges, 1]
+  return [l:edges, 1]
 endfunction
 
 " INPUT: [[src_nodes], [dst_nodes]]
 " OUTPUT: string representation of the aequivalent statement
 function! s:Edge2string(edge)
-  let edge = copy(a:edge)
-  let edge = map(edge, 'join(v:val, ", ")')
-  let edge = join(edge, ' -> ')
-  let edge = edge . ';'
-  return edge
+  let l:edge = copy(a:edge)
+  let l:edge = map(l:edge, 'join(v:val, ", ")')
+  let l:edge = join(l:edge, ' -> ')
+  let l:edge = l:edge . ';'
+  return l:edge
 endfunction
 
 " INPUT: Set of potentially mergable edges
