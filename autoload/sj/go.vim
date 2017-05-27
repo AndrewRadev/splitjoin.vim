@@ -52,9 +52,62 @@ function! sj#go#SplitStruct()
 endfunction
 
 function! sj#go#JoinStruct()
+  return s:joinStructOrFunc('{', '}')
+endfunction
+
+function! sj#go#SplitFunc()
+  let line = getline('.')
+  if line !~ '^func '
+    return 0
+  endif
+
+  let [start, end] = s:locateFuncBracesOnLine(line)
+  if start < 0 && end < 0
+    return 0
+  endif
+
+  let parsed = sj#ParseJsonObjectBody(start + 1, end - 1)
+
+  let arg_groups = []
+  let typed_arg_group = ''
+  for elem in parsed
+    if match(elem, '\s\+') != -1
+      let typed_arg_group .= elem
+      call add(arg_groups, typed_arg_group)
+      let typed_arg_group = ''
+    else
+      " not typed here, add to group
+      let typed_arg_group .= elem . ', '
+    endif
+  endfor
+
+  call sj#ReplaceCols(start + 1, end - 1, "\n".join(arg_groups, ",\n").",\n")
+  return 1
+endfunction
+
+function! sj#go#JoinFunc()
+  return s:joinStructOrFunc('(', ')')
+endfunction
+
+function! sj#go#SplitFuncCall()
+  let [start, end] = sj#LocateBracesOnLine('(', ')', ['goString', 'goComment'])
+  if start < 0 && end < 0
+    return 0
+  endif
+
+  let args = sj#ParseJsonObjectBody(start + 1, end - 1)
+  call sj#ReplaceCols(start + 1, end - 1, "\n".join(args, ",\n").",\n")
+  return 1
+endfunction
+
+function! sj#go#JoinFuncCall()
+  return s:joinStructOrFunc('(', ')')
+endfunction
+
+function! s:joinStructOrFunc(openBrace, closeBrace)
   let start_lineno = line('.')
 
-  if search('{$', 'Wc', line('.')) <= 0
+  if search(a:openBrace.'$', 'Wc', line('.')) <= 0
     return 0
   endif
 
@@ -73,7 +126,7 @@ function! sj#go#JoinStruct()
     call add(arguments, argument)
   endfor
 
-  call sj#ReplaceMotion('va{', '{'.join(arguments, ', ').'}')
+  call sj#ReplaceMotion('va'.a:openBrace, a:openBrace . join(arguments, ', ') . a:closeBrace)
   return 1
 endfunction
 

@@ -2,12 +2,14 @@ let b:splitjoin_split_callbacks = [
       \ 'sj#go#SplitImports',
       \ 'sj#go#SplitVars',
       \ 'sj#go#SplitStruct',
-      \ 'sj#go#SplitFunctionCall',
+      \ 'sj#go#SplitFunc',
+      \ 'sj#go#SplitFuncCall',
       \ ]
 
 let b:splitjoin_join_callbacks = [
       \ 'sj#go#JoinImports',
       \ 'sj#go#JoinVars',
       \ 'sj#go#JoinStruct',
-      \ 'sj#go#JoinFunctionCall',
+      \ 'sj#go#JoinFunc',
+      \ 'sj#go#JoinFuncCall',
       \ ]
