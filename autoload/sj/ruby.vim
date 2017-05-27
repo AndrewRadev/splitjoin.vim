@@ -462,9 +462,7 @@ function! sj#ruby#SplitOptions()
   let [hash_from, hash_to] = sj#argparser#ruby#LocateHash()
   call sj#PopCursor()
 
-  if function_from < 0 ||
-        \ (function_to >= 0 && !sj#CursorBetween(function_from, function_to)) ||
-        \ (function_to < 0 && col('.') < function_from)
+  if hash_from >= 0 && function_from < 0
     let option_type = 'hash'
   else
     let option_type = 'option'
@@ -482,13 +480,11 @@ function! sj#ruby#SplitOptions()
     return 0
   endif
 
-  " with options, we may not know the end, but we do know the start
-  if option_type == 'option' && to < 0 && !sj#CursorBetween(from, col('$'))
+  if to >= 0 && !sj#CursorBetween(from - 1, to + 1)
     return 0
   endif
 
-  " if we know both start and end, but the cursor is not there, bail out
-  if option_type == 'option' && to >= 0 && !sj#CursorBetween(from, to)
+  if to < 0 && !sj#CursorBetween(from - 1, col('$'))
     return 0
   endif
 
