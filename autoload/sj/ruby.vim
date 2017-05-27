@@ -562,6 +562,11 @@ function! sj#ruby#SplitOptions()
   " add options
   let replacement .= join(opts, ",\n")
 
+  " add trailing comma
+  if sj#settings#Read('ruby_trailing_comma') || sj#settings#Read('trailing_comma')
+    let replacement .= ','
+  endif
+
   " add closing brace
   if !sj#settings#Read('ruby_curly_braces') && option_type == 'option' && function_type == 'with_round_braces'
     if sj#settings#Read('ruby_hanging_args')
@@ -570,10 +575,6 @@ function! sj#ruby#SplitOptions()
       let replacement = "\n".replacement."\n"
     endif
   elseif sj#settings#Read('ruby_curly_braces') || option_type == 'hash' || len(args) == 0
-    if sj#settings#Read('ruby_trailing_comma') || sj#settings#Read('trailing_comma')
-      let replacement .= ','
-    endif
-
     let replacement .= "\n}"
   endif
 
