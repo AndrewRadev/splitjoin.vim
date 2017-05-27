@@ -488,6 +488,7 @@ function! sj#ruby#SplitOptions()
     return 0
   endif
 
+  let start_lineno = line('.')
   let [from, to, args, opts, hash_type] =
         \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
@@ -513,7 +514,6 @@ function! sj#ruby#SplitOptions()
   endif
 
   let replacement = ''
-  let alignment_start = line('.')
 
   " first, prepare the already-existing arguments
   if len(args) > 0
@@ -527,21 +527,17 @@ function! sj#ruby#SplitOptions()
       " Example: one = {:two => 'three'}
       "
       let replacement .= "{\n"
-      let alignment_start += 1
     elseif function_type == 'with_round_braces' && len(args) > 0
       " Example: create(:inquiry, :state => state)
       "
       let replacement .= " {\n"
-      let alignment_start += 1
     elseif function_type == 'with_round_braces' && len(args) == 0
       " Example: create(one: 'two', three: 'four')
       "
       let replacement .= "{\n"
-      let alignment_start += 1
     else
       " add braces in all other cases
       let replacement .= " {\n"
-      let alignment_start += 1
     endif
 
   else " !sj#settings#Read('ruby_curly_braces')
@@ -550,23 +546,15 @@ function! sj#ruby#SplitOptions()
       " Example: User.new(:one, :two => 'three')
       "
       let replacement .= "\n"
-      let alignment_start += 1
-
-      if !sj#settings#Read('ruby_hanging_args')
-        " Adjust alignment: the args will get their own row, so don't align them
-        let alignment_start += 1
-      endif
     elseif option_type == 'option' && function_type == 'with_spaces' && len(args) > 0
       " Example: User.new :one, :two => 'three'
       "
       let replacement .= "\n"
-      let alignment_start += 1
     elseif option_type == 'hash' && function_type == 'none'
       " Not a function call, but a hash
       " Example: one = {:two => "three"}
       "
       let replacement .= "{\n"
-      let alignment_start += 1
     endif
 
   endif
@@ -592,6 +580,18 @@ function! sj#ruby#SplitOptions()
   call sj#ReplaceCols(from, to, replacement)
 
   if sj#settings#Read('align') && hash_type != 'mixed'
+    " find index of first option
+    let first_keyword_index = 0
+    for line in split(replacement, "\n", 1)
+      let line = substitute(sj#Trim(line), ',$', '', '')
+      if index(opts, line) >= 0
+        break
+      endif
+
+      let first_keyword_index += 1
+    endfor
+
+    let alignment_start = start_lineno + first_keyword_index
     let alignment_end = alignment_start + len(opts) - 1
 
     if hash_type == 'classic'
