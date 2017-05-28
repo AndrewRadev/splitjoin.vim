@@ -598,7 +598,8 @@ function! sj#ruby#SplitArray()
     return 0
   endif
 
-  let [from, to, args; _rest] = sj#argparser#ruby#ParseArguments(from + 1, to - 1, getline('.'))
+  let [from, to, args; _rest] = sj#argparser#ruby#ParseArguments(
+        \ from + 1, to - 1, getline('.'), 0)
   if from < 0
     return 0
   endif

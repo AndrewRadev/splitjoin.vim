@@ -1,11 +1,13 @@
 " Constructor:
 " ============
 
-function! sj#argparser#ruby#Construct(start_index, end_index, line)
+function! sj#argparser#ruby#Construct(start_index, end_index, line, ...)
+  let should_expand_option_hash = (a:0 > 0) ? a:1 : 1
   let parser = sj#argparser#common#Construct(a:start_index, a:end_index, a:line)
 
   call extend(parser, {
         \ 'hash_type': '',
+        \ 'should_expand_option_hash': should_expand_option_hash,
         \
         \ 'Process':          function('sj#argparser#ruby#Process'),
         \ 'PushArg':          function('sj#argparser#ruby#PushArg'),
@@ -63,7 +65,9 @@ function! sj#argparser#ruby#Process() dict
   if len(self.current_arg) > 0
     call self.PushArg()
   endif
-  call self.ExpandOptionHash()
+  if self.should_expand_option_hash
+    call self.ExpandOptionHash()
+  endif
 endfunction
 
 " Pushes the current argument either to the args or opts stack and initializes
@@ -174,8 +178,10 @@ function! sj#argparser#ruby#LocateHash()
   return sj#LocateBracesOnLine('{', '}', ['rubyInterpolationDelimiter', 'rubyString'])
 endfunction
 
-function! sj#argparser#ruby#ParseArguments(start_index, end_index, line)
-  let parser = sj#argparser#ruby#Construct(a:start_index, a:end_index, a:line)
+function! sj#argparser#ruby#ParseArguments(start_index, end_index, line, ...)
+  let should_expand_option_hash = (a:0 > 0) ? a:1 : 1
+  let parser = sj#argparser#ruby#Construct(
+        \ a:start_index, a:end_index, a:line, should_expand_option_hash)
   call parser.Process()
   return [ a:start_index, parser.index, parser.args, parser.opts, parser.hash_type ]
 endfunction
