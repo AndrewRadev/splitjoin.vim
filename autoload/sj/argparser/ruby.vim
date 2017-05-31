@@ -136,7 +136,7 @@ function! sj#argparser#ruby#LocateFunction()
   endif
   if found > 0
     " look for the starting bracket
-    if search('\k\+\s*\zs(\s*\%#', 'bcW', line('.'))
+    if search('\k\+[?!]\?\s*\zs(\s*\%#', 'bcW', line('.'))
       let function_type = 'with_round_braces'
       let from = col('.') + 1
       normal! h%h
