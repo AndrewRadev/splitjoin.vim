@@ -598,13 +598,12 @@ function! sj#ruby#SplitArray()
     return 0
   endif
 
-  let [from, to, args; _rest] = sj#argparser#ruby#ParseArguments(
-        \ from + 1, to - 1, getline('.'), 0)
+  let [from, to, items] = sj#argparser#ruby#ParseArray(from + 1, to - 1, getline('.'))
   if from < 0
     return 0
   endif
 
-  let replacement = "\n".join(args, ",\n")."\n"
+  let replacement = "\n".join(items, ",\n")."\n"
   call sj#ReplaceCols(from, to, replacement)
   return 1
 endfunction
