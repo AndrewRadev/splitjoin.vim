@@ -1123,6 +1123,25 @@ describe "ruby" do
         end
       EOF
     end
+
+    specify "last hash inside array doesn't disappear" do
+      set_file_contents "array = [0, { a: 1 }]"
+
+      vim.search '0'
+      split
+
+      assert_file_contents <<-EOF
+        array = [
+          0,
+          { a: 1 }
+        ]
+      EOF
+
+      vim.search 'array ='
+      join
+
+      assert_file_contents "array = [0, { a: 1 }]"
+    end
   end
 
   describe "string array literals" do
