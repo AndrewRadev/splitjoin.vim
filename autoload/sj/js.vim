@@ -147,7 +147,13 @@ function! s:SplitList(delimiter)
   endif
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
-  let body  = start."\n".join(items, ",\n")."\n".end
+
+  if sj#settings#Read('trailing_comma')
+    let body  = start."\n".join(items, ",\n").",\n".end
+  else
+    let body  = start."\n".join(items, ",\n")."\n".end
+  endif
+
   call sj#ReplaceMotion('Va'.start, body)
 
   " built-in js indenting doesn't indent this properly
