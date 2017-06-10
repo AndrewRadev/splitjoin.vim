@@ -86,6 +86,7 @@ describe "go" do
     EOF
     setup_go_filetype
 
+    vim.search 'one:'
     split
 
     # In case there is no Go installed, deindent everything:
@@ -215,6 +216,7 @@ describe "go" do
     EOF
     setup_go_filetype
 
+    vim.search 'a,'
     split
 
     # In case there is no Go installed, deindent everything:

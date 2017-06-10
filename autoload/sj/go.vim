@@ -90,7 +90,7 @@ function! sj#go#SplitFuncCall()
 endfunction
 
 function! s:splitStructOrFuncCall(openBrace, closeBrace)
-  let [start, end] = sj#LocateBracesOnLine(a:openBrace, a:closeBrace, ['goString', 'goComment'])
+  let [start, end] = sj#LocateBracesAroundCursor(a:openBrace, a:closeBrace, ['goString', 'goComment'])
   if start < 0 && end < 0
     return 0
   endif
