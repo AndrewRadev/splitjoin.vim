@@ -81,7 +81,7 @@ function! sj#go#SplitFunc()
   return 1
 endfunction
 
-function! sj#go#JoinFunc()
+function! sj#go#JoinFuncCallOrDefinition()
   return s:joinStructOrFunc('(', ')')
 endfunction
 

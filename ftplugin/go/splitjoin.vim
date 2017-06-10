@@ -10,5 +10,5 @@ let b:splitjoin_join_callbacks = [
       \ 'sj#go#JoinImports',
       \ 'sj#go#JoinVars',
       \ 'sj#go#JoinStruct',
-      \ 'sj#go#JoinFunc',
+      \ 'sj#go#JoinFuncCallOrDefinition',
       \ ]
