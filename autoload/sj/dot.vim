@@ -4,8 +4,8 @@ let s:edge = '->'
 
 " Callback functions {{{
 function! sj#dot#SplitStatement()
-  if sj#SearchSkip(';\s*\S', s:skip, '', line('.'))
-    execute "normal! a\<CR>"
+  if sj#SearchSkip(';\s*\S', s:skip, 'e', line('.'))
+    execute "normal! dT;i\<CR>"
     return 1
   else
     return 0
@@ -31,19 +31,19 @@ function! sj#dot#SplitChainedEdge()
 endfunction
 
 function! sj#dot#JoinChainedEdge()
-  " TODO initial guard 
+  " TODO initial guard
   let [edges, ate] = s:ParseConsecutiveLines()
   let edges = s:ChainTransitiveEdges(edges)
   " should not be more than one, but also not zero
   if len(edges) != 1 | return 0 | endif
   let edge_string = s:Edge2string(edges[0])
-  call sj#ReplaceMotion(ate ? 'Vj' : 'V', edge_string) 
+  call sj#ReplaceMotion(ate ? 'Vj' : 'V', edge_string)
   return 1
 endfunction
 
 function! sj#dot#SplitMultiEdge()
   " chop off potential trailing ';'
-  let statement = substitute(getline('.'), ';$', '', '') 
+  let statement = substitute(getline('.'), ';$', '', '')
   let edges = s:ExtractEdges(statement)
   if !len(edges) | return 0 | endif
   " Note that this is something else than applying map -> Edge2string
@@ -64,7 +64,7 @@ endfunction
 
 function! sj#dot#JoinMultiEdge()
   " TODO guard for comments or blank lines
-  " Check whether two lines are 
+  " Check whether two lines are
   let [edges, ate] = s:ParseConsecutiveLines()
   if len(edges) < 2 | return 0 | endif
   let edges = s:MergeEdges(edges)
@@ -83,12 +83,11 @@ function! s:ExtractNodes(side)
   let l:nodes = split(a:side, ',')
   call sj#TrimList(l:nodes)
   call uniq(sort(l:nodes))
-  echo l:nodes
   return l:nodes
 endfunction
 
 function! s:TrimSemicolon(statement)
-  return substitute(a:statement, ';$', '', '') 
+  return substitute(a:statement, ';$', '', '')
 endfunction
 
 " Extract elements of potentially chained edges as [src,dst] pairs
@@ -97,7 +96,7 @@ endfunction
 function! s:ExtractEdges(statement)
   let l:statement = s:TrimSemicolon(a:statement)
   " FIXME will fail if '->' inside "s
-  let l:sides = split(l:statement, s:edge) 
+  let l:sides = split(l:statement, s:edge)
   if len(l:sides) < 2 | return [] | endif
   let [l:edges, l:idx] = [[], 0]
   while l:idx < len(l:sides) - 1
@@ -135,7 +134,7 @@ function! s:ParseConsecutiveLines(...)
   if len(l:statements2) > 1
     return [[], 1]
   endif
-  let l:edges = s:ExtractEdges(l:statements[0]) + 
+  let l:edges = s:ExtractEdges(l:statements[0]) +
         \ s:ExtractEdges(l:statements2[0])
   call sj#PopCursor()
   return [l:edges, 1]
