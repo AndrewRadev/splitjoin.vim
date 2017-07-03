@@ -63,7 +63,6 @@ function! sj#argparser#ruby#Process() dict
   if len(self.current_arg) > 0
     call self.PushArg()
   endif
-  call self.ExpandOptionHash()
 endfunction
 
 " Pushes the current argument either to the args or opts stack and initializes
@@ -136,7 +135,7 @@ function! sj#argparser#ruby#LocateFunction()
   endif
   if found > 0
     " look for the starting bracket
-    if search('\k\+\s*\zs(\s*\%#', 'bcW', line('.'))
+    if search('\k\+[?!]\?\s*\zs(\s*\%#', 'bcW', line('.'))
       let function_type = 'with_round_braces'
       let from = col('.') + 1
       normal! h%h
@@ -167,7 +166,7 @@ function! sj#argparser#ruby#LocateFunction()
     return [from, to, function_type]
   endif
 
-  return [-1, -1, '']
+  return [-1, -1, 'none']
 endfunction
 
 function! sj#argparser#ruby#LocateHash()
@@ -177,5 +176,12 @@ endfunction
 function! sj#argparser#ruby#ParseArguments(start_index, end_index, line)
   let parser = sj#argparser#ruby#Construct(a:start_index, a:end_index, a:line)
   call parser.Process()
+  call parser.ExpandOptionHash()
   return [ a:start_index, parser.index, parser.args, parser.opts, parser.hash_type ]
+endfunction
+
+function! sj#argparser#ruby#ParseArray(start_index, end_index, line)
+  let parser = sj#argparser#ruby#Construct(a:start_index, a:end_index, a:line)
+  call parser.Process()
+  return [ a:start_index, parser.index, parser.args ]
 endfunction

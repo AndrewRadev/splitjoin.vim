@@ -995,6 +995,47 @@ describe "ruby" do
       EOF
     end
 
+    specify "no arguments, round braces, no curly braces, no hanging" do
+      vim.command('let g:splitjoin_ruby_curly_braces = 0')
+      vim.command('let g:splitjoin_ruby_hanging_args = 0')
+
+      set_file_contents <<-EOF
+        OpenStruct.new(first_name: 'John', last_name: 'Doe', age: 50)
+      EOF
+
+      vim.search 'first_name'
+      split
+
+      assert_file_contents <<-EOF
+        OpenStruct.new(
+          first_name: 'John',
+          last_name: 'Doe',
+          age: 50
+        )
+      EOF
+    end
+
+    specify "arguments, round braces, no curly braces, no hanging" do
+      vim.command('let g:splitjoin_ruby_curly_braces = 0')
+      vim.command('let g:splitjoin_ruby_hanging_args = 0')
+
+      set_file_contents <<-EOF
+        OpenStruct.new(one, {first_name: 'John', last_name: 'Doe', age: 50})
+      EOF
+
+      vim.search 'first_name'
+      split
+
+      assert_file_contents <<-EOF
+        OpenStruct.new(
+          one,
+          first_name: 'John',
+          last_name: 'Doe',
+          age: 50
+        )
+      EOF
+    end
+
     specify "doesn't get confused by interpolation" do
       vim.command('let g:splitjoin_ruby_curly_braces = 1')
 
@@ -1081,6 +1122,25 @@ describe "ruby" do
           forked_project.team << [project.creator, :developer]
         end
       EOF
+    end
+
+    specify "last hash inside array doesn't disappear" do
+      set_file_contents "array = [0, { a: 1 }]"
+
+      vim.search '0'
+      split
+
+      assert_file_contents <<-EOF
+        array = [
+          0,
+          { a: 1 }
+        ]
+      EOF
+
+      vim.search 'array ='
+      join
+
+      assert_file_contents "array = [0, { a: 1 }]"
     end
   end
 

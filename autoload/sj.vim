@@ -48,7 +48,6 @@ endfunction
 " function! sj#SetIndent(lineno, indent)
 "
 " Sets the indent of the given line numbers to "indent" amount of whitespace.
-" For now, works only with spaces, not with tabs.
 "
 function! sj#SetIndent(...)
   if a:0 == 3
@@ -61,7 +60,18 @@ function! sj#SetIndent(...)
     let indent       = a:2
   endif
 
-  let whitespace = repeat(' ', indent)
+  let is_tabs = &l:expandtab
+  let shift = shiftwidth()
+
+  if is_tabs == 0
+    if shift > 0
+      let indent = indent / shift
+    endif
+
+    let whitespace = repeat('\t', indent)
+  else
+    let whitespace = repeat(' ', indent)
+  endif
 
   exe start_lineno.','.end_lineno.'s/^\s*/'.whitespace
 

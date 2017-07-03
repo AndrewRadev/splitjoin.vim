@@ -41,7 +41,56 @@ function! sj#go#JoinVars()
 endfunction
 
 function! sj#go#SplitStruct()
-  let [start, end] = sj#LocateBracesOnLine('{', '}', ['goString', 'goComment'])
+  return s:splitStructOrFuncCall('{', '}')
+endfunction
+
+function! sj#go#JoinStruct()
+  return s:joinStructOrFunc('{', '}')
+endfunction
+
+function! sj#go#SplitFunc()
+  let pattern = '^func\%(\s*(.\{-})\s*\)\=\s\+\k\+\zs('
+  if search(pattern, 'Wc', line('.')) <= 0 &&
+        \ search(pattern, 'Wbc', line('.')) <= 0
+    return 0
+  endif
+
+  let start = col('.')
+  if searchpair('(', '', ')', 'W', sj#SkipSyntax(['goString', 'goComment']), line('.')) <= 0
+    return 0
+  endif
+  let end = col('.')
+
+  let parsed = sj#ParseJsonObjectBody(start + 1, end - 1)
+
+  " Keep `a, b int` variable groups on the same line
+  let arg_groups = []
+  let typed_arg_group = ''
+  for elem in parsed
+    if match(elem, '\s\+') != -1
+      let typed_arg_group .= elem
+      call add(arg_groups, typed_arg_group)
+      let typed_arg_group = ''
+    else
+      " not typed here, group it with later vars
+      let typed_arg_group .= elem . ', '
+    endif
+  endfor
+
+  call sj#ReplaceCols(start + 1, end - 1, "\n".join(arg_groups, ",\n").",\n")
+  return 1
+endfunction
+
+function! sj#go#JoinFuncCallOrDefinition()
+  return s:joinStructOrFunc('(', ')')
+endfunction
+
+function! sj#go#SplitFuncCall()
+  return s:splitStructOrFuncCall('(', ')')
+endfunction
+
+function! s:splitStructOrFuncCall(openBrace, closeBrace)
+  let [start, end] = sj#LocateBracesAroundCursor(a:openBrace, a:closeBrace, ['goString', 'goComment'])
   if start < 0 && end < 0
     return 0
   endif
@@ -51,10 +100,10 @@ function! sj#go#SplitStruct()
   return 1
 endfunction
 
-function! sj#go#JoinStruct()
+function! s:joinStructOrFunc(openBrace, closeBrace)
   let start_lineno = line('.')
 
-  if search('{$', 'Wc', line('.')) <= 0
+  if search(a:openBrace.'$', 'Wc', line('.')) <= 0
     return 0
   endif
 
@@ -73,6 +122,6 @@ function! sj#go#JoinStruct()
     call add(arguments, argument)
   endfor
 
-  call sj#ReplaceMotion('va{', '{'.join(arguments, ', ').'}')
+  call sj#ReplaceMotion('va'.a:openBrace, a:openBrace . join(arguments, ', ') . a:closeBrace)
   return 1
 endfunction

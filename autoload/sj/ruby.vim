@@ -451,38 +451,46 @@ function! sj#ruby#SplitOptions()
   " Variables:
   "
   " option_type:   ['option', 'hash']
-  " function_type: ['with_spaces', 'with_round_braces']
+  " function_type: ['none', 'with_spaces', 'with_round_braces']
   "
 
   call sj#PushCursor()
-  let [from, to] = sj#argparser#ruby#LocateHash()
+  let [function_from, function_to, function_type] = sj#argparser#ruby#LocateFunction()
   call sj#PopCursor()
 
-  if from < 0 || !sj#CursorBetween(from, to)
-    call sj#PushCursor()
-    let [from, to, function_type] = sj#argparser#ruby#LocateFunction()
-    call sj#PopCursor()
+  call sj#PushCursor()
+  let [hash_from, hash_to] = sj#argparser#ruby#LocateHash()
+  call sj#PopCursor()
 
-    let option_type = 'option'
-  else
+  if hash_from >= 0 && function_from < 0
     let option_type = 'hash'
+  else
+    let option_type = 'option'
+  endif
+
+  if function_from >= 0
+    let from = function_from
+    let to = function_to
+  else
+    let from = hash_from
+    let to = hash_to
   endif
 
   if from < 0
     return 0
   endif
 
-  " with options, we may not know the end, but we do know the start
-  if option_type == 'option' && to < 0 && !sj#CursorBetween(from, col('$'))
+  if to >= 0 && !sj#CursorBetween(from - 1, to + 1)
     return 0
   endif
 
-  " if we know both start and end, but the cursor is not there, bail out
-  if option_type == 'option' && to >= 0 && !sj#CursorBetween(from, to)
+  if to < 0 && !sj#CursorBetween(from - 1, col('$'))
     return 0
   endif
 
-  let [from, to, args, opts, hash_type] = sj#argparser#ruby#ParseArguments(from, to, getline('.'))
+  let start_lineno = line('.')
+  let [from, to, args, opts, hash_type] =
+        \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
   if len(opts) < 1 && len(args) > 0 && option_type == 'option'
     " no options found, but there are arguments, split those
@@ -506,7 +514,6 @@ function! sj#ruby#SplitOptions()
   endif
 
   let replacement = ''
-  let alignment_start = line('.')
 
   " first, prepare the already-existing arguments
   if len(args) > 0
@@ -520,21 +527,17 @@ function! sj#ruby#SplitOptions()
       " Example: one = {:two => 'three'}
       "
       let replacement .= "{\n"
-      let alignment_start += 1
     elseif function_type == 'with_round_braces' && len(args) > 0
       " Example: create(:inquiry, :state => state)
       "
       let replacement .= " {\n"
-      let alignment_start += 1
     elseif function_type == 'with_round_braces' && len(args) == 0
       " Example: create(one: 'two', three: 'four')
       "
       let replacement .= "{\n"
-      let alignment_start += 1
     else
       " add braces in all other cases
       let replacement .= " {\n"
-      let alignment_start += 1
     endif
 
   else " !sj#settings#Read('ruby_curly_braces')
@@ -543,16 +546,15 @@ function! sj#ruby#SplitOptions()
       " Example: User.new(:one, :two => 'three')
       "
       let replacement .= "\n"
-      let alignment_start += 1
     elseif option_type == 'option' && function_type == 'with_spaces' && len(args) > 0
       " Example: User.new :one, :two => 'three'
       "
       let replacement .= "\n"
-      let alignment_start += 1
-    elseif option_type == 'option' && function_type == 'with_round_braces' && len(args) == 0
-      " Example: User.new(:two => 'three')
+    elseif option_type == 'hash' && function_type == 'none'
+      " Not a function call, but a hash
+      " Example: one = {:two => "three"}
       "
-      " no need to add anything
+      let replacement .= "{\n"
     endif
 
   endif
@@ -560,20 +562,37 @@ function! sj#ruby#SplitOptions()
   " add options
   let replacement .= join(opts, ",\n")
 
+  " add trailing comma
+  if sj#settings#Read('ruby_trailing_comma') || sj#settings#Read('trailing_comma')
+    let replacement .= ','
+  endif
+
   " add closing brace
   if !sj#settings#Read('ruby_curly_braces') && option_type == 'option' && function_type == 'with_round_braces'
-    " no need to add anything
-  elseif sj#settings#Read('ruby_curly_braces') || option_type == 'hash' || len(args) == 0
-    if sj#settings#Read('ruby_trailing_comma') || sj#settings#Read('trailing_comma')
-      let replacement .= ','
+    if sj#settings#Read('ruby_hanging_args')
+      " no need to do anything
+    else
+      let replacement = "\n".replacement."\n"
     endif
-
+  elseif sj#settings#Read('ruby_curly_braces') || option_type == 'hash' || len(args) == 0
     let replacement .= "\n}"
   endif
 
   call sj#ReplaceCols(from, to, replacement)
 
   if sj#settings#Read('align') && hash_type != 'mixed'
+    " find index of first option
+    let first_keyword_index = 0
+    for line in split(replacement, "\n", 1)
+      let line = substitute(sj#Trim(line), ',$', '', '')
+      if index(opts, line) >= 0
+        break
+      endif
+
+      let first_keyword_index += 1
+    endfor
+
+    let alignment_start = start_lineno + first_keyword_index
     let alignment_end = alignment_start + len(opts) - 1
 
     if hash_type == 'classic'
@@ -598,12 +617,12 @@ function! sj#ruby#SplitArray()
     return 0
   endif
 
-  let [from, to, args; _rest] = sj#argparser#ruby#ParseArguments(from + 1, to - 1, getline('.'))
+  let [from, to, items] = sj#argparser#ruby#ParseArray(from + 1, to - 1, getline('.'))
   if from < 0
     return 0
   endif
 
-  let replacement = "\n".join(args, ",\n")."\n"
+  let replacement = "\n".join(items, ",\n")."\n"
   call sj#ReplaceCols(from, to, replacement)
   return 1
 endfunction
@@ -864,6 +883,7 @@ function! s:JoinHashWithRoundBraces()
   let body = sj#GetMotion('Vi(',)
   if sj#settings#Read('normalize_whitespace')
     let body = substitute(body, '\s*=>\s*', ' => ', 'g')
+    let body = substitute(body, '\s\+\k\+\zs:\s\+', ': ', 'g')
   endif
 
   " remove trailing comma
