@@ -183,6 +183,11 @@ function! sj#GetMotion(motion)
   exec 'silent normal! '.a:motion.'"zy'
   let text = @z
 
+  if text == ''
+    " nothing got selected, so we might still be in visual mode
+    exe "normal! \<esc>"
+  endif
+
   call setreg('z', saved_register_text, saved_register_type)
   call sj#PopCursor()
 

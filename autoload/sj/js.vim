@@ -241,9 +241,8 @@ function! sj#js#JoinFatArrowFunction()
     return 0
   endif
 
-  call search('{\s*$', 'W', line('.'))
+  normal! $
 
-  normal! va{J
   let body = sj#Trim(sj#GetMotion('vi{'))
   let body = substitute(body, '^return\s*', '', '')
   let body = substitute(body, ';$', '', '')
