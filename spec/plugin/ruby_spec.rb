@@ -52,6 +52,76 @@ describe "ruby" do
     EOF
   end
 
+  describe "module namespaces" do
+    specify "with contents" do
+      set_file_contents <<-EOF
+        module Foo
+          module Bar
+            class Baz < Quux
+              def initialize
+              end
+            end
+          end
+        end
+      EOF
+
+      vim.search 'Foo'
+      join
+
+      assert_file_contents <<-EOF
+        class Foo::Bar::Baz < Quux
+          def initialize
+          end
+        end
+      EOF
+
+      vim.search 'Foo'
+      split
+
+      assert_file_contents <<-EOF
+        module Foo
+          module Bar
+            class Baz < Quux
+              def initialize
+              end
+            end
+          end
+        end
+      EOF
+    end
+
+    specify "without contents" do
+      set_file_contents <<-EOF
+        module Foo
+          module Bar
+            class Baz < Quux
+            end
+          end
+        end
+      EOF
+
+      vim.search 'Foo'
+      join
+
+      assert_file_contents <<-EOF
+        class Foo::Bar::Baz < Quux
+        end
+      EOF
+
+      vim.search 'Foo'
+      split
+
+      assert_file_contents <<-EOF
+        module Foo
+          module Bar
+            class Baz < Quux
+            end
+          end
+        end
+      EOF
+    end
+  end
+
   describe "ternaries" do
     it "handles simplistic ternaries" do
       set_file_contents <<-EOF

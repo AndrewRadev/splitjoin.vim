@@ -345,6 +345,20 @@ Array literals ~
     three
     }
 <
+Module namespacing ~
+>
+    module Foo
+      class Bar < Baz
+        def qux
+        end
+      end
+    end
+
+    class Foo::Bar < Baz
+      def qux
+      end
+    end
+<
 
 ==============================================================================
 PYTHON                                                      *splitjoin-python*
