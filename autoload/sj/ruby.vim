@@ -851,6 +851,10 @@ function! sj#ruby#JoinArrayLiteral()
 endfunction
 
 function! sj#ruby#JoinModuleNamespace()
+  if !exists('g:loaded_matchit')
+    return 0
+  endif
+
   let namespace_pattern = '^\s*module\s\+\zs[A-Z]\(\k\|::\)\+\s*$'
   let class_pattern = '^\s*class\s\+\zs[A-Z]\k\+\s*\%(<\s\+\S\+\)\=$'
 
@@ -859,23 +863,23 @@ function! sj#ruby#JoinModuleNamespace()
   endif
 
   " Pin the starting point
-  let start_line = line('.')
+  let module_start_line = line('.')
   let start_indent = indent('.')
   let modules = [expand('<cWORD>')]
   let keyword = 'module'
   normal! j0
 
   " Find the end point
-  let end_line = start_line
+  let module_end_line = module_start_line
   while search(namespace_pattern, 'Wc', line('.')) > 0
-    let end_line = line('.')
+    let module_end_line = line('.')
     call add(modules, expand('<cWORD>'))
     normal! j0
   endwhile
 
   if search(class_pattern, 'Wc', line('.')) > 0
     " then the end is a class line
-    let end_line = line('.')
+    let module_end_line = line('.')
     call add(modules, sj#GetMotion('vg_'))
     let keyword = 'class'
   else
@@ -888,30 +892,23 @@ function! sj#ruby#JoinModuleNamespace()
     return 0
   endif
 
-  if getline(line('.') + 1) =~ '^\s*end\s*$'
-    " then the class/module has no contents, let's delete the right amount of
-    " ends and keep going
-    let range = (end_line + 1).','.(end_line + (len(modules) - 1))
-    silent exe range.'delete _'
-  else
-    " get contents of the class/module
-    let saved_register_text = getreg('z', 1)
-    let saved_register_type = getregtype('z')
-    silent normal "zdiM
+  " go to the end of the deepest-nested module/class:
+  call search('^\s*\zs\%(module\|class\)', 'Wbc', line('.'))
+  normal %
+  let content_end_line = line('.') - 1
+  " delete the right amount of ends and go back
+  let range = (content_end_line + 1).','.(content_end_line + (len(modules) - 1))
+  silent exe range.'delete _'
+  exe module_end_line
 
-    " delete the necessary amount of "end"s
-    let range = (end_line + 1).','.(end_line + (len(modules) - 1))
-    silent exe range.'delete _'
-
-    " restore the contents, and adjust indentation
-    exe end_line
-    silent put z
-    silent call sj#SetIndent(end_line + 1, end_line + len(split(@z, "\n")), start_indent + shiftwidth())
-    call setreg('z', saved_register_text, saved_register_type)
+  if module_end_line + 1 <= content_end_line
+    " there's content in the class/module, so shift its indentation
+    let range = (module_end_line + 1).','.content_end_line
+    silent exe range.repeat('<', len(modules) - 1)
   endif
 
   " replace the module line
-  call sj#ReplaceLines(start_line, end_line, keyword.' '.join(modules, '::'))
+  call sj#ReplaceLines(module_start_line, module_end_line, keyword.' '.join(modules, '::'))
   return 1
 endfunction
 
@@ -931,7 +928,7 @@ function! sj#ruby#SplitModuleNamespace()
     return 0
   endif
   let module_path = expand('<cWORD>')
-  if search('\s\+<\s\+\S\+$', 'W') > 0
+  if search('\s\+<\s\+\S\+$', 'W', line('.')) > 0
     let parent = sj#GetMotion('vg_')
   else
     let parent = ''
@@ -951,11 +948,15 @@ function! sj#ruby#SplitModuleNamespace()
   call add(lines, keyword.' '.modules[-1].parent)
 
   " shift contents of the class/module
-  normal ][
-  let end_line = line('.')
-  if end_line - start_line > 1
-    let indent = indent(start_line) + shiftwidth() * len(modules)
-    silent call sj#SetIndent(start_line + 1, end_line - 1, indent)
+  if search('^\s*\zs\%(module\|class\)', 'Wbc', line('.')) <= 0
+    return 0
+  endif
+  normal %
+  let end_line = line('.') - 1
+  echomsg string([start_line, end_line])
+  if end_line - start_line > 0
+    let range = start_line.','.end_line
+    silent exe range.repeat('>', len(modules) - 1)
   endif
 
   " replace the module line
@@ -963,7 +964,7 @@ function! sj#ruby#SplitModuleNamespace()
   call sj#ReplaceMotion('V', join(lines, "\n"))
 
   " add the necessary amount of "end"s
-  exe (end_line + len(lines) - 1)
+  exe (end_line + len(lines))
   let ends = split(repeat("end\n", len(modules)), "\n")
   call sj#ReplaceMotion('V', join(ends, "\n"))
 

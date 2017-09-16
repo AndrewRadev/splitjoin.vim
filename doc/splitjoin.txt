@@ -346,6 +346,9 @@ Array literals ~
     }
 <
 Module namespacing ~
+
+Note that splitting and joining module namespaces relies on the built-in
+|matchit| plugin being loaded. Check |matchit-install| for details.
 >
     module Foo
       class Bar < Baz
