@@ -856,7 +856,7 @@ function! sj#ruby#JoinModuleNamespace()
   endif
 
   let namespace_pattern = '^\s*module\s\+\zs[A-Z]\(\k\|::\)\+\s*$'
-  let class_pattern = '^\s*class\s\+\zs[A-Z]\k\+\s*\%(<\s\+\S\+\)\=$'
+  let class_pattern = '^\s*class\s\+\zs[A-Z]\k\+\s*\(\k\|::\)\+\s*\%(<\s\+\S\+\)\=$'
 
   if search(namespace_pattern, 'Wc', line('.')) <= 0
     return 0

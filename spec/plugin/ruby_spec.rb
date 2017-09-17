@@ -59,6 +59,7 @@ describe "ruby" do
           module Bar
             class Baz < Quux
               def initialize
+                # foo
               end
             end
           end
@@ -71,6 +72,7 @@ describe "ruby" do
       assert_file_contents <<-EOF
         class Foo::Bar::Baz < Quux
           def initialize
+            # foo
           end
         end
       EOF
@@ -83,6 +85,7 @@ describe "ruby" do
           module Bar
             class Baz < Quux
               def initialize
+                # foo
               end
             end
           end
@@ -117,6 +120,23 @@ describe "ruby" do
             class Baz < Quux
             end
           end
+        end
+      EOF
+    end
+
+    specify "merging namespaces" do
+      set_file_contents <<-EOF
+        module Foo::Bar
+          class Baz::Qux
+          end
+        end
+      EOF
+
+      vim.search 'Foo'
+      join
+
+      assert_file_contents <<-EOF
+        class Foo::Bar::Baz::Qux
         end
       EOF
     end
