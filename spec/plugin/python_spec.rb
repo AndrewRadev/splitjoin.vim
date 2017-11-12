@@ -92,7 +92,7 @@ describe "python" do
   end
 
   specify "splitting within a string" do
-    pending 'Python indentation broken on TravisCI'
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
     set_file_contents <<-EOF
       run("one", "two", "three {}".format(four))

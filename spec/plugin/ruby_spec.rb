@@ -426,7 +426,7 @@ describe "ruby" do
     end
 
     it "aligns thens in supercompact cases" do
-      pending('we need to add an alignment tool to the spec configuration')
+      skip 'we need to add an alignment tool to the spec configuration'
 
       set_file_contents <<-EOF
         case

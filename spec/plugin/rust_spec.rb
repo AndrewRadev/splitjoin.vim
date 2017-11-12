@@ -4,7 +4,7 @@ describe "rust" do
   let(:filename) { 'test.rs' }
 
   specify "match clauses" do
-    pending "Broken on TravisCI due to old Vim version"
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
     set_file_contents <<-EOF
       match one {
@@ -33,7 +33,7 @@ describe "rust" do
   end
 
   specify "question mark operator" do
-    pending "Broken on TravisCI due to old Vim version"
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
     set_file_contents <<-EOF
       let file = File::open("foo.txt")?;
@@ -58,7 +58,7 @@ describe "rust" do
   end
 
   specify "complicated question mark operator" do
-    pending "Broken on TravisCI due to old Vim version"
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
     set_file_contents <<-EOF
       let bar = foo + match write!("{}", floof) {
@@ -86,7 +86,7 @@ describe "rust" do
   end
 
   specify "structs" do
-    pending "Broken on TravisCI due to old Vim version"
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
     set_file_contents <<-EOF
       SomeStruct { foo: bar, bar: baz }
@@ -110,7 +110,7 @@ describe "rust" do
   end
 
   specify "structs (trailing comma)" do
-    pending "Broken on TravisCI due to old Vim version"
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
     set_file_contents <<-EOF
       SomeStruct { foo: bar, bar: baz }
