@@ -685,6 +685,15 @@ Match clauses ~
         },
     }
 <
+Question mark operator ~
+>
+    let file = File::open("foo.txt")?;
+
+    let file = match File::open("foo.txt") {
+        Ok(value) => value,
+        Err(e) => return Err(e.into()),
+    };
+<
 
 ==============================================================================
 PHP                                                            *splitjoin-php*
