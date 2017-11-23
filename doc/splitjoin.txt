@@ -693,7 +693,17 @@ Question mark operator ~
         Ok(value) => value,
         Err(e) => return Err(e.into()),
     };
+
+    let thing = Some(3)?;
+
+    let thing = match Some(3) {
+        None => return None,
+        Some(value) => value,
+    };
 <
+Note that the plugin determines how to split a `?` by looking upwards for a
+`-> Result` or `-> Option` . If it can't find anything, it'll default to a
+`Result`.
 
 ==============================================================================
 PHP                                                            *splitjoin-php*

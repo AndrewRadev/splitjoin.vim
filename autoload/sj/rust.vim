@@ -66,13 +66,36 @@ function! sj#rust#SplitQuestionMark()
     let start_col = col('.')
   endif
 
+  " is it a Result, or an Option?
+  if search(')\_s\+->\_s\+\%(\k\|::\)*Result\>', 'Wbn') > 0
+    let expr_type = 'Result'
+  elseif search(')\_s\+->\_s\+\%(\k\|::\)*Option\>', 'Wbn') > 0
+    let expr_type = 'Option'
+  else
+    " default to a Result, if we can't find anything
+    let expr_type = 'Result'
+  endif
+
   let expr = sj#GetCols(start_col, end_col)
-  let replacement = join([
-        \   "match ".expr." {",
-        \   "  Ok(value) => value,",
-        \   "  Err(e) => return Err(e.into()),",
-        \   "}"
-        \ ], "\n")
+
+  if expr_type == 'Result'
+    let replacement = join([
+          \   "match ".expr." {",
+          \   "  Ok(value) => value,",
+          \   "  Err(e) => return Err(e.into()),",
+          \   "}"
+          \ ], "\n")
+  elseif expr_type == 'Option'
+    let replacement = join([
+          \   "match ".expr." {",
+          \   "  None => return None,",
+          \   "  Some(value) => value,",
+          \   "}"
+          \ ], "\n")
+  else
+    echoerr "Unknown expr_type: ".expr_type
+    return 0
+  endif
 
   call sj#ReplaceCols(start_col, question_mark_col, replacement)
   return 1
@@ -93,15 +116,17 @@ function! sj#rust#JoinQuestionMark()
   let remainder_of_line = strpart(getline('.'), match_col - 1)
   let expr = substitute(remainder_of_line, '^match \(.*\) {$', '\1', '')
 
-  let ok_line      = match_line + 1
-  let err_line     = match_line + 2
+  let first_line   = match_line + 1
+  let second_line  = match_line + 2
   let closing_line = match_line + 3
 
-  if getline(ok_line) !~ '^\s*Ok(\(\k\+\)) => \1'
+  if getline(first_line) !~ '^\s*Ok(\(\k\+\)) => \1'
+        \ && getline(first_line) !~ '^\s*None => return None,'
     return 0
   endif
 
-  if getline(err_line) !~ '^\s*Err(\k\+) => return Err('
+  if getline(second_line) !~ '^\s*Err(\k\+) => return Err('
+        \ && getline(second_line) !~ '^\s*Some(\(\k\+\)) => \1'
     return 0
   endif
 

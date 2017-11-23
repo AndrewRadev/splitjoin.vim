@@ -32,7 +32,69 @@ describe "rust" do
     EOF
   end
 
-  specify "question mark operator" do
+  specify "question mark operator for Result" do
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+
+    set_file_contents <<-EOF
+      fn test() -> io::Result {
+          let file = File::open("foo.txt")?;
+      }
+    EOF
+
+    vim.search('File')
+    split
+
+    assert_file_contents <<-EOF
+      fn test() -> io::Result {
+          let file = match File::open("foo.txt") {
+              Ok(value) => value,
+              Err(e) => return Err(e.into()),
+          };
+      }
+    EOF
+
+    vim.search('File')
+    join
+
+    assert_file_contents <<-EOF
+      fn test() -> io::Result {
+          let file = File::open("foo.txt")?;
+      }
+    EOF
+  end
+
+  specify "question mark operator for Option" do
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+
+    set_file_contents <<-EOF
+      fn test() -> Option<T> {
+          let thing = Some(3)?;
+      }
+    EOF
+
+    vim.search('Some')
+    split
+
+    assert_file_contents <<-EOF
+      fn test() -> Option<T> {
+          let thing = match Some(3) {
+              None => return None,
+              Some(value) => value,
+          };
+      }
+    EOF
+
+    vim.search('Some')
+    join
+
+    assert_file_contents <<-EOF
+      fn test() -> Option<T> {
+          let thing = Some(3)?;
+      }
+    EOF
+  end
+
+  specify "question mark operator for Option" do
     pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
     set_file_contents <<-EOF
