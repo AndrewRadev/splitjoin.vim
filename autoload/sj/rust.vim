@@ -138,3 +138,25 @@ function! sj#rust#JoinQuestionMark()
 
   call sj#ReplaceByPosition(match_position, end_position, expr.'?')
 endfunction
+
+function! sj#rust#SplitClosure()
+  if !sj#SearchUnderCursor('(|.\{-}| .\{-})')
+    return 0
+  endif
+
+  let closure_contents = sj#GetMotion('vi(')
+  let replacement = substitute(closure_contents, '^\(|.\{-}|\) \(.\{-}\)$', '\1 {\n\2\n}', '')
+  call sj#ReplaceMotion('vi(', replacement)
+  return 1
+endfunction
+
+function! sj#rust#JoinClosure()
+  if !sj#SearchUnderCursor('(|.\{-}| {\s*$')
+    return 0
+  endif
+
+  let closure_contents = sj#GetMotion('vi(')
+  let replacement = substitute(closure_contents, '^\(|.\{-}|\)\s*{\_s*\(.\{-}\)\_s*}$', '\1 \2', '')
+  call sj#ReplaceMotion('vi(', replacement)
+  return 1
+endfunction

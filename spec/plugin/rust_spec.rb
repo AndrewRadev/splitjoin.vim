@@ -147,6 +147,29 @@ describe "rust" do
     EOF
   end
 
+  specify "closures" do
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+
+    set_file_contents <<-EOF
+      let foo = something.map(|x| x * 2);
+    EOF
+
+    vim.search('|x|')
+    split
+
+    assert_file_contents <<-EOF
+      let foo = something.map(|x| {
+          x * 2
+      });
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      let foo = something.map(|x| x * 2);
+    EOF
+  end
+
   specify "structs" do
     pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
