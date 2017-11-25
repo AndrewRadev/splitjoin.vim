@@ -246,6 +246,11 @@ function! sj#TrimList(list)
   return map(a:list, 'sj#Trim(v:val)')
 endfunction
 
+" Remove blank strings from the List
+function! sj#RemoveBlanks(list)
+  return filter(a:list, 'v:val !~ "^\\s*$"')
+endfunction
+
 " Searching for patterns {{{1
 "
 " function! sj#SearchUnderCursor(pattern, flags, skip) {{{2

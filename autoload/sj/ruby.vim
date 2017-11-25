@@ -386,6 +386,7 @@ function! sj#ruby#JoinBlock()
 
   let lines = sj#GetLines(do_line_no, end_line_no)
   let lines = sj#TrimList(lines)
+  let lines = sj#RemoveBlanks(lines)
 
   let do_line  = substitute(lines[0], do_pattern, '{\1', '')
   let body     = join(lines[1:-2], '; ')
@@ -1066,7 +1067,7 @@ function! s:FindComments(start_line_no, end_line_no)
     exe lineno
     normal! 0
 
-    while search('\s*#.*$', 'W', lineno) > 0
+    while search('\s*#.*$', 'Wc', lineno) > 0
       let col = col('.')
 
       normal! f#
