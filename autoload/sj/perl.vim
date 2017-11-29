@@ -162,7 +162,7 @@ function! sj#perl#SplitWordList()
     return 0
   endif
 
-  let items = split(matchstr(remainder_of_line, '\%(\w\|\s\)\+'), '\s\+')
+  let items = split(matchstr(remainder_of_line, '\%(\k\|\s\)\+'), '\s\+')
   let body  = "(\n".join(items, "\n")."\n)"
   call sj#ReplaceMotion('Va(', body)
 
