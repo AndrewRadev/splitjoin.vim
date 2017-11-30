@@ -160,3 +160,32 @@ function! sj#rust#JoinClosure()
   call sj#ReplaceMotion('vi(', replacement)
   return 1
 endfunction
+
+function! sj#rust#SplitExprIntoEmptyMatch()
+  if search('\k\+', 'Wbc', line('.')) <= 0
+    return 0
+  endif
+  let start_col = col('.')
+  call search('\k\+', 'We', line('.'))
+  let end_col = col('.')
+
+  while search('\%#\%(\k\|)\)\%(::\k\+\|\.\k\+\)(\=', 'We', line('.')) > 0
+    if getline('.')[col('.') - 1] == '('
+      normal! %
+    endif
+
+    let end_col = col('.')
+  endwhile
+
+  let expr = sj#GetCols(start_col, end_col)
+  if expr == ''
+    return 0
+  endif
+
+  call sj#ReplaceCols(start_col, end_col, join([
+        \ "match ".expr." {",
+        \ "",
+        \ "}",
+        \ ], "\n"))
+  return 1
+endfunction

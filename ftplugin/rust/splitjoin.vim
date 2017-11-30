@@ -3,6 +3,7 @@ let b:splitjoin_split_callbacks = [
       \ 'sj#rust#SplitQuestionMark',
       \ 'sj#rust#SplitClosure',
       \ 'sj#js#SplitObjectLiteral',
+      \ 'sj#rust#SplitExprIntoEmptyMatch',
       \ ]
 
 let b:splitjoin_join_callbacks = [

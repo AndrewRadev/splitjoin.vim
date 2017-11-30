@@ -218,4 +218,21 @@ describe "rust" do
       SomeStruct { foo: bar, bar: baz }
     EOF
   end
+
+  specify "fallback match split" do
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+
+    set_file_contents <<-EOF
+      let foo = Some::value(chain).of(things);
+    EOF
+
+    vim.search('Some')
+    split
+
+    assert_file_contents <<-EOF
+      let foo = match Some::value(chain).of(things) {
+
+      };
+    EOF
+  end
 end
