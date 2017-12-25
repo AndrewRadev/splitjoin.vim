@@ -374,7 +374,6 @@ endfunction
 
 function! sj#ruby#JoinBlock()
   let do_pattern = '\%(\<do\>\|{\)\(\s*|.*|\s*\)\?$'
-  let end_pattern = '\%(^\|[^.:@$]\)\@<=\%(\<end:\@!\>\|}\)'
   let skip_syntax = sj#SkipSyntax(['rubyString', 'rubyComment', 'rubyInterpolation', 'rubyInterpolationDelimiter'])
 
   let do_line_no = sj#SearchSkip(do_pattern, skip_syntax, 'cW', line('.'))
@@ -386,7 +385,27 @@ function! sj#ruby#JoinBlock()
     return 0
   endif
 
+  if getline(do_line_no) =~ '\<do\>\(\s*|.*|\s*\)\?$'
+    let block_type = 'do'
+    let end_pattern = '\%(^\|[^.:@$]\)\@<=\<end:\@!\>'
+  else
+    let block_type = 'curly'
+    let end_pattern = '^\s*}'
+  endif
+
   let end_line_no = searchpair(do_pattern, '', end_pattern, 'W', skip_syntax)
+  if end_line_no <= 0
+    return 0
+  endif
+
+  if block_type == 'curly'
+    let temp_lines = sj#GetLines(do_line_no, end_line_no)
+    if len(temp_lines) > 1 && (temp_lines[1] =~ '=>' || temp_lines[1] =~ '^\_s*\k\+:')
+      " it's probably not a block after all, will be handled by the hash
+      " callback.
+      return 0
+    endif
+  endif
 
   let [result, offset] = s:HandleComments(do_line_no, end_line_no)
   if !result
@@ -990,12 +1009,6 @@ function! s:JoinHashWithCurlyBraces()
 
   let original_body = sj#GetMotion('Vi{')
   let body = original_body
-
-  if body !~ '=>' && body !~ '^\_s*\k:'
-    " it's probably not a hash after all, will be handled by the block
-    " callback.
-    return 0
-  endif
 
   if sj#settings#Read('normalize_whitespace')
     let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')

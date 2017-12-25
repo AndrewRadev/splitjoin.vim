@@ -768,6 +768,21 @@ describe "ruby" do
       EOF
     end
 
+    it "doesn't get confused by nested hashes" do
+      set_file_contents <<-EOF
+        Bar.new {
+          {foo: "bar"}
+        }
+      EOF
+
+      vim.search 'do'
+      join
+
+      assert_file_contents <<-EOF
+        Bar.new { {foo: "bar"} }
+      EOF
+    end
+
     it "optimizes particular cases to &-shorthands" do
       set_file_contents <<-EOF
         [1, 2, 3, 4].map(&:to_s)
