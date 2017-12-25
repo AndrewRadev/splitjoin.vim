@@ -334,6 +334,14 @@ function! sj#ruby#SplitBlock()
   normal! %
   let end = col('.')
 
+  " is this in the middle of a method chain?
+  let line = getline('.')
+  if len(line) > col('.') && line[col('.')] == '.'
+    let in_method_chain = 1
+  else
+    let in_method_chain = 0
+  endif
+
   if start == end
     " the cursor hasn't moved, bail out
     return 0
@@ -341,7 +349,9 @@ function! sj#ruby#SplitBlock()
 
   let body = sj#GetMotion('Va{')
 
-  if sj#settings#Read('ruby_do_block_split')
+  if in_method_chain && sj#settings#Read('ruby_do_block_split_in_method_chain')
+    let multiline_block = 'do \1\n\2\nend'
+  elseif !in_method_chain && sj#settings#Read('ruby_do_block_split')
     let multiline_block = 'do \1\n\2\nend'
   else
     let multiline_block = '{ \1\n\2\n}'
@@ -363,19 +373,20 @@ function! sj#ruby#SplitBlock()
 endfunction
 
 function! sj#ruby#JoinBlock()
-  let do_pattern = '\<do\>\(\s*|.*|\s*\)\?$'
-  let end_pattern = '\%(^\|[^.:@$]\)\@<=\<end:\@!\>'
+  let do_pattern = '\%(\<do\>\|{\)\(\s*|.*|\s*\)\?$'
+  let end_pattern = '\%(^\|[^.:@$]\)\@<=\%(\<end:\@!\>\|}\)'
+  let skip_syntax = sj#SkipSyntax(['rubyString', 'rubyComment', 'rubyInterpolation', 'rubyInterpolationDelimiter'])
 
-  let do_line_no = search(do_pattern, 'cW', line('.'))
+  let do_line_no = sj#SearchSkip(do_pattern, skip_syntax, 'cW', line('.'))
   if do_line_no <= 0
-    let do_line_no = search(do_pattern, 'bcW', line('.'))
+    let do_line_no = sj#SearchSkip(do_pattern, skip_syntax, 'bcW', line('.'))
   endif
 
   if do_line_no <= 0
     return 0
   endif
 
-  let end_line_no = searchpair(do_pattern, '', end_pattern, 'W')
+  let end_line_no = searchpair(do_pattern, '', end_pattern, 'W', skip_syntax)
 
   let [result, offset] = s:HandleComments(do_line_no, end_line_no)
   if !result
@@ -980,6 +991,12 @@ function! s:JoinHashWithCurlyBraces()
   let original_body = sj#GetMotion('Vi{')
   let body = original_body
 
+  if body !~ '=>' && body !~ '^\_s*\k:'
+    " it's probably not a hash after all, will be handled by the block
+    " callback.
+    return 0
+  endif
+
   if sj#settings#Read('normalize_whitespace')
     let body = substitute(body, '\s\+=>\s\+', ' => ', 'g')
     let body = substitute(body, '\s\+\k\+\zs:\s\+', ': ', 'g')
@@ -1067,7 +1084,7 @@ function! s:FindComments(start_line_no, end_line_no)
     exe lineno
     normal! 0
 
-    while search('\s*#.*$', 'Wc', lineno) > 0
+    if search('\s*#.*$', 'Wc', lineno) > 0
       let col = col('.')
 
       normal! f#
@@ -1076,7 +1093,7 @@ function! s:FindComments(start_line_no, end_line_no)
         call add(comments, [lineno, col, comment])
         break
       endif
-    endwhile
+    endif
   endfor
 
   call sj#PopCursor()

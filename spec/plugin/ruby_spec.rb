@@ -13,6 +13,7 @@ describe "ruby" do
     vim.command('silent! unlet g:splitjoin_ruby_heredoc_type')
     vim.command('silent! unlet g:splitjoin_ruby_hanging_args')
     vim.command('silent! unlet g:splitjoin_ruby_do_block_split')
+    vim.command('silent! unlet g:splitjoin_ruby_do_block_split_in_method_chain')
   end
 
   specify "if-clauses" do
@@ -742,6 +743,31 @@ describe "ruby" do
       EOF
     end
 
+    it "splits {}-blocks into {}-blocks if they continue with a `.`" do
+      set_file_contents <<-EOF
+        [1, 2, 3, 4].map { |i| i.to_s }.select(&:odd?)
+      EOF
+
+      vim.search 'to_s'
+      split
+
+      assert_file_contents <<-EOF
+        [1, 2, 3, 4].map { |i|
+          i.to_s
+        }.select(&:odd?)
+      EOF
+
+      join
+      vim.command('let g:splitjoin_ruby_do_block_split_in_method_chain = 1')
+      split
+
+      assert_file_contents <<-EOF
+        [1, 2, 3, 4].map do |i|
+          i.to_s
+        end.select(&:odd?)
+      EOF
+    end
+
     it "optimizes particular cases to &-shorthands" do
       set_file_contents <<-EOF
         [1, 2, 3, 4].map(&:to_s)
@@ -779,9 +805,9 @@ describe "ruby" do
       split
 
       assert_file_contents <<-EOF
-        Bar.new do |one|
+        Bar.new { |one|
           two
-        end.map(&:name)
+        }.map(&:name)
       EOF
 
       join
