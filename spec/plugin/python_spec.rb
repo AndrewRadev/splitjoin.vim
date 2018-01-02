@@ -184,7 +184,7 @@ describe "python" do
     assert_file_contents <<-EOF
       out = ("one",
               {"two": "three"},
-              "four")
+      "four")
     EOF
 
     vim.search('one')
