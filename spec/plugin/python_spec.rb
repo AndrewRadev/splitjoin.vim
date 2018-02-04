@@ -174,6 +174,8 @@ describe "python" do
   end
 
   specify "dictionary within tuple" do
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+
     set_file_contents <<-EOF
       out = ("one", {"two": "three"}, "four")
     EOF
@@ -184,7 +186,7 @@ describe "python" do
     assert_file_contents <<-EOF
       out = ("one",
               {"two": "three"},
-      "four")
+              "four")
     EOF
 
     vim.search('one')
