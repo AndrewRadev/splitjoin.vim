@@ -389,7 +389,7 @@ function! sj#ruby#JoinBlock()
   let lines = sj#RemoveBlanks(lines)
 
   let do_line  = substitute(lines[0], do_pattern, '{\1', '')
-  let body     = join(lines[1:-2], '; ')
+  let body     = s:JoinBlockBody(lines[1:-2])
   let body     = sj#Trim(body)
   let end_line = substitute(lines[-1], 'end', '}', '')
 
@@ -401,6 +401,29 @@ function! sj#ruby#JoinBlock()
   call sj#ReplaceLines(do_line_no, end_line_no, replacement)
 
   return 1
+endfunction
+
+function! s:JoinBlockBody(lines)
+  let lines = a:lines
+
+  if len(lines) < 1
+    return ''
+  endif
+
+  let body = lines[0]
+  " horrible regex taken from vim-ruby
+  let continuation_regex =
+        \ '\%(%\@<![({[\\.,:*/%+]\|\<and\|\<or\|\%(<%\)\@<![=-]\|:\@<![^[:alnum:]:][|&?]\|||\|&&\)\s*\%(#.*\)\=$'
+
+  for line in lines[1:]
+    if body =~ continuation_regex
+      let body .= ' '.line
+    else
+      let body .= '; '.line
+    endif
+  endfor
+
+  return body
 endfunction
 
 function! sj#ruby#SplitCachingConstruct()
