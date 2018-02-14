@@ -36,7 +36,7 @@ function! sj#python#SplitDict()
     let body_end   = body_start + len(pairs)
 
     let base_indent = indent('.')
-    for line in range(body_start, body_end + 1)
+    for line in range(body_start, body_end)
       if base_indent == indent(line)
         " then indentation didn't work quite right, let's just indent it
         " ourselves
