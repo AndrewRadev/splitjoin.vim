@@ -521,6 +521,11 @@ function! sj#ruby#SplitOptions()
     let replacement = join(args, ",\n")
 
     if !sj#settings#Read('ruby_hanging_args')
+      " add trailing comma
+      if sj#settings#Read('ruby_trailing_comma') || sj#settings#Read('trailing_comma')
+        let replacement .= ','
+      endif
+
       let replacement = "\n".replacement."\n"
     elseif len(args) == 1
       " if there's only one argument, there's nothing to do in the "hanging"

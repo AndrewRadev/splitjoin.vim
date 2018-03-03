@@ -13,6 +13,7 @@ describe "ruby" do
     vim.command('silent! unlet g:splitjoin_ruby_heredoc_type')
     vim.command('silent! unlet g:splitjoin_ruby_hanging_args')
     vim.command('silent! unlet g:splitjoin_ruby_do_block_split')
+    vim.command('silent! unlet g:splitjoin_trailing_comma')
   end
 
   specify "if-clauses" do
@@ -992,6 +993,25 @@ describe "ruby" do
         foo = bar(
           "one",
           "two"
+        )
+      EOF
+    end
+
+    specify "with a trailing comma" do
+      vim.command('let g:splitjoin_ruby_hanging_args = 0')
+      vim.command('let g:splitjoin_trailing_comma = 1')
+
+      set_file_contents(<<-EOF)
+        foo = bar("one", "two")
+      EOF
+
+      vim.search('one')
+      split
+
+      assert_file_contents(<<-EOF)
+        foo = bar(
+          "one",
+          "two",
         )
       EOF
     end
