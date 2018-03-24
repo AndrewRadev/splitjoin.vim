@@ -526,6 +526,29 @@ describe "ruby" do
     EOF
   end
 
+  specify "hashes with symbol syntax" do
+    set_file_contents <<-EOF
+      foo = { bar: 1, one: 2 }
+    EOF
+
+    vim.search 'bar:'
+    split
+
+    assert_file_contents <<-EOF
+      foo = {
+        bar: 1,
+        one: 2
+      }
+    EOF
+
+    vim.search 'foo'
+    join
+
+    assert_file_contents <<-EOF
+      foo = { bar: 1, one: 2 }
+    EOF
+  end
+
   specify "hashes without a trailing comma" do
     vim.command('let g:splitjoin_ruby_trailing_comma = 0')
 
