@@ -651,7 +651,13 @@ function! sj#ruby#SplitArray()
     return 0
   endif
 
-  let replacement = "\n".join(items, ",\n")."\n"
+  let replacement = join(items, ",\n")
+
+  if sj#settings#Read('ruby_trailing_comma') || sj#settings#Read('trailing_comma')
+    let replacement .= ','
+  endif
+
+  let replacement = "\n".replacement."\n"
   call sj#ReplaceCols(from, to, replacement)
   return 1
 endfunction
