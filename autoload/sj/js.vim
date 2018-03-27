@@ -99,7 +99,7 @@ endfunction
 
 function! sj#js#SplitOneLineIf()
   let line = getline('.')
-  if line =~ '^\s*if (.\+) .\+;'
+  if line =~ '^\s*if (.\+) .\+;\?'
     let lines = []
     " use regular vim movements to know where we have to split
     normal! ^w%
