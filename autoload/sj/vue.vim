@@ -27,6 +27,6 @@ function! sj#vue#JoinCssMultilineSelector()
 endfunction
 
 function! s:GetVueSection()
-  let l:startofsection = search('\v^\<(template|script|style)\>', 'bn')
+  let l:startofsection = search('\v^\<(template|script|style)\>', 'bnW')
   return substitute(getline(startofsection), '\v[<>]', '', 'g')
 endfunction
