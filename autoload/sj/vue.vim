@@ -1,32 +1,32 @@
 function! sj#vue#SplitCssDefinition()
-    if GetVueSection() != 'style'
+    if s:GetVueSection() != 'style'
         return 0
     endif
     return sj#css#SplitDefinition()
 endfunction
 
 function! sj#vue#JoinCssDefinition()
-    if GetVueSection() != 'style'
+    if s:GetVueSection() != 'style'
         return 0
     endif
     return sj#css#JoinDefinition()
 endfunction
 
 function! sj#vue#SplitCssMultilineSelector()
-    if GetVueSection() != 'style'
+    if s:GetVueSection() != 'style'
         return 0
     endif
     return sj#css#SplitMultilineSelector()
 endfunction
 
 function! sj#vue#JoinCssMultilineSelector()
-    if GetVueSection() != 'style'
+    if s:GetVueSection() != 'style'
         return 0
     endif
     return sj#css#JoinMultilineSelector()
 endfunction
 
-function! GetVueSection()
+function! s:GetVueSection()
   let l:startofsection = search('\v^\<(template|script|style)\>', 'bn')
   return substitute(getline(startofsection), '\v[<>]', '', 'g')
 endfunction
