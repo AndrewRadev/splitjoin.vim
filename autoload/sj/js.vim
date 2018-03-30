@@ -99,7 +99,7 @@ endfunction
 
 function! sj#js#SplitOneLineIf()
   let line = getline('.')
-  if line =~ '^\s*if (.\+) .\+;'
+  if line =~ '^\s*if (.\+) .\+;\?'
     let lines = []
     " use regular vim movements to know where we have to split
     normal! ^w%
@@ -122,7 +122,7 @@ function! sj#js#JoinOneLineIf()
   let end_line_no = if_line_no + 2
   let end_line = getline(end_line_no)
 
-  if if_line !~ '^\s*if (.+) {' && end_line !~ '^\s*}\s*$'
+  if if_line !~ '^\s*if (.\+) {' || end_line !~ '^\s*}\s*$'
     return 0
   endif
 
