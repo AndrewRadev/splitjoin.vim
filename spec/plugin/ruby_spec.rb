@@ -1191,6 +1191,28 @@ describe "ruby" do
         foo "\#{one}", { :two => 3 }
       EOF
     end
+
+    specify "doesn't get confused by namespaces (::)" do
+      vim.command('let g:splitjoin_ruby_curly_braces = 1')
+
+      set_file_contents <<-EOF
+        foo Bar::Baz, bla
+      EOF
+
+      vim.search 'Bar'
+      split
+
+      assert_file_contents <<-EOF
+        foo(Bar::Baz,
+            bla)
+      EOF
+
+      join
+
+      assert_file_contents <<-EOF
+        foo(Bar::Baz, bla)
+      EOF
+    end
   end
 
   describe "arrays" do

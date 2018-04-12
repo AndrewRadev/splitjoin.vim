@@ -47,7 +47,7 @@ function! sj#argparser#ruby#Process() dict
       elseif self.hash_type == 'new'
         let self.hash_type = 'mixed'
       endif
-    elseif self.body =~ '^\(\k\|[?!]\):'
+    elseif self.body =~ '^\(\k\|[?!]\):[^:]'
       let self.current_arg_type = 'option'
       if sj#BlankString(self.hash_type)
         let self.hash_type = 'new'
