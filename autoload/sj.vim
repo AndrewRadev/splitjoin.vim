@@ -180,6 +180,7 @@ function! sj#GetMotion(motion)
   let saved_register_text = getreg('z', 1)
   let saved_register_type = getregtype('z')
 
+  let @z = ''
   exec 'silent normal! '.a:motion.'"zy'
   let text = @z
 
