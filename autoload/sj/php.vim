@@ -232,7 +232,7 @@ function! sj#php#SplitMethodChain()
   if sj#settings#Read('php_method_chain_until_end_of_line')
     call sj#PushCursor()
     normal! j
-    call sj#php#SplitNextArrow()
+    call s:SplitNextArrow()
     call sj#PopCursor()
   endif
 
