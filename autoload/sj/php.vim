@@ -187,6 +187,22 @@ function! s:JoinList(start_char, end_char)
   return 1
 endfunction
 
+function! sj#php#SplitNextArrow()
+  let l:arrow_or_paren = search('\v(\(|\S\zs-\>\ze)', '', line('.'))
+
+  if ! arrow_or_paren
+    return
+  endif
+
+  if matchstr(getline('.'), '\%' . col('.') . 'c.') == '('
+    normal! %
+  else
+    normal! i
+  endif
+
+  call sj#php#SplitNextArrow()
+endfunction
+
 function! sj#php#SplitMethodChain()
   let pattern = '->\%(\k\+\)'
 
@@ -212,6 +228,12 @@ function! sj#php#SplitMethodChain()
 
   let body = sj#GetCols(start_col, end_col)
   call sj#ReplaceCols(start_col, end_col, "\n".body)
+
+  if sj#settings#Read('php_method_chain_until_end_of_line')
+    normal! j
+    call sj#php#SplitNextArrow()
+  endif
+
   return 1
 endfunction
 
@@ -223,5 +245,10 @@ function! sj#php#JoinMethodChain()
   endif
 
   s/\n\_s*//g
+
+  if sj#settings#Read('php_method_chain_until_end_of_line')
+    call sj#php#JoinMethodChain()
+  endif
+
   return 1
 endfunction
