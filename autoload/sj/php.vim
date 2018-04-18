@@ -187,7 +187,7 @@ function! s:JoinList(start_char, end_char)
   return 1
 endfunction
 
-function! sj#php#SplitNextArrow()
+function! s:SplitNextArrow()
   let l:arrow_or_paren = search('\v(\(|\S\zs-\>\ze)', '', line('.'))
 
   if ! arrow_or_paren
@@ -200,7 +200,7 @@ function! sj#php#SplitNextArrow()
     normal! i
   endif
 
-  call sj#php#SplitNextArrow()
+  call s:SplitNextArrow()
 endfunction
 
 function! sj#php#SplitMethodChain()
@@ -230,8 +230,10 @@ function! sj#php#SplitMethodChain()
   call sj#ReplaceCols(start_col, end_col, "\n".body)
 
   if sj#settings#Read('php_method_chain_until_end_of_line')
+    call sj#PushCursor()
     normal! j
     call sj#php#SplitNextArrow()
+    call sj#PopCursor()
   endif
 
   return 1
