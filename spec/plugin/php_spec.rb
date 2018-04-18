@@ -153,7 +153,7 @@ describe "php" do
     assert_file_contents "<? example(); ?>"
   end
 
-  specify "method chain ->" do
+  specify "method chain -> on function call" do
     set_file_contents <<-EOF
       <?php
       function stuff()
@@ -182,6 +182,42 @@ describe "php" do
       function stuff()
       {
         $var = $foo->one($baz->nope())->two()->three();
+      }
+    EOF
+  end
+
+  specify "method chain -> on property on beginning of line" do
+    set_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $one
+          ->two->three;
+      }
+    EOF
+
+    vim.search('three')
+    split
+
+    assert_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $one
+          ->two
+          ->three;
+      }
+    EOF
+
+    vim.search('two')
+    join
+
+    assert_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $one
+          ->two->three;
       }
     EOF
   end
