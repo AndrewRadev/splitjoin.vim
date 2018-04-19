@@ -204,7 +204,7 @@ function! s:SplitNextArrow()
 endfunction
 
 function! sj#php#SplitMethodChain()
-  let pattern = '->\%(\k\+\)'
+  let pattern = '\v-\>[^-;\s]*'
 
   if sj#SearchUnderCursor('\S'.pattern) <= 0
     return 0
