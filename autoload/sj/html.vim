@@ -1,10 +1,15 @@
 function! sj#html#SplitTags()
   let line = getline('.')
   let tag_regex = '\(<.\{-}>\)\(.*\)\(<\/.\{-}>\)'
+  let tag_with_content_regex = '\(<.\{-}>\)\(.\+\)\(<\/.\{-}>\)'
 
   if line =~ tag_regex
     let body = sj#GetMotion('Vat')
-    call sj#ReplaceMotion('Vat', substitute(body, tag_regex, '\1\n\2\n\3', ''))
+    if line =~ tag_with_content_regex
+      call sj#ReplaceMotion('Vat', substitute(body, tag_regex, '\1\n\2\n\3', ''))
+    else
+      call sj#ReplaceMotion('Vat', substitute(body, tag_regex, '\1\n\3', ''))
+    endif
     return 1
   else
     return 0
@@ -17,9 +22,10 @@ function! sj#html#JoinTags()
     return 0
   endif
 
+  let tag = sj#GetMotion('vat')
   let body = sj#GetMotion('vit')
 
-  if line("'<") == line("'>")
+  if len(split(tag, "\n")) == 1
     " then it's just one line, ignore
     return 0
   endif
