@@ -152,4 +152,109 @@ describe "php" do
 
     assert_file_contents "<? example(); ?>"
   end
+
+  specify "method chain -> on function call" do
+    set_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $var = $foo->one($baz->nope())->two()->three();
+      }
+    EOF
+
+    vim.search('->two')
+    split
+
+    assert_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $var = $foo->one($baz->nope())
+          ->two()->three();
+      }
+    EOF
+
+    vim.search('foo')
+    join
+
+    assert_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $var = $foo->one($baz->nope())->two()->three();
+      }
+    EOF
+  end
+
+  specify "method chain -> on property on beginning of line" do
+    set_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $one
+          ->two->three;
+      }
+    EOF
+
+    vim.search('three')
+    split
+
+    assert_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $one
+          ->two
+          ->three;
+      }
+    EOF
+
+    vim.search('two')
+    join
+
+    assert_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $one
+          ->two->three;
+      }
+    EOF
+  end
+
+  specify "method chain -> until end of chain" do
+    vim.command('let g:splitjoin_php_method_chain_full = 1')
+
+    set_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $var = $foo->one()->two($baz->nope())->three();
+      }
+    EOF
+
+    vim.search('->two')
+    split
+
+    assert_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $var = $foo->one()
+          ->two($baz->nope())
+          ->three();
+      }
+    EOF
+
+    vim.search('foo')
+    join
+
+    assert_file_contents <<-EOF
+      <?php
+      function stuff()
+      {
+        $var = $foo->one()->two($baz->nope())->three();
+      }
+    EOF
+  end
 end

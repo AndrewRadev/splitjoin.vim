@@ -187,8 +187,24 @@ function! s:JoinList(start_char, end_char)
   return 1
 endfunction
 
+function! s:SplitNextArrow()
+  let l:arrow_or_paren = search('\v(\(|\S\zs-\>\ze)', '', line('.'))
+
+  if ! arrow_or_paren
+    return
+  endif
+
+  if matchstr(getline('.'), '\%' . col('.') . 'c.') == '('
+    normal! %
+  else
+    exe "normal! i\<cr>"
+  endif
+
+  call s:SplitNextArrow()
+endfunction
+
 function! sj#php#SplitMethodChain()
-  let pattern = '->\%(\k\+\)'
+  let pattern = '->[^-);]*'
 
   if sj#SearchUnderCursor('\S'.pattern) <= 0
     return 0
@@ -212,6 +228,12 @@ function! sj#php#SplitMethodChain()
 
   let body = sj#GetCols(start_col, end_col)
   call sj#ReplaceCols(start_col, end_col, "\n".body)
+
+  if sj#settings#Read('php_method_chain_full')
+    normal! j
+    call s:SplitNextArrow()
+  endif
+
   return 1
 endfunction
 
@@ -223,5 +245,10 @@ function! sj#php#JoinMethodChain()
   endif
 
   s/\n\_s*//g
+
+  if sj#settings#Read('php_method_chain_full')
+    call sj#php#JoinMethodChain()
+  endif
+
   return 1
 endfunction
