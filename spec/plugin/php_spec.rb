@@ -223,7 +223,7 @@ describe "php" do
   end
 
   specify "method chain -> until end of chain" do
-    vim.command('let g:splitjoin_php_method_chain_until_end_of_line = 1')
+    vim.command('let g:splitjoin_php_method_chain_full = 1')
 
     set_file_contents <<-EOF
       <?php

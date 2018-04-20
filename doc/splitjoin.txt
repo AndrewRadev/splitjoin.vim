@@ -763,7 +763,7 @@ PHP markers ~
 Method calls~
 
 Affects all the arrows after the cursor when
-|splitjoin_php_method_chain_until_end_of_line| is set to 1.
+|splitjoin_php_method_chain_full| is set to 1.
 Otherwise, it affects only a single arrow.
 >
     $var = $one->two->three()->four();
@@ -1450,9 +1450,9 @@ When set to 0, as is the default, it will look like this:
     </div>
 <
 
-                                 *splitjoin_php_method_chain_until_end_of_line*
+                                 *splitjoin_php_method_chain_full*
 >
-    g:splitjoin_php_method_chain_until_end_of_line
+    g:splitjoin_php_method_chain_full
 <
 
 Default value: 0

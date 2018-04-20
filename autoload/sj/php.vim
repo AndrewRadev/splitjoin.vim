@@ -197,7 +197,7 @@ function! s:SplitNextArrow()
   if matchstr(getline('.'), '\%' . col('.') . 'c.') == '('
     normal! %
   else
-    normal! i
+    exe "normal! i\<cr>"
   endif
 
   call s:SplitNextArrow()
@@ -229,11 +229,9 @@ function! sj#php#SplitMethodChain()
   let body = sj#GetCols(start_col, end_col)
   call sj#ReplaceCols(start_col, end_col, "\n".body)
 
-  if sj#settings#Read('php_method_chain_until_end_of_line')
-    call sj#PushCursor()
+  if sj#settings#Read('php_method_chain_full')
     normal! j
     call s:SplitNextArrow()
-    call sj#PopCursor()
   endif
 
   return 1
@@ -248,7 +246,7 @@ function! sj#php#JoinMethodChain()
 
   s/\n\_s*//g
 
-  if sj#settings#Read('php_method_chain_until_end_of_line')
+  if sj#settings#Read('php_method_chain_full')
     call sj#php#JoinMethodChain()
   endif
 
