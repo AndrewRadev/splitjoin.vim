@@ -59,15 +59,16 @@ function! sj#html#SplitAttributes()
   call argparser.Process()
   let args = argparser.args
 
-  if len(args) == 0
+  if len(args) <= 1
+    " only one argument would only the tag opener, no attributes
     return 0
   endif
 
   " The first item contains the tag and needs slightly different handling
   let args[0] = s:withIndentation(args[0], indent)
 
-  if sj#settings#Read('html_attribute_bracket_on_new_line')
-    let args[-1] = substitute(args[-1], '>$', "\n>", '')
+  if sj#settings#Read('html_attributes_bracket_on_new_line')
+    let args[-1] = substitute(args[-1], '\s*/\=>$', "\n\\0", '')
   endif
 
   let body = join(args, "\n")
