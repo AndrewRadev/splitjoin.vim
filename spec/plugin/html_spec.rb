@@ -87,6 +87,8 @@ describe "html" do
   end
 
   specify "hanging attributes" do
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+
     vim.command('let g:splitjoin_html_attributes_hanging = 1')
 
     joined_html = <<-EOF
