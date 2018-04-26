@@ -10,6 +10,7 @@ describe "html" do
 
   after :each do
     vim.command('silent! unlet g:splitjoin_html_attributes_bracket_on_new_line')
+    vim.command('silent! unlet g:splitjoin_html_attributes_hanging')
   end
 
   def simple_test(joined_html, split_html)
@@ -80,6 +81,25 @@ describe "html" do
         id="test"
         >
       </div>
+    EOF
+
+    simple_test(joined_html, split_html)
+  end
+
+  specify "hanging attributes" do
+    vim.command('let g:splitjoin_html_attributes_hanging = 1')
+
+    joined_html = <<-EOF
+      <button class="button control" @click="save" v-if="admin">
+        Save
+      </button>
+    EOF
+    split_html = <<-EOF
+      <button class="button control"
+              @click="save"
+              v-if="admin">
+        Save
+      </button>
     EOF
 
     simple_test(joined_html, split_html)

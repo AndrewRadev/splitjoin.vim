@@ -1449,8 +1449,34 @@ When set to 0, as is the default, it will look like this:
       text
     </div>
 <
+                                             *splitjoin_html_attributes_hanging*
+>
+    g:splitjoin_html_attributes_hanging
+<
 
-                                 *splitjoin_php_method_chain_full*
+Default value: 0
+
+If set to 1, then splitting HTML attributes will keep the first attribute on
+the same line, and split the rest. Combined with indentation support, it
+should look like this:
+>
+    <button class="button control"
+            @click="save"
+            v-if="admin">
+      Save
+    </button>
+<
+When set to 0, as is the default, it will look like this:
+>
+    <button
+      class="button control"
+      @click="save"
+      v-if="admin">
+      Save
+    </button>
+<
+
+                                               *splitjoin_php_method_chain_full*
 >
     g:splitjoin_php_method_chain_full
 <
@@ -1474,6 +1500,7 @@ If set to 1:
         ->three();
 
 Joining a chain will also join all the methods calls.
+
 
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*

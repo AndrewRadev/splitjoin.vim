@@ -71,9 +71,18 @@ function! sj#html#SplitAttributes()
     let args[-1] = substitute(args[-1], '\s*/\=>$', "\n\\0", '')
   endif
 
-  let body = join(args, "\n")
-  call sj#ReplaceMotion('V', body)
+  if sj#settings#Read('html_attributes_hanging')
+    if len(args) <= 2
+      " in the hanging case, nothing to split if there's at least one
+      " non-opening attribute
+      return 0
+    endif
+    let body = args[0].' '.join(args[1:-1], "\n")
+  else
+    let body = join(args, "\n")
+  endif
 
+  call sj#ReplaceMotion('V', body)
   return 1
 endfunction
 
