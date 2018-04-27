@@ -36,6 +36,24 @@ function! sj#vim#Join()
   endif
 endfunction
 
+function! sj#vim#SplitIfClause()
+  let line = getline('.')
+  let pattern = '\v^\s*if .{-} \| .{-} \|\s*endif'
+
+  if line !~# pattern
+    return 0
+  endif
+
+  let line_no = line('.')
+  let lines = split(line, '|')
+  let lines = map(lines, 'sj#Trim(v:val)')
+  let replacement = join(lines, "\n")
+
+  call sj#ReplaceLines(line_no, line_no, replacement)
+
+  return 1
+endfunction
+
 function! sj#vim#JoinIfClause()
   let line = getline('.')
   let pattern = '\v^\s*if'

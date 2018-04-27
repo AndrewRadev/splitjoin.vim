@@ -1,5 +1,6 @@
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
+        \ 'sj#vim#SplitIfClause',
         \ 'sj#vim#Split',
         \ ]
 endif
