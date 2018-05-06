@@ -39,6 +39,7 @@ function! sj#html#JoinTags()
 endfunction
 
 function! sj#html#SplitAttributes()
+  let lineno = line('.')
   let line = getline('.')
 
   " Check if we are really on a single tag line
@@ -83,6 +84,18 @@ function! sj#html#SplitAttributes()
   endif
 
   call sj#ReplaceMotion('V', body)
+
+  if sj#settings#Read('html_attributes_hanging')
+    " For some strange reason, built-in HTML indenting fails here.
+    let attr_indent = indent + len(args[0]) + 1
+    let start_line = lineno + 1
+    let end_line = lineno + len(args[1:-1]) -1
+
+    for l in range(start_line, end_line)
+      call setline(l, repeat(' ', attr_indent).sj#Trim(getline(l)))
+    endfor
+  endif
+
   return 1
 endfunction
 
