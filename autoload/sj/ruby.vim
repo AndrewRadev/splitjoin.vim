@@ -513,7 +513,7 @@ function! sj#ruby#SplitOptions()
   endif
 
   let start_lineno = line('.')
-  let [from, to, args, opts, hash_type] =
+  let [from, to, args, opts, hash_type, cursor_arg] =
         \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
   if len(opts) < 1 && len(args) > 0 && option_type == 'option'

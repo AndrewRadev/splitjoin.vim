@@ -6,6 +6,8 @@ function! sj#argparser#ruby#Construct(start_index, end_index, line)
 
   call extend(parser, {
         \ 'hash_type': '',
+        \ 'cursor_arg': 0,
+        \ 'cursor_col': col('.'),
         \
         \ 'Process':          function('sj#argparser#ruby#Process'),
         \ 'PushArg':          function('sj#argparser#ruby#PushArg'),
@@ -76,6 +78,11 @@ function! sj#argparser#ruby#PushArg() dict
 
   let self.current_arg      = ''
   let self.current_arg_type = 'normal'
+
+  if self.cursor_col > self.index + 1
+    " cursor is after the current argument
+    let self.cursor_arg += 1
+  endif
 endfunction
 
 " If the last argument is a hash and no options have been parsed, splits the
@@ -92,7 +99,7 @@ function! sj#argparser#ruby#ExpandOptionHash() dict
 
       let hash = sj#ExtractRx(last, hash_pattern, '\1')
 
-      let [_from, _to, _args, opts, hash_type] = sj#argparser#ruby#ParseArguments(0, -1, hash)
+      let [_from, _to, _args, opts, hash_type, _cursor_arg] = sj#argparser#ruby#ParseArguments(0, -1, hash)
       call extend(self.opts, opts)
       let self.hash_type = hash_type
     endif
@@ -177,7 +184,7 @@ function! sj#argparser#ruby#ParseArguments(start_index, end_index, line)
   let parser = sj#argparser#ruby#Construct(a:start_index, a:end_index, a:line)
   call parser.Process()
   call parser.ExpandOptionHash()
-  return [ a:start_index, parser.index, parser.args, parser.opts, parser.hash_type ]
+  return [ a:start_index, parser.index, parser.args, parser.opts, parser.hash_type, parser.cursor_arg ]
 endfunction
 
 function! sj#argparser#ruby#ParseArray(start_index, end_index, line)
