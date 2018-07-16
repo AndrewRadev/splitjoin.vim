@@ -516,9 +516,21 @@ function! sj#ruby#SplitOptions()
   let [from, to, args, opts, hash_type, cursor_arg] =
         \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
-  if len(opts) < 1 && len(args) > 0 && option_type == 'option'
-    " no options found, but there are arguments, split those
-    let replacement = join(args, ",\n")
+  let no_options = len(opts) < 1 && len(args) > 0 && option_type == 'option'
+  let both_args_and_opts = sj#settings#Read('ruby_targeted_option_splitting') && cursor_arg < len(args)
+
+  if no_options || both_args_and_opts
+    " which case is it?
+    if no_options
+      " no options found, but there are arguments, split those
+      let replacement = join(args, ",\n")
+    elseif both_args_and_opts
+      " the cursor is on an argument, split both args and opts
+      let all_args = []
+      call extend(all_args, args)
+      call extend(all_args, opts)
+      let replacement = join(all_args, ",\n")
+    endif
 
     if !sj#settings#Read('ruby_hanging_args')
       " add trailing comma

@@ -14,6 +14,7 @@ describe "ruby" do
     vim.command('silent! unlet g:splitjoin_ruby_hanging_args')
     vim.command('silent! unlet g:splitjoin_ruby_do_block_split')
     vim.command('silent! unlet g:splitjoin_trailing_comma')
+    vim.command('silent! unlet g:splitjoin_ruby_targeted_option_splitting')
   end
 
   specify "if-clauses" do
@@ -1166,6 +1167,38 @@ describe "ruby" do
           last_name: 'Doe',
           age: 50
         )
+      EOF
+    end
+
+    specify "targeted option splitting" do
+      vim.command('let g:splitjoin_ruby_targeted_option_splitting = 1')
+
+      set_file_contents <<-EOF
+        OpenStruct.new(one, two, {first_name: 'John', last_name: 'Doe'})
+      EOF
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        OpenStruct.new(one,
+                       two,
+                       first_name: 'John',
+                       last_name: 'Doe')
+      EOF
+
+      set_file_contents <<-EOF
+        OpenStruct.new(one, two, {first_name: 'John', last_name: 'Doe'})
+      EOF
+
+      vim.search 'first_name'
+      split
+
+      assert_file_contents <<-EOF
+        OpenStruct.new(one, two, {
+          first_name: 'John',
+          last_name: 'Doe'
+        })
       EOF
     end
 
