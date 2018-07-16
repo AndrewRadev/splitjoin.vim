@@ -1,5 +1,5 @@
 function! sj#js#SplitObjectLiteral()
-  let [from, to] = sj#LocateBracesOnLine('{', '}')
+  let [from, to] = sj#LocateBracesAroundCursor('{', '}')
 
   if from < 0 && to < 0
     return 0
