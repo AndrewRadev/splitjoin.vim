@@ -15,6 +15,7 @@ describe "ruby" do
     vim.command('silent! unlet g:splitjoin_ruby_do_block_split')
     vim.command('silent! unlet g:splitjoin_trailing_comma')
     vim.command('silent! unlet g:splitjoin_ruby_targeted_option_splitting')
+    vim.command('silent! unlet g:splitjoin_ruby_curly_braces')
   end
 
   specify "if-clauses" do
