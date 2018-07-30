@@ -9,6 +9,7 @@ describe "go" do
   end
 
   specify "imports" do
+
     set_file_contents <<-EOF
       import "fmt"
     EOF
@@ -40,6 +41,10 @@ describe "go" do
       var foo string
       const bar string
       type ChanDir int
+
+      func main() {
+      \tvar bar int64
+      }
     EOF
     setup_go_filetype
 
@@ -49,6 +54,8 @@ describe "go" do
     split
     vim.search('type')
     split
+    vim.search('var')
+    split
 
     # In case there is no Go installed, deindent everything:
     vim.normal 'gg9<<9<<'
@@ -56,13 +63,18 @@ describe "go" do
 
     assert_file_contents <<-EOF
     var (
-    foo string
+    \tfoo string
     )
     const (
-    bar string
+    \tbar string
     )
     type (
-    ChanDir int
+    \tChanDir int
+    )
+
+    func main() {
+    \tvar (
+    \t\tbar int64
     )
     EOF
 
@@ -72,11 +84,17 @@ describe "go" do
     join
     vim.search('type')
     join
+    vim.search('var')
+    join
 
     assert_file_contents <<-EOF
       var foo string
       const bar string
       type ChanDir int
+
+      func main() {
+      \tvar bar int64
+      }
     EOF
   end
 
