@@ -1,7 +1,6 @@
 function! sj#go#SplitImports()
   if getline('.') =~ '^import ".*"$'
-    s/^import \(".*"\)$/import (\r\1\r)/
-    normal! k==
+    s/^import \(".*"\)$/import (\r\t\1\r)/
     return 1
   else
     return 0

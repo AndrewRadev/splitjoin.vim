@@ -23,7 +23,7 @@ describe "go" do
 
     assert_file_contents <<-EOF
     import (
-    "fmt"
+    \t"fmt"
     )
     EOF
 
