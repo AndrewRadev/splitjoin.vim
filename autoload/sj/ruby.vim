@@ -517,7 +517,7 @@ function! sj#ruby#SplitOptions()
         \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
   let no_options = len(opts) < 1 && len(args) > 0 && option_type == 'option'
-  let both_args_and_opts = sj#settings#Read('ruby_targeted_option_splitting') && cursor_arg < len(args)
+  let both_args_and_opts = sj#settings#Read('ruby_options_as_arguments') && cursor_arg < len(args)
 
   if no_options || both_args_and_opts
     " which case is it?

@@ -14,7 +14,7 @@ describe "ruby" do
     vim.command('silent! unlet g:splitjoin_ruby_hanging_args')
     vim.command('silent! unlet g:splitjoin_ruby_do_block_split')
     vim.command('silent! unlet g:splitjoin_trailing_comma')
-    vim.command('silent! unlet g:splitjoin_ruby_targeted_option_splitting')
+    vim.command('silent! unlet g:splitjoin_ruby_options_as_arguments')
     vim.command('silent! unlet g:splitjoin_ruby_curly_braces')
   end
 
@@ -1171,8 +1171,8 @@ describe "ruby" do
       EOF
     end
 
-    specify "targeted option splitting" do
-      vim.command('let g:splitjoin_ruby_targeted_option_splitting = 1')
+    specify "split options as arguments" do
+      vim.command('let g:splitjoin_ruby_options_as_arguments = 1')
 
       set_file_contents <<-EOF
         OpenStruct.new(one, two, {first_name: 'John', last_name: 'Doe'})

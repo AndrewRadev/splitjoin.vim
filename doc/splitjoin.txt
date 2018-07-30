@@ -1291,17 +1291,18 @@ If it is set to 0, the result will be:
     }
 <
 
-                                  *g:splitjoin_ruby_targeted_option_splitting*
+                                       *g:splitjoin_ruby_options_as_arguments*
 >
-    g:splitjoin_ruby_targeted_option_splitting
+    g:splitjoin_ruby_options_as_arguments
 <
 Default value: 0
 
-If set to 1, this will allow a bit more flexibility on splitting arguments and
-options.
+If set to 1, this will split options along with arguments, except if the
+cursor is on one of the options.
 
 Ordinarily, splitting function arguments will always split options, if there
-are any, and only split arguments, if there are options. Like in this example:
+are any, and only split positional arguments, if there are no options. Like in
+this example:
 >
     User.new(:one, :two, first_name: "Andrew", last_name: "Radev")
 
