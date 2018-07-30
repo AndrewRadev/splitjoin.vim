@@ -988,6 +988,28 @@ Structs ~
     }
 <
 
+Function declarations ~
+>
+    func foo(a string, b int) (int, error) {
+
+    func foo(
+        a string,
+        b int,
+    ) (int, error) {
+        return 0, nil
+    }
+<
+Function calls ~
+
+>
+    _, _ = foo("X", 42)
+
+    _, _ = foo(
+        "X",
+        42,
+    )
+<
+
 ==============================================================================
 TEX                                                              *splitjoin-tex*
 

@@ -54,7 +54,7 @@ This currently works for:
   * CSS, SCSS, LESS style declarations.
   * YAML arrays and maps
   * Lua functions and tables
-  * Go structs
+  * Go imports, variable definitions, structs, function definitions/calls
   * Vimscript line continuations
   * TeX blocks
   * C if clauses and function calls
