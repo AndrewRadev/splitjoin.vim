@@ -9,6 +9,7 @@ set cpo&vim
 " Defaults:
 " =========
 
+call sj#settings#SetDefault('quiet',                                   0)
 call sj#settings#SetDefault('normalize_whitespace',                    1)
 call sj#settings#SetDefault('trailing_comma',                          0)
 call sj#settings#SetDefault('align',                                   0)
@@ -67,6 +68,7 @@ function! s:Split()
   let saved_whichwrap = &whichwrap
   set whichwrap-=l
 
+  if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
   for callback in b:splitjoin_split_callbacks
     try
       call sj#PushCursor()
@@ -74,6 +76,10 @@ function! s:Split()
       if call(callback, [])
         silent! call repeat#set("\<plug>SplitjoinSplit")
         let &whichwrap = saved_whichwrap
+        if !sj#settings#Read('quiet')
+          " clear progress message
+          redraw | echo ""
+        endif
         return 1
       endif
 
@@ -84,6 +90,10 @@ function! s:Split()
 
   call winrestview(saved_view)
   let &whichwrap = saved_whichwrap
+  if !sj#settings#Read('quiet')
+    " clear progress message
+    redraw | echo ""
+  endif
   return 0
 endfunction
 
@@ -99,6 +109,7 @@ function! s:Join()
   let saved_whichwrap = &whichwrap
   set whichwrap-=l
 
+  if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
   for callback in b:splitjoin_join_callbacks
     try
       call sj#PushCursor()
@@ -106,6 +117,10 @@ function! s:Join()
       if call(callback, [])
         silent! call repeat#set("\<plug>SplitjoinJoin")
         let &whichwrap = saved_whichwrap
+        if !sj#settings#Read('quiet')
+          " clear progress message
+          redraw | echo ""
+        endif
         return 1
       endif
 
@@ -116,6 +131,10 @@ function! s:Join()
 
   call winrestview(saved_view)
   let &whichwrap = saved_whichwrap
+  if !sj#settings#Read('quiet')
+    " clear progress message
+    redraw | echo ""
+  endif
   return 0
 endfunction
 

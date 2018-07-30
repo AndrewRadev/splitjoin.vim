@@ -1089,6 +1089,22 @@ create your own mapping the old-fashioned way using the |:SplitjoinSplit| and
 splitting/joining, nothing will happen.
 
 
+                                                             *splitjoin_quiet*
+>
+    g:splitjoin_quiet
+<
+Default value: 0
+
+The plugin will output a message, "Splitjoin: Working...", when splitting or
+joining, which will be cleared when it's done. Ideally, this will only show up
+for a fraction of a second, but with very large code blocks, there might be
+work to do. A regrettable example is splitting a large ruby hash -- the plugin
+itself doesn't do a lot of work, but indentation ends up rather slow in this
+particular scenario.
+
+In order to silence these messages, if you find them annoying, set this
+variable to 1.
+
 
                                               *splitjoin_normalize_whitespace*
 >
@@ -1291,7 +1307,7 @@ If it is set to 0, the result will be:
     }
 <
 
-                                       *g:splitjoin_ruby_options_as_arguments*
+                                         *splitjoin_ruby_options_as_arguments*
 >
     g:splitjoin_ruby_options_as_arguments
 <
