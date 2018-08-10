@@ -195,6 +195,11 @@ function! sj#python#JoinAssignment()
       let end_line = next_line
       let next_line += 1
     endif
+
+    if v:count > 0 && v:count == (end_line - start_line + 1)
+      " stop at the user-provided count
+      break
+    endif
   endwhile
 
   if len(variables) <= 1
