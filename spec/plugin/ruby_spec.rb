@@ -1247,6 +1247,21 @@ describe "ruby" do
         foo(Bar::Baz, bla)
       EOF
     end
+
+    specify "doesn't get confused by extra spaces" do
+      set_file_contents <<-EOF
+        rules << { query: escaped_query  }
+      EOF
+
+      vim.search 'query'
+      split
+
+      assert_file_contents <<-EOF
+        rules << {
+          query: escaped_query
+        }
+      EOF
+    end
   end
 
   describe "arrays" do
