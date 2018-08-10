@@ -181,7 +181,7 @@ function! sj#ruby#JoinCase()
   let line_no = line('.')
   let line = getline('.')
   if line =~ '.*case'
-    let end_line_pattern = '^'.repeat(' ', indent(line)).'end\s*$'
+    let end_line_pattern = '^'.repeat(' ', indent(line_no)).'end\s*$'
     let end_line_no = search(end_line_pattern, 'W')
     let lines = sj#GetLines(line_no + 1, end_line_no - 1)
     let counter = 1
@@ -198,7 +198,7 @@ function! sj#ruby#JoinCase()
     let new_end_line_no = search(end_line_pattern, 'W')
     let else_line_no = new_end_line_no - 2
     let else_line = getline(else_line_no)
-    if else_line =~ '^'.repeat(' ', indent(line)).'else\s*$'
+    if else_line =~ '^'.repeat(' ', indent(line_no)).'else\s*$'
       let lines = sj#GetLines(line_no + 1, else_line_no - 1)
       if s:AllLinesStartWithWhen(lines)
         let next_line = getline(else_line_no + 1)
@@ -241,7 +241,7 @@ function! sj#ruby#SplitCase()
   let line_no = line('.')
   let line = getline('.')
   if line =~ '.*case'
-    let end_line_pattern = '^'.repeat(' ', indent(line)).'end\s*$'
+    let end_line_pattern = '^'.repeat(' ', indent(line_no)).'end\s*$'
     let end_line_no = search(end_line_pattern, 'W')
     let lines = sj#GetLines(line_no + 1, end_line_no - 1)
     let counter = 1
@@ -258,7 +258,7 @@ function! sj#ruby#SplitCase()
     let new_end_line_no = search(end_line_pattern, 'W')
     let else_line_no = new_end_line_no - 1
     let else_line = getline(else_line_no)
-    if else_line =~ '^'.repeat(' ', indent(line)).'else.*'
+    if else_line =~ '^'.repeat(' ', indent(line_no)).'else.*'
       call cursor(else_line_no, 1)
       call sj#ReplaceMotion('V', substitute(else_line, '\v^(\s*else) (.*)', '\1\n\2', ''))
       call cursor(else_line_no, 1)
@@ -292,7 +292,7 @@ function! sj#ruby#JoinWhenThen()
     let line_no = line('.')
     let one_down = getline(line_no + 1)
     let two_down = getline(line_no + 2)
-    let pattern = '\v^\s*(when|else|end)'
+    let pattern = '\v^\s*(when|else|end)>'
 
     if one_down !~ pattern && two_down =~ pattern
       let one_down = sj#Trim(one_down)
