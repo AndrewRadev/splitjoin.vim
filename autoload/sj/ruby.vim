@@ -504,14 +504,6 @@ function! sj#ruby#SplitOptions()
     return 0
   endif
 
-  if to >= 0 && !sj#CursorBetween(from - 1, to + 1)
-    return 0
-  endif
-
-  if to < 0 && !sj#CursorBetween(from - 1, col('$'))
-    return 0
-  endif
-
   let start_lineno = line('.')
   let [from, to, args, opts, hash_type, cursor_arg] =
         \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))

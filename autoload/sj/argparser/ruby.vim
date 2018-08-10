@@ -124,7 +124,7 @@ endfunction
 " =================
 
 function! sj#argparser#ruby#LocateFunction()
-  let [_bufnum, line, col, _off] = getpos('.')
+  let [_bufnum, _start_line, start_col, _off] = getpos('.')
 
   " The first pattern matches functions with brackets and consists of the
   " following:
@@ -148,7 +148,9 @@ function! sj#argparser#ruby#LocateFunction()
       normal! h%h
       let to = col('.')
 
-      return [from, to, function_type]
+      if sj#ColBetween(start_col, from - 1, to + 1)
+        return [from, to, function_type]
+      endif
     endif
   endif
 
@@ -170,7 +172,9 @@ function! sj#argparser#ruby#LocateFunction()
     let from = col('.')
     let to   = -1 " we're not sure about the end
 
-    return [from, to, function_type]
+    if sj#CursorBetween(from - 1, col('$'))
+      return [from, to, function_type]
+    endif
   endif
 
   return [-1, -1, 'none']
