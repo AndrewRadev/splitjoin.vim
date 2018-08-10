@@ -715,7 +715,7 @@ function! sj#ruby#JoinContinuedMethodCall()
 endfunction
 
 function! sj#ruby#JoinHeredoc()
-  let heredoc_pattern = '<<[-~]\?\([^ \t,]\+\)'
+  let heredoc_pattern = '<<[-~]\?\([^ \t,)]\+\)'
 
   if sj#SearchUnderCursor(heredoc_pattern) <= 0
     return 0
