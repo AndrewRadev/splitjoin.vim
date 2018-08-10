@@ -715,7 +715,7 @@ function! sj#ruby#JoinContinuedMethodCall()
 endfunction
 
 function! sj#ruby#JoinHeredoc()
-  let heredoc_pattern = '<<-\?\([^ \t,]\+\)'
+  let heredoc_pattern = '<<[-~]\?\([^ \t,]\+\)'
 
   if sj#SearchUnderCursor(heredoc_pattern) <= 0
     return 0
@@ -786,6 +786,13 @@ function! sj#ruby#SplitString()
     call sj#ReplaceCols(match_start, match_end - 1, '<<-EOF')
     let replacement = getline('.')."\n".string_body."EOF"
     call sj#ReplaceMotion('V', replacement)
+  elseif sj#settings#Read('ruby_heredoc_type') == '<<~'
+    call sj#ReplaceCols(match_start, match_end - 1, '<<~EOF')
+    let replacement = getline('.')."\n".string_body."EOF"
+    call sj#ReplaceMotion('V', replacement)
+    if string_body != ''
+      exe (line('.') + 1).'>'
+    endif
   elseif sj#settings#Read('ruby_heredoc_type') == '<<'
     call sj#ReplaceCols(match_start, match_end - 1, '<<EOF')
     let replacement = getline('.')."\n".string_body."EOF"

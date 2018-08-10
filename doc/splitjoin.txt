@@ -1396,10 +1396,10 @@ If it's set to 0, the brace will get its own line:
     g:splitjoin_ruby_heredoc_type
 <
 
-Default value: "<<-"
+Default value: "<<~"
 
-This setting can be one of "<<-" and "<<" and controls how strings will be
-split into heredocs. If it's "<<-", the following form is used
+This setting can be one of "<<-", "<<~", and "<<" and controls how strings
+will be split into heredocs. If it's "<<-", the following form is used
 >
     do
       foo = <<-EOF
@@ -1413,6 +1413,14 @@ If it's set to "<<", the result is this:
       foo = <<EOF
     something
     EOF
+    end
+<
+With "<<~" (the default), you'll get:
+>
+    do
+      foo = <<~EOF
+        something
+      EOF
     end
 <
                                  *splitjoin_python_brackets_on_separate_lines*

@@ -896,6 +896,8 @@ describe "ruby" do
     end
 
     it "splits normal strings into heredocs" do
+      vim.command('let g:splitjoin_ruby_heredoc_type = "<<-"')
+
       set_file_contents 'string = "\"anything\""'
 
       vim.search 'anything'
@@ -915,7 +917,7 @@ describe "ruby" do
       split
 
       assert_file_contents <<-OUTER
-        string = <<-EOF
+        string = <<~EOF
         EOF
       OUTER
     end
@@ -939,6 +941,36 @@ describe "ruby" do
         EOF
         end
       OUTER
+    end
+
+    it "can use the <<~ heredoc style" do
+      vim.command('let g:splitjoin_ruby_heredoc_type = "<<~"')
+
+      set_file_contents <<-EOF
+        do
+          string = "something"
+        end
+      EOF
+
+      vim.search 'something'
+      split
+
+      assert_file_contents <<-OUTER
+        do
+          string = <<~EOF
+            something
+          EOF
+        end
+      OUTER
+
+      vim.search 'EOF'
+      join
+
+      assert_file_contents <<-EOF
+        do
+          string = 'something'
+        end
+      EOF
     end
   end
 
