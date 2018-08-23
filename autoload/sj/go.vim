@@ -32,7 +32,6 @@ function! sj#go#JoinVars()
   if getline('.') =~ '\v^\s*(var|type|const) \($' &&
         \ getline(line('.') + 1) =~ '^\s*\k\+ .*$' &&
         \ getline(line('.') + 2) =~ '^\s*)$'
-	echom "X"
     s/\v^(\s*)(var|type|const) \(\_s+(\k+ .*)\_s+\)$/\1\2 \3/
     return 1
   else
