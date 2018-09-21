@@ -650,10 +650,11 @@ function! sj#ruby#SplitArray()
     return 0
   endif
 
-  let [from, to, items] = sj#argparser#ruby#ParseArray(from + 1, to - 1, getline('.'))
+  let [from, to, args, opts; _rest] = sj#argparser#ruby#ParseArguments(from + 1, to - 1, getline('.'))
   if from < 0
     return 0
   endif
+  let items = extend(args, opts)
 
   let replacement = join(items, ",\n")
 

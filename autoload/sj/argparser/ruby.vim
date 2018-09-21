@@ -190,9 +190,3 @@ function! sj#argparser#ruby#ParseArguments(start_index, end_index, line)
   call parser.ExpandOptionHash()
   return [ a:start_index, parser.index, parser.args, parser.opts, parser.hash_type, parser.cursor_arg ]
 endfunction
-
-function! sj#argparser#ruby#ParseArray(start_index, end_index, line)
-  let parser = sj#argparser#ruby#Construct(a:start_index, a:end_index, a:line)
-  call parser.Process()
-  return [ a:start_index, parser.index, parser.args ]
-endfunction
