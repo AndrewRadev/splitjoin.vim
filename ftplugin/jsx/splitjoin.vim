@@ -1,9 +1,9 @@
 let b:splitjoin_split_callbacks = [
       \ 'sj#html#SplitTags',
       \ 'sj#html#SplitAttributes',
+      \ 'sj#js#SplitObjectLiteral',
       \ 'sj#js#SplitFatArrowFunction',
       \ 'sj#js#SplitArray',
-      \ 'sj#js#SplitObjectLiteral',
       \ 'sj#js#SplitFunction',
       \ 'sj#js#SplitOneLineIf',
       \ 'sj#js#SplitArgs'
