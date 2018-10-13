@@ -47,6 +47,7 @@ This currently works for:
   * Various constructs in Coffeescript
   * Various constructs in Perl
   * Various constructs in Python
+  * Various constructs in Rust
   * PHP arrays
   * Javascript object literals and functions
   * Tags in HTML/XML

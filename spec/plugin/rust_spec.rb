@@ -3,9 +3,11 @@ require 'spec_helper'
 describe "rust" do
   let(:filename) { 'test.rs' }
 
-  specify "match clauses" do
+  before :each do
     pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+  end
 
+  specify "match clauses" do
     set_file_contents <<-EOF
       match one {
           Ok(two) => some_expression(three),
@@ -33,8 +35,6 @@ describe "rust" do
   end
 
   specify "question mark operator for Result" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
     set_file_contents <<-EOF
       fn test() -> io::Result {
           let file = File::open("foo.txt")?;
@@ -64,8 +64,6 @@ describe "rust" do
   end
 
   specify "question mark operator for Option" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
     set_file_contents <<-EOF
       fn test() -> Option<T> {
           let thing = Some(3)?;
@@ -95,8 +93,6 @@ describe "rust" do
   end
 
   specify "question mark operator for Option" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
     set_file_contents <<-EOF
       let file = File::open("foo.txt")?;
     EOF
@@ -120,8 +116,6 @@ describe "rust" do
   end
 
   specify "complicated question mark operator" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
     set_file_contents <<-EOF
       let bar = foo + match write!("{}", floof) {
           Ok(frob) => frob,
@@ -148,8 +142,6 @@ describe "rust" do
   end
 
   specify "closures" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
     set_file_contents <<-EOF
       let foo = something.map(|x| x * 2);
     EOF
@@ -170,9 +162,28 @@ describe "rust" do
     EOF
   end
 
-  specify "structs" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+  specify "complicated closures" do
+    set_file_contents <<-EOF
+      let foo = something.map(|x| mul(x, 2), y);
+    EOF
 
+    vim.search('|x|')
+    split
+
+    assert_file_contents <<-EOF
+      let foo = something.map(|x| {
+          mul(x, 2)
+      }, y);
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      let foo = something.map(|x| mul(x, 2), y);
+    EOF
+  end
+
+  specify "structs" do
     set_file_contents <<-EOF
       SomeStruct { foo: bar, bar: baz }
     EOF
@@ -195,8 +206,6 @@ describe "rust" do
   end
 
   specify "structs (trailing comma)" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
     set_file_contents <<-EOF
       SomeStruct { foo: bar, bar: baz }
     EOF
@@ -220,8 +229,6 @@ describe "rust" do
   end
 
   specify "fallback match split" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
     set_file_contents <<-EOF
       let foo = Some::value(chain).of(things);
     EOF

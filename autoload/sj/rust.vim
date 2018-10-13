@@ -140,13 +140,19 @@ function! sj#rust#JoinQuestionMark()
 endfunction
 
 function! sj#rust#SplitClosure()
-  if !sj#SearchUnderCursor('(|.\{-}| .\{-})')
+  if !sj#SearchUnderCursor('|.\{-}| .\{-})')
+    return 0
+  endif
+  if search('|.\{-}| \zs.', 'W', line('.')) <= 0
     return 0
   endif
 
-  let closure_contents = sj#GetMotion('vi(')
-  let replacement = substitute(closure_contents, '^\(|.\{-}|\) \(.\{-}\)$', '\1 {\n\2\n}', '')
-  call sj#ReplaceMotion('vi(', replacement)
+  let start_col = col('.')
+  call s:JumpBracketsTill('\%([,;]\|$\)', '([<{"''', ')]>}"''')
+  let end_col = col('.') - 1
+
+  let closure_contents = sj#GetCols(start_col, end_col)
+  call sj#ReplaceCols(start_col, end_col, "{\n".closure_contents."\n}")
   return 1
 endfunction
 
@@ -154,10 +160,12 @@ function! sj#rust#JoinClosure()
   if !sj#SearchUnderCursor('(|.\{-}| {\s*$')
     return 0
   endif
+  if search('(|.\{-}| \zs{\s*$', 'W', line('.')) <= 0
+    return 0
+  endif
 
-  let closure_contents = sj#GetMotion('vi(')
-  let replacement = substitute(closure_contents, '^\(|.\{-}|\)\s*{\_s*\(.\{-}\)\_s*}$', '\1 \2', '')
-  call sj#ReplaceMotion('vi(', replacement)
+  let closure_contents = sj#Trim(sj#GetMotion('vi{'))
+  call sj#ReplaceMotion('va{', closure_contents)
   return 1
 endfunction
 
@@ -188,4 +196,63 @@ function! sj#rust#SplitExprIntoEmptyMatch()
         \ "}",
         \ ], "\n"))
   return 1
+endfunction
+
+function! s:JumpBracketsTill(end_pattern, opening_brackets, closing_brackets)
+  let original_whichwrap = &whichwrap
+  set whichwrap+=l
+
+  let remainder_of_line = s:RemainderOfLine()
+  while remainder_of_line !~ '^'.a:end_pattern
+    let [opening_bracket_match, offset] = s:BracketMatch(remainder_of_line, a:opening_brackets)
+    let [closing_bracket_match, _]      = s:BracketMatch(remainder_of_line, a:closing_brackets)
+
+    if opening_bracket_match < 0 && closing_bracket_match >= 0
+      " there's an extra closing bracket from outside the list, bail out
+      break
+    elseif opening_bracket_match >= 0
+      " then try to jump to the closing bracket
+      let opening_bracket = a:opening_brackets[opening_bracket_match]
+      let closing_bracket = a:closing_brackets[opening_bracket_match]
+
+      " first, go to the opening bracket
+      if offset > 0
+        exe "normal! ".offset."l"
+      end
+
+      if opening_bracket == closing_bracket
+        " same bracket (quote), search for it, unless it's escaped
+        call search('\\\@<!\V'.closing_bracket, 'W')
+      else
+        " different closing, use searchpair
+        call searchpair('\V'.opening_bracket, '', '\V'.closing_bracket, 'W')
+        let rem = s:RemainderOfLine()
+      endif
+    endif
+
+    normal! l
+    let remainder_of_line = s:RemainderOfLine()
+  endwhile
+
+  let &whichwrap = original_whichwrap
+endfunction
+
+function! s:RemainderOfLine()
+  return strpart(getline('.'), col('.') - 1)
+endfunction
+
+function! s:BracketMatch(text, brackets)
+  let index  = 0
+  let offset = match(a:text, '^\s*\zs')
+  let text   = strpart(a:text, offset)
+
+  for char in split(a:brackets, '\zs')
+    if text[0] ==# char
+      return [index, offset]
+    else
+      let index += 1
+    endif
+  endfor
+
+  return [-1, 0]
 endfunction

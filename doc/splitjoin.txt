@@ -705,6 +705,14 @@ Note that the plugin determines how to split a `?` by looking upwards for a
 `-> Result` or `-> Option` . If it can't find anything, it'll default to a
 `Result`.
 
+Closures ~
+>
+    function_call(|x| x.to_string(), y);
+
+    function_call(|x| {
+        x.to_string()
+    }, y);
+<
 Fallback match split ~
 >
     let foo = Some::value(chain).of(things);
