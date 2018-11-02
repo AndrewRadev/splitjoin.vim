@@ -125,6 +125,7 @@ endfunction
 
 function! sj#argparser#ruby#LocateFunction()
   let [_bufnum, _start_line, start_col, _off] = getpos('.')
+  let skip = sj#SkipSyntax(['rubyInterpolationDelimiter', 'rubyString'])
 
   " The first pattern matches functions with brackets and consists of the
   " following:
@@ -135,14 +136,16 @@ function! sj#argparser#ruby#LocateFunction()
   "     (to avoid a few edge cases)
   "
   let pattern = '\v(^|\s|\.|::)\k+[?!]?\(\s*[^,=<>+-/*^%})\]]'
-  let found = search(pattern, 'bcWe', line('.'))
+  let found = sj#SearchSkip(pattern, skip, 'bcW', line('.'))
   if found <= 0
     " try searching forward
-    let found = search(pattern, 'cWe', line('.'))
+    let found = sj#SearchSkip(pattern, skip, 'cW', line('.'))
   endif
   if found > 0
+    " go to the end of the matching pattern
+    call search(pattern, 'cWe', line('.'))
     " look for the starting bracket
-    if search('\k\+[?!]\?\s*\zs(\s*\%#', 'bcW', line('.'))
+    if sj#SearchSkip('\k\+[?!]\?\s*\zs(\s*\%#', skip, 'bcW', line('.'))
       let function_type = 'with_round_braces'
       let from = col('.') + 1
       normal! h%h
@@ -162,12 +165,15 @@ function! sj#argparser#ruby#LocateFunction()
   "     (to avoid a few edge cases)
   "
   let pattern = '\v(^|\s|\.|::)\k+[?!]?\s+[^ ,=<>+-/*^%})\]]'
-  let found = search(pattern, 'bcWe', line('.'))
+  let found = sj#SearchSkip(pattern, skip, 'bcW', line('.'))
   if found <= 0
     " try searching forward
-    let found = search(pattern, 'cWe', line('.'))
+    let found = sj#SearchSkip(pattern, skip, 'cW', line('.'))
   endif
   if found > 0
+    " go to the end of the matching pattern
+    call search(pattern, 'cWe', line('.'))
+
     let function_type = 'with_spaces'
     let from = col('.')
     let to   = -1 " we're not sure about the end

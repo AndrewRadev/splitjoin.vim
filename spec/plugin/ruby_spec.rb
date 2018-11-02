@@ -569,6 +569,21 @@ describe "ruby" do
     EOF
   end
 
+  specify "hashes with spaces in them" do
+    set_file_contents <<-EOF
+      a_hash = { a_key: "a longer value" }
+    EOF
+
+    vim.search 'a_key'
+    split
+
+    assert_file_contents <<-EOF
+      a_hash = {
+        a_key: "a longer value"
+      }
+    EOF
+  end
+
   specify "caching constructs" do
     set_file_contents <<-EOF
       @two ||= 1 + 1
