@@ -174,6 +174,10 @@ function! sj#rust#SplitExprIntoEmptyMatch()
     return 0
   endif
   let start_col = col('.')
+  while search('\%(\k\+.\|\k\+::\)\%#', 'Wb', line('.')) > 0
+    let start_col = col('.')
+  endwhile
+
   call search('\k\+', 'We', line('.'))
   let end_col = col('.')
 
