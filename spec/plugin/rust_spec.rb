@@ -243,16 +243,31 @@ describe "rust" do
     EOF
   end
 
-  specify "fallback match split" do
+  specify "unwrap match split" do
     set_file_contents <<-EOF
-      let foo = Some::value(chain).of(things);
+      let foo = other::expr() + File::open('test.file').unwrap();
     EOF
 
-    vim.search('Some')
+    vim.search('unwrap')
     split
 
     assert_file_contents <<-EOF
-      let foo = match Some::value(chain).of(things) {
+      let foo = other::expr() + match File::open('test.file') {
+
+      };
+    EOF
+  end
+
+  specify "expect match split" do
+    set_file_contents <<-EOF
+      let foo = other::expr() + File::open('test.file').expect("Missing file!");
+    EOF
+
+    vim.search('expect')
+    split
+
+    assert_file_contents <<-EOF
+      let foo = other::expr() + match File::open('test.file') {
 
       };
     EOF

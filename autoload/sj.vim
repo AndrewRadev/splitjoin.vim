@@ -319,12 +319,22 @@ function! sj#SearchposUnderCursor(pattern, ...)
     if search_result <= 0
       return [0, 0]
     endif
-    let match_start = col('.')
+
+    call sj#PushCursor()
 
     " find the end of the pattern
-    call sj#PushCursor()
-    call sj#SearchSkip(pattern, skip, 'cWe', lnum)
-    let match_end = col('.')
+    if stridx(extra_flags, 'e') >= 0
+      let match_end = col('.')
+
+      call sj#PushCursor()
+      call sj#SearchSkip(pattern, skip, 'cWb', lnum)
+      let match_start = col('.')
+      call sj#PopCursor()
+    else
+      let match_start = col('.')
+      call sj#SearchSkip(pattern, skip, 'cWe', lnum)
+      let match_end = col('.')
+    end
 
     " set the end of the pattern to the next character, or EOL. Extra logic
     " is for multibyte characters.

@@ -713,22 +713,19 @@ Closures ~
         x.to_string()
     }, y);
 <
-Fallback match split ~
+Unwrap/Expect match split ~
 >
-    let foo = Some::value(chain).of(things);
+    let foo = Some::value(chain).of(things).unwrap();
 
     let foo = match Some::value(chain).of(things) {
 
     }
 <
-This one only splits, and is attempted last. The cursor MUST be on `Some` in
-order to get this effect, in this particular example.
+This one only splits for the moment. The cursor MUST be on `unwrap` in order
+to get this effect, in this particular example.
 
 The plugin attempts to find the end of the expression, and make a match
-statement out of it.
-
-This is, at this time, experimental, because I've found myself trying to do
-it. It might be made smarter, or it might be dropped, so be warned.
+statement out of it. It also works with `expect` calls.
 
 ==============================================================================
 PHP                                                            *splitjoin-php*

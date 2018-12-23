@@ -179,24 +179,37 @@ function! sj#rust#JoinClosure()
   return 1
 endfunction
 
-function! sj#rust#SplitExprIntoEmptyMatch()
-  if search('\k\+', 'Wbc', line('.')) <= 0
+function! sj#rust#SplitUnwrapIntoEmptyMatch()
+  let unwrap_pattern = '\S\.\%(unwrap\|expect\)('
+  if sj#SearchUnderCursor(unwrap_pattern, 'e', s:skip_syntax) <= 0
     return 0
   endif
-  let start_col = col('.')
-  while search('\%(\k\+.\|\k\+::\)\%#', 'Wb', line('.')) > 0
-    let start_col = col('.')
-  endwhile
 
-  call search('\k\+', 'We', line('.'))
+  normal! %
+  let unwrap_end_col = col('.')
+  normal! %
+  call search(unwrap_pattern, 'Wb', line('.'))
   let end_col = col('.')
 
-  while search('\%#\%(\k\|)\)\%(::\k\+\|\.\k\+\)(\=', 'We', line('.')) > 0
-    if getline('.')[col('.') - 1] == '('
+  let start_col = col('.')
+  while start_col > 0
+    let current_expr = strpart(getline('.'), start_col - 1, end_col)
+    if current_expr =~ '^)'
       normal! %
+    elseif current_expr =~ '^\%(::\|\.\)'
+      normal! h
+    else
+      if sj#SearchSkip('\%(::\|\.\)\=\k\+\%#', s:skip_syntax, 'Wb', line('.')) <= 0
+        break
+      endif
     endif
 
-    let end_col = col('.')
+    if start_col == col('.')
+      " then nothing has changed this loop, break out
+      break
+    else
+      let start_col = col('.')
+    endif
   endwhile
 
   let expr = sj#GetCols(start_col, end_col)
@@ -204,7 +217,12 @@ function! sj#rust#SplitExprIntoEmptyMatch()
     return 0
   endif
 
-  call sj#ReplaceCols(start_col, end_col, join([
+  if start_col >= end_col
+    " the expression is probably split into several lines, let's ignore it
+    return 0
+  endif
+
+  call sj#ReplaceCols(start_col, unwrap_end_col, join([
         \ "match ".expr." {",
         \ "",
         \ "}",
