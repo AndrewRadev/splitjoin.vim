@@ -139,7 +139,17 @@ function! sj#rust#JoinQuestionMark()
   call sj#ReplaceByPosition(match_position, end_position, expr.'?')
 endfunction
 
-function! sj#rust#SplitClosure()
+function! sj#rust#SplitBlockClosure()
+  if search('|.\{-}|\s*\zs{', 'W', line('.')) <= 0
+    return 0
+  endif
+
+  let closure_contents = sj#GetMotion('vi{')
+  call sj#ReplaceMotion('va{', "{\n".sj#Trim(closure_contents)."\n}")
+  return 1
+endfunction
+
+function! sj#rust#SplitExprClosure()
   if !sj#SearchUnderCursor('|.\{-}| .\{-})')
     return 0
   endif
@@ -148,7 +158,7 @@ function! sj#rust#SplitClosure()
   endif
 
   let start_col = col('.')
-  call s:JumpBracketsTill('\%([,;]\|$\)', '([<{"''', ')]>}"''')
+  call s:JumpBracketsTill('\%([,;]\|$\)')
   let end_col = col('.') - 1
 
   let closure_contents = sj#GetCols(start_col, end_col)
@@ -202,22 +212,32 @@ function! sj#rust#SplitExprIntoEmptyMatch()
   return 1
 endfunction
 
-function! s:JumpBracketsTill(end_pattern, opening_brackets, closing_brackets)
+" Note: special handling for < and >
+"
+function! s:JumpBracketsTill(end_pattern)
+  let opening_brackets = '([<{"'''
+  let closing_brackets = ')]>}"'''
+
   let original_whichwrap = &whichwrap
   set whichwrap+=l
 
   let remainder_of_line = s:RemainderOfLine()
   while remainder_of_line !~ '^'.a:end_pattern
-    let [opening_bracket_match, offset] = s:BracketMatch(remainder_of_line, a:opening_brackets)
-    let [closing_bracket_match, _]      = s:BracketMatch(remainder_of_line, a:closing_brackets)
+    let [opening_bracket_match, offset] = s:BracketMatch(remainder_of_line, opening_brackets)
+    let [closing_bracket_match, _]      = s:BracketMatch(remainder_of_line, closing_brackets)
 
     if opening_bracket_match < 0 && closing_bracket_match >= 0
-      " there's an extra closing bracket from outside the list, bail out
-      break
+      let closing_bracket = closing_brackets[closing_bracket_match]
+      if closing_bracket == '>'
+        " an unmatched > in this context means comparison do nothing
+      else
+        " there's an extra closing bracket from outside the list, bail out
+        break
+      endif
     elseif opening_bracket_match >= 0
       " then try to jump to the closing bracket
-      let opening_bracket = a:opening_brackets[opening_bracket_match]
-      let closing_bracket = a:closing_brackets[opening_bracket_match]
+      let opening_bracket = opening_brackets[opening_bracket_match]
+      let closing_bracket = closing_brackets[opening_bracket_match]
 
       " first, go to the opening bracket
       if offset > 0
@@ -226,10 +246,10 @@ function! s:JumpBracketsTill(end_pattern, opening_brackets, closing_brackets)
 
       if opening_bracket == closing_bracket
         " same bracket (quote), search for it, unless it's escaped
-        call search('\\\@<!\V'.closing_bracket, 'W')
+        call search('\\\@<!\V'.closing_bracket, 'W', line('.'))
       else
         " different closing, use searchpair
-        call searchpair('\V'.opening_bracket, '', '\V'.closing_bracket, 'W')
+        call searchpair('\V'.opening_bracket, '', '\V'.closing_bracket, 'W', '', line('.'))
         let rem = s:RemainderOfLine()
       endif
     endif

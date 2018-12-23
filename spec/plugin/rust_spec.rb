@@ -183,6 +183,21 @@ describe "rust" do
     EOF
   end
 
+  specify "splitting closures with comparison operators" do
+    set_file_contents <<-EOF
+      do_stuff.where(|x| x < 5 && x > 3);
+    EOF
+
+    vim.search('|x|')
+    split
+
+    assert_file_contents <<-EOF
+      do_stuff.where(|x| {
+          x < 5 && x > 3
+      });
+    EOF
+  end
+
   specify "structs" do
     set_file_contents <<-EOF
       SomeStruct { foo: bar, bar: baz }
