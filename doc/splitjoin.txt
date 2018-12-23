@@ -702,8 +702,9 @@ Question mark operator ~
     };
 <
 Note that the plugin determines how to split a `?` by looking upwards for a
-`-> Result` or `-> Option` . If it can't find anything, it'll default to a
-`Result`.
+`-> Result` or `-> Option` . If it can't find anything when splitting, it'll
+default to a `Result`. If it can't find anything when joining, it'll convert
+the match into an `.unwrap()` instead.
 
 Closures ~
 >

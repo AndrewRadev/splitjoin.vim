@@ -9,7 +9,7 @@ let b:splitjoin_split_callbacks = [
 
 let b:splitjoin_join_callbacks = [
       \ 'sj#rust#JoinMatchClause',
-      \ 'sj#rust#JoinQuestionMark',
+      \ 'sj#rust#JoinMatchStatement',
       \ 'sj#rust#JoinClosure',
       \ 'sj#js#JoinObjectLiteral',
       \ ]

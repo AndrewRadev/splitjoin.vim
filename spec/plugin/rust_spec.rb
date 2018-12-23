@@ -34,7 +34,7 @@ describe "rust" do
     EOF
   end
 
-  specify "question mark operator for Result" do
+  specify "question mark operator for io::Result" do
     set_file_contents <<-EOF
       fn test() -> io::Result {
           let file = File::open("foo.txt")?;
@@ -92,7 +92,7 @@ describe "rust" do
     EOF
   end
 
-  specify "question mark operator for Option" do
+  specify "question mark operator for an unknown return type" do
     set_file_contents <<-EOF
       let file = File::open("foo.txt")?;
     EOF
@@ -111,33 +111,39 @@ describe "rust" do
     join
 
     assert_file_contents <<-EOF
-      let file = File::open("foo.txt")?;
+      let file = File::open("foo.txt").unwrap();
     EOF
   end
 
   specify "complicated question mark operator" do
     set_file_contents <<-EOF
-      let bar = foo + match write!("{}", floof) {
-          Ok(frob) => frob,
-          Err(err) => return Err(err),
-      } + 13;
+      fn complicated() -> Result {
+          let bar = foo + match write!("{}", floof) {
+              Ok(frob) => frob,
+              Err(err) => return Err(err),
+          } + 13;
+      }
     EOF
 
     vim.search('match')
     join
 
     assert_file_contents <<-EOF
-      let bar = foo + write!("{}", floof)? + 13;
+      fn complicated() -> Result {
+          let bar = foo + write!("{}", floof)? + 13;
+      }
     EOF
 
     vim.search('write')
     split
 
     assert_file_contents <<-EOF
-      let bar = foo + match write!("{}", floof) {
-          Ok(value) => value,
-          Err(e) => return Err(e.into()),
-      } + 13;
+      fn complicated() -> Result {
+          let bar = foo + match write!("{}", floof) {
+              Ok(value) => value,
+              Err(e) => return Err(e.into()),
+          } + 13;
+      }
     EOF
   end
 
