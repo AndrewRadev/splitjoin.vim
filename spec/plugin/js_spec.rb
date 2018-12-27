@@ -127,7 +127,7 @@ describe "javascript" do
 
       join
 
-      assert_file_contents 'let foo = {"key": bar => "baz"};'
+      assert_file_contents 'let foo = { "key": bar => "baz" };'
     end
 
     specify "give priority to objects in argument list" do
