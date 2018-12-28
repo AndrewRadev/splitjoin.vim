@@ -130,7 +130,7 @@ describe "javascript" do
       assert_file_contents 'let foo = { "key": bar => "baz" };'
     end
 
-    specify "give priority to objects in argument list" do
+    specify "gives priority to objects in argument list" do
       pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
       set_file_contents 'const func = ({ a, b, c }) => a + b'
@@ -144,6 +144,19 @@ describe "javascript" do
           b,
           c
         }) => a + b
+      EOF
+    end
+
+    specify "separated by a comma" do
+      set_file_contents 'var foo = [callback => callback(one, two), three]'
+
+      vim.search 'callback =>'
+      split
+
+      assert_file_contents <<-EOF
+        var foo = [callback => {
+          return callback(one, two)
+        }, three]
       EOF
     end
   end

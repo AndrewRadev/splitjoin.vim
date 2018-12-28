@@ -205,28 +205,11 @@ function! sj#js#SplitFatArrowFunction()
   endif
 
   let start_col = col('.')
-  let end_col = col('$')
-  let line = getline('.')
-  while search('[\])};]', 'W', line('.'))
-    let char = line[col('.') - 1]
-
-    if char == ';'
-      let end_col = col('.') - 1
-      break
-    endif
-
-    " it's a bracket, try to find its closing one
-    let opening_col = s:SearchOpeningBracketOnLine(char)
-    if opening_col <= start_col
-      " either there's no opening bracket (0), or it's before the expression,
-      " both mean it's an unmatched one
-      let end_col = col('.') - 1
-      break
-    endif
-  endwhile
+  call s:JumpBracketsTill('[\])};,]')
+  let end_col = col('.') - 1
 
   let body = sj#GetCols(start_col, end_col)
-  if line =~ ';\s*\%(//.*\)\=$'
+  if getline('.') =~ ';\s*\%(//.*\)\=$'
     let replacement = "{\nreturn ".body.";\n}"
   else
     let replacement = "{\nreturn ".body."\n}"
@@ -259,4 +242,69 @@ function! s:SearchOpeningBracketOnLine(closing_bracket)
         \   'bWn', skip_expr, line('.')
         \ )
   return col
+endfunction
+
+" Note: Duplicated in rust.vim, with some differences
+"
+function! s:JumpBracketsTill(end_pattern)
+  let opening_brackets = '([{"'''
+  let closing_brackets = ')]}"'''
+
+  let original_whichwrap = &whichwrap
+  set whichwrap+=l
+
+  let remainder_of_line = s:RemainderOfLine()
+  while remainder_of_line !~ '^'.a:end_pattern
+    let [opening_bracket_match, offset] = s:BracketMatch(remainder_of_line, opening_brackets)
+    let [closing_bracket_match, _]      = s:BracketMatch(remainder_of_line, closing_brackets)
+
+    if opening_bracket_match < 0 && closing_bracket_match >= 0
+      let closing_bracket = closing_brackets[closing_bracket_match]
+      " there's an extra closing bracket from outside the list, bail out
+      break
+    elseif opening_bracket_match >= 0
+      " then try to jump to the closing bracket
+      let opening_bracket = opening_brackets[opening_bracket_match]
+      let closing_bracket = closing_brackets[opening_bracket_match]
+
+      " first, go to the opening bracket
+      if offset > 0
+        exe "normal! ".offset."l"
+      end
+
+      if opening_bracket == closing_bracket
+        " same bracket (quote), search for it, unless it's escaped
+        call search('\\\@<!\V'.closing_bracket, 'W', line('.'))
+      else
+        " different closing, use searchpair
+        call searchpair('\V'.opening_bracket, '', '\V'.closing_bracket, 'W', '', line('.'))
+        let rem = s:RemainderOfLine()
+      endif
+    endif
+
+    normal! l
+    let remainder_of_line = s:RemainderOfLine()
+  endwhile
+
+  let &whichwrap = original_whichwrap
+endfunction
+
+function! s:RemainderOfLine()
+  return strpart(getline('.'), col('.') - 1)
+endfunction
+
+function! s:BracketMatch(text, brackets)
+  let index  = 0
+  let offset = match(a:text, '^\s*\zs')
+  let text   = strpart(a:text, offset)
+
+  for char in split(a:brackets, '\zs')
+    if text[0] ==# char
+      return [index, offset]
+    else
+      let index += 1
+    endif
+  endfor
+
+  return [-1, 0]
 endfunction
