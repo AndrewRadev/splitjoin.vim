@@ -192,6 +192,63 @@ function! sj#rust#JoinClosure()
   return 1
 endfunction
 
+function! sj#rust#SplitCurlyBrackets()
+  let [from, to] = sj#LocateBracesAroundCursor('{', '}')
+
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  if (to - from) < 2
+    " empty {} block
+    return 0
+  endif
+
+  let body = sj#Trim(sj#GetCols(from + 1, to - 1))
+
+  if body =~ '^\k\+:'
+    " then it's a StructName { key: value }
+    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
+    let body = join(pairs, ",\n")
+    if sj#settings#Read('trailing_comma')
+      let body .= ','
+    endif
+    call sj#ReplaceCols(from, to, "{\n".body."\n}")
+    if sj#settings#Read('align')
+      let body_start = line('.') + 1
+      let body_end   = body_start + len(pairs) - 1
+      call sj#Align(body_start, body_end, 'json_object')
+    endif
+  else
+    " it's just a normal block
+    let body = substitute(body, ';\ze.', ";\n", 'g')
+    call sj#ReplaceCols(from, to, "{\n".body."\n}")
+  endif
+
+  return 1
+endfunction
+
+function! sj#rust#JoinCurlyBrackets()
+  let line = getline('.')
+
+  if line !~ '{\s*$'
+    return 0
+  endif
+
+  call search('{', 'c', line('.'))
+  let body = sj#GetMotion('Vi{')
+  let lines = split(body, "\n")
+  let lines = sj#TrimList(lines)
+
+  let body = join(lines, ' ')
+  " just in case we're joining a StructName { key: value, }:
+  let body = substitute(body, ',$', '', '')
+  let body = '{ '.body.' }'
+
+  call sj#ReplaceMotion('Va{', body)
+  return 1
+endfunction
+
 function! sj#rust#SplitUnwrapIntoEmptyMatch()
   let unwrap_pattern = '\S\.\%(unwrap\|expect\)('
   if sj#SearchUnderCursor(unwrap_pattern, 'e', s:skip_syntax) <= 0

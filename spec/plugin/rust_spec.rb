@@ -249,6 +249,56 @@ describe "rust" do
     EOF
   end
 
+  specify "blocks" do
+    set_file_contents <<-EOF
+      if opt.verbose == 1 { foo(); do_thing(); bar() }
+    EOF
+
+    # this should not break the split:
+    vim.command('let b:splitjoin_trailing_comma = 1')
+
+    vim.search('foo')
+    split
+
+    assert_file_contents <<-EOF
+      if opt.verbose == 1 {
+          foo();
+          do_thing();
+          bar()
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      if opt.verbose == 1 { foo(); do_thing(); bar() }
+    EOF
+  end
+
+  specify "blocks (ending in semicolon)" do
+    set_file_contents <<-EOF
+      if opt.verbose == 1 { foo(); }
+    EOF
+
+    # this should not break the split:
+    vim.command('let b:splitjoin_trailing_comma = 1')
+
+    vim.search('foo')
+    split
+
+    assert_file_contents <<-EOF
+      if opt.verbose == 1 {
+          foo();
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      if opt.verbose == 1 { foo(); }
+    EOF
+  end
+
   specify "unwrap match split" do
     set_file_contents <<-EOF
       let foo = other::expr() + File::open('test.file').unwrap();
