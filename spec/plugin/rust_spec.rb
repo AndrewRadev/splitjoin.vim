@@ -147,6 +147,34 @@ describe "rust" do
     EOF
   end
 
+  specify "chained question mark operator" do
+    set_file_contents <<-EOF
+      fn foo() -> Result {
+          let value = self.stack.pop().ok_or(Error::StackUnderflow)?;
+      }
+    EOF
+
+    vim.search('ok_or')
+    split
+
+    assert_file_contents <<-EOF
+      fn foo() -> Result {
+          let value = match self.stack.pop().ok_or(Error::StackUnderflow) {
+              Ok(value) => value,
+              Err(e) => return Err(e.into()),
+          };
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      fn foo() -> Result {
+          let value = self.stack.pop().ok_or(Error::StackUnderflow)?;
+      }
+    EOF
+  end
+
   specify "closures" do
     set_file_contents <<-EOF
       let foo = something.map(|x| x * 2);
