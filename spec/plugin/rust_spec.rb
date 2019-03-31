@@ -277,6 +277,73 @@ describe "rust" do
     EOF
   end
 
+  specify "structs with shorthand definitions" do
+    set_file_contents <<-EOF
+      SomeStruct { foo, bar: baz }
+    EOF
+
+    vim.search('foo')
+    split
+
+    assert_file_contents <<-EOF
+      SomeStruct {
+          foo,
+          bar: baz
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      SomeStruct { foo, bar: baz }
+    EOF
+  end
+
+  specify "structs with only shorthand definitions" do
+    set_file_contents <<-EOF
+      SomeStruct { foo, bar }
+    EOF
+
+    vim.search('foo')
+    split
+
+    assert_file_contents <<-EOF
+      SomeStruct {
+          foo,
+          bar
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      SomeStruct { foo, bar }
+    EOF
+  end
+
+  specify "structs with defaults" do
+    set_file_contents <<-EOF
+      SomeStruct { foo, bar, ..Default::default() }
+    EOF
+
+    vim.search('foo')
+    split
+
+    assert_file_contents <<-EOF
+      SomeStruct {
+          foo,
+          bar,
+          ..Default::default()
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      SomeStruct { foo, bar, ..Default::default() }
+    EOF
+  end
+
   specify "blocks" do
     set_file_contents <<-EOF
       if opt.verbose == 1 { foo(); do_thing(); bar() }

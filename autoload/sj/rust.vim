@@ -229,10 +229,13 @@ function! sj#rust#SplitCurlyBrackets()
 
   let body = sj#Trim(sj#GetCols(from + 1, to - 1))
 
-  if body =~ '^\%(\k\+,\s*\)\=\k\+:' || body =~ '^\k\+\%(,\s*\k\+\)*$'
+  if body =~ '^\%(\k\+,\s*\)\=\k\+:' ||
+        \ body =~ '^\k\+\%(,\s*\k\+\)*$' ||
+        \ body =~ '\%(^\|,\s*\)\.\.\k'
     " then it's a
     "   StructName { key: value }, or
-    "   StructName { prop1, prop2 }
+    "   StructName { prop1, prop2 }, or
+    "   StructName { prop1, ..Foo }
     "
     let is_only_pairs = body !~ '\%(^\|,\s*\)\k\+,'
     let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
