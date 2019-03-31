@@ -226,15 +226,19 @@ function! sj#rust#SplitCurlyBrackets()
 
   let body = sj#Trim(sj#GetCols(from + 1, to - 1))
 
-  if body =~ '^\k\+:'
-    " then it's a StructName { key: value }
+  if body =~ '^\%(\k\+,\s*\)\=\k\+:' || body =~ '^\k\+\%(,\s*\k\+\)*$'
+    " then it's a
+    "   StructName { key: value }, or
+    "   StructName { prop1, prop2 }
+    "
+    let is_only_pairs = body !~ '\%(^\|,\s*\)\k\+,'
     let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body = join(pairs, ",\n")
     if sj#settings#Read('trailing_comma')
       let body .= ','
     endif
     call sj#ReplaceCols(from, to, "{\n".body."\n}")
-    if sj#settings#Read('align')
+    if is_only_pairs && sj#settings#Read('align')
       let body_start = line('.') + 1
       let body_end   = body_start + len(pairs) - 1
       call sj#Align(body_start, body_end, 'json_object')
