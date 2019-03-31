@@ -310,57 +310,57 @@ function! sj#SearchposUnderCursor(pattern, ...)
     endif
   endfor
 
-  try
-    call sj#PushCursor()
+  call sj#PushCursor()
 
-    " find the start of the pattern
-    call search(pattern, 'bcW', lnum)
-    let search_result = sj#SearchSkip(pattern, skip, 'cW'.extra_flags, lnum)
-    if search_result <= 0
-      return [0, 0]
-    endif
-
-    call sj#PushCursor()
-
-    " find the end of the pattern
-    if stridx(extra_flags, 'e') >= 0
-      let match_end = col('.')
-
-      call sj#PushCursor()
-      call sj#SearchSkip(pattern, skip, 'cWb', lnum)
-      let match_start = col('.')
-      call sj#PopCursor()
-    else
-      let match_start = col('.')
-      call sj#SearchSkip(pattern, skip, 'cWe', lnum)
-      let match_end = col('.')
-    end
-
-    " set the end of the pattern to the next character, or EOL. Extra logic
-    " is for multibyte characters.
-    normal! l
-    if col('.') == match_end
-      " no movement, we must be at the end
-      let match_end = col('$')
-    else
-      let match_end = col('.')
-    endif
+  " find the start of the pattern
+  call search(pattern, 'bcW', lnum)
+  let search_result = sj#SearchSkip(pattern, skip, 'cW'.extra_flags, lnum)
+  if search_result <= 0
     call sj#PopCursor()
+    return [0, 0]
+  endif
 
-    if !sj#ColBetween(col, match_start, match_end)
-      " then the cursor is not in the pattern
-      return [0, 0]
-    else
-      " a match has been found
-      return [match_start, match_end]
-    endif
-  finally
+  call sj#PushCursor()
+
+  " find the end of the pattern
+  if stridx(extra_flags, 'e') >= 0
+    let match_end = col('.')
+
+    call sj#PushCursor()
+    call sj#SearchSkip(pattern, skip, 'cWb', lnum)
+    let match_start = col('.')
+    call sj#PopCursor()
+  else
+    let match_start = col('.')
+    call sj#SearchSkip(pattern, skip, 'cWe', lnum)
+    let match_end = col('.')
+  end
+
+  " set the end of the pattern to the next character, or EOL. Extra logic
+  " is for multibyte characters.
+  normal! l
+  if col('.') == match_end
+    " no movement, we must be at the end
+    let match_end = col('$')
+  else
+    let match_end = col('.')
+  endif
+  call sj#PopCursor()
+
+  if !sj#ColBetween(col, match_start, match_end)
+    " then the cursor is not in the pattern
+    call sj#PopCursor()
+    return [0, 0]
+  else
+    " a match has been found
     if stridx(given_flags, 'n') >= 0
       call sj#PopCursor()
     else
       call sj#DropCursor()
     endif
-  endtry
+
+    return [match_start, match_end]
+  endif
 endfunction
 
 " function! sj#SearchSkip(pattern, skip, ...) {{{2

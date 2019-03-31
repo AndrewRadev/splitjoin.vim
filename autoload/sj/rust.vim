@@ -213,6 +213,9 @@ function! sj#rust#JoinClosure()
 endfunction
 
 function! sj#rust#SplitCurlyBrackets()
+  " in case we're on a struct name, go to the bracket:
+  call sj#SearchUnderCursor('\k\+\s*{', 'e')
+
   let [from, to] = sj#LocateBracesAroundCursor('{', '}')
 
   if from < 0 && to < 0
@@ -268,6 +271,10 @@ function! sj#rust#JoinCurlyBrackets()
   " just in case we're joining a StructName { key: value, }:
   let body = substitute(body, ',$', '', '')
   let body = '{ '.body.' }'
+
+  if sj#settings#Read('normalize_whitespace')
+    let body = substitute(body, '\s\+\k\+\zs:\s\+', ': ', 'g')
+  endif
 
   call sj#ReplaceMotion('Va{', body)
   return 1
