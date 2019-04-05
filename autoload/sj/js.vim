@@ -23,12 +23,20 @@ function! sj#js#SplitObjectLiteral()
 endfunction
 
 function! sj#js#SplitFunction()
-  if expand('<cword>') == 'function' && getline('.') =~ '\<function\>.*(.*)\s*{.*}'
-    normal! f{
-    return sj#js#SplitObjectLiteral()
-  else
+  if !sj#SearchUnderCursor('\<function\>.*(.*)\s*{.*}')
     return 0
   endif
+
+  normal! f{
+  let [from, to] = sj#LocateBracesAroundCursor('{', '}')
+
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  let body = sj#Trim(sj#GetMotion('vi{'))
+  call sj#ReplaceMotion('va{', "{\n".body."\n}")
+  return 1
 endfunction
 
 function! sj#js#JoinObjectLiteral()
