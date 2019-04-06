@@ -143,6 +143,36 @@ describe "ruby" do
         end
       EOF
     end
+
+    specify "with an rspec describe" do
+      set_file_contents <<-EOF
+        module Foo::Bar
+          RSpec.describe Baz do
+          end
+        end
+      EOF
+
+      vim.search 'Foo'
+      join
+
+      assert_file_contents <<-EOF
+        RSpec.describe Foo::Bar::Baz do
+        end
+      EOF
+
+      vim.search 'RSpec'
+      vim.normal 'df.'
+      split
+
+      set_file_contents <<-EOF
+        module Foo
+          module Bar
+            describe Baz do
+            end
+          end
+        end
+      EOF
+    end
   end
 
   describe "ternaries" do

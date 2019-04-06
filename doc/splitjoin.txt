@@ -362,6 +362,22 @@ Note that splitting and joining module namespaces relies on the built-in
       end
     end
 <
+Module namespacing in RSpec tests ~
+
+Same as above: requires the |matchit| plugin.
+>
+    module Foo
+      RSpec.describe Bar do
+        it "does stuff" do
+        end
+      end
+    end
+
+    RSpec.describe Foo::Bar do
+      it "does stuff" do
+      end
+    end
+<
 
 ==============================================================================
 PYTHON                                                      *splitjoin-python*

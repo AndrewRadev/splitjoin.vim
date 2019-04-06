@@ -904,6 +904,7 @@ function! sj#ruby#JoinModuleNamespace()
 
   let namespace_pattern = '^\s*module\s\+\zs[A-Z]\(\k\|::\)\+\s*$'
   let class_pattern = '^\s*class\s\+\zs[A-Z]\k\+\s*\(\k\|::\)\+\s*\%(<\s\+\S\+\)\=$'
+  let describe_pattern = '^\s*\%(RSpec\.\)\=describe\s\+\zs[A-Z]\(\k\|::\)\+\s*do'
 
   if search(namespace_pattern, 'Wc', line('.')) <= 0
     return 0
@@ -924,11 +925,29 @@ function! sj#ruby#JoinModuleNamespace()
     normal! j0
   endwhile
 
+  " most of these cases don't end in "do"
+  let do_suffix = ''
+
   if search(class_pattern, 'Wc', line('.')) > 0
     " then the end is a class line
     let module_end_line = line('.')
     call add(modules, sj#GetMotion('vg_'))
     let keyword = 'class'
+  elseif search(describe_pattern, 'Wc', line('.')) > 0
+    " then the end is an RSpec describe line
+    let module_end_line = line('.')
+    let start_col = col('.')
+    let [_, end_col] = searchpos('\k\s*do$', 'n')
+    if start_col >= end_col
+      return 0
+    endif
+    call add(modules, sj#GetCols(start_col, end_col))
+    if getline('.') =~ 'RSpec\.describe'
+      let keyword = 'RSpec.describe'
+    else
+      let keyword = 'describe'
+    endif
+    let do_suffix = ' do'
   else
     " go back one line, to the last module
     normal! k
@@ -939,8 +958,8 @@ function! sj#ruby#JoinModuleNamespace()
     return 0
   endif
 
-  " go to the end of the deepest-nested module/class:
-  call search('^\s*\zs\%(module\|class\)', 'Wbc', line('.'))
+  " go to the end of the deepest-nested module/class/do:
+  call search('^\s*\zs\%(module\|class\|\<do$\)', 'Wbc', line('.'))
   normal %
   let content_end_line = line('.') - 1
   " delete the right amount of ends and go back
@@ -955,12 +974,12 @@ function! sj#ruby#JoinModuleNamespace()
   endif
 
   " replace the module line
-  call sj#ReplaceLines(module_start_line, module_end_line, keyword.' '.join(modules, '::'))
+  call sj#ReplaceLines(module_start_line, module_end_line, keyword.' '.join(modules, '::').do_suffix)
   return 1
 endfunction
 
 function! sj#ruby#SplitModuleNamespace()
-  let namespace_pattern = '^\s*\%(module\|class\)\s\+[A-Z]\k\+::'
+  let namespace_pattern = '^\s*\%(module\|class\|\%\(RSpec\.\)\=describe\)\s\+[A-Z]\k\+::'
 
   if search(namespace_pattern, 'Wbc', line('.')) <= 0
     return 0
@@ -968,10 +987,18 @@ function! sj#ruby#SplitModuleNamespace()
 
   let start_line = line('.')
 
-  " is it a class or module?
+  " is it a class, module, or RSpec/describe?
   let keyword = expand('<cword>')
+  if keyword == 'RSpec'
+    let keyword = 'RSpec.describe'
+  endif
+  let do_suffix = ''
+  if keyword =~ 'describe$'
+    let do_suffix = ' do'
+  endif
+
   " get the module path
-  if search(keyword.'\s\+\zs[A-Z]\k\+', 'W', line('.')) <= 0
+  if search('\V'.keyword.'\m\s\+\zs[A-Z]\k\+', 'W', line('.')) <= 0
     return 0
   endif
   let module_path = expand('<cWORD>')
@@ -992,15 +1019,14 @@ function! sj#ruby#SplitModuleNamespace()
   for module in modules[:-2]
     call add(lines, 'module '.module)
   endfor
-  call add(lines, keyword.' '.modules[-1].parent)
+  call add(lines, keyword.' '.modules[-1].parent.do_suffix)
 
   " shift contents of the class/module
-  if search('^\s*\zs\%(module\|class\)', 'Wbc', line('.')) <= 0
+  if search('^\s*\zs\%(module\|class\|\%(RSpec\.\)\=describe.*do$\)', 'Wbc', line('.')) <= 0
     return 0
   endif
   normal %
   let end_line = line('.') - 1
-  echomsg string([start_line, end_line])
   if end_line - start_line > 0
     let range = start_line.','.end_line
     silent exe range.repeat('>', len(modules) - 1)
