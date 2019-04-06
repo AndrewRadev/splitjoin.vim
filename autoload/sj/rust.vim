@@ -173,7 +173,7 @@ function! sj#rust#JoinMatchStatement()
 endfunction
 
 function! sj#rust#SplitBlockClosure()
-  if search('|.\{-}|\s*\zs{', 'W', line('.')) <= 0
+  if search('|.\{-}|\s*\zs{', 'Wc', line('.')) <= 0
     return 0
   endif
 
@@ -183,7 +183,7 @@ function! sj#rust#SplitBlockClosure()
 endfunction
 
 function! sj#rust#SplitExprClosure()
-  if !sj#SearchUnderCursor('|.\{-}| .\{-})')
+  if !sj#SearchUnderCursor('|.\{-}| [^{]')
     return 0
   endif
   if search('|.\{-}| \zs.', 'W', line('.')) <= 0
@@ -200,21 +200,39 @@ function! sj#rust#SplitExprClosure()
 endfunction
 
 function! sj#rust#JoinClosure()
-  if !sj#SearchUnderCursor('(|.\{-}| {\s*$')
+  if !sj#SearchUnderCursor('|.\{-}| {\s*$')
     return 0
   endif
-  if search('(|.\{-}| \zs{\s*$', 'W', line('.')) <= 0
+  if search('|.\{-}| \zs{\s*$', 'W', line('.')) <= 0
+    return 0
+  endif
+
+  " check if we've got an empty block:
+  if sj#GetMotion('va{') =~ '^{\_s*}$'
     return 0
   endif
 
   let closure_contents = sj#Trim(sj#GetMotion('vi{'))
-  call sj#ReplaceMotion('va{', closure_contents)
+  let lines = sj#TrimList(split(closure_contents, "\n"))
+
+  if len(lines) > 1
+    let replacement = '{ '.join(lines, ' ').' }'
+  elseif len(lines) == 1
+    let replacement = lines[0]
+  else
+    " No contents, leave nothing inside
+    let replacement = ' '
+  endif
+
+  call sj#ReplaceMotion('va{', replacement)
   return 1
 endfunction
 
 function! sj#rust#SplitCurlyBrackets()
   " in case we're on a struct name, go to the bracket:
   call sj#SearchUnderCursor('\k\+\s*{', 'e')
+  " in case we're in an if-clause, go to the bracket:
+  call sj#SearchUnderCursor('\<if .\{-}{', 'e')
 
   let [from, to] = sj#LocateBracesAroundCursor('{', '}')
 
@@ -266,6 +284,12 @@ function! sj#rust#JoinCurlyBrackets()
   endif
 
   call search('{', 'c', line('.'))
+
+  " check if we've got an empty block:
+  if sj#GetMotion('va{') =~ '^{\_s*}$'
+    return 0
+  endif
+
   let body = sj#GetMotion('Vi{')
   let lines = split(body, "\n")
   let lines = sj#TrimList(lines)

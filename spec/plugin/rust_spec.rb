@@ -175,7 +175,7 @@ describe "rust" do
     EOF
   end
 
-  specify "closures" do
+  specify "closures in function calls" do
     set_file_contents <<-EOF
       let foo = something.map(|x| x * 2);
     EOF
@@ -193,6 +193,27 @@ describe "rust" do
 
     assert_file_contents <<-EOF
       let foo = something.map(|x| x * 2);
+    EOF
+  end
+
+  specify "closures in assignment" do
+    set_file_contents <<-EOF
+      let foo = |x| x + 1;
+    EOF
+
+    vim.search('|x|')
+    split
+
+    assert_file_contents <<-EOF
+      let foo = |x| {
+          x + 1
+      };
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      let foo = |x| x + 1;
     EOF
   end
 
@@ -229,6 +250,31 @@ describe "rust" do
       do_stuff.where(|x| {
           x < 5 && x > 3
       });
+    EOF
+  end
+
+  specify "closures with multiple lines" do
+    set_file_contents <<-EOF
+      let closure = |x| {
+        print!("test");
+        x + 1
+      };
+    EOF
+
+    vim.search('|x|')
+    join
+
+    assert_file_contents <<-EOF
+      let closure = |x| { print!("test"); x + 1 };
+    EOF
+
+    vim.search('{')
+    split
+
+    assert_file_contents <<-EOF
+      let closure = |x| {
+          print!("test"); x + 1
+      };
     EOF
   end
 
@@ -353,6 +399,29 @@ describe "rust" do
     vim.command('let b:splitjoin_trailing_comma = 1')
 
     vim.search('foo')
+    split
+
+    assert_file_contents <<-EOF
+      if opt.verbose == 1 {
+          foo();
+          do_thing();
+          bar()
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      if opt.verbose == 1 { foo(); do_thing(); bar() }
+    EOF
+  end
+
+  specify "blocks with the cursor on an if-clause" do
+    set_file_contents <<-EOF
+      if opt.verbose == 1 { foo(); do_thing(); bar() }
+    EOF
+
+    vim.search('if')
     split
 
     assert_file_contents <<-EOF
