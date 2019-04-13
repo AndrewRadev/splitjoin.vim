@@ -1,9 +1,9 @@
 language: ruby
-dist: trusty
+dist: xenial
 sudo: false
 cache: bundler
 rvm:
-  - 2.3.1
+  - 2.6.2
 addons:
   apt:
     packages:
