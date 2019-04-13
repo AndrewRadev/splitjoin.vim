@@ -1,13 +1,12 @@
 language: ruby
-dist: xenial
+dist: trusty
 sudo: false
 cache: bundler
 rvm:
-  - 2.6.2
+  - 2.3.1
 addons:
   apt:
     packages:
-      - xvfb
       - vim-gtk
 env:
   - TRAVIS_CI=1
