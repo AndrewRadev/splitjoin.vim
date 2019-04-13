@@ -7,6 +7,7 @@ rvm:
 addons:
   apt:
     packages:
+      - xvfb
       - vim-gtk
 env:
   - TRAVIS_CI=1
