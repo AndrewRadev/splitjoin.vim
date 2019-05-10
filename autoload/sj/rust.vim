@@ -1,4 +1,4 @@
-let s:skip_syntax = sj#SkipSyntax(['rustString', 'rustCommentLine', 'rustCommentBlock'])
+let s:skip_syntax = sj#SkipSyntax(['String', 'Comment'])
 
 function! sj#rust#SplitMatchClause()
   if !sj#SearchUnderCursor('^.*\s*=>\s*.*$')
@@ -173,7 +173,7 @@ function! sj#rust#JoinMatchStatement()
 endfunction
 
 function! sj#rust#SplitBlockClosure()
-  if search('|.\{-}|\s*\zs{', 'Wc', line('.')) <= 0
+  if sj#SearchUnderCursor('|.\{-}|\s*\zs{', 'Wc', line('.')) <= 0
     return 0
   endif
 
@@ -256,7 +256,11 @@ function! sj#rust#SplitCurlyBrackets()
     "   StructName { prop1, ..Foo }
     "
     let is_only_pairs = body !~ '\%(^\|,\s*\)\k\+,'
-    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
+
+    let parser = sj#argparser#rust#Construct(from + 1, to - 1, getline('.'))
+    call parser.Process()
+    let pairs = parser.args
+
     let body = join(pairs, ",\n")
     if sj#settings#Read('trailing_comma')
       let body .= ','

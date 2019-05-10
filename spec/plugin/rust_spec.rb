@@ -273,7 +273,8 @@ describe "rust" do
 
     assert_file_contents <<-EOF
       let closure = |x| {
-          print!("test"); x + 1
+          print!("test");
+          x + 1
       };
     EOF
   end
@@ -490,6 +491,72 @@ describe "rust" do
       let foo = other::expr() + match File::open('test.file') {
 
       };
+    EOF
+  end
+
+  specify "struct with nested lambda (with curly brackets)" do
+    set_file_contents <<-EOF
+      Operation { input, callback: |x, y| { x + y } }
+    EOF
+
+    vim.search('input')
+    split
+
+    assert_file_contents <<-EOF
+      Operation {
+          input,
+          callback: |x, y| { x + y }
+      }
+    EOF
+  end
+
+  specify "struct with nested lambda (without curly brackets)" do
+    set_file_contents <<-EOF
+      Operation { input, callback: |x, y| x + y }
+    EOF
+
+    vim.search('input')
+    split
+
+    assert_file_contents <<-EOF
+      Operation {
+          input,
+          callback: |x, y| x + y
+      }
+    EOF
+  end
+
+  specify "struct with comma in character" do
+    set_file_contents <<-EOF
+      Operation { input, thing: ',', test }
+    EOF
+
+    vim.search('input')
+    split
+
+    assert_file_contents <<-EOF
+      Operation {
+          input,
+          thing: ',',
+          test
+      }
+    EOF
+  end
+
+  specify "struct with lifetime" do
+    set_file_contents <<-EOF
+      Operation { input, thing: Test<'a>, test }
+    EOF
+
+    vim.search('input')
+    split
+
+    assert_file_contents <<-EOF
+      Operation {
+          input,
+          thing: Test<'a>,
+          test
+      }
     EOF
   end
 end
