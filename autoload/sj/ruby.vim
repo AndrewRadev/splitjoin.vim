@@ -934,6 +934,10 @@ function! sj#ruby#JoinModuleNamespace()
     let module_end_line = line('.')
     call add(modules, expand('<cWORD>'))
     normal! j0
+
+    " That way, modules get joined piecewise. This might be guarded with an
+    " option at a later time:
+    break
   endwhile
 
   " most of these cases don't end in "do"
