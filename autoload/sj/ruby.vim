@@ -906,7 +906,7 @@ function! sj#ruby#JoinModuleNamespace()
   let class_pattern = '^\s*class\s\+\zs[A-Z]\k\+\s*\(\k\|::\)\+\s*\%(<\s\+\S\+\)\=$'
   let describe_pattern = '^\s*\%(RSpec\.\)\=describe\s\+\zs[A-Z]\(\k\|::\)\+\s*do'
 
-  if search(namespace_pattern, 'Wc', line('.')) <= 0
+  if search(namespace_pattern, 'Wbc', line('.')) <= 0
     return 0
   endif
 
