@@ -142,6 +142,10 @@ function! sj#argparser#ruby#LocateFunction()
     let found = sj#SearchSkip(pattern, skip, 'cW', line('.'))
   endif
   if found > 0
+    " first, figure out the function name
+    call search('\k\+', 'cW', line('.'))
+    let function_name = expand('<cword>')
+
     " go to the end of the matching pattern
     call search(pattern, 'cWe', line('.'))
     " look for the starting bracket
@@ -152,7 +156,7 @@ function! sj#argparser#ruby#LocateFunction()
       let to = col('.')
 
       if sj#ColBetween(start_col, from - 1, to + 1)
-        return [from, to, function_type]
+        return [function_name, from, to, function_type]
       endif
     endif
   endif
@@ -171,6 +175,10 @@ function! sj#argparser#ruby#LocateFunction()
     let found = sj#SearchSkip(pattern, skip, 'cW', line('.'))
   endif
   if found > 0
+    " first, figure out the function name
+    call search('\k\+', 'cW', line('.'))
+    let function_name = expand('<cword>')
+
     " go to the end of the matching pattern
     call search(pattern, 'cWe', line('.'))
 
@@ -179,11 +187,11 @@ function! sj#argparser#ruby#LocateFunction()
     let to   = -1 " we're not sure about the end
 
     if sj#CursorBetween(from - 1, col('$'))
-      return [from, to, function_type]
+      return [function_name, from, to, function_type]
     endif
   endif
 
-  return [-1, -1, 'none']
+  return ['', -1, -1, 'none']
 endfunction
 
 function! sj#argparser#ruby#LocateHash()

@@ -1117,6 +1117,23 @@ describe "ruby" do
         )
       EOF
     end
+
+    specify "don't split keywords" do
+      vim.command('let g:splitjoin_ruby_hanging_args = 0')
+
+      set_file_contents(<<-EOF)
+        foo = case value
+        end
+      EOF
+
+      vim.search('case')
+      split
+
+      assert_file_contents(<<-EOF)
+        foo = case value
+        end
+      EOF
+    end
   end
 
   describe "method options" do

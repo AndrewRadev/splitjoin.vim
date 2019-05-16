@@ -1,3 +1,10 @@
+let s:invalid_function_names = [
+      \   'and', 'case', 'class', 'def', 'else',
+      \   'elseif', 'for', 'if', 'in', 'module',
+      \   'not', 'or', 'rescue', 'return', 'then',
+      \   'unless', 'until', 'when', 'while', 'yield'
+      \ ]
+
 function! sj#ruby#SplitIfClause()
   let line    = getline('.')
   let pattern = '\v(.*\S.*) (if|unless|while|until) (.*)'
@@ -479,8 +486,12 @@ function! sj#ruby#SplitOptions()
   "
 
   call sj#PushCursor()
-  let [function_from, function_to, function_type] = sj#argparser#ruby#LocateFunction()
+  let [function_name, function_from, function_to, function_type] = sj#argparser#ruby#LocateFunction()
   call sj#PopCursor()
+
+  if index(s:invalid_function_names, function_name) >= 0
+    return 0
+  endif
 
   call sj#PushCursor()
   let [hash_from, hash_to] = sj#argparser#ruby#LocateHash()
