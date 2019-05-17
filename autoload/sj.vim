@@ -18,7 +18,7 @@ function! sj#PushCursor()
     let b:cursor_position_stack = []
   endif
 
-  call add(b:cursor_position_stack, getpos('.'))
+  call add(b:cursor_position_stack, winsaveview())
 endfunction
 
 " function! sj#PopCursor() {{{2
@@ -26,7 +26,7 @@ endfunction
 " Restores the cursor to the latest position in the cursor stack, as added
 " from the sj#PushCursor function. Removes the position from the stack.
 function! sj#PopCursor()
-  call setpos('.', remove(b:cursor_position_stack, -1))
+  call winrestview(remove(b:cursor_position_stack, -1))
 endfunction
 
 " function! sj#DropCursor() {{{2
