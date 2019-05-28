@@ -1649,4 +1649,36 @@ describe "ruby" do
       assert_file_contents "array = %i[one two three]"
     end
   end
+
+  describe "method calls" do
+    specify "joining with a trailing dot" do
+      set_file_contents <<-EOF
+        one.
+          two.
+          three
+      EOF
+
+      vim.search 'one'
+      join
+
+      assert_file_contents <<-EOF
+        one.two.three
+      EOF
+    end
+
+    specify "joining with a leading dot" do
+      set_file_contents <<-EOF
+        one
+          .two
+          .three
+      EOF
+
+      vim.search 'one'
+      join
+
+      assert_file_contents <<-EOF
+        one.two.three
+      EOF
+    end
+  end
 end

@@ -700,7 +700,7 @@ function! sj#ruby#JoinArray()
 endfunction
 
 function! sj#ruby#JoinContinuedMethodCall()
-  if getline('.') !~ '\.$'
+  if getline('.') !~ '\.$' && getline(nextnonblank(line('.') + 1)) !~ '^\s*\.'
     return 0
   endif
 
@@ -708,7 +708,8 @@ function! sj#ruby#JoinContinuedMethodCall()
   silent! normal! zO
   normal! j
 
-  while line('.') < line('$') && getline('.') =~ '\.$'
+  while line('.') < line('$') &&
+        \ (getline('.') =~ '\.$' || getline(nextnonblank(line('.') + 1)) =~ '^\s*\.')
     normal! j
   endwhile
 
