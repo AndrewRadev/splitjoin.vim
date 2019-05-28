@@ -378,6 +378,19 @@ Same as above: requires the |matchit| plugin.
       end
     end
 <
+Method continuations ~
+
+For the moment, this only works in the direction of joining, since splitting
+is too ambiguous (how to decide whether to split the method dot or the
+function's arguments?).
+>
+    one.
+      two.three(foo, bar)
+    one
+      .two.three(foo, bar)
+
+    one.two.three(foo, bar)
+
 
 ==============================================================================
 PYTHON                                                      *splitjoin-python*
