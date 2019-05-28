@@ -784,9 +784,8 @@ PHP markers ~
 <
 Method calls~
 
-Affects all the arrows after the cursor when
-|splitjoin_php_method_chain_full| is set to 1.
-Otherwise, it affects only a single arrow.
+Affects all the arrows after the cursor when |splitjoin_php_method_chain_full|
+is set to 1. Otherwise, it affects only a single arrow.
 >
     $var = $one->two->three()->four();
 
