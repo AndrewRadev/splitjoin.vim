@@ -17,6 +17,7 @@ CONTENTS                                      *splitjoin* *splitjoin-contents*
     HTML...................................: |splitjoin-html|
     Handlebars.............................: |splitjoin-handlebars|
     CSS....................................: |splitjoin-css|
+    SCSS...................................: |splitjoin-scss|
     YAML...................................: |splitjoin-yaml|
     Eruby..................................: |splitjoin-eruby|
     Go.....................................: |splitjoin-go|
@@ -919,6 +920,28 @@ Multiline selectors ~
     h1, h2, h3 {
       font-size: 18px;
       font-weight: bold;
+    }
+<
+
+==============================================================================
+SCSS                                                            *splitjoin-scss*
+                                                                *splitjoin-less*
+
+Extra functionality for the added nesting possibility. Work for LESS as well.
+
+Nested definitions ~
+
+When splitting, the cursor position determines which part gets extracted into
+a separate definition. Joining only works if there's only one child definition.
+>
+    ul li {
+      a {
+        padding: 10px;
+      }
+    }
+
+    ul li a {
+      padding: 10px;
     }
 <
 
