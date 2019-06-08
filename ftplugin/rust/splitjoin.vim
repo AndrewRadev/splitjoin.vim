@@ -5,9 +5,11 @@ let b:splitjoin_split_callbacks = [
       \ 'sj#rust#SplitQuestionMark',
       \ 'sj#rust#SplitCurlyBrackets',
       \ 'sj#rust#SplitUnwrapIntoEmptyMatch',
+      \ 'sj#rust#SplitIfLetIntoMatch',
       \ ]
 
 let b:splitjoin_join_callbacks = [
+      \ 'sj#rust#JoinEmptyMatchIntoIfLet',
       \ 'sj#rust#JoinMatchClause',
       \ 'sj#rust#JoinMatchStatement',
       \ 'sj#rust#JoinClosure',

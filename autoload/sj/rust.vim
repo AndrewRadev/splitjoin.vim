@@ -362,6 +362,74 @@ function! sj#rust#SplitUnwrapIntoEmptyMatch()
   return 1
 endfunction
 
+function! sj#rust#SplitIfLetIntoMatch()
+  let if_let_pattern =  'if\s\+let\s\+\(.*\)\s\+=\s\+\(.\{-}\)\s*{'
+
+  if search(if_let_pattern, 'We', line('.')) <= 0
+    return 0
+  endif
+
+  let match_line = substitute(getline('.'), if_let_pattern, "match \\2 {\n\\1 => {", '')
+  let body = sj#GetMotion('vi{')
+  call sj#ReplaceMotion('V', match_line)
+  normal! j$
+  call sj#ReplaceMotion('Va{', " {\n".body."},\n_ => (),\n}")
+
+  return 1
+endfunction
+
+function! sj#rust#JoinEmptyMatchIntoIfLet()
+  let match_pattern = 'match\s\+\zs.\{-}\ze\s\+{$'
+  let pattern_pattern = '^\s*\zs.\{-}\ze\s\+=>'
+
+  if search(match_pattern, 'We', line('.')) <= 0
+    return 0
+  endif
+
+  let outer_start_lineno = line('.')
+
+  " find end point
+  normal! f{%
+  let outer_end_lineno = line('.')
+  let inner_end_lineno = prevnonblank(outer_end_lineno - 1)
+  if getline(inner_end_lineno) =~ '^\s*_\s*=>\s*(),\=$'
+    " it's a default match, ignore this one
+    let inner_end_lineno = prevnonblank(inner_end_lineno - 1)
+  endif
+
+  if inner_end_lineno == 0
+    " No inner end } found
+    return 0
+  endif
+  if getline(inner_end_lineno) !~ '^\s*},\=\s*$'
+    " not a }
+    return 0
+  endif
+
+  exe inner_end_lineno
+  normal! 0f}%
+  let inner_start_lineno = line('.')
+
+  if prevnonblank(inner_start_lineno - 1) != outer_start_lineno
+    " the inner start is not immediately after the outer start
+    return 0
+  endif
+
+  let match_value   = sj#Trim(matchstr(getline(outer_start_lineno), match_pattern))
+  let match_pattern = sj#Trim(matchstr(getline(inner_start_lineno), pattern_pattern))
+
+  " currently on inner start, so let's take its contents:
+  let body = sj#Trim(sj#GetMotion('vi{'))
+
+  " jump on outer start
+  exe outer_start_lineno
+  call sj#ReplaceMotion('V', 'if let '.match_pattern.' = '.match_value.' {')
+  normal! 0f{
+  call sj#ReplaceMotion('va{', "{\n".body."\n}")
+
+  return 1
+endfunction
+
 " Note: special handling for < and >
 "
 function! s:JumpBracketsTill(end_pattern)

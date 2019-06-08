@@ -758,6 +758,20 @@ to get this effect, in this particular example.
 The plugin attempts to find the end of the expression, and make a match
 statement out of it. It also works with `expect` calls.
 
+Empty matches and if-let ~
+>
+    if let Some(value) = iterator.next() {
+        println!("do something with {}", value);
+    }
+
+    match iterator.next() {
+        Some(value) =>  {
+            println!("do something with {}", value);
+        },
+        _ => (),
+    }
+<
+
 ==============================================================================
 PHP                                                            *splitjoin-php*
 

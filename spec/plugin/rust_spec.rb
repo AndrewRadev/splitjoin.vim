@@ -559,4 +559,44 @@ describe "rust" do
       }
     EOF
   end
+
+  specify "if-let into match" do
+    set_file_contents <<-EOF
+      if let Some(value) = iterator.next() {
+          println!("do something with {}", value);
+      }
+    EOF
+
+    vim.search('let')
+    split
+
+    assert_file_contents <<-EOF
+      match iterator.next() {
+          Some(value) =>  {
+              println!("do something with {}", value);
+          },
+          _ => (),
+      }
+    EOF
+  end
+
+  specify "match into if-let" do
+    set_file_contents <<-EOF
+      match iterator.next() {
+          Some(value) =>  {
+              println!("do something with {}", value);
+          },
+          _ => (),
+      }
+    EOF
+
+    vim.search('match')
+    join
+
+    assert_file_contents <<-EOF
+      if let Some(value) = iterator.next() {
+          println!("do something with {}", value);
+      }
+    EOF
+  end
 end
