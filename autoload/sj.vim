@@ -265,7 +265,7 @@ endfunction
 " same way as the built-in |search()| call. Any other flags will be ignored.
 "
 function! sj#SearchUnderCursor(pattern, ...)
-  let [match_start, match_end] = call('sj#SearchposUnderCursor', [a:pattern] + a:000)
+  let [match_start, match_end] = call('sj#SearchColsUnderCursor', [a:pattern] + a:000)
   if match_start > 0
     return match_start
   else
@@ -273,7 +273,7 @@ function! sj#SearchUnderCursor(pattern, ...)
   endif
 endfunction
 
-" function! sj#SearchposUnderCursor(pattern, flags, skip) {{{2
+" function! sj#SearchColsUnderCursor(pattern, flags, skip) {{{2
 "
 " Searches for a match for the given pattern under the cursor. Returns the
 " start and (end + 1) column positions of the match. If nothing was found,
@@ -285,7 +285,7 @@ endfunction
 "
 " See sj#SearchUnderCursor for the behaviour of a:flags
 "
-function! sj#SearchposUnderCursor(pattern, ...)
+function! sj#SearchColsUnderCursor(pattern, ...)
   if a:0 >= 1
     let given_flags = a:1
   else

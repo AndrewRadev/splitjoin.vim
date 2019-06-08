@@ -764,9 +764,9 @@ function! sj#ruby#SplitString()
   let string_pattern       = '\(\%(^\|[^\\]\)\zs\([''"]\)\).\{-}[^\\]\+\2'
   let empty_string_pattern = '\%(''''\|""\)'
 
-  let [match_start, match_end] = sj#SearchposUnderCursor(string_pattern)
+  let [match_start, match_end] = sj#SearchColsUnderCursor(string_pattern)
   if match_start <= 0
-    let [match_start, match_end] = sj#SearchposUnderCursor(empty_string_pattern)
+    let [match_start, match_end] = sj#SearchColsUnderCursor(empty_string_pattern)
     if match_start <= 0
       return 0
     endif
@@ -840,7 +840,7 @@ function! sj#ruby#SplitArrayLiteral()
   let closing_bracket = s:ArrayLiteralClosingBracket(opening_bracket)
 
   let array_pattern = '\%(\k\|\s\)*\ze\V'.closing_bracket
-  let [start_col, end_col] = sj#SearchposUnderCursor(array_pattern)
+  let [start_col, end_col] = sj#SearchColsUnderCursor(array_pattern)
   if start_col <= 0
     return 0
   endif
