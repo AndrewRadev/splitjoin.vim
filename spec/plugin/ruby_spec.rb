@@ -535,108 +535,110 @@ describe "ruby" do
     end
   end
 
-  specify "hashes" do
-    set_file_contents <<-EOF
-      foo = { :bar => 'baz', :one => 'two' }
-    EOF
+  describe "hashes" do
+    specify "with arrow syntax" do
+      set_file_contents <<-EOF
+        foo = { :bar => 'baz', :one => 'two' }
+      EOF
 
-    vim.search ':bar'
-    split
+      vim.search ':bar'
+      split
 
-    assert_file_contents <<-EOF
-      foo = {
-        :bar => 'baz',
-        :one => 'two'
-      }
-    EOF
+      assert_file_contents <<-EOF
+        foo = {
+          :bar => 'baz',
+          :one => 'two'
+        }
+      EOF
 
-    vim.search 'foo'
-    join
+      vim.search 'foo'
+      join
 
-    assert_file_contents <<-EOF
-      foo = { :bar => 'baz', :one => 'two' }
-    EOF
-  end
+      assert_file_contents <<-EOF
+        foo = { :bar => 'baz', :one => 'two' }
+      EOF
+    end
 
-  specify "hashes with symbol syntax" do
-    set_file_contents <<-EOF
+    specify "with symbol syntax" do
+      set_file_contents <<-EOF
+        foo = { bar: 1, one: 2 }
+      EOF
+
+      vim.search 'bar:'
+      split
+
+      assert_file_contents <<-EOF
+        foo = {
+          bar: 1,
+          one: 2
+        }
+      EOF
+
+      vim.search 'foo'
+      join
+
+      assert_file_contents <<-EOF
       foo = { bar: 1, one: 2 }
-    EOF
+      EOF
+    end
 
-    vim.search 'bar:'
-    split
+    specify "without a trailing comma" do
+      vim.command('let g:splitjoin_ruby_trailing_comma = 0')
 
-    assert_file_contents <<-EOF
-      foo = {
-        bar: 1,
-        one: 2
-      }
-    EOF
+      set_file_contents <<-EOF
+        foo = { :bar => 'baz', :one => 'two' }
+      EOF
 
-    vim.search 'foo'
-    join
+      vim.search ':bar'
+      split
 
-    assert_file_contents <<-EOF
-      foo = { bar: 1, one: 2 }
-    EOF
-  end
+      assert_file_contents <<-EOF
+        foo = {
+          :bar => 'baz',
+          :one => 'two'
+        }
+      EOF
+    end
 
-  specify "hashes without a trailing comma" do
-    vim.command('let g:splitjoin_ruby_trailing_comma = 0')
+    specify "with a trailing comma" do
+      vim.command('let g:splitjoin_ruby_trailing_comma = 1')
 
-    set_file_contents <<-EOF
-      foo = { :bar => 'baz', :one => 'two' }
-    EOF
+      set_file_contents <<-EOF
+        foo = { :bar => 'baz', :one => 'two' }
+      EOF
 
-    vim.search ':bar'
-    split
+      vim.search ':bar'
+      split
 
-    assert_file_contents <<-EOF
-      foo = {
-        :bar => 'baz',
-        :one => 'two'
-      }
-    EOF
-  end
+      assert_file_contents <<-EOF
+        foo = {
+          :bar => 'baz',
+          :one => 'two',
+        }
+      EOF
 
-  specify "hashes with a trailing comma" do
-    vim.command('let g:splitjoin_ruby_trailing_comma = 1')
+      vim.search 'foo'
+      join
 
-    set_file_contents <<-EOF
-      foo = { :bar => 'baz', :one => 'two' }
-    EOF
+      assert_file_contents <<-EOF
+        foo = { :bar => 'baz', :one => 'two' }
+      EOF
+    end
 
-    vim.search ':bar'
-    split
+    specify "with spaces in them" do
+      set_file_contents <<-EOF
+        a_hash = { a_key: "a longer value" }
+      EOF
 
-    assert_file_contents <<-EOF
-      foo = {
-        :bar => 'baz',
-        :one => 'two',
-      }
-    EOF
+      vim.search 'a_key'
+      split
 
-    vim.search 'foo'
-    join
-
-    assert_file_contents <<-EOF
-      foo = { :bar => 'baz', :one => 'two' }
-    EOF
-  end
-
-  specify "hashes with spaces in them" do
-    set_file_contents <<-EOF
-      a_hash = { a_key: "a longer value" }
-    EOF
-
-    vim.search 'a_key'
-    split
-
-    assert_file_contents <<-EOF
-      a_hash = {
-        a_key: "a longer value"
-      }
-    EOF
+      assert_file_contents <<-EOF
+        a_hash = {
+          a_key: "a longer value"
+        }
+      EOF
+    end
   end
 
   specify "caching constructs" do
@@ -1287,6 +1289,22 @@ describe "ruby" do
           last_name: 'Doe',
           age: 50
         )
+      EOF
+    end
+
+    specify "join hanging hash options" do
+      set_file_contents <<-EOF
+        OpenStruct.new(one,
+                       first_name: 'John',
+                       last_name: 'Doe',
+                       age: 50)
+      EOF
+
+      vim.search('one')
+      join
+
+      assert_file_contents <<-EOF
+        OpenStruct.new(one, first_name: 'John', last_name: 'Doe', age: 50)
       EOF
     end
 

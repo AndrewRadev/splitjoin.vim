@@ -472,6 +472,7 @@ function! sj#ruby#JoinHash()
   elseif line =~ '(\s*$'
     return s:JoinHashWithRoundBraces()
   elseif line =~ ',\s*$'
+    " also ends up being called for `(foo, bar,` situations
     return s:JoinHashWithoutBraces()
   else
     return 0
@@ -1112,7 +1113,8 @@ function! s:JoinHashWithoutBraces()
   let line         = getline(lineno)
   let indent       = repeat(' ', indent(lineno))
 
-  while lineno <= line('$') && ((line =~ '^'.indent && line =~ '=>') || line =~ '^\s*)')
+  while lineno <= line('$') &&
+        \ ((line =~ '^'.indent && (line =~ '=>' || line =~ '^\s*\k\+:')) || line =~ '^\s*)')
     let end_lineno = lineno
     let lineno     = nextnonblank(lineno + 1)
     let line       = getline(lineno)
