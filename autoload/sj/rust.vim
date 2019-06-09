@@ -5,17 +5,26 @@ function! sj#rust#SplitMatchClause()
     return 0
   endif
 
-  call search('=>\s*\zs.', 'W', line('.'))
-
-  let start_col = col('.')
-  if !search(',\s*\%(//.*\)\=$', 'W', line('.'))
+  if !search('=>\s*\zs.', 'W', line('.'))
     return 0
   endif
-  let comma_col = col('.')
-  let end_col = comma_col - 1
 
-  let body = sj#GetCols(start_col, end_col)
-  call sj#ReplaceCols(start_col, comma_col, "{\n".body."\n},")
+  let start_col = col('.')
+  if !search(',\=\s*\%(//.*\)\=$', 'W', line('.'))
+    return 0
+  endif
+
+  " handle trailing comma if there is one
+  if getline('.')[col('.') - 1] == ','
+    let content_end_col = col('.')
+    let body_end_col = content_end_col - 1
+  else
+    let content_end_col = col('.')
+    let body_end_col = content_end_col
+  endif
+
+  let body = sj#GetCols(start_col, body_end_col)
+  call sj#ReplaceCols(start_col, content_end_col, "{\n".body."\n},")
   return 1
 endfunction
 

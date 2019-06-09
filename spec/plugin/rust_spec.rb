@@ -7,10 +7,37 @@ describe "rust" do
     pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
   end
 
-  specify "match clauses" do
+  specify "match clauses with trailing comma" do
     set_file_contents <<-EOF
       match one {
           Ok(two) => some_expression(three),
+      }
+    EOF
+
+    vim.search('Ok')
+    split
+
+    assert_file_contents <<-EOF
+      match one {
+          Ok(two) => {
+              some_expression(three)
+          },
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      match one {
+          Ok(two) => some_expression(three),
+      }
+    EOF
+  end
+
+  specify "match clauses without trailing comma" do
+    set_file_contents <<-EOF
+      match one {
+          Ok(two) => some_expression(three)
       }
     EOF
 
