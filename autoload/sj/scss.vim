@@ -1,5 +1,5 @@
 function! sj#scss#SplitNestedDefinition()
-  if getline('.') !~ '^\(\k\+\s\+\)\+\k\s*{$'
+  if getline('.') !~ '^\(\k\+\s\+\)\+\k\+\s*{$'
     return 0
   endif
 
