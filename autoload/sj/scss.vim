@@ -1,9 +1,9 @@
 function! sj#scss#SplitNestedDefinition()
-  if getline('.') !~ '^\(\k\+\s\+\)\+\k\+\s*{$'
+  if search('{\s*$', 'Wn', line('.')) <= 0
     return 0
   endif
 
-  if search('\k\+', 'Wbc', line('.')) <= 0
+  if search('\s\zs\S\+', 'Wbc', line('.')) <= 0
     return 0
   endif
 
@@ -24,16 +24,11 @@ function! sj#scss#SplitNestedDefinition()
 endfunction
 
 function! sj#scss#JoinNestedDefinition()
-  let definition_pattern = '\%(\k\+\s*\)\+{$'
-
-  if search(definition_pattern, 'Wbc', line('.')) <= 0
+  if search('{\s*$', 'We', line('.')) <= 0
     return 0
   endif
 
   let outer_start_lineno = line('.')
-  if search(definition_pattern, 'We', line('.')) <= 0
-    return 0
-  endif
 
   " find end point
   normal! %

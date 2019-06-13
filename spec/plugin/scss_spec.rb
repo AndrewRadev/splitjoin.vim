@@ -40,7 +40,7 @@ describe "scss" do
   specify "nested definitions" do
     set_file_contents <<-EOF
       ul li {
-        a {
+        a.class-name {
           padding: 10px;
         }
       }
@@ -50,7 +50,7 @@ describe "scss" do
     join
 
     assert_file_contents <<-EOF
-      ul li a {
+      ul li a.class-name {
         padding: 10px;
       }
     EOF
@@ -60,7 +60,7 @@ describe "scss" do
 
     assert_file_contents <<-EOF
       ul li {
-        a {
+        a.class-name {
           padding: 10px;
         }
       }
