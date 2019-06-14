@@ -224,10 +224,16 @@ endfunction
 "   [bufnum, lnum, col, off]
 "
 function! sj#GetByPosition(start, end)
-  call setpos('.', a:start)
-  call setpos("'z", a:end)
+  let saved_z_pos = getpos("'z")
 
-  return sj#GetMotion('v`z')
+  try
+    call setpos('.', a:start)
+    call setpos("'z", a:end)
+
+    return sj#GetMotion('v`z')
+  finally
+    call setpos("'z", saved_z_pos)
+  endtry
 endfunction
 
 " String functions {{{1
