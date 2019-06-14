@@ -157,10 +157,16 @@ endfunction
 "   [bufnum, lnum, col, off]
 "
 function! sj#ReplaceByPosition(start, end, text)
-  call setpos('.', a:start)
-  call setpos("'z", a:end)
+  let saved_z_pos = getpos("'z")
 
-  return sj#ReplaceMotion('v`z', a:text)
+  try
+    call setpos('.', a:start)
+    call setpos("'z", a:end)
+
+    return sj#ReplaceMotion('v`z', a:text)
+  finally
+    call setpos("'z", saved_z_pos)
+  endtry
 endfunction
 
 " Text retrieval {{{1
