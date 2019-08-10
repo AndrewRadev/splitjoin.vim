@@ -183,6 +183,32 @@ describe "javascript" do
     assert_file_contents "{ one: two, 'three': four }"
   end
 
+  specify "method chains (trailing dot)" do
+    set_file_contents "method_call().chain()"
+    vim.command 'let b:splitjoin_leading_method_dot = 0'
+
+    vim.search 'chain'
+    split
+
+    assert_file_contents <<-EOF
+      method_call().
+        chain()
+    EOF
+  end
+
+  specify "method chains (leading dot)" do
+    set_file_contents "method_call().chain()"
+    vim.command 'let b:splitjoin_leading_method_dot = 1'
+
+    vim.search 'chain'
+    split
+
+    assert_file_contents <<-EOF
+      method_call()
+        .chain()
+    EOF
+  end
+
   specify "lists" do
     set_file_contents "[ 'one', 'two', 'three', 'four' ]"
 

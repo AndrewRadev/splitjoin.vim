@@ -27,7 +27,12 @@ function! sj#js#SplitAtDot()
     return 0
   endif
 
-  exe "normal! a\<cr>"
+  if sj#settings#Read('leading_method_dot')
+    exe "normal! i\<cr>"
+  else
+    exe "normal! a\<cr>"
+  endif
+
   return 1
 endfunction
 

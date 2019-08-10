@@ -1272,6 +1272,26 @@ Example:
     }
 <
 
+                                                *splitjoin_leading_method_dot*
+>
+    let g:splitjoin_leading_method_dot = 1
+<
+Default value: 0
+
+When set to 1, spliting a method chain is done with the dot on a newline.
+Basically:
+>
+    " g:splitjoin_leading_method_dot == 0
+    method_call().
+        chain()
+
+    " g:splitjoin_leading_method_dot == 1
+    method_call()
+        .chain()
+<
+You can change this on a per-filetype basis using `b:splitjoin_leading_method_dot`.
+
+
                                                  *splitjoin_ruby_curly_braces*
 >
     g:splitjoin_ruby_curly_braces
