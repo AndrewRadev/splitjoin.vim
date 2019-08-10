@@ -22,6 +22,15 @@ function! sj#js#SplitObjectLiteral()
   endif
 endfunction
 
+function! sj#js#SplitAtDot()
+  if !sj#SearchUnderCursor('\.\k\+')
+    return 0
+  endif
+
+  exe "normal! a\<cr>"
+  return 1
+endfunction
+
 function! sj#js#SplitFunction()
   if !sj#SearchUnderCursor('\<function\>.*(.*)\s*{.*}')
     return 0

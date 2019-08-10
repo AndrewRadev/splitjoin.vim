@@ -1,5 +1,6 @@
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
+        \ 'sj#js#SplitAtDot',
         \ 'sj#js#SplitFunction',
         \ 'sj#js#SplitObjectLiteral',
         \ 'sj#js#SplitFatArrowFunction',
