@@ -22,7 +22,7 @@ function! sj#js#SplitObjectLiteral()
   endif
 endfunction
 
-function! sj#js#SplitAtDot()
+function! sj#js#SplitFunctionCallChain()
   if !sj#SearchUnderCursor('\.\k\+')
     return 0
   endif
@@ -33,6 +33,26 @@ function! sj#js#SplitAtDot()
     exe "normal! a\<cr>"
   endif
 
+  return 1
+endfunction
+
+function! sj#js#JoinFunctionCallChain()
+  if getline('.') !~ '\.$' && getline(nextnonblank(line('.') + 1)) !~ '^\s*\.'
+    return 0
+  endif
+
+  let start_lineno = line('.')
+  silent! normal! zO
+  normal! j
+
+  while line('.') < line('$') &&
+        \ (getline('.') =~ '\.$' || getline(nextnonblank(line('.') + 1)) =~ '^\s*\.')
+    normal! j
+  endwhile
+
+  let end_lineno = line('.') - 1
+
+  exe start_lineno.','.end_lineno.'s/\n\_s*//'
   return 1
 endfunction
 

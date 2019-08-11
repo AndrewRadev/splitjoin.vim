@@ -690,6 +690,13 @@ Fat-arrow functions ~
       return "bar";
     });
 <
+Function call chains ~
+>
+    function_call().chain()
+
+    function_call().
+        chain()
+<
 
 ==============================================================================
 RUST                                                          *splitjoin-rust*

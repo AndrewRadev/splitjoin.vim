@@ -194,6 +194,11 @@ describe "javascript" do
       method_call().
         chain()
     EOF
+
+    vim.search 'method_call'
+    join
+
+    assert_file_contents "method_call().chain()"
   end
 
   specify "method chains (leading dot)" do
@@ -207,6 +212,11 @@ describe "javascript" do
       method_call()
         .chain()
     EOF
+
+    vim.search 'method_call'
+    join
+
+    assert_file_contents "method_call().chain()"
   end
 
   specify "lists" do
