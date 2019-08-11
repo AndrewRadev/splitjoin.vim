@@ -184,39 +184,39 @@ describe "javascript" do
   end
 
   specify "method chains (trailing dot)" do
-    set_file_contents "method_call().chain()"
+    set_file_contents "function_call().chain()"
     vim.command 'let b:splitjoin_leading_method_dot = 0'
 
     vim.search 'chain'
     split
 
     assert_file_contents <<-EOF
-      method_call().
+      function_call().
         chain()
     EOF
 
-    vim.search 'method_call'
+    vim.search 'function_call'
     join
 
-    assert_file_contents "method_call().chain()"
+    assert_file_contents "function_call().chain()"
   end
 
   specify "method chains (leading dot)" do
-    set_file_contents "method_call().chain()"
+    set_file_contents "function_call().chain()"
     vim.command 'let b:splitjoin_leading_method_dot = 1'
 
     vim.search 'chain'
     split
 
     assert_file_contents <<-EOF
-      method_call()
+      function_call()
         .chain()
     EOF
 
-    vim.search 'method_call'
+    vim.search 'function_call'
     join
 
-    assert_file_contents "method_call().chain()"
+    assert_file_contents "function_call().chain()"
   end
 
   specify "lists" do
