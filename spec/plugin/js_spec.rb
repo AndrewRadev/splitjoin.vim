@@ -190,9 +190,13 @@ describe "javascript" do
     vim.search 'chain'
     split
 
+    # Fix issue with inconsistent indenting
+    vim.normal 'gg<G'
+    vim.write
+
     assert_file_contents <<-EOF
       function_call().
-        chain()
+      chain()
     EOF
 
     vim.search 'function_call'
@@ -208,9 +212,13 @@ describe "javascript" do
     vim.search 'chain'
     split
 
+    # Fix issue with inconsistent indenting
+    vim.normal 'gg<G'
+    vim.write
+
     assert_file_contents <<-EOF
       function_call()
-        .chain()
+      .chain()
     EOF
 
     vim.search 'function_call'
