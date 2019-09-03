@@ -59,6 +59,22 @@ describe "yaml" do
         root: ['one', 'two']
       EOF
     end
+
+    specify "nested objects inside an array" do
+      set_file_contents <<-EOF
+        root:
+          - one: { foo: bar }
+      EOF
+
+      vim.search 'one'
+      split
+
+      assert_file_contents <<-EOF
+        root:
+          - one:
+              foo: bar
+      EOF
+    end
   end
 
   describe "maps" do
