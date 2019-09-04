@@ -12,7 +12,7 @@ function! sj#yaml#SplitArray()
     call sj#ReplaceMotion('V', key_part.":\n- ".body)
     silent! normal! zO
     call s:SetIndentWhitespace(line_no, whitespace)
-    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(expanded_array), whitespace)
+    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(expanded_array), whitespace, 1)
 
     return 1
   else
@@ -55,14 +55,20 @@ function! sj#yaml#SplitMap()
     return 0
   else
     let line_no    = line('.')
+    let line       = getline(line_no)
     let whitespace = s:GetIndentWhitespace(line_no)
     let pairs      = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body       = "\n".join(pairs, "\n")
 
+    let indent_level = 1
+    if line =~ '^\s*-\s'
+       let indent_level = 2
+    endif
+
     call sj#ReplaceMotion('Va{', body)
     silent! normal! zO
     call s:SetIndentWhitespace(line_no, whitespace)
-    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(pairs), whitespace)
+    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(pairs), whitespace, indent_level)
     exe line_no.'s/\s*$//e'
 
     if sj#settings#Read('align')
@@ -108,11 +114,11 @@ function! s:SetIndentWhitespace(line_no, whitespace)
   silent exe a:line_no."s/^\\s*/".a:whitespace
 endfunction
 
-function! s:IncreaseIndentWhitespace(from, to, whitespace)
+function! s:IncreaseIndentWhitespace(from, to, whitespace, level)
   if a:whitespace =~ "\t"
-    let new_whitespace = a:whitespace . "\t"
+    let new_whitespace = a:whitespace . repeat("\t", a:level)
   else
-    let new_whitespace = a:whitespace . repeat(' ', &sw)
+    let new_whitespace = a:whitespace . repeat(' ', &sw * a:level)
   endif
 
   for line_no in range(a:from, a:to)
