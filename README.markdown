@@ -65,6 +65,14 @@ For more information, including examples for all of those languages, try `:help
 splitjoin`, or take a look at the help file online at
 [doc/splitjoin.txt](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt)
 
+## Installation
+
+To install using [pathogen.vim](https://github.com/tpope/vim-pathogen):
+
+```
+git clone https://github.com/AndrewRadev/splitjoin.vim.git ~/.vim/bundle/splitjoin.vim
+```
+
 ## Contributing
 
 If you'd like to hack on the plugin, please see
