@@ -65,6 +65,22 @@ For more information, including examples for all of those languages, try `:help
 splitjoin`, or take a look at the help file online at
 [doc/splitjoin.txt](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt)
 
+## Installation
+
+There are several ways to install the plugin. The recommended one is by using Tim Pope's [pathogen](https://github.com/tpope/vim-pathogen). In that case, you can clone the plugin's git repository like so:
+
+```
+git clone https://github.com/AndrewRadev/splitjoin.vim ~/.vim/bundle/splitjoin
+```
+
+If your vim configuration is under git version control, you could also set up the repository as a submodule, which would allow you to update more easily. The command is (provided you're in `~/.vim`):
+
+```
+git submodule add https://github.com/AndrewRadev/splitjoin.vim bundle/splitjoin
+```
+
+Another way is to simply copy all the essential directories inside the ~/.vim directory: plugin, ftplugin, autoload, doc.
+
 ## Contributing
 
 If you'd like to hack on the plugin, please see
