@@ -7,3 +7,6 @@ let b:splitjoin_join_callbacks = [
       \ 'sj#js#JoinArray',
       \ 'sj#js#JoinObjectLiteral',
       \ ]
+
+" JSON does not support trailing commas
+let b:splitjoin_trailing_comma = 0
