@@ -911,7 +911,16 @@ function! sj#ruby#JoinArrayLiteral()
 endfunction
 
 function! sj#ruby#JoinModuleNamespace()
+  " Initialize matchit, a requirement
   if !exists('g:loaded_matchit')
+    if has(':packadd')
+      packadd matchit
+    else
+      runtime macros/matchit.vim
+    endif
+  endif
+  if !exists('g:loaded_matchit')
+    " then loading it somehow failed, we can't continue
     return 0
   endif
 
