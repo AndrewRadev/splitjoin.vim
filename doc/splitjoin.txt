@@ -26,7 +26,6 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Shell..................................: |splitjoin-shell|
     TeX....................................: |splitjoin-tex|
     Vimscript..............................: |splitjoin-vimscript|
-    Vue.js.................................: |splitjoin-vue|
     YAML...................................: |splitjoin-yaml|
 
     Settings...............................: |splitjoin-settings|
@@ -425,9 +424,12 @@ Evaluated ruby ~
 ==============================================================================
 HTML                                                            *splitjoin-html*
 
+This works for other HTML-like languages as well: XML, Eruby, JSX, TSX, Vue
+templates, Django templates.
+
 Tags ~
 >
-   <div class="foo">bar</div>
+    <div class="foo">bar</div>
 
     <div class="foo">
       bar
@@ -1127,13 +1129,6 @@ it's possible to handle some specific cases like dictionaries, arrays, and
 commands, for now the plugin takes the simple approach of splitting precisely
 where the cursor is right now. In the future, this may be replaced with
 specific splits based on the context.
-
-
-==============================================================================
-VUE.JS                                                           *splitjoin-vue*
-
-Files with the "vue" filetype will support both HTML, Javascript and CSS
-splitting and joining, checking which section of the file they currently are.
 
 
 ==============================================================================

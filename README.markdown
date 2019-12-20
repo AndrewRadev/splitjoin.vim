@@ -15,8 +15,7 @@ I usually work with ruby and a lot of expressions can be written very concisely 
 puts "foo" if bar?
 ```
 
-This is a great feature of the language, but when you need to add more
-statements to the body of the "if", you need to rewrite it:
+This is a great feature of the language, but when you need to add more statements to the body of the "if", you need to rewrite it:
 
 ``` ruby
 if bar?
@@ -25,8 +24,7 @@ if bar?
 end
 ```
 
-The idea of this plugin is to introduce a single key binding (default: `gS`) for transforming a
-line like this:
+The idea of this plugin is to introduce a single key binding (default: `gS`) for transforming a line like this:
 
 ``` html
 <div id="foo">bar</div>
@@ -44,28 +42,27 @@ And another binding (default: `gJ`) for the opposite transformation.
 
 This currently works for various constructs in the following languages:
 
-- [C](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L205)
-- [CSS](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#226)
-- [Coffeescript](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#255)
-- [Elixir](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L333)
-- [Eruby](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L345)
-- [Go](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L384)
-- [HAML](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L415)
-- [HTML](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L426)
-- [Handlebars](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L451)
-- [Javascript](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L472)
-- [Lua](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L542)
-- [PHP](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L567)
-- [Perl](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L624)
-- [Python](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L690)
-- [Ruby](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L753)
-- [Rust](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L960)
-- [SCSS and Less](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1041)
-- [Shell](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1064)
-- [Tex](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1077)
-- [Vimscript](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1099)
-- [Vue.js](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1133)
-- [YAML](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1140)
+- C
+- CSS
+- Coffeescript
+- Elixir
+- Eruby
+- Go
+- HAML
+- HTML (and HTML-like markup)
+- Handlebars
+- Javascript (within JSX, TSX, Vue.js templates as well)
+- Lua
+- PHP
+- Perl
+- Python
+- Ruby
+- Rust
+- SCSS and Less
+- Shell (sh, bash, zsh)
+- Tex
+- Vimscript
+- YAML
 
 For more information, including examples for all of those languages, try `:help
 splitjoin`, or take a look at the full help file online at
