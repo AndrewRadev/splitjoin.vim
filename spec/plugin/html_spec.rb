@@ -22,11 +22,6 @@ describe "html" do
     assert_file_contents joined_html
   end
 
-  def remove_indentation
-    vim.command '%s/^\s\+//g'
-    vim.write
-  end
-
   specify "tags" do
     joined_html = '<div class="foo">bar</div>'
 

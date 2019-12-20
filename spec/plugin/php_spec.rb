@@ -165,12 +165,15 @@ describe "php" do
     vim.search('->two')
     split
 
+    # indentation differs between versions, let's ignore it
+    remove_indentation
+
     assert_file_contents <<-EOF
       <?php
       function stuff()
       {
-        $var = $foo->one($baz->nope())
-          ->two()->three();
+      $var = $foo->one($baz->nope())
+      ->two()->three();
       }
     EOF
 
@@ -181,7 +184,7 @@ describe "php" do
       <?php
       function stuff()
       {
-        $var = $foo->one($baz->nope())->two()->three();
+      $var = $foo->one($baz->nope())->two()->three();
       }
     EOF
   end
@@ -236,13 +239,16 @@ describe "php" do
     vim.search('->two')
     split
 
+    # indentation differs between versions, let's ignore it
+    remove_indentation
+
     assert_file_contents <<-EOF
       <?php
       function stuff()
       {
-        $var = $foo->one()
-          ->two($baz->nope())
-          ->three();
+      $var = $foo->one()
+      ->two($baz->nope())
+      ->three();
       }
     EOF
 
@@ -253,7 +259,7 @@ describe "php" do
       <?php
       function stuff()
       {
-        $var = $foo->one()->two($baz->nope())->three();
+      $var = $foo->one()->two($baz->nope())->three();
       }
     EOF
   end
