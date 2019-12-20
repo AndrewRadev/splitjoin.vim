@@ -68,8 +68,8 @@ function! sj#ruby#JoinIfClause()
 endfunction
 
 function! sj#ruby#SplitTernaryClause()
-  let line    = getline('.')
-  let ternary_pattern = '\v(\@{0,2}\w.*) \? (.*) : (.*)'
+  let line               = getline('.')
+  let ternary_pattern    = '\v(\@{0,2}\w.*) \? (.*) : (.*)'
   let assignment_pattern = '\v^\s*\w* \= '
 
   if line =~ ternary_pattern
@@ -655,7 +655,9 @@ function! sj#ruby#SplitArray()
         \ 'rubyInterpolationDelimiter',
         \ 'rubyString',
         \ 'rubyStringDelimiter',
-        \ 'rubySymbolDelimiter'
+        \ 'rubySymbolDelimiter',
+        \ 'rubyPercentStringDelimiter',
+        \ 'rubyPercentSymbolDelimiter',
         \ ])
 
   if from < 0
@@ -687,7 +689,7 @@ function! sj#ruby#JoinArray()
   endif
 
   let syntax_group = synIDattr(synID(line('.'), col('.'), 1), "name")
-  if index(['rubyStringDelimiter', 'rubySymbolDelimiter'], syntax_group) >= 0
+  if syntax_group =~ 'ruby\%(Percent\)\=\(String\|Symbol\)\%(Delimiter\)\='
     return 0
   endif
 
@@ -812,7 +814,8 @@ function! sj#ruby#SplitString()
 endfunction
 
 function! sj#ruby#SplitArrayLiteral()
-  if synIDattr(synID(line('.'), col('.'), 1), "name") !~ 'ruby\(String\|Symbol\)\%(Delimiter\)\='
+  let syntax_group = synIDattr(synID(line('.'), col('.'), 1), "name")
+  if syntax_group !~ 'ruby\%(Percent\)\=\(String\|Symbol\)\%(Delimiter\)\='
     return 0
   endif
 
@@ -860,12 +863,12 @@ function! sj#ruby#SplitArrayLiteral()
   call sj#SetIndent(lineno + 1, lineno + len(array_items), indent + &sw)
   call sj#SetIndent(lineno + len(array_items) + 1, indent)
 
-  return 0
+  return 1
 endfunction
 
 function! sj#ruby#JoinArrayLiteral()
   let syntax_group = synIDattr(synID(line('.'), col('.'), 1), "name")
-  if index(['rubyStringDelimiter', 'rubySymbolDelimiter'], syntax_group) < 0
+  if syntax_group !~ 'ruby\%(Percent\)\=\(String\|Symbol\)\%(Delimiter\)\='
     return 0
   endif
 

@@ -22,5 +22,8 @@ Vimrunner::RSpec.configure do |config|
 end
 
 RSpec.configure do |config|
+  tmp_dir = File.expand_path(File.dirname(__FILE__) + '/../tmp')
+
   config.include Support::Vim
+  config.example_status_persistence_file_path = tmp_dir + '/examples.txt'
 end
