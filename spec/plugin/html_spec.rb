@@ -3,11 +3,6 @@ require 'spec_helper'
 describe "html" do
   let(:filename) { 'test.html' }
 
-  before :each do
-    vim.set(:expandtab)
-    vim.set(:shiftwidth, 2)
-  end
-
   after :each do
     vim.command('silent! unlet g:splitjoin_html_attributes_bracket_on_new_line')
     vim.command('silent! unlet g:splitjoin_html_attributes_hanging')
@@ -16,9 +11,20 @@ describe "html" do
   def simple_test(joined_html, split_html)
     set_file_contents joined_html
     split
+    remove_indentation
+
     assert_file_contents split_html
+
+    vim.normal 'gg'
     join
+    remove_indentation
+
     assert_file_contents joined_html
+  end
+
+  def remove_indentation
+    vim.command '%s/^\s\+//g'
+    vim.write
   end
 
   specify "tags" do
@@ -26,7 +32,7 @@ describe "html" do
 
     split_html = <<-EOF
       <div class="foo">
-        bar
+      bar
       </div>
     EOF
 
@@ -37,10 +43,10 @@ describe "html" do
     joined_html = '<div id="test" token class="foo bar baz" style="width: 500px; height: 500px">'
     split_html = <<-EOF
       <div
-        id="test"
-        token
-        class="foo bar baz"
-        style="width: 500px; height: 500px">
+      id="test"
+      token
+      class="foo bar baz"
+      style="width: 500px; height: 500px">
     EOF
 
     simple_test(joined_html, split_html)
@@ -50,7 +56,7 @@ describe "html" do
     joined_html = '<div id="test"/>'
     split_html = <<-EOF
       <div
-        id="test"/>
+      id="test"/>
     EOF
 
     simple_test(joined_html, split_html)
@@ -62,8 +68,8 @@ describe "html" do
     joined_html = '<div id="test" />'
     split_html = <<-EOF
       <div
-        id="test"
-        />
+      id="test"
+      />
     EOF
 
     simple_test(joined_html, split_html)
@@ -78,8 +84,8 @@ describe "html" do
     EOF
     split_html = <<-EOF
       <div
-        id="test"
-        >
+      id="test"
+      >
       </div>
     EOF
 
@@ -91,18 +97,17 @@ describe "html" do
 
     joined_html = <<-EOF
       <button class="button control" @click="save" v-if="admin">
-        Save
+      Save
       </button>
     EOF
     split_html = <<-EOF
       <button class="button control"
-              @click="save"
-              v-if="admin">
-        Save
+      @click="save"
+      v-if="admin">
+      Save
       </button>
     EOF
 
     simple_test(joined_html, split_html)
   end
 end
-
