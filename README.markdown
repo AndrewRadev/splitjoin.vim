@@ -42,44 +42,57 @@ Into this:
 
 And another binding (default: `gJ`) for the opposite transformation.
 
-This currently works for:
-  * Various constructs in Ruby and Eruby
-  * Various constructs in Coffeescript
-  * Various constructs in Perl
-  * Various constructs in Python
-  * Various constructs in Rust
-  * PHP arrays
-  * Javascript object literals and functions
-  * Tags in HTML/XML
-  * Handlebars components
-  * CSS, SCSS, LESS style declarations.
-  * YAML arrays and maps
-  * Lua functions and tables
-  * Go structs
-  * Vimscript line continuations
-  * TeX blocks
-  * C if clauses and function calls
-  * Do-blocks in Elixir
+This currently works for various constructs in the following languages:
+
+- [C](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L205)
+- [CSS](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#226)
+- [Coffeescript](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#255)
+- [Elixir](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L333)
+- [Eruby](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L345)
+- [Go](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L384)
+- [HAML](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L415)
+- [HTML](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L426)
+- [Handlebars](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L451)
+- [Javascript](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L472)
+- [Lua](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L542)
+- [PHP](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L567)
+- [Perl](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L624)
+- [Python](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L690)
+- [Ruby](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L753)
+- [Rust](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L960)
+- [SCSS and Less](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1041)
+- [Shell](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1064)
+- [Tex](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1077)
+- [Vimscript](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1099)
+- [Vue.js](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1133)
+- [YAML](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt#L1140)
 
 For more information, including examples for all of those languages, try `:help
-splitjoin`, or take a look at the help file online at
+splitjoin`, or take a look at the full help file online at
 [doc/splitjoin.txt](https://github.com/AndrewRadev/splitjoin.vim/blob/master/doc/splitjoin.txt)
 
 ## Installation
 
-There are several ways to install the plugin. The recommended one is by using Tim Pope's [pathogen](https://github.com/tpope/vim-pathogen). In that case, you can clone the plugin's git repository like so:
+The easiest way to install the plugin is with a plugin manager:
+
+- vim-plug: https://github.com/junegunn/vim-plug
+- Vundle:   https://github.com/VundleVim/Vundle.vim
+
+If you use one, just follow the instructions in its documentation.
+
+You can install the plugin yourself using Vim's "packages" functionality by cloning the project (or adding it as a submodule) under `~/.vim/pack/<any-name>/start/`. For example:
 
 ```
-git clone https://github.com/AndrewRadev/splitjoin.vim ~/.vim/bundle/splitjoin
+git clone https://github.com/AndrewRadev/splitjoin.vim ~/.vim/pack/_/start/splitjoin
 ```
 
-If your vim configuration is under git version control, you could also set up the repository as a submodule, which would allow you to update more easily. The command is (provided you're in `~/.vim`):
+This should automatically load the plugin for you on Vim start. Alternatively, you can add it to `~/.vim/pack/<any-name>/opt/` instead and load it in your .vimrc manually with:
 
-```
-git submodule add https://github.com/AndrewRadev/splitjoin.vim bundle/splitjoin
+``` vim
+packadd splitjoin
 ```
 
-Another way is to simply copy all the essential directories inside the ~/.vim directory: plugin, ftplugin, autoload, doc.
+If you'd rather not use git, you can download the files from the "releases" tab and unzip them in the relevant directory: https://github.com/AndrewRadev/splitjoin.vim/releases.
 
 ## Contributing
 
