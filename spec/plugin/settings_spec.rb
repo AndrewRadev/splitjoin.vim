@@ -13,7 +13,7 @@ describe "settings" do
   end
 
   specify "precedence" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       foo = {one: 'two', three: 'four'}
     EOF
 
@@ -22,7 +22,7 @@ describe "settings" do
     vim.command('let g:splitjoin_ruby_trailing_comma = 0')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       foo = {
         one: 'two',
         three: 'four'
@@ -33,7 +33,7 @@ describe "settings" do
     vim.command('let g:splitjoin_ruby_trailing_comma = 1')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       foo = {
         one: 'two',
         three: 'four',
@@ -45,7 +45,7 @@ describe "settings" do
     vim.command('let b:splitjoin_ruby_trailing_comma = 1')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       foo = {
         one: 'two',
         three: 'four',

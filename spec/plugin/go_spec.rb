@@ -9,7 +9,7 @@ describe "go" do
   end
 
   specify "imports" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       import "fmt"
     EOF
     setup_go_filetype
@@ -21,7 +21,7 @@ describe "go" do
     vim.normal '3<<3<<'
     vim.write
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
     import (
     "fmt"
     )
@@ -30,13 +30,13 @@ describe "go" do
     vim.search('import')
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       import "fmt"
     EOF
   end
 
   specify "var/const modifiers" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       var foo string
       const bar string
       type ChanDir int
@@ -54,7 +54,7 @@ describe "go" do
     vim.normal 'gg9<<9<<'
     vim.write
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
     var (
     foo string
     )
@@ -73,7 +73,7 @@ describe "go" do
     vim.search('type')
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       var foo string
       const bar string
       type ChanDir int
@@ -81,7 +81,7 @@ describe "go" do
   end
 
   specify "structs" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
     EOF
     setup_go_filetype
@@ -93,7 +93,7 @@ describe "go" do
     vim.normal '5<<5<<5<<5<<'
     vim.write
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       StructType{
       one: 1,
       two: "asdf",
@@ -103,7 +103,7 @@ describe "go" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
     EOF
   end
@@ -122,11 +122,11 @@ describe "go" do
     end
 
     it "handles function definitions" do
-      initial = <<-EOF
+      initial = <<~EOF
         func Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
-      split = <<-EOF
+      split = <<~EOF
         func Func(
         a, b int,
         c time.Time,
@@ -136,7 +136,7 @@ describe "go" do
         ) {
         }
       EOF
-      joined = <<-EOF
+      joined = <<~EOF
         func Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
@@ -144,11 +144,11 @@ describe "go" do
     end
 
     it "handles function definitions with return types" do
-      initial = <<-EOF
+      initial = <<~EOF
         func Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
-      split = <<-EOF
+      split = <<~EOF
         func Func(
         a, b int,
         c time.Time,
@@ -158,7 +158,7 @@ describe "go" do
         ) (r string, err error) {
         }
       EOF
-      joined = <<-EOF
+      joined = <<~EOF
         func Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
@@ -166,11 +166,11 @@ describe "go" do
     end
 
     it "handles method definitions" do
-      initial = <<-EOF
+      initial = <<~EOF
         func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
-      split = <<-EOF
+      split = <<~EOF
         func (r Receiver) Method(
         a, b int,
         c time.Time,
@@ -180,7 +180,7 @@ describe "go" do
         ) {
         }
       EOF
-      joined = <<-EOF
+      joined = <<~EOF
         func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
@@ -188,11 +188,11 @@ describe "go" do
     end
 
     it "handles method definitions with return types" do
-      initial = <<-EOF
+      initial = <<~EOF
         func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
-      split = <<-EOF
+      split = <<~EOF
         func (r Receiver) Method(
         a, b int,
         c time.Time,
@@ -202,7 +202,7 @@ describe "go" do
         ) (r string, err error) {
         }
       EOF
-      joined = <<-EOF
+      joined = <<~EOF
         func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
@@ -211,7 +211,7 @@ describe "go" do
   end
 
   specify "func calls" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       err := Func(a, b, c, d)
     EOF
     setup_go_filetype
@@ -223,7 +223,7 @@ describe "go" do
     vim.normal '6<<6<<6<<6<<6<<'
     vim.write
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       err := Func(
       a,
       b,
@@ -234,7 +234,7 @@ describe "go" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       err := Func(a, b, c, d)
     EOF
   end

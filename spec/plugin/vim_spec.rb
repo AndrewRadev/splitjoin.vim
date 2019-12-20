@@ -9,7 +9,7 @@ describe "vim" do
   end
 
   specify ":if commands" do
-    contents = <<-EOF
+    contents = <<~EOF
       if condition == 1
         return 0
       endif

@@ -10,7 +10,7 @@ describe "yaml" do
 
   describe "arrays" do
     specify "basic" do
-      set_file_contents <<-EOF
+      set_file_contents <<~EOF
         root:
           one: [1, 2]
           two: ['three', 'four']
@@ -21,7 +21,7 @@ describe "yaml" do
       vim.search 'two'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         root:
           one:
             - 1
@@ -36,7 +36,7 @@ describe "yaml" do
       vim.search 'two'
       join
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         root:
           one: [1, 2]
           two: ['three', 'four']
@@ -44,7 +44,7 @@ describe "yaml" do
     end
 
     specify "with empty spaces" do
-      set_file_contents <<-EOF
+      set_file_contents <<~EOF
         root:
           - 'one'
 
@@ -55,13 +55,13 @@ describe "yaml" do
       vim.search 'root'
       join
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         root: ['one', 'two']
       EOF
     end
 
     specify "nested objects inside an array" do
-      set_file_contents <<-EOF
+      set_file_contents <<~EOF
         root:
           - one: { foo: bar }
       EOF
@@ -69,7 +69,7 @@ describe "yaml" do
       vim.search 'one'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         root:
           - one:
               foo: bar
@@ -79,7 +79,7 @@ describe "yaml" do
 
   describe "maps" do
     specify "basic" do
-      set_file_contents <<-EOF
+      set_file_contents <<~EOF
         root:
           one: { foo: bar }
           two: { three: ['four', 'five'], six: seven }
@@ -90,7 +90,7 @@ describe "yaml" do
       vim.search 'two'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         root:
           one:
             foo: bar
@@ -104,7 +104,7 @@ describe "yaml" do
       vim.search 'two'
       join
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         root:
           one: { foo: bar }
           two: { three: ['four', 'five'], six: seven }

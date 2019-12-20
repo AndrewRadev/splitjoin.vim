@@ -18,7 +18,7 @@ describe "perl" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       if ($debug) {
         print "a = $a\\n";
       }
@@ -34,7 +34,7 @@ describe "perl" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       if ($debug) {
         print "a = $a\\n";
       }
@@ -46,7 +46,7 @@ describe "perl" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       unless (open PID, ">", $pidfile) {
         die;
       }
@@ -62,7 +62,7 @@ describe "perl" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       my $info = {
         name => $name,
         age => $age,
@@ -79,7 +79,7 @@ describe "perl" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       my @var = [
         'one',
         'two',
@@ -97,7 +97,7 @@ describe "perl" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       my @var = (
         'one',
         'two',
@@ -115,7 +115,7 @@ describe "perl" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       my @var = qw(
       one
       two

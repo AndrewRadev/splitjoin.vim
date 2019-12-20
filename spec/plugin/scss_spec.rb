@@ -9,7 +9,7 @@ describe "scss" do
   end
 
   specify "definition joining" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       ul li {
         a {
           padding: 10px;
@@ -20,7 +20,7 @@ describe "scss" do
     vim.search 'a'
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
     ul li {
       a { padding: 10px; }
     }
@@ -28,7 +28,7 @@ describe "scss" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       ul li {
         a {
           padding: 10px;
@@ -38,7 +38,7 @@ describe "scss" do
   end
 
   specify "nested definitions" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       ul li {
         a.class-name {
           padding: 10px;
@@ -49,7 +49,7 @@ describe "scss" do
     vim.search 'li'
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       ul li a.class-name {
         padding: 10px;
       }
@@ -58,7 +58,7 @@ describe "scss" do
     vim.search 'a'
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       ul li {
         a.class-name {
           padding: 10px;
@@ -68,13 +68,13 @@ describe "scss" do
   end
 
   specify "single-line style definitions" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       a { color: #0000FF; text-decoration: underline; }
     EOF
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       a {
         color: #0000FF;
         text-decoration: underline;
@@ -83,13 +83,13 @@ describe "scss" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       a { color: #0000FF; text-decoration: underline; }
     EOF
   end
 
   specify "empty single-line style definitions (regression)" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       body {
 
       }
@@ -99,13 +99,13 @@ describe "scss" do
     assert_file_contents 'body {}'
 
     split
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       body {
 
       }
     EOF
 
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       body {
       }
     EOF
@@ -115,7 +115,7 @@ describe "scss" do
   end
 
   specify "multiline selectors" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       h1, h2, h3 {
         font-size: 18px;
         font-weight: bold;
@@ -124,7 +124,7 @@ describe "scss" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       h1,
       h2,
       h3 {
@@ -135,7 +135,7 @@ describe "scss" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       h1, h2, h3 {
         font-size: 18px;
         font-weight: bold;

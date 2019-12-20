@@ -14,7 +14,7 @@ describe "c" do
     vim.search 'if'
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       if (val1
           && val2
           || val3);
@@ -31,7 +31,7 @@ describe "c" do
     vim.search '('
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       myfunction(lots,
           of,
           different,

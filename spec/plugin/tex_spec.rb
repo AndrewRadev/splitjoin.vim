@@ -9,13 +9,13 @@ describe "tex" do
   end
 
   specify "simple blocks" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       \\begin{center} Hello World \\end{center}
     EOF
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       \\begin{center}
         Hello World
       \\end{center}
@@ -24,19 +24,19 @@ describe "tex" do
     vim.search 'begin'
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       \\begin{center} Hello World \\end{center}
     EOF
   end
 
   specify "multiline block" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       \\begin{center} x = y\\\\  y = z \\end{center}
     EOF
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       \\begin{center}
         x = y\\\\
         y = z
@@ -45,19 +45,19 @@ describe "tex" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       \\begin{center} x = y\\\\ y = z \\end{center}
     EOF
   end
 
   specify "block with parameters" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       \\begin{tabular}[]{cc} row1 \\\\ row2 \\end{tabular}
     EOF
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       \\begin{tabular}[]{cc}
         row1 \\\\
         row2
@@ -66,19 +66,19 @@ describe "tex" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       \\begin{tabular}[]{cc} row1 \\\\ row2 \\end{tabular}
     EOF
   end
 
   specify "itemized blocks" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       \\begin{enumerate}\\item item1 \\item item2\\end{enumerate}
     EOF
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       \\begin{enumerate}
         \\item item1
         \\item item2
@@ -87,7 +87,7 @@ describe "tex" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       \\begin{enumerate} \\item item1 \\item item2 \\end{enumerate}
     EOF
   end

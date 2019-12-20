@@ -21,7 +21,7 @@ describe "handlebars" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       {{some/component-name
       foo=bar
       bar=baz
@@ -40,7 +40,7 @@ describe "handlebars" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       {{some/component-name
       foo=bar
       bar=baz}}
@@ -57,7 +57,7 @@ describe "handlebars" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       {{#some-component foo=bar}}
       Some content
       {{/some-component}}

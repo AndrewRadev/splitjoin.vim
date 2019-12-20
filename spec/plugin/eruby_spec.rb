@@ -15,13 +15,13 @@ describe "eruby" do
   specify "method options with a trailing comma" do
     vim.command('let g:splitjoin_ruby_trailing_comma = 1')
 
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       <%= link_to "Home", "/", remote: true, confirm: "Y?" %>
     EOF
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <%= link_to "Home", "/", {
         remote: true,
         confirm: "Y?",
@@ -31,7 +31,7 @@ describe "eruby" do
     vim.search 'Home'
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <%= link_to "Home", "/", { remote: true, confirm: "Y?" } %>
     EOF
   end

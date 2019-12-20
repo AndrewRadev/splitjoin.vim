@@ -9,13 +9,13 @@ describe "css" do
   end
 
   specify "single-line style definitions" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       a { color: #0000FF; text-decoration: underline; }
     EOF
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       a {
         color: #0000FF;
         text-decoration: underline;
@@ -24,13 +24,13 @@ describe "css" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       a { color: #0000FF; text-decoration: underline; }
     EOF
   end
 
   specify "empty single-line style definitions (regression)" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       body {
 
       }
@@ -40,13 +40,13 @@ describe "css" do
     assert_file_contents 'body {}'
 
     split
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       body {
 
       }
     EOF
 
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       body {
       }
     EOF
@@ -56,7 +56,7 @@ describe "css" do
   end
 
   specify "multiline selectors" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       h1, h2, h3 {
         font-size: 18px;
         font-weight: bold;
@@ -65,7 +65,7 @@ describe "css" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       h1,
       h2,
       h3 {
@@ -76,7 +76,7 @@ describe "css" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       h1, h2, h3 {
         font-size: 18px;
         font-weight: bold;

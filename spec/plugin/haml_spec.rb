@@ -16,7 +16,7 @@ describe "haml" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       %div
         = 1 + 2
     EOF

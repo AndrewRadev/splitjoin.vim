@@ -21,7 +21,7 @@ describe "coffee" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       (foo, bar) ->
         console.log foo
     EOF
@@ -37,7 +37,7 @@ describe "coffee" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       if foo?
         console.log bar
     EOF
@@ -53,7 +53,7 @@ describe "coffee" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       if foo?
         console.log bar
     EOF
@@ -64,7 +64,7 @@ describe "coffee" do
   end
 
   specify "ternary operator" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       do ->
         foo = if bar? then 'baz' else 'qux'
     EOF
@@ -73,7 +73,7 @@ describe "coffee" do
     vim.search 'foo'
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       do ->
         if bar?
           foo = 'baz'
@@ -84,14 +84,14 @@ describe "coffee" do
     vim.search 'bar'
     join
 
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       do ->
         foo = if bar? then 'baz' else 'qux'
     EOF
   end
 
   specify "joining ternary operator without any assignment magic" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       if bar?
         foo = "baz"
       else
@@ -102,7 +102,7 @@ describe "coffee" do
     vim.search 'bar'
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       if bar? then foo = "baz" else baz = "qux"
     EOF
   end
@@ -113,7 +113,7 @@ describe "coffee" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       one =
         one: "two"
         three: "four"
@@ -130,7 +130,7 @@ describe "coffee" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       foo = functionCall one, two,
         three: four
         five: six
@@ -142,7 +142,7 @@ describe "coffee" do
   end
 
   specify "strings" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       foo = "example with \#{interpolation} and \\"nested\\" quotes"
     EOF
     setup_coffee_filetype
@@ -150,7 +150,7 @@ describe "coffee" do
     vim.search 'example'
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       foo = """
         example with \#{interpolation} and "nested" quotes
       """
@@ -158,13 +158,13 @@ describe "coffee" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       foo = "example with \#{interpolation} and \\"nested\\" quotes"
     EOF
   end
 
   specify "triple strings" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       foo = """example with \#{interpolation} and "nested" quotes"""
     EOF
     setup_coffee_filetype
@@ -172,7 +172,7 @@ describe "coffee" do
     vim.search 'example'
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       foo = """
         example with \#{interpolation} and "nested" quotes
       """
@@ -180,7 +180,7 @@ describe "coffee" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       foo = "example with \#{interpolation} and \\"nested\\" quotes"
     EOF
   end

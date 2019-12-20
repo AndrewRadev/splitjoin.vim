@@ -14,7 +14,7 @@ describe "python" do
     vim.search '{'
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       spam = {
               'spam': [1, 2, 3],
               'spam, spam': 'eggs'
@@ -32,7 +32,7 @@ describe "python" do
     vim.search '{'
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       spam = {
               spam: [1, 2, 3],
               'spam, spam': 'eggs'
@@ -50,7 +50,7 @@ describe "python" do
     vim.search '[1'
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       spam = [1,
               [2, 3],
               4]
@@ -66,7 +66,7 @@ describe "python" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       from foo import bar,\\
               baz
     EOF
@@ -81,7 +81,7 @@ describe "python" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       while True:
           loop()
     EOF
@@ -94,14 +94,14 @@ describe "python" do
   specify "splitting within a string" do
     pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       run("one", "two", "three {}".format(four))
     EOF
 
     vim.search('one')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       run("one",
               "two",
               "three {}".format(four))
@@ -109,21 +109,21 @@ describe "python" do
   end
 
   specify "chained method calls" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       SomeModel.objects.filter(asdf=1, qwer=2).exclude(zxcv=2, tyui=3)
     EOF
 
     vim.search('zxcv')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       SomeModel.objects.filter(asdf=1, qwer=2).exclude(zxcv=2,
               tyui=3)
     EOF
   end
 
   specify "variable assignment" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       def example(self):
           one, self.two, three = foo("bar"), ["one", "two"], {foo: "bar"}
     EOF
@@ -131,7 +131,7 @@ describe "python" do
     vim.search('two')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       def example(self):
           one = foo("bar")
           self.two = ["one", "two"]
@@ -141,7 +141,7 @@ describe "python" do
     vim.search('two')
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       def example(self):
           one = foo("bar")
           self.two, three = ["one", "two"], {foo: "bar"}
@@ -149,7 +149,7 @@ describe "python" do
   end
 
   specify "variable assignment of an array" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       def example():
           one, two, three = Some.expression("that returns an array")
     EOF
@@ -157,7 +157,7 @@ describe "python" do
     vim.search('two')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       def example():
           one = Some.expression("that returns an array")[0]
           two = Some.expression("that returns an array")[1]
@@ -167,7 +167,7 @@ describe "python" do
     vim.search('one')
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       def example():
           one, two, three = Some.expression("that returns an array")
     EOF
@@ -176,14 +176,14 @@ describe "python" do
   specify "dictionary within tuple" do
     pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
 
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       out = ("one", {"two": "three"}, "four")
     EOF
 
     vim.search('one')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       out = ("one",
               {"two": "three"},
               "four")
@@ -192,20 +192,20 @@ describe "python" do
     vim.search('one')
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       out = ("one", {"two": "three"}, "four")
     EOF
   end
 
   specify "tuple within dictionary" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       out = {"one": "two", "key": ("three", "four")}
     EOF
 
     vim.search('one')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       out = {
               "one": "two",
               "key": ("three", "four")
@@ -215,7 +215,7 @@ describe "python" do
     vim.search('out')
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       out = {"one": "two", "key": ("three", "four")}
     EOF
   end

@@ -15,7 +15,7 @@ describe "javascript" do
       vim.search '()'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         let foo = () => {
           return "bar";
         };
@@ -32,7 +32,7 @@ describe "javascript" do
       vim.search '()'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         let foo = () => {
           return "bar";
         };
@@ -49,7 +49,7 @@ describe "javascript" do
       vim.search '(one, two)'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         let foo = (one, two) => {
           return "bar";
         };
@@ -66,7 +66,7 @@ describe "javascript" do
       vim.search 'arg'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         let foo = arg => {
           return "bar"
         }
@@ -83,7 +83,7 @@ describe "javascript" do
       vim.search 'bar'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         foo(bar => {
           return "baz";
         });
@@ -100,7 +100,7 @@ describe "javascript" do
       vim.search 'bar'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         let foo = [bar => {
           return "baz"
         }]
@@ -119,7 +119,7 @@ describe "javascript" do
       vim.search 'bar'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         let foo = {
         "key": bar => "baz"
         };
@@ -138,7 +138,7 @@ describe "javascript" do
       vim.search 'b,'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         const func = ({
           a,
           b,
@@ -153,7 +153,7 @@ describe "javascript" do
       vim.search 'callback =>'
       split
 
-      assert_file_contents <<-EOF
+      assert_file_contents <<~EOF
         var foo = [callback => {
           return callback(one, two)
         }, three]
@@ -171,7 +171,7 @@ describe "javascript" do
     vim.normal 'gg<G'
     vim.write
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       {
       one: two,
       'three': four
@@ -189,7 +189,7 @@ describe "javascript" do
     vim.search '['
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       [
         'one',
         'two',
@@ -204,7 +204,7 @@ describe "javascript" do
   end
 
   specify "lists (with trailing comma)" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       [
         'one',
         'two',
@@ -222,13 +222,13 @@ describe "javascript" do
     vim.search 'function'
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       var foo = function() {
         return 'bar';
       };
     EOF
 
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       var foo = function() {
         one();
         two();
@@ -242,7 +242,7 @@ describe "javascript" do
   end
 
   specify "named functions" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       function example() {
         return 'bar';
       };
@@ -250,7 +250,7 @@ describe "javascript" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       function example() { return 'bar'; };
     EOF
   end
@@ -268,7 +268,7 @@ describe "javascript" do
 
   specify "arguments" do
     joined_args = "var x = foo(arg1, arg2, 'arg3', 'arg4');"
-    split_args  = <<-EOF
+    split_args  = <<~EOF
       var x = foo(
         arg1,
         arg2,
@@ -286,7 +286,7 @@ describe "javascript" do
 
   specify "arguments racing with others" do
     joined_args = "function test(arg1, arg2, arg3) { return true; };"
-    split_args_once  = <<-EOF
+    split_args_once  = <<~EOF
       function test(arg1, arg2, arg3) {
         return true;
       };
@@ -294,7 +294,7 @@ describe "javascript" do
 
     # Spec failing due to an unrelated bug with semicola - fixed with
     # the next commit
-    split_args_twice = <<-EOF
+    split_args_twice = <<~EOF
       function test(
         arg1,
         arg2,

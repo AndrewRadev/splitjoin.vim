@@ -25,7 +25,7 @@ describe "html" do
   specify "tags" do
     joined_html = '<div class="foo">bar</div>'
 
-    split_html = <<-EOF
+    split_html = <<~EOF
       <div class="foo">
       bar
       </div>
@@ -36,7 +36,7 @@ describe "html" do
 
   specify "attributes" do
     joined_html = '<div id="test" token class="foo bar baz" style="width: 500px; height: 500px">'
-    split_html = <<-EOF
+    split_html = <<~EOF
       <div
       id="test"
       token
@@ -49,7 +49,7 @@ describe "html" do
 
   specify "attributes in self-closing tags" do
     joined_html = '<div id="test"/>'
-    split_html = <<-EOF
+    split_html = <<~EOF
       <div
       id="test"/>
     EOF
@@ -61,7 +61,7 @@ describe "html" do
     vim.command('let g:splitjoin_html_attributes_bracket_on_new_line = 1')
 
     joined_html = '<div id="test" />'
-    split_html = <<-EOF
+    split_html = <<~EOF
       <div
       id="test"
       />
@@ -73,11 +73,11 @@ describe "html" do
   specify "attributes with bracket on new line" do
     vim.command('let g:splitjoin_html_attributes_bracket_on_new_line = 1')
 
-    joined_html = <<-EOF
+    joined_html = <<~EOF
       <div id="test">
       </div>
     EOF
-    split_html = <<-EOF
+    split_html = <<~EOF
       <div
       id="test"
       >
@@ -90,12 +90,12 @@ describe "html" do
   specify "hanging attributes" do
     vim.command('let g:splitjoin_html_attributes_hanging = 1')
 
-    joined_html = <<-EOF
+    joined_html = <<~EOF
       <button class="button control" @click="save" v-if="admin">
       Save
       </button>
     EOF
-    split_html = <<-EOF
+    split_html = <<~EOF
       <button class="button control"
       @click="save"
       v-if="admin">
