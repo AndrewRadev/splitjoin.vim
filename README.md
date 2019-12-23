@@ -7,7 +7,7 @@ This plugin is meant to simplify a task I've found too common in my workflow: sw
 * `gS` to split a one-liner into multiple lines
 * `gJ` (with the cursor on the first line of a block) to join a block into a single-line statement.
 
-![Demo](http://i.andrewradev.com/df1c7b895602352d7ce3122196c3e6df.gif)
+![Demo](http://i.andrewradev.com/2fcc9f013816ec744c54e57476afac32.gif)
 
 I usually work with ruby and a lot of expressions can be written very concisely on a single line. A good example is the "if" statement:
 
