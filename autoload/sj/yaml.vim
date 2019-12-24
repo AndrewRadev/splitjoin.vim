@@ -4,9 +4,7 @@ function! sj#yaml#SplitArray()
   let whitespace = s:GetIndentWhitespace(line_no)
 
   if line =~ ':\s*\[.*\]\s*\(#.*\)\?$'
-    let parts      = split(line, ':')
-    let key_part   = parts[0]
-    let array_part = join(parts[1:], ':')
+    let [key_part, array_part] = s:splitKeyValue(line)
     let array_part             = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
     let expanded_array         = s:splitArrayLines(array_part)
     let body                   = join(expanded_array, "\n- ")
@@ -215,5 +213,13 @@ function! s:convertToSingleLine(line)
   endif
 
   return line
+endfunction
+
+function! s:splitKeyValue(line)
+  let parts = split(a:line, ':')
+  if len(parts) >= 2
+    return [sj#Trim(parts[0]), sj#Trim(join(parts[1:], ':'))]
+  endif
+  return ['', a:line]
 endfunction
 
