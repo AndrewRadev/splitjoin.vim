@@ -8,6 +8,12 @@ describe "go" do
     vim.set(:filetype, 'go')
   end
 
+  def deindent_everything
+    vim.command '%s/^\s*//g'
+    vim.write
+    vim.normal 'gg'
+  end
+
   specify "imports" do
     set_file_contents <<~EOF
       import "fmt"
@@ -16,10 +22,7 @@ describe "go" do
 
     vim.search('import')
     split
-
-    # In case there is no Go installed, deindent everything:
-    vim.normal '3<<3<<'
-    vim.write
+    deindent_everything
 
     assert_file_contents <<~EOF
     import (
@@ -50,9 +53,7 @@ describe "go" do
     vim.search('type')
     split
 
-    # In case there is no Go installed, deindent everything:
-    vim.normal 'gg9<<9<<'
-    vim.write
+    deindent_everything
 
     assert_file_contents <<~EOF
     var (
@@ -89,9 +90,34 @@ describe "go" do
     vim.search 'one:'
     split
 
-    # In case there is no Go installed, deindent everything:
-    vim.normal '5<<5<<5<<5<<'
-    vim.write
+    deindent_everything
+
+    assert_file_contents <<~EOF
+      StructType{
+      one: 1,
+      two: "asdf",
+      three: []int{1, 2, 3},
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      StructType{ one: 1, two: "asdf", three: []int{1, 2, 3} }
+    EOF
+  end
+
+  specify "structs without padding" do
+    set_file_contents <<~EOF
+      StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+    EOF
+    setup_go_filetype
+    vim.command('let b:splitjoin_curly_brace_padding = 0')
+
+    vim.search 'one:'
+    split
+
+    deindent_everything
 
     assert_file_contents <<~EOF
       StructType{
@@ -112,12 +138,15 @@ describe "go" do
     def assert_split_join(initial, split_expected, join_expected)
       set_file_contents initial
       setup_go_filetype
+      vim.search 'Func(\zs\k'
+
       split
-      # In case there is no Go installed, deindent everything:
-      vim.normal '9<<9<<9<<9<<'
-      vim.write
+      deindent_everything
+
       assert_file_contents split_expected
+
       join
+
       assert_file_contents join_expected
     end
 
@@ -167,11 +196,11 @@ describe "go" do
 
     it "handles method definitions" do
       initial = <<~EOF
-        func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
+        func (r Receiver) Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
       split = <<~EOF
-        func (r Receiver) Method(
+        func (r Receiver) Func(
         a, b int,
         c time.Time,
         d func(int) error,
@@ -181,7 +210,7 @@ describe "go" do
         }
       EOF
       joined = <<~EOF
-        func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
+        func (r Receiver) Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
       assert_split_join(initial, split, joined)
@@ -189,11 +218,11 @@ describe "go" do
 
     it "handles method definitions with return types" do
       initial = <<~EOF
-        func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
+        func (r Receiver) Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
       split = <<~EOF
-        func (r Receiver) Method(
+        func (r Receiver) Func(
         a, b int,
         c time.Time,
         d func(int) error,
@@ -203,7 +232,7 @@ describe "go" do
         }
       EOF
       joined = <<~EOF
-        func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
+        func (r Receiver) Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
       assert_split_join(initial, split, joined)
@@ -218,10 +247,7 @@ describe "go" do
 
     vim.search 'a,'
     split
-
-    # In case there is no Go installed, deindent everything:
-    vim.normal '6<<6<<6<<6<<6<<'
-    vim.write
+    deindent_everything
 
     assert_file_contents <<~EOF
       err := Func(
@@ -236,6 +262,29 @@ describe "go" do
 
     assert_file_contents <<~EOF
       err := Func(a, b, c, d)
+    EOF
+  end
+
+  specify "func definition bodies" do
+    set_file_contents <<~EOF
+      func foo(x, y int) bool { return x+y == 5 }
+    EOF
+    setup_go_filetype
+
+    vim.search 'return'
+    split
+    deindent_everything
+
+    assert_file_contents <<~EOF
+      func foo(x, y int) bool {
+      return x+y == 5
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      func foo(x, y int) bool { return x+y == 5 }
     EOF
   end
 end

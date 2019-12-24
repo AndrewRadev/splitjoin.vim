@@ -50,35 +50,50 @@ endfunction
 
 function! sj#go#SplitFunc()
   let pattern = '^func\%(\s*(.\{-})\s*\)\=\s\+\k\+\zs('
-  if search(pattern, 'Wc', line('.')) <= 0 &&
-        \ search(pattern, 'Wbc', line('.')) <= 0
+  if search(pattern, 'Wcn', line('.')) <= 0 &&
+        \ search(pattern, 'Wbcn', line('.')) <= 0
     return 0
   endif
 
-  let start = col('.')
-  if searchpair('(', '', ')', 'W', sj#SkipSyntax(['goString', 'goComment']), line('.')) <= 0
-    return 0
-  endif
-  let end = col('.')
+  let split_type = ''
 
-  let parsed = sj#ParseJsonObjectBody(start + 1, end - 1)
+  let [start, end] = sj#LocateBracesAroundCursor('(', ')', ['goString', 'goComment'])
+  if start > 0
+    let split_type = 'definition_list'
+  else
+    let [start, end] = sj#LocateBracesAroundCursor('{', '}', ['goString', 'goComment'])
 
-  " Keep `a, b int` variable groups on the same line
-  let arg_groups = []
-  let typed_arg_group = ''
-  for elem in parsed
-    if match(elem, '\s\+') != -1
-      let typed_arg_group .= elem
-      call add(arg_groups, typed_arg_group)
-      let typed_arg_group = ''
-    else
-      " not typed here, group it with later vars
-      let typed_arg_group .= elem . ', '
+    if start > 0
+      let split_type = 'function_body'
     endif
-  endfor
+  endif
 
-  call sj#ReplaceCols(start + 1, end - 1, "\n".join(arg_groups, ",\n").",\n")
-  return 1
+  if split_type == 'function_body'
+    let contents = sj#Trim(sj#GetCols(start + 1, end - 1))
+    call sj#ReplaceCols(start + 1, end - 1, "\n".contents."\n")
+    return 1
+  elseif split_type == 'definition_list'
+    let parsed = sj#ParseJsonObjectBody(start + 1, end - 1)
+
+    " Keep `a, b int` variable groups on the same line
+    let arg_groups = []
+    let typed_arg_group = ''
+    for elem in parsed
+      if match(elem, '\s\+') != -1
+        let typed_arg_group .= elem
+        call add(arg_groups, typed_arg_group)
+        let typed_arg_group = ''
+      else
+        " not typed here, group it with later vars
+        let typed_arg_group .= elem . ', '
+      endif
+    endfor
+
+    call sj#ReplaceCols(start + 1, end - 1, "\n".join(arg_groups, ",\n").",\n")
+    return 1
+  else
+    return 0
+  endif
 endfunction
 
 function! sj#go#JoinFuncCallOrDefinition()
@@ -122,6 +137,13 @@ function! s:joinStructOrFunc(openBrace, closeBrace)
     call add(arguments, argument)
   endfor
 
-  call sj#ReplaceMotion('va'.a:openBrace, a:openBrace . join(arguments, ', ') . a:closeBrace)
+  if a:openBrace == '{' && sj#settings#Read('curly_brace_padding')
+    let padding = ' '
+  else
+    let padding = ''
+  endif
+
+  let replacement = a:openBrace . padding . join(arguments, ', ') . padding . a:closeBrace
+  call sj#ReplaceMotion('va'.a:openBrace, replacement)
   return 1
 endfunction

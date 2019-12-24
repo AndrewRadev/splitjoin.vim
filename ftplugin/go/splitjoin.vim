@@ -1,9 +1,9 @@
 let b:splitjoin_split_callbacks = [
       \ 'sj#go#SplitImports',
       \ 'sj#go#SplitVars',
-      \ 'sj#go#SplitStruct',
       \ 'sj#go#SplitFunc',
       \ 'sj#go#SplitFuncCall',
+      \ 'sj#go#SplitStruct',
       \ ]
 
 let b:splitjoin_join_callbacks = [
