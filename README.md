@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/AndrewRadev/splitjoin.vim.png?branch=master)](http://travis-ci.org/AndrewRadev/splitjoin.vim)
+[![Build Status](https://secure.travis-ci.org/AndrewRadev/splitjoin.vim.svg?branch=master)](http://travis-ci.org/AndrewRadev/splitjoin.vim)
 
 ## Usage
 
