@@ -65,7 +65,6 @@ describe "yaml" do
         root:
           - 'one: foo'
           - 'two: bar'
-
       EOF
 
       vim.search 'root'
@@ -125,6 +124,34 @@ describe "yaml" do
               foo: bar
       EOF
     end
+
+    specify "preserve empty lines" do
+      set_file_contents <<~EOF
+        list:
+          - 1
+
+        end: true
+      EOF
+
+      vim.search 'list'
+      join
+
+      assert_file_contents <<~EOF
+        list: [1]
+
+        end: true
+      EOF
+
+      vim.search 'list'
+      split
+
+      assert_file_contents <<~EOF
+        list:
+          - 1
+
+        end: true
+      EOF
+    end
   end
 
   describe "maps" do
@@ -158,6 +185,34 @@ describe "yaml" do
         root:
           one: { foo: bar }
           two: { three: ['four', 'five'], six: seven }
+      EOF
+    end
+
+    specify "preserve empty lines" do
+      set_file_contents <<~EOF
+        map:
+          one: 1
+
+        end: true
+      EOF
+
+      vim.search ''
+      join
+
+      assert_file_contents <<~EOF
+        map: { one: 1 }
+
+        end: true
+      EOF
+
+      vim.search 'map'
+      split
+
+      assert_file_contents <<~EOF
+        map:
+          one: 1
+
+        end: true
       EOF
     end
   end

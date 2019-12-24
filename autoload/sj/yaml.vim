@@ -141,6 +141,11 @@ function! s:GetChildren(line_no)
   endwhile
   let next_line_no = next_line_no - 1
 
+  " Preserve trailing empty lines
+  while sj#BlankString(getline(next_line_no)) && next_line_no > line_no
+    let next_line_no = next_line_no - 1
+  endwhile
+
   return [sj#GetLines(line_no + 1, next_line_no), next_line_no]
 endfunction
 
