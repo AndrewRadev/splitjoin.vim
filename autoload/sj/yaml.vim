@@ -4,7 +4,9 @@ function! sj#yaml#SplitArray()
   let whitespace = s:GetIndentWhitespace(line_no)
 
   if line =~ ':\s*\[.*\]\s*\(#.*\)\?$'
-    let [key_part, array_part] = split(line, ':')
+    let parts      = split(line, ':')
+    let key_part   = parts[0]
+    let array_part = join(parts[1:], ':')
     let array_part             = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
     let expanded_array         = split(array_part, ',\s*')
     let body                   = join(expanded_array, "\n- ")
