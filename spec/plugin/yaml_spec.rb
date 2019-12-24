@@ -85,6 +85,31 @@ describe "yaml" do
       EOF
     end
 
+    specify "with strings containing a comma" do
+      set_file_contents <<~EOF
+        root:
+          - 'one, foo'
+          - 'two, bar'
+
+      EOF
+
+      vim.search 'root'
+      join
+
+      assert_file_contents <<~EOF
+        root: ['one, foo', 'two, bar']
+      EOF
+
+      vim.search 'root'
+      split
+
+      assert_file_contents <<~EOF
+        root:
+          - 'one, foo'
+          - 'two, bar'
+      EOF
+    end
+
     specify "nested objects inside an array" do
       set_file_contents <<~EOF
         root:

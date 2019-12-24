@@ -8,7 +8,7 @@ function! sj#yaml#SplitArray()
     let key_part   = parts[0]
     let array_part = join(parts[1:], ':')
     let array_part             = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
-    let expanded_array         = split(array_part, ',\s*')
+    let expanded_array         = s:splitArrayLines(array_part)
     let body                   = join(expanded_array, "\n- ")
 
     call sj#ReplaceMotion('V', key_part.":\n- ".body)
@@ -142,4 +142,42 @@ function! s:GetChildren(line_no)
   let next_line_no = next_line_no - 1
 
   return [sj#GetLines(line_no + 1, next_line_no), next_line_no]
+endfunction
+
+function! s:splitArrayLines(array)
+  let lines = []
+
+  let line = ''
+  let fences = { '"': '"', "'": "'" }
+
+  for chunk in split(a:array, ',')
+    if line != ''
+      " Inside a string
+      let line = line . ',' . chunk
+
+      if chunk =~ fences[line[0]] . '\s*$'
+        " End of string
+        call add(lines, sj#Trim(line))
+        let line  = ''
+      endif
+
+    " Start of string
+    elseif chunk =~ '^\s*[' . join(keys(fences), '') . ']'
+      let line  = sj#Ltrim(chunk)
+
+      if chunk =~ fences[line[0]] . '\s*$'
+        " Complete string
+        call add(lines, sj#Trim(line))
+        let line  = ''
+      endif
+    else
+      call add(lines, sj#Trim(chunk))
+    endif
+  endfor
+
+  if line != ''
+    cal add(lines, sj#Trim(line))
+  endif
+
+  return lines
 endfunction
