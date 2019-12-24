@@ -40,7 +40,7 @@ function! sj#yaml#JoinArray()
     let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
     let lines       = filter(lines, 'v:val !~ "^\s*$"')
     let first_line  = substitute(line, '\s*#.*$', '', '')
-    let replacement = first_line.' ['.join(lines, ', ').']'
+    let replacement = first_line.' ['.s:joinArrayLines(lines).']'
 
     call sj#ReplaceLines(line_no, last_line_no, replacement)
     silent! normal! zO
@@ -153,7 +153,7 @@ function! s:splitArrayLines(array)
   let lines = []
 
   let line = ''
-  let fences = { '"': '"', "'": "'" }
+  let fences = { '"': '"', "'": "'", '{': '}' }
 
   for chunk in split(a:array, ',')
     if line != ''
@@ -162,7 +162,7 @@ function! s:splitArrayLines(array)
 
       if chunk =~ fences[line[0]] . '\s*$'
         " End of string
-        call add(lines, sj#Trim(line))
+        call add(lines, s:convertToSingleLine(line))
         let line  = ''
       endif
 
@@ -172,17 +172,48 @@ function! s:splitArrayLines(array)
 
       if chunk =~ fences[line[0]] . '\s*$'
         " Complete string
-        call add(lines, sj#Trim(line))
+        call add(lines, s:convertToSingleLine(line))
         let line  = ''
       endif
     else
-      call add(lines, sj#Trim(chunk))
+      call add(lines, s:convertToSingleLine(chunk))
     endif
   endfor
 
   if line != ''
-    cal add(lines, sj#Trim(line))
+    cal add(lines, s:convertToSingleLine(line))
   endif
 
   return lines
 endfunction
+
+function! s:joinArrayLines(lines)
+  let lines = map(a:lines, 's:convertToCompactLine(v:val)')
+  return join(lines, ', ')
+endfunction
+
+function! s:convertToCompactLine(line)
+  let prop = substitute(a:line, '\v^([a-z]+):.*', '\1', 1)
+  if prop != a:line
+    return '{ ' . a:line . ' }'
+  endif
+
+  return a:line
+endfunction
+
+function! s:convertToSingleLine(line)
+  let line = sj#Trim(a:line)
+
+  if line =~ '^{.*}$'
+    let parser = sj#argparser#js#Construct(2, len(line) - 1, line)
+    call parser.Process()
+
+    if len(parser.args) == 1
+      let line = substitute(line, '^{\s*', '', '')
+      let line = substitute(line, '\s*}$', '', '')
+    endif
+  endif
+
+  return line
+endfunction
+

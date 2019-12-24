@@ -125,6 +125,51 @@ describe "yaml" do
       EOF
     end
 
+    specify "list of simple objects" do
+      set_file_contents <<~EOF
+        list: [{ prop: 1 }, { prop: 2 }]
+      EOF
+
+      vim.search 'list'
+      split
+
+      assert_file_contents <<~EOF
+        list:
+          - prop: 1
+          - prop: 2
+      EOF
+
+      vim.search 'list'
+      join
+
+      assert_file_contents <<~EOF
+        list: [{ prop: 1 }, { prop: 2 }]
+      EOF
+    end
+
+    specify "containing mixed elements" do
+      set_file_contents <<~EOF
+        list: [{ prop: 1 }, { a: 1, b: 2 }, "a: b"]
+      EOF
+
+      vim.search 'list'
+      split
+
+      assert_file_contents <<~EOF
+        list:
+          - prop: 1
+          - { a: 1, b: 2 }
+          - "a: b"
+      EOF
+
+      vim.search 'list'
+      join
+
+      assert_file_contents <<~EOF
+        list: [{ prop: 1 }, { a: 1, b: 2 }, "a: b"]
+      EOF
+    end
+
     specify "preserve empty lines" do
       set_file_contents <<~EOF
         list:
