@@ -10,7 +10,7 @@ function! sj#vim#Split()
   else
     let new_line = "\n\\ ".sj#Trim(new_line)
     call sj#ReplaceMotion('vg_', new_line)
-    s/\s\+$//e
+    call sj#Keeppatterns('s/\s\+$//e')
 
     return 1
   endif

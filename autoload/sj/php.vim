@@ -244,7 +244,7 @@ function! sj#php#JoinMethodChain()
     return 0
   endif
 
-  s/\n\_s*//g
+  call sj#Keeppatterns('s/\n\_s*//g')
 
   if sj#settings#Read('php_method_chain_full')
     call sj#php#JoinMethodChain()

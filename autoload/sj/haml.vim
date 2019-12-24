@@ -27,7 +27,7 @@ function! sj#haml#JoinInterpolation()
     return 0
   end
 
-  s/\n\s*//
+  call sj#Keeppatterns('s/\n\s*//')
   return 1
 endfunction
 

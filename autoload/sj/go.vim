@@ -1,6 +1,6 @@
 function! sj#go#SplitImports()
   if getline('.') =~ '^import ".*"$'
-    call s:KeepSearch('s/^import \(".*"\)$/import (\r\1\r)/')
+    call sj#Keeppatterns('s/^import \(".*"\)$/import (\r\1\r)/')
     normal! k==
     return 1
   else
@@ -12,7 +12,7 @@ function! sj#go#JoinImports()
   if getline('.') =~ '^import ($' &&
         \ getline(line('.') + 1) =~ '^\s*".*"$' &&
         \ getline(line('.') + 2) =~ '^)$'
-    call s:KeepSearch('s/^import (\_s\+\(".*"\)\_s\+)$/import \1/')
+    call sj#Keeppatterns('s/^import (\_s\+\(".*"\)\_s\+)$/import \1/')
     return 1
   else
     return 0
@@ -21,7 +21,7 @@ endfunction
 
 function! sj#go#SplitVars()
   if getline('.') =~ '^\(var\|type\|const\) \k\+ .*$'
-    call s:KeepSearch('s/^\(var\|type\|const\) \(\k\+ .*\)$/\1 (\r\2\r)/')
+    call sj#Keeppatterns('s/^\(var\|type\|const\) \(\k\+ .*\)$/\1 (\r\2\r)/')
     normal! k==
     return 1
   else
@@ -33,7 +33,7 @@ function! sj#go#JoinVars()
   if getline('.') =~ '^\(var\|type\|const\) ($' &&
         \ getline(line('.') + 1) =~ '^\s*\k\+ .*$' &&
         \ getline(line('.') + 2) =~ '^)$'
-    call s:KeepSearch('s/^\(var\|type\|const\) (\_s\+\(\k\+ .*\)\_s\+)$/\1 \2/')
+    call sj#Keeppatterns('s/^\(var\|type\|const\) (\_s\+\(\k\+ .*\)\_s\+)$/\1 \2/')
     return 1
   else
     return 0
@@ -146,15 +146,4 @@ function! s:joinStructOrFunc(openBrace, closeBrace)
   let replacement = a:openBrace . padding . join(arguments, ', ') . padding . a:closeBrace
   call sj#ReplaceMotion('va'.a:openBrace, replacement)
   return 1
-endfunction
-
-function! s:KeepSearch(command)
-  let current_histnr = histnr('/')
-
-  exe a:command
-
-  if current_histnr != histnr('/')
-    call histdel('/', -1)
-    let @/ = histget('/', -1)
-  endif
 endfunction

@@ -631,13 +631,7 @@ endfunction
 "
 function! sj#CompressWhitespaceOnLine()
   call sj#PushCursor()
-
-  s/\S\zs \+/ /g
-
-  " Don't leave a history entry
-  call histdel('search', -1)
-  let @/ = histget('search', -1)
-
+  call sj#Keeppatterns('s/\S\zs \+/ /g')
   call sj#PopCursor()
 endfunction
 

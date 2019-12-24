@@ -2,7 +2,7 @@ let s:skip = sj#SkipSyntax(['pythonString', 'pythonComment'])
 
 function! sj#python#SplitStatement()
   if sj#SearchSkip('^[^:]*\zs:\s*\S', s:skip, '', line('.'))
-    s/\%#:\s*/:\r/
+    call sj#Keeppatterns('s/\%#:\s*/:\r/')
     normal! ==
     return 1
   else

@@ -17,6 +17,6 @@ function! sj#sh#JoinWithSemicolon()
     return 0
   endif
 
-  s/;\=\s*\n\_s*/; /e
+  call sj#Keeppatterns('s/;\=\s*\n\_s*/; /e')
   return 1
 endfunction

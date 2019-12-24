@@ -6,7 +6,7 @@ function! sj#coffee#SplitFunction()
   if line !~ '[-=]>'
     return 0
   else
-    s/\([-=]\)>\s*/\1>\r/
+    call sj#Keeppatterns('s/\([-=]\)>\s*/\1>\r/')
     call sj#SetIndent(lineno, indent)
     call sj#SetIndent(lineno + 1, indent + &sw)
     return 1
@@ -19,7 +19,7 @@ function! sj#coffee#JoinFunction()
   if line !~ '[-=]>'
     return 0
   else
-    s/\([-=]\)>\_s\+/\1> /
+    call sj#Keeppatterns('s/\([-=]\)>\_s\+/\1> /')
     return 1
   endif
 endfunction
@@ -173,7 +173,7 @@ function! sj#coffee#SplitObjectLiteral()
   call sj#ReplaceMotion('Va'.bracket, body)
 
   " clean the remaining whitespace
-  s/\s\+$//e
+  call sj#Keeppatterns('s/\s\+$//e')
 
   call sj#SetIndent(lineno + 1, lineno + len(pairs), indent + &sw)
 

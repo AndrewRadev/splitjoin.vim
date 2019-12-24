@@ -24,7 +24,7 @@ function! sj#handlebars#JoinComponent()
   endif
 
   normal! vi{J
-  s/\s\+}}/}}/ge
+  call sj#Keeppatterns('s/\s\+}}/}}/ge')
   return 1
 endfunction
 
