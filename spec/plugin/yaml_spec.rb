@@ -127,7 +127,7 @@ describe "yaml" do
 
     specify "list of simple objects" do
       set_file_contents <<~EOF
-        list: [{ prop: 1 }, { prop: 2 }]
+        list: [{ aprop: 1 }, { aProp: 2 }, { 'a:prop': 3 }, { a prop: 4 }]
       EOF
 
       vim.search 'list'
@@ -135,21 +135,23 @@ describe "yaml" do
 
       assert_file_contents <<~EOF
         list:
-          - prop: 1
-          - prop: 2
+          - aprop: 1
+          - aProp: 2
+          - 'a:prop': 3
+          - a prop: 4
       EOF
 
       vim.search 'list'
       join
 
       assert_file_contents <<~EOF
-        list: [{ prop: 1 }, { prop: 2 }]
+        list: [{ aprop: 1 }, { aProp: 2 }, { 'a:prop': 3 }, { a prop: 4 }]
       EOF
     end
 
     specify "containing mixed elements" do
       set_file_contents <<~EOF
-        list: [{ prop: 1 }, { a: 1, b: 2 }, "a: b"]
+        list: [{ prop: 1 }, { a: 1, b: 2 }, "a: b", { a value: 1, 'a:value': 2, aValue: 3 }]
       EOF
 
       vim.search 'list'
@@ -160,13 +162,14 @@ describe "yaml" do
           - prop: 1
           - { a: 1, b: 2 }
           - "a: b"
+          - { a value: 1, 'a:value': 2, aValue: 3 }
       EOF
 
       vim.search 'list'
       join
 
       assert_file_contents <<~EOF
-        list: [{ prop: 1 }, { a: 1, b: 2 }, "a: b"]
+        list: [{ prop: 1 }, { a: 1, b: 2 }, "a: b", { a value: 1, 'a:value': 2, aValue: 3 }]
       EOF
     end
 
@@ -283,6 +286,21 @@ describe "yaml" do
         root:
           one: { foo: bar }
           two: { three: ['four', 'five'], six: seven }
+      EOF
+    end
+
+    specify "complex keys" do
+      set_file_contents <<~EOF
+        map:
+          one value: 1
+          'my:key': 2
+      EOF
+
+      vim.search 'root'
+      join
+
+      assert_file_contents <<~EOF
+        map: { one value: 1, 'my:key': 2 }
       EOF
     end
 

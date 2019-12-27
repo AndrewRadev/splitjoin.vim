@@ -192,9 +192,13 @@ endfunction
 "   'one: 1' => '{ one: 1 }'
 "   'one'    => 'one'
 function! s:addCurlyBrackets(line)
-  let prop = substitute(a:line, '\v^([a-z]+):.*', '\1', 1)
-  if prop != a:line
-    return '{ ' . a:line . ' }'
+  let line = sj#Trim(a:line)
+
+  if line !~ '^\v\[.*\]$' && line !~ '^\v\{.*\}$'
+    let [key, value] = s:splitKeyValue(line)
+    if key != ''
+      return '{ ' . a:line . ' }'
+    endif
   endif
 
   return a:line
@@ -224,11 +228,33 @@ endfunction
 " E.g.
 "   'one: 1' => ['one', '1']
 "   'one'    => ['', 'one']
+"   'one:'   => ['one', '']
+"   'a:val
 function! s:splitKeyValue(line)
-  let parts = split(a:line, ':')
-  if len(parts) >= 2
-    return [sj#Trim(parts[0]), sj#Trim(join(parts[1:], ':'))]
+
+  let line = sj#Trim(a:line)
+  let parts = []
+
+  let fences = ['"', "'"]
+
+  " Key is a string fenced by " or '
+  if line != "" && line =~ '\v^(' . join(fences, '|') . ').*'
+    let fence = line[0]
+    let expr = '\v^(' . fence . '[^' . fence . ']+' . fence . '):(\s.*)?'
+
+    if line =~ expr
+      let parts = [substitute(line, expr, '\1', ''), substitute(line, expr, '\2', '')]
+    endif
+
+  else
+    let parts = split(line . ' ', ': ')
   endif
+
+  if len(parts) >= 2
+    return [sj#Trim(parts[0]), sj#Trim(join(parts[1:], ': '))]
+  endif
+
+  " Line does not contain a key value pair
   return ['', a:line]
 endfunction
 
