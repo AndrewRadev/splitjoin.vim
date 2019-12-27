@@ -6,7 +6,7 @@ function! sj#yaml#SplitArray()
   if line =~ ':\s*\[.*\]\s*\(#.*\)\?$'
     let [key_part, array_part] = s:splitKeyValue(line)
     let array_part             = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
-    let expanded_array         = s:splitArrayLines(array_part)
+    let expanded_array         = s:splitArrayItems(array_part)
     let body                   = join(expanded_array, "\n- ")
 
     call sj#ReplaceMotion('V', key_part.":\n- ".body)
@@ -38,7 +38,7 @@ function! sj#yaml#JoinArray()
     let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
     let lines       = filter(lines, 'v:val !~ "^\s*$"')
     let first_line  = substitute(line, '\s*#.*$', '', '')
-    let replacement = first_line.' ['.s:joinArrayLines(lines).']'
+    let replacement = first_line.' ['.s:joinArrayItems(lines).']'
 
     call sj#ReplaceLines(line_no, last_line_no, replacement)
     silent! normal! zO
@@ -147,50 +147,51 @@ function! s:GetChildren(line_no)
   return [sj#GetLines(line_no + 1, next_line_no), next_line_no]
 endfunction
 
-function! s:splitArrayLines(array)
-  let lines = []
+" Split a string into individual array items.
+" E.g.
+"   'one, two'               => ['one', 'two']
+"   '{ one: 1 }, { two: 2 }' => ['{ one: 1 }', '{ two: 2 }']
+function! s:splitArrayItems(array)
+  let items = []
 
-  let line = ''
+  let partial_item = ''
   let fences = { '"': '"', "'": "'", '{': '}' }
 
   for chunk in split(a:array, ',')
-    if line != ''
-      " Inside a string
-      let line = line . ',' . chunk
+    " Start of fenced area OR already inside a fenced area
+    if chunk =~ '^\s*[' . join(keys(fences), '') . ']' || partial_item != ''
+      let partial_item = partial_item != ''
+            \ ? partial_item . ',' . chunk
+            \ : sj#Ltrim(chunk)
 
-      if chunk =~ fences[line[0]] . '\s*$'
-        " End of string
-        call add(lines, s:convertToSingleLine(line))
-        let line  = ''
+      " End of fenced area
+      if chunk =~ fences[partial_item[0]] . '\s*$'
+        call add(items, s:stripCurlyBrackets(partial_item))
+        let partial_item  = ''
       endif
 
-    " Start of string
-    elseif chunk =~ '^\s*[' . join(keys(fences), '') . ']'
-      let line  = sj#Ltrim(chunk)
-
-      if chunk =~ fences[line[0]] . '\s*$'
-        " Complete string
-        call add(lines, s:convertToSingleLine(line))
-        let line  = ''
-      endif
+    " Chunk is a complete line
     else
-      call add(lines, s:convertToSingleLine(chunk))
+      call add(items, s:stripCurlyBrackets(chunk))
     endif
   endfor
 
-  if line != ''
-    cal add(lines, s:convertToSingleLine(line))
+  if partial_item != ''
+    cal add(items, s:stripCurlyBrackets(partial_item))
   endif
 
-  return lines
+  return items
 endfunction
 
-function! s:joinArrayLines(lines)
-  let lines = map(a:lines, 's:convertToCompactLine(v:val)')
-  return join(lines, ', ')
+function! s:joinArrayItems(items)
+  return join(map(a:items, 's:addCurlyBrackets(v:val)'), ', ')
 endfunction
 
-function! s:convertToCompactLine(line)
+" Add curly brackets if required for joining
+" E.g.
+"   'one: 1' => '{ one: 1 }'
+"   'one'    => 'one'
+function! s:addCurlyBrackets(line)
   let prop = substitute(a:line, '\v^([a-z]+):.*', '\1', 1)
   if prop != a:line
     return '{ ' . a:line . ' }'
@@ -199,22 +200,30 @@ function! s:convertToCompactLine(line)
   return a:line
 endfunction
 
-function! s:convertToSingleLine(line)
-  let line = sj#Trim(a:line)
+" Strip curly brackets if possible
+" E.g.
+"   '{ one: 1 }'         => 'one: 1'
+"   '{ one: 1, two: 2 }' => '{ one: 1, two: 2 }'
+function! s:stripCurlyBrackets(item)
+  let item = sj#Trim(a:item)
 
-  if line =~ '^{.*}$'
-    let parser = sj#argparser#js#Construct(2, len(line) - 1, line)
+  if item =~ '^{.*}$'
+    let parser = sj#argparser#js#Construct(2, len(item) - 1, item)
     call parser.Process()
 
     if len(parser.args) == 1
-      let line = substitute(line, '^{\s*', '', '')
-      let line = substitute(line, '\s*}$', '', '')
+      let item = substitute(item, '^{\s*', '', '')
+      let item = substitute(item, '\s*}$', '', '')
     endif
   endif
 
-  return line
+  return item
 endfunction
 
+" Split a sting into key and value
+" E.g.
+"   'one: 1' => ['one', '1']
+"   'one'    => ['', 'one']
 function! s:splitKeyValue(line)
   let parts = split(a:line, ':')
   if len(parts) >= 2
