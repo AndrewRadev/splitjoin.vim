@@ -197,6 +197,59 @@ describe "yaml" do
         end: true
       EOF
     end
+
+    specify "containing mulitline maps" do
+      pending 'Not implemented'
+
+      set_file_contents <<~EOF
+        list:
+          - one: 1
+            two: 2
+      EOF
+
+      vim.search 'list'
+      join
+
+      assert_file_contents <<~EOF
+        list: [{ one: 1, two: 2 }]
+      EOF
+    end
+
+    specify "containing arrays" do
+      pending 'Not implemented'
+
+      set_file_contents <<~EOF
+        list:
+          - - 1
+            - 2
+      EOF
+
+      vim.search 'list'
+      join
+
+      assert_file_contents <<~EOF
+        list: [[1, 2]]
+      EOF
+    end
+
+    specify "inside an array" do
+      pending 'Not implemented'
+
+      set_file_contents <<~EOF
+        list:
+          - - 1
+            - 2
+      EOF
+
+      vim.search '1'
+      join
+
+      assert_file_contents <<~EOF
+        list:
+          - [1, 2]
+      EOF
+    end
+
   end
 
   describe "maps" do
@@ -258,6 +311,24 @@ describe "yaml" do
           one: 1
 
         end: true
+      EOF
+    end
+
+    specify "inside an array" do
+      pending 'Not implemented'
+
+      set_file_contents <<~EOF
+        list:
+          - one: 1
+            two: 2
+      EOF
+
+      vim.search 'one:'
+      join
+
+      assert_file_contents <<~EOF
+        list:
+          - { one: 1, two: 2 }
       EOF
     end
   end
