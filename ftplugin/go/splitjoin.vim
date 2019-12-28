@@ -4,6 +4,7 @@ let b:splitjoin_split_callbacks = [
       \ 'sj#go#SplitFunc',
       \ 'sj#go#SplitFuncCall',
       \ 'sj#go#SplitStruct',
+      \ 'sj#go#SplitSingleLineCurlyBracketBlock',
       \ ]
 
 let b:splitjoin_join_callbacks = [
@@ -11,4 +12,5 @@ let b:splitjoin_join_callbacks = [
       \ 'sj#go#JoinVars',
       \ 'sj#go#JoinStruct',
       \ 'sj#go#JoinFuncCallOrDefinition',
+      \ 'sj#go#JoinSingleLineFunctionBody',
       \ ]
