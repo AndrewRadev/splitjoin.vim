@@ -78,7 +78,7 @@ endfunction
 function! sj#yaml#SplitMap()
   let [from, to] = sj#LocateBracesOnLine('{', '}')
 
-  if !s:isValidLineNo(from) || !s:isValidLineNo(to)
+  if from >= 0 && to >= 0
     let [line, line_no, whitespace] = s:readCurrentLine()
     let pairs      = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body       = "\n".join(pairs, "\n")
