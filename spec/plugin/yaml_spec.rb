@@ -253,6 +253,71 @@ describe "yaml" do
       EOF
     end
 
+    specify "split nested arrays" do
+      set_file_contents <<~EOF
+        list: [[[1, 2]]]
+      EOF
+
+      vim.search 'list'
+      split
+
+      assert_file_contents <<~EOF
+        list:
+          - [[1, 2]]
+      EOF
+
+      vim.search '1'
+      split
+
+      assert_file_contents <<~EOF
+        list:
+          - - [1, 2]
+      EOF
+
+      vim.search '1'
+      split
+
+      assert_file_contents <<~EOF
+        list:
+          - - - 1
+              - 2
+      EOF
+    end
+
+
+    specify "join nested arrays" do
+      pending 'Not implemented'
+
+      set_file_contents <<~EOF
+        list:
+          - - - 1
+              - 2
+      EOF
+
+      vim.search '1'
+      join
+
+      assert_file_contents <<~EOF
+        list:
+          - - [1, 2]
+      EOF
+
+      vim.search '1'
+      join
+
+      assert_file_contents <<~EOF
+        list:
+          - [[1, 2]]
+      EOF
+
+      vim.search 'list'
+      join
+
+      assert_file_contents <<~EOF
+        list: [[[1, 2]]]
+      EOF
+    end
+
   end
 
   describe "maps" do

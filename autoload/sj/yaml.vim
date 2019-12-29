@@ -4,27 +4,35 @@ function! sj#yaml#SplitArray()
   let prefix     = ''
   let array_part = ''
   let indent     = 1
+  let end_offset = 0
 
   let nestedExp = '\v^\s*((-\s+)+)(\[.*\])$'
 
+  " Split arrays which are map properties
+  " E.g.
+  "   prop: [1, 2]
   if s:stripComment(line) =~ ':\s*\[.*\]$'
     let [key, array_part] = s:splitKeyValue(line)
     let prefix            = key . ":\n"
 
+  " Split nested arrays
+  " E.g.
+  "   - [1, 2]
   elseif s:stripComment(line) =~ nestedExp
     let prefix     = substitute(line, nestedExp, '\1', '')
     let array_part = substitute(line, nestedExp, '\3', '')
     let indent     = len(substitute(line, '\v[^-]', '', 'g'))
+    let end_offset = -1
   endif
 
   if array_part != ''
-    let body        = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
+    let body        = substitute(array_part, '\v^\s*\[(.*)\]\s*$', '\1', '')
     let array_items = s:splitArrayBody(body)
 
     call sj#ReplaceMotion('V', prefix . '- ' . join(array_items, "\n- "))
     silent! normal! zO
     call s:SetIndentWhitespace(line_no, whitespace)
-    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(array_items), whitespace, indent)
+    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(array_items) + end_offset, whitespace, indent)
 
     return 1
   endif
@@ -194,8 +202,8 @@ function! s:splitArrayBody(body)
       " skip whitespace and next comma
       let [_, rest] = s:readUntil(sj#Ltrim(rest), ',')
     elseif char == '['
-      let [item, rest] = s:readUntil(rest, ']')
-      call add(items, sj#Trim('[' + item . ']'))
+      let [item, rest] = s:readArray(char . rest)
+      call add(items, sj#Trim(item))
 
       " skip whitespace and next comma
       let [_, rest] = s:readUntil(sj#Ltrim(rest), ',')
@@ -238,6 +246,27 @@ function! s:readUntil(str, endChar)
   endwhile
 
   return [a:str, '']
+endfunction
+
+"
+" '[]'
+" '[1, 2]'
+" '[[1, 2]]'
+function! s:readArray(str)
+
+  let array = ''
+  let rest  = sj#Ltrim(a:str)
+
+  if rest[0] == '['
+    let [arrayEnd, rest] = s:readArray(rest[1:])
+    let array = '[' . arrayEnd . ']'
+
+    return [array, rest]
+  endif
+
+  let [item, rest] = s:readUntil(rest, ']')
+
+  return [sj#Trim(item), rest]
 endfunction
 
 function! s:joinArrayItems(items)
@@ -292,26 +321,29 @@ function! s:splitKeyValue(line)
   let line = sj#Trim(a:line)
   let parts = []
 
-  let fences = ['"', "'"]
+  let first_char = line[0]
 
-  " Key is a string fenced by " or '
-  if line != "" && line =~ '\v^(' . join(fences, '|') . ').*'
-    let fence = line[0]
-    let expr = '\v^(' . fence . '[^' . fence . ']+' . fence . '):(\s.*)?'
+  let key   = ''
+  let value = ''
 
-    if line =~ expr
-      let parts = [substitute(line, expr, '\1', ''), substitute(line, expr, '\2', '')]
-    endif
-
+  " Read line starts with a fenced string. E.g
+  "   'one': 1
+  "   'one'
+  if first_char == '"' || first_char == "'"
+    let [item, rest] = s:readUntil(line[1:], first_char)
+    let key          = first_char . item . first_char
+    let [_, value]   = s:readUntil(rest, ':')
+    " TODO throw if invalid? E.g. 'foo':1
   else
     let parts = split(line . ' ', ': ')
+    let [key, value] = [parts[0], join(parts[1:], ': ')]
   endif
 
-  if len(parts) >= 2
-    return [sj#Trim(parts[0]), sj#Trim(join(parts[1:], ': '))]
+  if value == '' && a:line !~ '\s*:$'
+    let value = key
+    let key   = ''
   endif
 
-  " Line does not contain a key value pair
-  return ['', a:line]
+  return [sj#Trim(key), sj#Trim(value)]
 endfunction
 
