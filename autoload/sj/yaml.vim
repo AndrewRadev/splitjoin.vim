@@ -81,17 +81,32 @@ function! sj#yaml#SplitMap()
   if from >= 0 && to >= 0
     let [line, line_no, whitespace] = s:readCurrentLine()
     let pairs      = sj#ParseJsonObjectBody(from + 1, to - 1)
-    let body       = "\n".join(pairs, "\n")
+    let body       = join(pairs, "\n")
 
-    let indent_level = 1
+    let indent_level = 0
+    let end_offset   = -1
+
+    " Increase indention if the map is inside a nested array.
+    " E.g.
+    "   - - { one: 1 }
     if line =~ '^\s*-\s'
-       let indent_level = 2
+      let indent_level = s:nestedArrayLevel(line)
+    endif
+
+    " Move body into next line if it is a map property.
+    " E.g.
+    "   prop: { one: 1 }
+    "   - prop: { one: 1 }
+    if line =~ '^\v\s*(-\s+)*.*:\s\{.*'
+      let body          = "\n" . body
+      let indent_level += 1
+      let end_offset    = 0
     endif
 
     call sj#ReplaceMotion('Va{', body)
     silent! normal! zO
     call s:SetIndentWhitespace(line_no, whitespace)
-    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(pairs), whitespace, indent_level)
+    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(pairs) + end_offset, whitespace, indent_level)
     exe line_no.'s/\s*$//e'
 
     if sj#settings#Read('align')
@@ -358,3 +373,12 @@ function! s:splitKeyValue(line)
   return [sj#Trim(key), sj#Trim(value)]
 endfunction
 
+" Calculate the nesting level of an array item
+" E.g.
+"   - foo    => 1
+"   - - bar  => 2
+function! s:nestedArrayLevel(line)
+  let prefix = substitute(a:line, '^\s*((-\s+)+).*', '\1', '')
+  let levels = substitute(prefix, '[^-]', '', 'g')
+  return len(levels)
+endfunction
