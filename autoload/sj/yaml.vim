@@ -124,12 +124,44 @@ endfunction
 function! sj#yaml#JoinMap()
   let [line, line_no, whitespace] = s:readCurrentLine()
 
-  if line =~ '\k\+:\s*$' && s:isValidLineNo(line_no + 1)
+  if !s:isValidLineNo(line_no + 1)
+    return 0
+  endif
+
+  let first_line   = s:stripComment(line)
+  let lines        = []
+  let last_line_no = 0
+
+  let nestedExp = '\v^(\s*(-\s+)+)(.*)$'
+  let nestedPropExp = '\v^(\s*(-\s+)+.+:)$'
+
+  " Nested in a map inside an array.
+  " E.g.
+  "  - prop:
+  "     one: 1
+  if line =~ nestedPropExp
     let [lines, last_line_no] = s:GetChildren(line_no)
+    let first_line = sj#Rtrim(substitute(first_line, nestedPropExp, '\1', ''))
+
+  " Map inside an array.
+  " E.g.
+  "  - one: 1
+  "    two: 2
+  elseif line =~ nestedExp
+    let [lines, last_line_no] = s:GetChildren(line_no)
+    let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
+    let first_line = sj#Rtrim(substitute(first_line, nestedExp, '\1', ''))
+
+  " Normal map
+  elseif line =~ '\k\+:\s*$'
+    let [lines, last_line_no] = s:GetChildren(line_no)
+  endif
+
+  if len(lines) > 0
     let lines = sj#TrimList(lines)
     let lines = s:normalizeWhitespace(lines)
 
-    let replacement = sj#Trim(line) . ' { '. join(lines, ', ') . ' }'
+    let replacement = first_line . ' { '. join(lines, ', ') . ' }'
 
     call sj#ReplaceLines(line_no, last_line_no, replacement)
     silent! normal! zO

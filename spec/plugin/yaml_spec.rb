@@ -393,8 +393,6 @@ describe "yaml" do
     end
 
     specify "joining inside an array" do
-      pending 'Not implemented'
-
       set_file_contents <<~EOF
         list:
           - one: 1
@@ -426,6 +424,25 @@ describe "yaml" do
         list:
           - one: 1
             two: 2
+        end: true
+      EOF
+    end
+
+    specify "joining inside an array and map" do
+      set_file_contents <<~EOF
+        list:
+          - foo:
+              one: 1
+              two: 2
+        end: true
+      EOF
+
+      vim.search 'foo:'
+      join
+
+      assert_file_contents <<~EOF
+        list:
+          - foo: { one: 1, two: 2 }
         end: true
       EOF
     end
