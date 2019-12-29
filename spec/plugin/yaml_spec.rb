@@ -201,7 +201,7 @@ describe "yaml" do
       EOF
     end
 
-    specify "containing mulitline maps" do
+    specify "containing mulitline maps (recursive)" do
       pending 'Not implemented'
 
       set_file_contents <<~EOF
@@ -218,7 +218,7 @@ describe "yaml" do
       EOF
     end
 
-    specify "containing arrays" do
+    specify "containing arrays (recursive)" do
       pending 'Not implemented'
 
       set_file_contents <<~EOF
@@ -287,6 +287,8 @@ describe "yaml" do
         list:
           - - - 1
               - 2
+          - - - 3
+        end: true
       EOF
 
       vim.search '1'
@@ -295,6 +297,8 @@ describe "yaml" do
       assert_file_contents <<~EOF
         list:
           - - [1, 2]
+          - - - 3
+        end: true
       EOF
 
       vim.search '1'
@@ -303,16 +307,38 @@ describe "yaml" do
       assert_file_contents <<~EOF
         list:
           - [[1, 2]]
+          - - - 3
+        end: true
+      EOF
+
+      vim.search '3'
+      join
+
+      assert_file_contents <<~EOF
+        list:
+          - [[1, 2]]
+          - - [3]
+        end: true
+      EOF
+
+      vim.search '3'
+      join
+
+      assert_file_contents <<~EOF
+        list:
+          - [[1, 2]]
+          - [[3]]
+        end: true
       EOF
 
       vim.search 'list'
       join
 
       assert_file_contents <<~EOF
-        list: [[[1, 2]]]
+        list: [[[1, 2]], [[3]]]
+        end: true
       EOF
     end
-
   end
 
   describe "maps" do
