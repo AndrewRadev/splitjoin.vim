@@ -139,7 +139,7 @@ function! sj#yaml#JoinMap()
   " E.g.
   "  - prop:
   "     one: 1
-  if line =~ nestedPropExp
+  if first_line =~ nestedPropExp
     let [lines, last_line_no] = s:GetChildren(line_no)
     let first_line = sj#Rtrim(substitute(first_line, nestedPropExp, '\1', ''))
 
@@ -147,13 +147,13 @@ function! sj#yaml#JoinMap()
   " E.g.
   "  - one: 1
   "    two: 2
-  elseif line =~ nestedExp
+  elseif first_line =~ nestedExp
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
     let first_line = sj#Rtrim(substitute(first_line, nestedExp, '\1', ''))
 
   " Normal map
-  elseif line =~ '\k\+:\s*$'
+  elseif first_line =~ '\k\+:\s*$'
     let [lines, last_line_no] = s:GetChildren(line_no)
   endif
 

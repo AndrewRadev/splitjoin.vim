@@ -354,6 +354,21 @@ describe "yaml" do
         end: true
       EOF
     end
+
+    specify "stripping comments" do
+      set_file_contents <<~EOF
+        root:     # root object
+          - 'one'
+          - 'two'
+      EOF
+
+      vim.search 'root'
+      join
+
+      assert_file_contents <<~EOF
+        root: ['one', 'two']
+      EOF
+    end
   end
 
   describe "maps" do
@@ -523,5 +538,30 @@ describe "yaml" do
         map: { foo: { bar: 1 } }
       EOF
     end
+
+    specify "stripping comments" do
+      set_file_contents <<~EOF
+        root_a:     # root object
+          a: 'one'
+          b: 'two'
+        root_b:
+          - prop:   # nested object
+              a: 'one'
+              b: 'two'
+      EOF
+
+      vim.search 'root_a'
+      join
+
+      vim.search 'prop'
+      join
+
+      assert_file_contents <<~EOF
+        root_a: { a: 'one', b: 'two' }
+        root_b:
+          - prop: { a: 'one', b: 'two' }
+      EOF
+    end
+
   end
 end
