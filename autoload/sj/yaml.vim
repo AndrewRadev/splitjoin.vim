@@ -1,5 +1,5 @@
 function! sj#yaml#SplitArray()
-  let [line, line_no, whitespace] = s:readCurrentLine()
+  let [line, line_no, whitespace] = s:ReadCurrentLine()
 
   let prefix     = ''
   let array_part = ''
@@ -11,14 +11,14 @@ function! sj#yaml#SplitArray()
   " Split arrays which are map properties
   " E.g.
   "   prop: [1, 2]
-  if s:stripComment(line) =~ ':\s*\[.*\]$'
-    let [key, array_part] = s:splitKeyValue(line)
+  if s:StripComment(line) =~ ':\s*\[.*\]$'
+    let [key, array_part] = s:SplitKeyValue(line)
     let prefix            = key . ":\n"
 
   " Split nested arrays
   " E.g.
   "   - [1, 2]
-  elseif s:stripComment(line) =~ nestedExp
+  elseif s:StripComment(line) =~ nestedExp
     let prefix     = substitute(line, nestedExp, '\1', '')
     let array_part = substitute(line, nestedExp, '\3', '')
     let indent     = len(substitute(line, '\v[^-]', '', 'g'))
@@ -27,7 +27,7 @@ function! sj#yaml#SplitArray()
 
   if array_part != ''
     let body        = substitute(array_part, '\v^\s*\[(.*)\]\s*$', '\1', '')
-    let array_items = s:splitArrayBody(body)
+    let array_items = s:SplitArrayBody(body)
 
     call sj#ReplaceMotion('V', prefix . '- ' . join(array_items, "\n- "))
     silent! normal! zO
@@ -41,20 +41,20 @@ function! sj#yaml#SplitArray()
 endfunction
 
 function! sj#yaml#JoinArray()
-  let [line, line_no, whitespace] = s:readCurrentLine()
+  let [line, line_no, whitespace] = s:ReadCurrentLine()
 
   let lines = []
-  let first_line  = s:stripComment(line)
+  let first_line  = s:StripComment(line)
 
   let nestedExp = '\v^(\s*(-\s+)+)(-\s+.*)$'
 
-  if s:stripComment(line) =~ nestedExp && s:isValidLineNo(line_no)
+  if s:StripComment(line) =~ nestedExp && s:IsValidLineNo(line_no)
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
     let first_line = sj#Rtrim(substitute(first_line, nestedExp, '\1', ''))
   endif
 
-  if s:stripComment(line) =~ ':$' && s:isValidLineNo(line_no + 1)
+  if s:StripComment(line) =~ ':$' && s:IsValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
   endif
 
@@ -62,7 +62,7 @@ function! sj#yaml#JoinArray()
   if !empty(lines) && lines[0] =~ '^\s*-'
     let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
     let lines       = filter(lines, '!sj#BlankString(v:val)')
-    let replacement = first_line.' ['.s:joinArrayItems(lines).']'
+    let replacement = first_line.' ['.s:JoinArrayItems(lines).']'
 
     call sj#ReplaceLines(line_no, last_line_no, replacement)
     silent! normal! zO
@@ -79,7 +79,7 @@ function! sj#yaml#SplitMap()
   let [from, to] = sj#LocateBracesOnLine('{', '}')
 
   if from >= 0 && to >= 0
-    let [line, line_no, whitespace] = s:readCurrentLine()
+    let [line, line_no, whitespace] = s:ReadCurrentLine()
     let pairs      = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body       = join(pairs, "\n")
 
@@ -90,7 +90,7 @@ function! sj#yaml#SplitMap()
     " E.g.
     "   - - { one: 1 }
     if line =~ '^\s*-\s'
-      let indent_level = s:nestedArrayLevel(line)
+      let indent_level = s:NestedArrayLevel(line)
     endif
 
     " Move body into next line if it is a map property.
@@ -122,13 +122,13 @@ function! sj#yaml#SplitMap()
 endfunction
 
 function! sj#yaml#JoinMap()
-  let [line, line_no, whitespace] = s:readCurrentLine()
+  let [line, line_no, whitespace] = s:ReadCurrentLine()
 
-  if !s:isValidLineNo(line_no + 1)
+  if !s:IsValidLineNo(line_no + 1)
     return 0
   endif
 
-  let first_line   = s:stripComment(line)
+  let first_line   = s:StripComment(line)
   let lines        = []
   let last_line_no = 0
 
@@ -159,7 +159,7 @@ function! sj#yaml#JoinMap()
 
   if len(lines) > 0
     let lines = sj#TrimList(lines)
-    let lines = s:normalizeWhitespace(lines)
+    let lines = s:NormalizeWhitespace(lines)
 
     let replacement = first_line . ' { '. join(lines, ', ') . ' }'
 
@@ -175,7 +175,7 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:readCurrentLine()
+function! s:ReadCurrentLine()
   let line_no    = line('.')
   let line       = getline(line_no)
   let whitespace = s:GetIndentWhitespace(line_no)
@@ -183,15 +183,15 @@ function! s:readCurrentLine()
   return [line, line_no, whitespace]
 endfunction
 
-function! s:stripComment(s)
+function! s:StripComment(s)
   return substitute(a:s, '\s*#.*$', '', '')
 endfunction
 
-function! s:isValidLineNo(no)
+function! s:IsValidLineNo(no)
   return a:no >= 0  && a:no <= line('$')
 endfunction
 
-function! s:normalizeWhitespace(lines)
+function! s:NormalizeWhitespace(lines)
   if sj#settings#Read('normalize_whitespace')
     return map(a:lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
   endif
@@ -218,13 +218,14 @@ function! s:IncreaseIndentWhitespace(from, to, whitespace, level)
   endfor
 endfunction
 
+" Get following lines with a greater indent than the current
 function! s:GetChildren(line_no)
   let line_no      = a:line_no
   let next_line_no = line_no + 1
   let indent       = indent(line_no)
   let next_line    = getline(next_line_no)
 
-  while s:isValidLineNo(next_line_no) &&
+  while s:IsValidLineNo(next_line_no) &&
         \ (sj#BlankString(next_line) || indent(next_line_no) > indent)
     let next_line_no = next_line_no + 1
     let next_line    = getline(next_line_no)
@@ -243,7 +244,7 @@ endfunction
 " E.g.
 "   'one, two'               => ['one', 'two']
 "   '{ one: 1 }, { two: 2 }' => ['{ one: 1 }', '{ two: 2 }']
-function! s:splitArrayBody(body)
+function! s:SplitArrayBody(body)
   let items = []
 
   let partial_item = ''
@@ -254,23 +255,23 @@ function! s:splitArrayBody(body)
     let rest = rest[1:]
 
     if char == '{'
-      let [item, rest] = s:readUntil(rest, '}')
-      let rest = s:skipWhitespaceUntilComma(rest)
+      let [item, rest] = s:ReadUntil(rest, '}')
+      let rest = s:SkipWhitespaceUntilComma(rest)
 
-      call add(items, s:stripCurlyBrackets('{' . item . '}'))
+      call add(items, s:StripCurlyBrackets('{' . item . '}'))
     elseif char == '['
-      let [item, rest] = s:readArray(char . rest)
-      let rest = s:skipWhitespaceUntilComma(rest)
+      let [item, rest] = s:ReadArray(char . rest)
+      let rest = s:SkipWhitespaceUntilComma(rest)
 
       call add(items, sj#Trim(item))
 
     elseif char == '"' || char == "'"
-      let [item, rest] = s:readUntil(rest, char)
+      let [item, rest] = s:ReadUntil(rest, char)
       call add(items, sj#Trim(char . item . char))
 
-      let rest = s:skipWhitespaceUntilComma(rest)
+      let rest = s:SkipWhitespaceUntilComma(rest)
     else
-      let [item, rest] = s:readUntil(rest, ',')
+      let [item, rest] = s:ReadUntil(rest, ',')
       call add(items, sj#Trim(char . item))
     endif
 
@@ -281,7 +282,7 @@ function! s:splitArrayBody(body)
 endfunction
 
 " Read string until occurence of endChar
-function! s:readUntil(str, endChar)
+function! s:ReadUntil(str, endChar)
   let idx = 0
   while idx < len(a:str)
     let char = a:str[idx]
@@ -300,7 +301,7 @@ endfunction
 " Read the next complete array, including nested arrays.
 " E.q.
 "  '[[1, 2]], [1]' => ['[[1, 2]], ', [1]']
-function! s:readArray(str)
+function! s:ReadArray(str)
   let content = ''
   let rest = a:str
   let depth = 0
@@ -326,8 +327,8 @@ function! s:readArray(str)
 endfunction
 
 " skip whitespace and next comma
-function! s:skipWhitespaceUntilComma(str)
-  let [space, rest] = s:readUntil(a:str, ',')
+function! s:SkipWhitespaceUntilComma(str)
+  let [space, rest] = s:ReadUntil(a:str, ',')
 
   if !sj#BlankString(space)
     throw '"' . space . '" is not whitespace!'
@@ -335,19 +336,19 @@ function! s:skipWhitespaceUntilComma(str)
   return rest
 endfunction
 
-function! s:joinArrayItems(items)
-  return join(map(a:items, 's:addCurlyBrackets(v:val)'), ', ')
+function! s:JoinArrayItems(items)
+  return join(map(a:items, 's:AddCurlyBrackets(v:val)'), ', ')
 endfunction
 
 " Add curly brackets if required for joining
 " E.g.
 "   'one: 1' => '{ one: 1 }'
 "   'one'    => 'one'
-function! s:addCurlyBrackets(line)
+function! s:AddCurlyBrackets(line)
   let line = sj#Trim(a:line)
 
   if line !~ '^\v\[.*\]$' && line !~ '^\v\{.*\}$'
-    let [key, value] = s:splitKeyValue(line)
+    let [key, value] = s:SplitKeyValue(line)
     if key != ''
       return '{ ' . a:line . ' }'
     endif
@@ -360,7 +361,7 @@ endfunction
 " E.g.
 "   '{ one: 1 }'         => 'one: 1'
 "   '{ one: 1, two: 2 }' => '{ one: 1, two: 2 }'
-function! s:stripCurlyBrackets(item)
+function! s:StripCurlyBrackets(item)
   let item = sj#Trim(a:item)
 
   if item =~ '^{.*}$'
@@ -382,7 +383,7 @@ endfunction
 "   'one'    => ['', 'one']
 "   'one:'   => ['one', '']
 "   'a:val
-function! s:splitKeyValue(line)
+function! s:SplitKeyValue(line)
 
   let line = sj#Trim(a:line)
   let parts = []
@@ -396,9 +397,9 @@ function! s:splitKeyValue(line)
   "   'one': 1
   "   'one'
   if first_char == '"' || first_char == "'"
-    let [item, rest] = s:readUntil(line[1:], first_char)
+    let [item, rest] = s:ReadUntil(line[1:], first_char)
     let key          = first_char . item . first_char
-    let [_, value]   = s:readUntil(rest, ':')
+    let [_, value]   = s:ReadUntil(rest, ':')
     " TODO throw if invalid? E.g. 'foo':1
   else
     let parts = split(line . ' ', ': ')
@@ -417,7 +418,7 @@ endfunction
 " E.g.
 "   - foo    => 1
 "   - - bar  => 2
-function! s:nestedArrayLevel(line)
+function! s:NestedArrayLevel(line)
   let prefix = substitute(a:line, '^\s*((-\s+)+).*', '\1', '')
   let levels = substitute(prefix, '[^-]', '', 'g')
   return len(levels)
