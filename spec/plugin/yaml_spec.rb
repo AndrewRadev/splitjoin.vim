@@ -109,6 +109,21 @@ describe "yaml" do
       EOF
     end
 
+    specify "splitting nested maps inside an array" do
+      set_file_contents <<~EOF
+        root: [{ one: { foo: bar } }]
+      EOF
+
+      vim.search 'root'
+      split
+
+      assert_file_contents <<~EOF
+        root:
+          - one: { foo: bar }
+      EOF
+    end
+
+
     specify "nested objects inside an array" do
       set_file_contents <<~EOF
         root:
@@ -492,5 +507,21 @@ describe "yaml" do
       EOF
     end
 
+    specify "containing nested maps (recursive)" do
+      pending 'Not implemented'
+
+      set_file_contents <<~EOF
+        map:
+          foo:
+            bar: 2
+      EOF
+
+      vim.search 'map'
+      join
+
+      assert_file_contents <<~EOF
+        map: { foo: { bar: 1 } }
+      EOF
+    end
   end
 end

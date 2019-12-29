@@ -218,7 +218,7 @@ function! s:IncreaseIndentWhitespace(from, to, whitespace, level)
   endfor
 endfunction
 
-" Get following lines with a greater indent than the current
+" Get following lines with a greater indent than the current line
 function! s:GetChildren(line_no)
   let line_no      = a:line_no
   let next_line_no = line_no + 1
@@ -252,30 +252,31 @@ function! s:SplitArrayBody(body)
 
   while !empty(rest)
     let char = rest[0]
-    let rest = rest[1:]
 
     if char == '{'
-      let [item, rest] = s:ReadUntil(rest, '}')
+      let [item, rest] = s:ReadMap(rest)
       let rest = s:SkipWhitespaceUntilComma(rest)
 
-      call add(items, s:StripCurlyBrackets('{' . item . '}'))
+      call add(items, s:StripCurlyBrackets(item))
+
     elseif char == '['
-      let [item, rest] = s:ReadArray(char . rest)
+      let [item, rest] = s:ReadArray(rest)
       let rest = s:SkipWhitespaceUntilComma(rest)
 
       call add(items, sj#Trim(item))
 
     elseif char == '"' || char == "'"
-      let [item, rest] = s:ReadUntil(rest, char)
-      call add(items, sj#Trim(char . item . char))
-
+      let [item, rest] = s:ReadString(rest)
       let rest = s:SkipWhitespaceUntilComma(rest)
+
+      call add(items, sj#Trim(item))
+
     else
       let [item, rest] = s:ReadUntil(rest, ',')
-      call add(items, sj#Trim(char . item))
+      call add(items, sj#Trim(item))
     endif
 
-    let rest = sj#Ltrim(rest)
+    let rest = sj#Ltrim(rest[1:])
   endwhile
 
   return items
@@ -298,10 +299,30 @@ function! s:ReadUntil(str, endChar)
   return [a:str, '']
 endfunction
 
+function! s:ReadString(str)
+  let fence = a:str[0]
+  if len(a:str) > 0 && ( fence == '"' || fence == "'" )
+    let [str, rest] = s:ReadUntil(a:str[1:], fence)
+    return [fence . str . fence, rest]
+  endif
+  return ['', a:str]
+endfunction
+
 " Read the next complete array, including nested arrays.
 " E.q.
 "  '[[1, 2]], [1]' => ['[[1, 2]], ', [1]']
 function! s:ReadArray(str)
+  return s:ReadStructure(a:str, '[', ']')
+endfunction
+
+" Read the next complete map, including nested maps.
+" E.q.
+"  '{ one: 1, foo: { two: 2 } }, {}' => ['{ one: 1, foo: { two: 2 } }, ', {}']
+function! s:ReadMap(str)
+  return s:ReadStructure(a:str, '{', '}')
+endfunction
+
+function! s:ReadStructure(str, start_char, end_char)
   let content = ''
   let rest = a:str
   let depth = 0
@@ -312,9 +333,9 @@ function! s:ReadArray(str)
 
     let content .= char
 
-    if char == '['
+    if char == a:start_char
       let depth += 1
-    elseif char == ']'
+    elseif char == a:end_char
       let depth -= 1
 
       if depth == 0
@@ -377,14 +398,13 @@ function! s:StripCurlyBrackets(item)
   return item
 endfunction
 
-" Split a sting into key and value
+" Split a string into key and value
 " E.g.
 "   'one: 1' => ['one', '1']
 "   'one'    => ['', 'one']
 "   'one:'   => ['one', '']
 "   'a:val
 function! s:SplitKeyValue(line)
-
   let line = sj#Trim(a:line)
   let parts = []
 
@@ -397,8 +417,7 @@ function! s:SplitKeyValue(line)
   "   'one': 1
   "   'one'
   if first_char == '"' || first_char == "'"
-    let [item, rest] = s:ReadUntil(line[1:], first_char)
-    let key          = first_char . item . first_char
+    let [key, rest] = s:ReadString(line)
     let [_, value]   = s:ReadUntil(rest, ':')
     " TODO throw if invalid? E.g. 'foo':1
   else
