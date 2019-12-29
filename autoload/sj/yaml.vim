@@ -43,21 +43,32 @@ endfunction
 function! sj#yaml#JoinArray()
   let [line, line_no, whitespace] = s:readCurrentLine()
 
+  let lines = []
+  let first_line  = s:stripComment(line)
+
+  let nestedExp = '\v^(\s*(-\s+)+)(-\s+.*)$'
+
+  if s:stripComment(line) =~ nestedExp && s:isValidLineNo(line_no)
+    let [lines, last_line_no] = s:GetChildren(line_no)
+    let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
+    let first_line = sj#Rtrim(substitute(first_line, nestedExp, '\1', ''))
+  endif
+
   if s:stripComment(line) =~ ':$' && s:isValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
+  endif
 
-    if !empty(lines) && lines[0] =~ '^\s*-'
-      let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
-      let lines       = filter(lines, '!sj#BlankString(v:val)')
-      let first_line  = s:stripComment(line)
-      let replacement = first_line.' ['.s:joinArrayItems(lines).']'
 
-      call sj#ReplaceLines(line_no, last_line_no, replacement)
-      silent! normal! zO
-      call s:SetIndentWhitespace(line_no, whitespace)
+  if !empty(lines) && lines[0] =~ '^\s*-'
+    let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
+    let lines       = filter(lines, '!sj#BlankString(v:val)')
+    let replacement = first_line.' ['.s:joinArrayItems(lines).']'
 
-      return 1
-    endif
+    call sj#ReplaceLines(line_no, last_line_no, replacement)
+    silent! normal! zO
+    call s:SetIndentWhitespace(line_no, whitespace)
+
+    return 1
   endif
 
   " then there's nothing to join

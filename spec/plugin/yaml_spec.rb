@@ -236,8 +236,6 @@ describe "yaml" do
     end
 
     specify "inside an array" do
-      pending 'Not implemented'
-
       set_file_contents <<~EOF
         list:
           - - 1
@@ -284,10 +282,7 @@ describe "yaml" do
       EOF
     end
 
-
     specify "join nested arrays" do
-      pending 'Not implemented'
-
       set_file_contents <<~EOF
         list:
           - - - 1
