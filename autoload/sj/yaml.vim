@@ -1,3 +1,6 @@
+" Array Callbacks:
+" ================
+
 function! sj#yaml#SplitArray()
   let [line, line_no, whitespace] = s:ReadCurrentLine()
 
@@ -48,16 +51,23 @@ function! sj#yaml#JoinArray()
 
   let nestedExp = '\v^(\s*(-\s+)+)(-\s+.*)$'
 
+  " Nested arrays
+  " E.g.
+  "   - - 'one'
+  "     - 'two'
   if s:StripComment(line) =~ nestedExp && s:IsValidLineNo(line_no)
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
     let first_line = sj#Rtrim(substitute(first_line, nestedExp, '\1', ''))
-  endif
 
-  if s:StripComment(line) =~ ':$' && s:IsValidLineNo(line_no + 1)
+  " Normal arrays
+  " E.g.
+  "  list:
+  "     - 'one'
+  "     - 'two'
+  elseif s:StripComment(line) =~ ':$' && s:IsValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
   endif
-
 
   if !empty(lines) && lines[0] =~ '^\s*-'
     let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
@@ -75,13 +85,16 @@ function! sj#yaml#JoinArray()
   return 0
 endfunction
 
+" Map Callbacks:
+" ================
+
 function! sj#yaml#SplitMap()
   let [from, to] = sj#LocateBracesOnLine('{', '}')
 
   if from >= 0 && to >= 0
     let [line, line_no, whitespace] = s:ReadCurrentLine()
-    let pairs      = sj#ParseJsonObjectBody(from + 1, to - 1)
-    let body       = join(pairs, "\n")
+    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
+    let body  = join(pairs, "\n")
 
     let indent_level = 0
     let end_offset   = -1
@@ -153,6 +166,10 @@ function! sj#yaml#JoinMap()
     let first_line = sj#Rtrim(substitute(first_line, nestedExp, '\1', ''))
 
   " Normal map
+  " E.g.
+  "   map:
+  "    one: 1
+  "    two: 2
   elseif first_line =~ '\k\+:\s*$'
     let [lines, last_line_no] = s:GetChildren(line_no)
   endif
@@ -173,8 +190,10 @@ function! sj#yaml#JoinMap()
   return 0
 endfunction
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Helper Functions:
+" =================
 
+" Reads line, line number and indention
 function! s:ReadCurrentLine()
   let line_no    = line('.')
   let line       = getline(line_no)
@@ -282,12 +301,12 @@ function! s:SplitArrayBody(body)
   return items
 endfunction
 
-" Read string until occurence of endChar
-function! s:ReadUntil(str, endChar)
+" Read string until occurence of end_char
+function! s:ReadUntil(str, end_char)
   let idx = 0
   while idx < len(a:str)
     let char = a:str[idx]
-    if char == a:endChar
+    if char == a:end_char
       return idx == 0
         \ ? ['', a:str[1:]]
         \ : [a:str[:idx-1], a:str[idx+1:]]
@@ -299,6 +318,7 @@ function! s:ReadUntil(str, endChar)
   return [a:str, '']
 endfunction
 
+" Read the next string fenced by " or '
 function! s:ReadString(str)
   let fence = a:str[0]
   if len(a:str) > 0 && ( fence == '"' || fence == "'" )
@@ -308,14 +328,14 @@ function! s:ReadString(str)
   return ['', a:str]
 endfunction
 
-" Read the next complete array, including nested arrays.
+" Read the next array, including nested arrays.
 " E.q.
 "  '[[1, 2]], [1]' => ['[[1, 2]], ', [1]']
 function! s:ReadArray(str)
   return s:ReadStructure(a:str, '[', ']')
 endfunction
 
-" Read the next complete map, including nested maps.
+" Read the next map, including nested maps.
 " E.q.
 "  '{ one: 1, foo: { two: 2 } }, {}' => ['{ one: 1, foo: { two: 2 } }, ', {}']
 function! s:ReadMap(str)
