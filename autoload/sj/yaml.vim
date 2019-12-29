@@ -4,7 +4,7 @@ function! sj#yaml#SplitArray()
   if s:stripComment(line) =~ ':\s*\[.*\]$'
     let [key_part, array_part] = s:splitKeyValue(line)
     let array_part             = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
-    let expanded_array         = s:splitArrayItems(array_part)
+    let expanded_array         = s:parseArrayBody(array_part)
     let body                   = join(expanded_array, "\n- ")
 
     call sj#ReplaceMotion('V', key_part.":\n- ".body)
@@ -79,7 +79,6 @@ function! sj#yaml#JoinMap()
   if line =~ '\k\+:\s*$' && s:isValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = sj#TrimList(lines)
-
     let lines = s:normalizeWhitespace(lines)
 
     let replacement = sj#Trim(line) . ' { '. join(lines, ', ') . ' }'
@@ -164,36 +163,67 @@ endfunction
 " E.g.
 "   'one, two'               => ['one', 'two']
 "   '{ one: 1 }, { two: 2 }' => ['{ one: 1 }', '{ two: 2 }']
-function! s:splitArrayItems(array)
+function! s:parseArrayBody(body)
   let items = []
 
   let partial_item = ''
-  let fences = { '"': '"', "'": "'", '{': '}' }
+  let rest = sj#Ltrim(a:body)
 
-  for chunk in split(a:array, ',')
-    " Start of fenced area OR already inside a fenced area
-    if chunk =~ '^\s*[' . join(keys(fences), '') . ']' || partial_item != ''
-      let partial_item = partial_item != ''
-            \ ? partial_item . ',' . chunk
-            \ : sj#Ltrim(chunk)
+  while !empty(rest)
+    let char = rest[0]
+    let rest = rest[1:]
 
-      " End of fenced area
-      if chunk =~ fences[partial_item[0]] . '\s*$'
-        call add(items, s:stripCurlyBrackets(partial_item))
-        let partial_item  = ''
-      endif
+    if char == '{'
+      let [item, rest] = s:readUntil(rest, '}')
+      call add(items, s:stripCurlyBrackets('{' . item . '}'))
 
-    " Chunk is a complete line
+      " skip whitespace and next comma
+      let [_, rest] = s:readUntil(sj#Ltrim(rest), ',')
+    elseif char == '['
+      let [item, rest] = s:readUntil(rest, ']')
+      call add(items, sj#Trim('[' + item . ']'))
+
+      " skip whitespace and next comma
+      let [_, rest] = s:readUntil(sj#Ltrim(rest), ',')
+    elseif char == '"' || char == "'"
+      let [item, rest] = s:readUntil(rest, char)
+      call add(items, sj#Trim(char . item . char))
+
+      " skip whitespace and next comma
+      let [_, rest] = s:readUntil(sj#Ltrim(rest), ',')
     else
-      call add(items, s:stripCurlyBrackets(chunk))
+      let [item, rest] = s:readUntil(rest, ',')
+      call add(items, sj#Trim(char . item))
     endif
-  endfor
 
-  if partial_item != ''
-    cal add(items, s:stripCurlyBrackets(partial_item))
-  endif
+    let rest = sj#Ltrim(rest)
+  endwhile
 
   return items
+endfunction
+
+function sj#yaml#splitArrayItems(array)
+  return s:parseArrayBody(a:array)
+endfunction
+
+function sj#yaml#readUntil(str, endChar)
+  return s:readUntil(a:str, a:endChar)
+endfunction
+
+function! s:readUntil(str, endChar)
+  let idx = 0
+  while idx < len(a:str)
+    let char = a:str[idx]
+    if char == a:endChar
+      return idx == 0
+        \ ? ['', a:str[1:]]
+        \ : [a:str[:idx-1], a:str[idx+1:]]
+    endif
+
+    let idx += 1
+  endwhile
+
+  return [a:str, '']
 endfunction
 
 function! s:joinArrayItems(items)
