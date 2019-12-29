@@ -255,22 +255,20 @@ function! s:splitArrayBody(body)
 
     if char == '{'
       let [item, rest] = s:readUntil(rest, '}')
-      call add(items, s:stripCurlyBrackets('{' . item . '}'))
+      let rest = s:skipWhitespaceUntilComma(rest)
 
-      " skip whitespace and next comma
-      let [_, rest] = s:readUntil(sj#Ltrim(rest), ',')
+      call add(items, s:stripCurlyBrackets('{' . item . '}'))
     elseif char == '['
       let [item, rest] = s:readArray(char . rest)
+      let rest = s:skipWhitespaceUntilComma(rest)
+
       call add(items, sj#Trim(item))
 
-      " skip whitespace and next comma
-      let [_, rest] = s:readUntil(sj#Ltrim(rest), ',')
     elseif char == '"' || char == "'"
       let [item, rest] = s:readUntil(rest, char)
       call add(items, sj#Trim(char . item . char))
 
-      " skip whitespace and next comma
-      let [_, rest] = s:readUntil(sj#Ltrim(rest), ',')
+      let rest = s:skipWhitespaceUntilComma(rest)
     else
       let [item, rest] = s:readUntil(rest, ',')
       call add(items, sj#Trim(char . item))
@@ -282,14 +280,7 @@ function! s:splitArrayBody(body)
   return items
 endfunction
 
-function sj#yaml#splitArrayItems(array)
-  return s:splitArrayBody(a:array)
-endfunction
-
-function sj#yaml#readUntil(str, endChar)
-  return s:readUntil(a:str, a:endChar)
-endfunction
-
+" Read string until occurence of endChar
 function! s:readUntil(str, endChar)
   let idx = 0
   while idx < len(a:str)
@@ -306,25 +297,42 @@ function! s:readUntil(str, endChar)
   return [a:str, '']
 endfunction
 
-"
-" '[]'
-" '[1, 2]'
-" '[[1, 2]]'
+" Read the next complete array, including nested arrays.
+" E.q.
+"  '[[1, 2]], [1]' => ['[[1, 2]], ', [1]']
 function! s:readArray(str)
+  let content = ''
+  let rest = a:str
+  let depth = 0
 
-  let array = ''
-  let rest  = sj#Ltrim(a:str)
+   while !empty(rest)
+    let char = rest[0]
+    let rest = rest[1:]
 
-  if rest[0] == '['
-    let [arrayEnd, rest] = s:readArray(rest[1:])
-    let array = '[' . arrayEnd . ']'
+    let content .= char
 
-    return [array, rest]
-  endif
+    if char == '['
+      let depth += 1
+    elseif char == ']'
+      let depth -= 1
 
-  let [item, rest] = s:readUntil(rest, ']')
+      if depth == 0
+        break
+      endif
+    endif
+  endwhile
 
-  return [sj#Trim(item), rest]
+  return [content, rest]
+endfunction
+
+" skip whitespace and next comma
+function! s:skipWhitespaceUntilComma(str)
+  let [space, rest] = s:readUntil(a:str, ',')
+
+  if !sj#BlankString(space)
+    throw '"' . space . '" is not whitespace!'
+  end
+  return rest
 endfunction
 
 function! s:joinArrayItems(items)
