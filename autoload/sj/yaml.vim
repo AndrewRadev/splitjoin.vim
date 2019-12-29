@@ -1,16 +1,30 @@
 function! sj#yaml#SplitArray()
   let [line, line_no, whitespace] = s:readCurrentLine()
 
-  if s:stripComment(line) =~ ':\s*\[.*\]$'
-    let [key_part, array_part] = s:splitKeyValue(line)
-    let array_part             = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
-    let expanded_array         = s:parseArrayBody(array_part)
-    let body                   = join(expanded_array, "\n- ")
+  let prefix     = ''
+  let array_part = ''
+  let indent     = 1
 
-    call sj#ReplaceMotion('V', key_part.":\n- ".body)
+  let nestedExp = '\v^\s*((-\s+)+)(\[.*\])$'
+
+  if s:stripComment(line) =~ ':\s*\[.*\]$'
+    let [key, array_part] = s:splitKeyValue(line)
+    let prefix            = key . ":\n"
+
+  elseif s:stripComment(line) =~ nestedExp
+    let prefix     = substitute(line, nestedExp, '\1', '')
+    let array_part = substitute(line, nestedExp, '\3', '')
+    let indent     = len(substitute(line, '\v[^-]', '', 'g'))
+  endif
+
+  if array_part != ''
+    let body        = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
+    let array_items = s:splitArrayBody(body)
+
+    call sj#ReplaceMotion('V', prefix . '- ' . join(array_items, "\n- "))
     silent! normal! zO
     call s:SetIndentWhitespace(line_no, whitespace)
-    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(expanded_array), whitespace, 1)
+    call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(array_items), whitespace, indent)
 
     return 1
   endif
@@ -163,7 +177,7 @@ endfunction
 " E.g.
 "   'one, two'               => ['one', 'two']
 "   '{ one: 1 }, { two: 2 }' => ['{ one: 1 }', '{ two: 2 }']
-function! s:parseArrayBody(body)
+function! s:splitArrayBody(body)
   let items = []
 
   let partial_item = ''
@@ -203,7 +217,7 @@ function! s:parseArrayBody(body)
 endfunction
 
 function sj#yaml#splitArrayItems(array)
-  return s:parseArrayBody(a:array)
+  return s:splitArrayBody(a:array)
 endfunction
 
 function sj#yaml#readUntil(str, endChar)
