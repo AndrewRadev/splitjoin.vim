@@ -1,9 +1,7 @@
 function! sj#yaml#SplitArray()
-  let line_no    = line('.')
-  let line       = getline(line_no)
-  let whitespace = s:GetIndentWhitespace(line_no)
+  let [line, line_no, whitespace] = s:readCurrentLine()
 
-  if line =~ ':\s*\[.*\]\s*\(#.*\)\?$'
+  if s:stripComment(line) =~ ':\s*\[.*\]$'
     let [key_part, array_part] = s:splitKeyValue(line)
     let array_part             = sj#ExtractRx(array_part, '\[\(.*\)\]', '\1')
     let expanded_array         = s:splitArrayItems(array_part)
@@ -15,48 +13,40 @@ function! sj#yaml#SplitArray()
     call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(expanded_array), whitespace, 1)
 
     return 1
-  else
-    return 0
   endif
+
+  return 0
 endfunction
 
 function! sj#yaml#JoinArray()
-  let line_no    = line('.')
-  let line       = getline(line_no)
-  let whitespace = s:GetIndentWhitespace(line_no)
+  let [line, line_no, whitespace] = s:readCurrentLine()
 
-  if line !~ ':\s*\(#.*\)\?$' || line_no + 1 > line('$')
-    " then there's nothing to join
-    return 0
-  else
+  if s:stripComment(line) =~ ':$' && s:isValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
 
-    if empty(lines) || lines[0] !~ '^\s*-'
-      return 0
-    end
+    if !empty(lines) && lines[0] =~ '^\s*-'
+      let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
+      let lines       = filter(lines, '!sj#BlankString(v:val)')
+      let first_line  = s:stripComment(line)
+      let replacement = first_line.' ['.s:joinArrayItems(lines).']'
 
-    let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
-    let lines       = filter(lines, 'v:val !~ "^\s*$"')
-    let first_line  = substitute(line, '\s*#.*$', '', '')
-    let replacement = first_line.' ['.s:joinArrayItems(lines).']'
+      call sj#ReplaceLines(line_no, last_line_no, replacement)
+      silent! normal! zO
+      call s:SetIndentWhitespace(line_no, whitespace)
 
-    call sj#ReplaceLines(line_no, last_line_no, replacement)
-    silent! normal! zO
-    call s:SetIndentWhitespace(line_no, whitespace)
-
-    return 1
+      return 1
+    endif
   endif
+
+  " then there's nothing to join
+  return 0
 endfunction
 
 function! sj#yaml#SplitMap()
   let [from, to] = sj#LocateBracesOnLine('{', '}')
 
-  if from < 0 && to < 0
-    return 0
-  else
-    let line_no    = line('.')
-    let line       = getline(line_no)
-    let whitespace = s:GetIndentWhitespace(line_no)
+  if !s:isValidLineNo(from) || !s:isValidLineNo(to)
+    let [line, line_no, whitespace] = s:readCurrentLine()
     let pairs      = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body       = "\n".join(pairs, "\n")
 
@@ -79,22 +69,18 @@ function! sj#yaml#SplitMap()
 
     return 1
   endif
+
+  return 0
 endfunction
 
 function! sj#yaml#JoinMap()
-  let line_no    = line('.')
-  let line       = getline(line_no)
-  let whitespace = s:GetIndentWhitespace(line_no)
+  let [line, line_no, whitespace] = s:readCurrentLine()
 
-  if line !~ '\k\+:\s*$' || line_no + 1 > line('$')
-    return 0
-  else
+  if line =~ '\k\+:\s*$' && s:isValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = sj#TrimList(lines)
 
-    if sj#settings#Read('normalize_whitespace')
-      let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
-    endif
+    let lines = s:normalizeWhitespace(lines)
 
     let replacement = sj#Trim(line) . ' { '. join(lines, ', ') . ' }'
 
@@ -104,6 +90,33 @@ function! sj#yaml#JoinMap()
 
     return 1
   endif
+
+  return 0
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! s:readCurrentLine()
+  let line_no    = line('.')
+  let line       = getline(line_no)
+  let whitespace = s:GetIndentWhitespace(line_no)
+
+  return [line, line_no, whitespace]
+endfunction
+
+function! s:stripComment(s)
+  return substitute(a:s, '\s*#.*$', '', '')
+endfunction
+
+function! s:isValidLineNo(no)
+  return a:no >= 0  && a:no <= line('$')
+endfunction
+
+function! s:normalizeWhitespace(lines)
+  if sj#settings#Read('normalize_whitespace')
+    return map(a:lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
+  endif
+  return a:lines
 endfunction
 
 function! s:GetIndentWhitespace(line_no)
@@ -132,7 +145,7 @@ function! s:GetChildren(line_no)
   let indent       = indent(line_no)
   let next_line    = getline(next_line_no)
 
-  while next_line_no <= line('$') &&
+  while s:isValidLineNo(next_line_no) &&
         \ (sj#BlankString(next_line) || indent(next_line_no) > indent)
     let next_line_no = next_line_no + 1
     let next_line    = getline(next_line_no)
