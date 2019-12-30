@@ -3,13 +3,15 @@ dist: trusty
 sudo: false
 cache: bundler
 rvm:
-  - 2.3.1
+  - 2.4.1
 addons:
   apt:
     packages:
       - vim-gtk
 env:
   - TRAVIS_CI=1
+before_install:
+  - "gem install bundler"
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
