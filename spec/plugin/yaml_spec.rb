@@ -142,7 +142,7 @@ describe "yaml" do
 
     specify "list of simple objects" do
       set_file_contents <<~EOF
-        list: [{ aprop: 1 }, { aProp: 2 }, { 'a:prop': 3 }, { a prop: 4 }]
+        list: [{ aprop: 1 }, { aProp: 2 }, { 'a:prop': 3 }, { a prop: 4 }, { a#prop: 5 }]
       EOF
 
       vim.search 'list'
@@ -154,13 +154,14 @@ describe "yaml" do
           - aProp: 2
           - 'a:prop': 3
           - a prop: 4
+          - a#prop: 5
       EOF
 
       vim.search 'list'
       join
 
       assert_file_contents <<~EOF
-        list: [{ aprop: 1 }, { aProp: 2 }, { 'a:prop': 3 }, { a prop: 4 }]
+        list: [{ aprop: 1 }, { aProp: 2 }, { 'a:prop': 3 }, { a prop: 4 }, { a#prop: 5 }]
       EOF
     end
 
@@ -357,7 +358,7 @@ describe "yaml" do
 
     specify "stripping comments" do
       set_file_contents <<~EOF
-        root:     # root object
+        root#list:     # root object
           - 'one'
           - 'two'
       EOF
@@ -366,7 +367,7 @@ describe "yaml" do
       join
 
       assert_file_contents <<~EOF
-        root: ['one', 'two']
+        root#list: ['one', 'two']
       EOF
     end
   end
@@ -541,11 +542,11 @@ describe "yaml" do
 
     specify "stripping comments" do
       set_file_contents <<~EOF
-        root_a:     # root object
+        root_a#list: # root object
           a: 'one'
           b: 'two'
-        root_b:
-          - prop:   # nested object
+        root_b#list:
+          - prop:    # nested object
               a: 'one'
               b: 'two'
       EOF
@@ -557,8 +558,8 @@ describe "yaml" do
       join
 
       assert_file_contents <<~EOF
-        root_a: { a: 'one', b: 'two' }
-        root_b:
+        root_a#list: { a: 'one', b: 'two' }
+        root_b#list:
           - prop: { a: 'one', b: 'two' }
       EOF
     end

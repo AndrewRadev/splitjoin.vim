@@ -203,7 +203,7 @@ function! s:ReadCurrentLine()
 endfunction
 
 function! s:StripComment(s)
-  return substitute(a:s, '\s*#.*$', '', '')
+  return substitute(a:s, '\v\s+#.*$', '', '')
 endfunction
 
 function! s:IsValidLineNo(no)
