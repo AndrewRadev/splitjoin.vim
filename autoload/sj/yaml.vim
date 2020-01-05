@@ -46,7 +46,7 @@ endfunction
 function! sj#yaml#JoinArray()
   let [line, line_no, whitespace] = s:ReadCurrentLine()
 
-  let lines = []
+  let lines       = []
   let first_line  = s:StripComment(line)
 
   let nestedExp = '\v^(\s*(-\s+)+)(-\s+.*)$'
@@ -63,8 +63,8 @@ function! sj#yaml#JoinArray()
   " Normal arrays
   " E.g.
   "  list:
-  "     - 'one'
-  "     - 'two'
+  "    - 'one'
+  "    - 'two'
   elseif s:StripComment(line) =~ ':$' && s:IsValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
   endif
@@ -72,7 +72,7 @@ function! sj#yaml#JoinArray()
   if !empty(lines) && lines[0] =~ '^\s*-'
     let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
     let lines       = filter(lines, '!sj#BlankString(v:val)')
-    let replacement = first_line.' ['.s:JoinArrayItems(lines).']'
+    let replacement = first_line . ' [' . s:JoinArrayItems(lines) . ']'
 
     call sj#ReplaceLines(line_no, last_line_no, replacement)
     silent! normal! zO
@@ -120,7 +120,7 @@ function! sj#yaml#SplitMap()
     silent! normal! zO
     call s:SetIndentWhitespace(line_no, whitespace)
     call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(pairs) + end_offset, whitespace, indent_level)
-    exe line_no.'s/\s*$//e'
+    exe line_no . 's/\s*$//e'
 
     if sj#settings#Read('align')
       let body_start = line_no + 1
@@ -145,7 +145,7 @@ function! sj#yaml#JoinMap()
   let lines        = []
   let last_line_no = 0
 
-  let nestedExp = '\v^(\s*(-\s+)+)(.*)$'
+  let nestedExp     = '\v^(\s*(-\s+)+)(.*)$'
   let nestedPropExp = '\v^(\s*(-\s+)+.+:)$'
 
   " Nested in a map inside an array.
@@ -168,8 +168,8 @@ function! sj#yaml#JoinMap()
   " Normal map
   " E.g.
   "   map:
-  "    one: 1
-  "    two: 2
+  "     one: 1
+  "     two: 2
   elseif first_line =~ '\k\+:\s*$'
     let [lines, last_line_no] = s:GetChildren(line_no)
   endif
@@ -222,7 +222,7 @@ function! s:GetIndentWhitespace(line_no)
 endfunction
 
 function! s:SetIndentWhitespace(line_no, whitespace)
-  silent exe a:line_no."s/^\\s*/".a:whitespace
+  silent exe a:line_no . 's/^\s*/' . a:whitespace
 endfunction
 
 function! s:IncreaseIndentWhitespace(from, to, whitespace, level)
@@ -305,8 +305,7 @@ endfunction
 function! s:ReadUntil(str, end_char)
   let idx = 0
   while idx < len(a:str)
-    let char = a:str[idx]
-    if char == a:end_char
+    if a:str[idx] == a:end_char
       return idx == 0
         \ ? ['', a:str[1:]]
         \ : [a:str[:idx-1], a:str[idx+1:]]
@@ -320,11 +319,14 @@ endfunction
 
 " Read the next string fenced by " or '
 function! s:ReadString(str)
-  let fence = a:str[0]
-  if len(a:str) > 0 && ( fence == '"' || fence == "'" )
-    let [str, rest] = s:ReadUntil(a:str[1:], fence)
-    return [fence . str . fence, rest]
+  if len(a:str) > 0
+    let fence = a:str[0]
+    if fence == '"' || fence == "'"
+      let [str, rest] = s:ReadUntil(a:str[1:], fence)
+      return [fence . str . fence, rest]
+    endif
   endif
+
   return ['', a:str]
 endfunction
 
@@ -347,7 +349,7 @@ function! s:ReadStructure(str, start_char, end_char)
   let rest = a:str
   let depth = 0
 
-   while !empty(rest)
+  while !empty(rest)
     let char = rest[0]
     let rest = rest[1:]
 
@@ -358,9 +360,7 @@ function! s:ReadStructure(str, start_char, end_char)
     elseif char == a:end_char
       let depth -= 1
 
-      if depth == 0
-        break
-      endif
+      if depth == 0 | break | endif
     endif
   endwhile
 
@@ -423,7 +423,7 @@ endfunction
 "   'one: 1' => ['one', '1']
 "   'one'    => ['', 'one']
 "   'one:'   => ['one', '']
-"   'a:val
+"   'a:val'  => ['', 'a:val']
 function! s:SplitKeyValue(line)
   let line = sj#Trim(a:line)
   let parts = []
@@ -438,16 +438,14 @@ function! s:SplitKeyValue(line)
   "   'one'
   if first_char == '"' || first_char == "'"
     let [key, rest] = s:ReadString(line)
-    let [_, value]   = s:ReadUntil(rest, ':')
-    " TODO throw if invalid? E.g. 'foo':1
+    let [_, value]  = s:ReadUntil(rest, ':')
   else
     let parts = split(line . ' ', ': ')
     let [key, value] = [parts[0], join(parts[1:], ': ')]
   endif
 
   if value == '' && a:line !~ '\s*:$'
-    let value = key
-    let key   = ''
+    let [key, value] = ['', key]
   endif
 
   return [sj#Trim(key), sj#Trim(value)]
