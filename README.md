@@ -1,3 +1,4 @@
+[![GitHub version](https://badge.fury.io/gh/andrewradev%2Fsplitjoin.vim.svg)](https://badge.fury.io/gh/andrewradev%2Fsplitjoin.vim)
 [![Build Status](https://secure.travis-ci.org/AndrewRadev/splitjoin.vim.svg?branch=master)](http://travis-ci.org/AndrewRadev/splitjoin.vim)
 
 ## Usage
