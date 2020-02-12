@@ -511,6 +511,25 @@ describe "yaml" do
       EOF
     end
 
+    specify "splitting inside an array, with complex properties" do
+      set_file_contents <<~EOF
+        list:
+          - { one: 1, two: [ 'foo', 'bar' ], three: { foo: 'item-1', bar: 'item-2' } }
+        end: true
+      EOF
+
+      vim.search 'one:'
+      split
+
+      assert_file_contents <<~EOF
+        list:
+          - one: 1
+            two: [ 'foo', 'bar' ]
+            three: { foo: 'item-1', bar: 'item-2' }
+        end: true
+      EOF
+    end
+
     specify "joining inside an array and map" do
       set_file_contents <<~EOF
         list:
