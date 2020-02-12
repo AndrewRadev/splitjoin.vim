@@ -110,7 +110,7 @@ function! sj#yaml#SplitMap()
     " E.g.
     "   prop: { one: 1 }
     "   - prop: { one: 1 }
-    if line =~ '^\v\s*(-\s+)*.*:\s\{.*'
+    if line =~ '^\v\s*(-\s+)*[^{]*:\s\{.*'
       let body          = "\n" . body
       let indent_level += 1
       let end_offset    = 0
@@ -472,7 +472,7 @@ endfunction
 "   - foo    => 1
 "   - - bar  => 2
 function! s:NestedArrayLevel(line)
-  let prefix = substitute(a:line, '^\s*((-\s+)+).*', '\1', '')
+  let prefix = substitute(a:line, '\v^\s*((-\s+)+).*', '\1', '')
   let levels = substitute(prefix, '[^-]', '', 'g')
   return len(levels)
 endfunction
