@@ -202,14 +202,17 @@ function! s:ReadCurrentLine()
   return [line, line_no, whitespace]
 endfunction
 
+" Strip comments from string starting with a #
 function! s:StripComment(s)
   return substitute(a:s, '\v\s+#.*$', '', '')
 endfunction
 
+" Check if current buffer has the line number
 function! s:IsValidLineNo(no)
   return a:no >= 0  && a:no <= line('$')
 endfunction
 
+" Normalize whitespace, if enabled
 function! s:NormalizeWhitespace(lines)
   if sj#settings#Read('normalize_whitespace')
     return map(a:lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
@@ -334,17 +337,17 @@ endfunction
 " E.q.
 "  '[[1, 2]], [1]' => ['[[1, 2]], ', [1]']
 function! s:ReadArray(str)
-  return s:ReadStructure(a:str, '[', ']')
+  return s:ReadContainer(a:str, '[', ']')
 endfunction
 
 " Read the next map, including nested maps.
 " E.q.
 "  '{ one: 1, foo: { two: 2 } }, {}' => ['{ one: 1, foo: { two: 2 } }, ', {}']
 function! s:ReadMap(str)
-  return s:ReadStructure(a:str, '{', '}')
+  return s:ReadContainer(a:str, '{', '}')
 endfunction
 
-function! s:ReadStructure(str, start_char, end_char)
+function! s:ReadContainer(str, start_char, end_char)
   let content = ''
   let rest = a:str
   let depth = 0
