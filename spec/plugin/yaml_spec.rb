@@ -432,6 +432,20 @@ describe "yaml" do
       EOF
     end
 
+    specify "with multiple spaces after key" do
+      set_file_contents <<~EOF
+        root:  { one: 1 }
+      EOF
+
+      vim.search 'root:'
+      split
+
+      assert_file_contents <<~EOF
+        root:
+          one: 1
+      EOF
+    end
+
     specify "complex keys" do
       set_file_contents <<~EOF
         map:
