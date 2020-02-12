@@ -370,6 +370,32 @@ describe "yaml" do
         root#list: ['one', 'two']
       EOF
     end
+
+    specify "joining inside an array and map with other properties" do
+      set_file_contents <<~EOF
+        list:
+          - foo:
+              - 1
+              - 2
+            bar:
+              one: 1
+              two: 2
+        end: true
+      EOF
+
+      vim.search 'foo:'
+      join
+
+      assert_file_contents <<~EOF
+        list:
+          - foo: [1, 2]
+            bar:
+              one: 1
+              two: 2
+        end: true
+      EOF
+    end
+
   end
 
   describe "maps" do
@@ -500,6 +526,31 @@ describe "yaml" do
       assert_file_contents <<~EOF
         list:
           - foo: { one: 1, two: 2 }
+        end: true
+      EOF
+    end
+
+    specify "joining inside an array and map with other properties" do
+      set_file_contents <<~EOF
+        list:
+          - foo:
+              one: 1
+              two: 2
+            bar:
+              one: 1
+              two: 2
+        end: true
+      EOF
+
+      vim.search 'foo:'
+      join
+
+      assert_file_contents <<~EOF
+        list:
+          - foo: { one: 1, two: 2 }
+            bar:
+              one: 1
+              two: 2
         end: true
       EOF
     end
