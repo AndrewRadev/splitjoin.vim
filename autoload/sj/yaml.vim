@@ -247,6 +247,19 @@ function! s:GetChildren(line_no)
   let indent       = indent(line_no)
   let next_line    = getline(next_line_no)
 
+  " Count '- ' as indent, if an object is in an array
+  " E.g. (GetChildren for prop_a)
+  "   list:
+  "     - prop_a:
+  "         - 1
+  "       prop_b
+  "         - 2
+  let line = getline(line_no)
+  if line =~ '^\s*\(\-\s\s*\)..*:$'
+    let prefix = substitute(getline(a:line_no), '^\s*\(\-\s\s*\)..*:$', '\1', '')
+    let indent += len(prefix)
+  end
+
   while s:IsValidLineNo(next_line_no) &&
         \ (sj#BlankString(next_line) || indent(next_line_no) > indent)
     let next_line_no = next_line_no + 1
