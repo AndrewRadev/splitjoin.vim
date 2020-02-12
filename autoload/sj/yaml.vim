@@ -110,7 +110,7 @@ function! sj#yaml#SplitMap()
     " E.g.
     "   prop: { one: 1 }
     "   - prop: { one: 1 }
-    if line =~ '^\v\s*(-\s+)*[^{]*:\s\{.*'
+    if line =~ '^\v\s*(-\s+)*[^{]*:\s+\{.*'
       let body          = "\n" . body
       let indent_level += 1
       let end_offset    = 0
