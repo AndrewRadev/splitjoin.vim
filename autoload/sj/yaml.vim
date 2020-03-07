@@ -10,18 +10,19 @@ function! sj#yaml#SplitArray()
   let end_offset = 0
 
   let nestedExp = '\v^\s*((-\s+)+)(\[.*\])$'
+  let line = s:StripComment(line)
 
   " Split arrays which are map properties
   " E.g.
   "   prop: [1, 2]
-  if s:StripComment(line) =~ ':\s*\[.*\]$'
+  if line =~ ':\s*\[.*\]$'
     let [key, array_part] = s:SplitKeyValue(line)
     let prefix            = key . ":\n"
 
   " Split nested arrays
   " E.g.
   "   - [1, 2]
-  elseif s:StripComment(line) =~ nestedExp
+  elseif line =~ nestedExp
     let prefix     = substitute(line, nestedExp, '\1', '')
     let array_part = substitute(line, nestedExp, '\3', '')
     let indent     = len(substitute(line, '\v[^-]', '', 'g'))
@@ -55,7 +56,7 @@ function! sj#yaml#JoinArray()
   " E.g.
   "   - - 'one'
   "     - 'two'
-  if s:StripComment(line) =~ nestedExp && s:IsValidLineNo(line_no)
+  if first_line =~ nestedExp && s:IsValidLineNo(line_no)
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = map(lines, 's:StripComment(v:val)')
     let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
@@ -66,7 +67,7 @@ function! sj#yaml#JoinArray()
   "  list:
   "    - 'one'
   "    - 'two'
-  elseif s:StripComment(line) =~ ':$' && s:IsValidLineNo(line_no + 1)
+  elseif first_line =~ ':$' && s:IsValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = map(lines, 's:StripComment(v:val)')
   endif
