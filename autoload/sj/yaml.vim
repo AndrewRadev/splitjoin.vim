@@ -57,6 +57,7 @@ function! sj#yaml#JoinArray()
   "     - 'two'
   if s:StripComment(line) =~ nestedExp && s:IsValidLineNo(line_no)
     let [lines, last_line_no] = s:GetChildren(line_no)
+    let lines = map(lines, 's:StripComment(v:val)')
     let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
     let first_line = sj#Rtrim(substitute(first_line, nestedExp, '\1', ''))
 
@@ -67,6 +68,7 @@ function! sj#yaml#JoinArray()
   "    - 'two'
   elseif s:StripComment(line) =~ ':$' && s:IsValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
+    let lines = map(lines, 's:StripComment(v:val)')
   endif
 
   if !empty(lines) && lines[0] =~ '^\s*-'
@@ -93,6 +95,7 @@ function! sj#yaml#SplitMap()
 
   if from >= 0 && to >= 0
     let [line, line_no, whitespace] = s:ReadCurrentLine()
+    let line  = s:StripComment(line)
     let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body  = join(pairs, "\n")
 
@@ -177,6 +180,7 @@ function! sj#yaml#JoinMap()
   if len(lines) > 0
     let lines = sj#TrimList(lines)
     let lines = s:NormalizeWhitespace(lines)
+    let lines = map(lines, 's:StripComment(v:val)')
 
     let replacement = first_line . ' { '. join(lines, ', ') . ' }'
 

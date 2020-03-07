@@ -360,7 +360,7 @@ describe "yaml" do
       set_file_contents <<~EOF
         root#list:     # root object
           - 'one'
-          - 'two'
+          - 'two' # second record
       EOF
 
       vim.search 'root'
@@ -628,10 +628,10 @@ describe "yaml" do
       set_file_contents <<~EOF
         root_a#list: # root object
           a: 'one'
-          b: 'two'
+          b: 'two' # one more
         root_b#list:
           - prop:    # nested object
-              a: 'one'
+              a: 'one' # another
               b: 'two'
       EOF
 
