@@ -120,7 +120,7 @@ function! sj#yaml#SplitMap()
     silent! normal! zO
     call s:SetIndentWhitespace(line_no, whitespace)
     call s:IncreaseIndentWhitespace(line_no + 1, line_no + len(pairs) + end_offset, whitespace, indent_level)
-    exe line_no . 's/\s*$//e'
+    call sj#Keeppatterns(line_no . 's/\s*$//e')
 
     if sj#settings#Read('align')
       let body_start = line_no + 1
@@ -225,7 +225,7 @@ function! s:GetIndentWhitespace(line_no)
 endfunction
 
 function! s:SetIndentWhitespace(line_no, whitespace)
-  silent exe a:line_no . 's/^\s*/' . a:whitespace
+  silent call sj#Keeppatterns(a:line_no . 's/^\s*/' . a:whitespace)
 endfunction
 
 function! s:IncreaseIndentWhitespace(from, to, whitespace, level)
