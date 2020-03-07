@@ -217,9 +217,7 @@ describe "yaml" do
       EOF
     end
 
-    specify "containing mulitline maps (recursive)" do
-      pending 'Not implemented'
-
+    specify "Not handled: containing mulitline maps (recursive)" do
       set_file_contents <<~EOF
         list:
           - one: 1
@@ -229,14 +227,15 @@ describe "yaml" do
       vim.search 'list'
       join
 
+      # Does nothing, needs to be joined from the inside first
       assert_file_contents <<~EOF
-        list: [{ one: 1, two: 2 }]
+        list:
+          - one: 1
+            two: 2
       EOF
     end
 
-    specify "containing arrays (recursive)" do
-      pending 'Not implemented'
-
+    specify "Not handled: containing arrays (recursive)" do
       set_file_contents <<~EOF
         list:
           - - 1
@@ -247,7 +246,9 @@ describe "yaml" do
       join
 
       assert_file_contents <<~EOF
-        list: [[1, 2]]
+        list:
+          - - 1
+            - 2
       EOF
     end
 
@@ -607,9 +608,7 @@ describe "yaml" do
       EOF
     end
 
-    specify "containing nested maps (recursive)" do
-      pending 'Not implemented'
-
+    specify "Not handled: containing nested maps (recursive)" do
       set_file_contents <<~EOF
         map:
           foo:
@@ -620,7 +619,30 @@ describe "yaml" do
       join
 
       assert_file_contents <<~EOF
-        map: { foo: { bar: 1 } }
+        map:
+          foo:
+            bar: 2
+      EOF
+    end
+
+    specify "Not handled: containing nested maps within lists (recursive)" do
+      set_file_contents <<~EOF
+        list1:
+          - one: 1
+          - two: 2
+            four:
+              five: 6
+      EOF
+
+      vim.search 'two'
+      join
+
+      assert_file_contents <<~EOF
+        list1:
+          - one: 1
+          - two: 2
+            four:
+              five: 6
       EOF
     end
 
