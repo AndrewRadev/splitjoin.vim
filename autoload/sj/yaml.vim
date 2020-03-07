@@ -99,6 +99,7 @@ function! sj#yaml#SplitMap()
     let line  = s:StripComment(line)
     let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
     let body  = join(pairs, "\n")
+    let body_start = line_no
 
     let indent_level = 0
     let end_offset   = -1
@@ -118,6 +119,7 @@ function! sj#yaml#SplitMap()
       let body          = "\n" . body
       let indent_level += 1
       let end_offset    = 0
+      let body_start    = line_no + 1
     endif
 
     call sj#ReplaceMotion('Va{', body)
@@ -127,8 +129,7 @@ function! sj#yaml#SplitMap()
     call sj#Keeppatterns(line_no . 's/\s*$//e')
 
     if sj#settings#Read('align')
-      let body_start = line_no + 1
-      let body_end   = body_start + len(pairs) - 1
+      let body_end = body_start + len(pairs) - 1
       call sj#Align(body_start, body_end, 'json_object')
     endif
 
