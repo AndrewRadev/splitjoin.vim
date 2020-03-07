@@ -170,6 +170,11 @@ function! sj#yaml#JoinMap()
     let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
     let first_line = sj#Rtrim(substitute(first_line, nestedExp, '\1', ''))
 
+    if len(lines) <= 1
+      " only 1 line means nothing to join in this case
+      return 0
+    endif
+
   " Normal map
   " E.g.
   "   map:
