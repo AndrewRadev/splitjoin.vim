@@ -51,12 +51,14 @@ function! sj#yaml#JoinArray()
   let first_line  = s:StripComment(line)
 
   let nestedExp = '\v^(\s*(-\s+)+)(-\s+.*)$'
+  let join_type = ''
 
   " Nested arrays
   " E.g.
   "   - - 'one'
   "     - 'two'
   if first_line =~ nestedExp && s:IsValidLineNo(line_no)
+    let join_type = 'nested'
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = map(lines, 's:StripComment(v:val)')
     let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
@@ -68,23 +70,30 @@ function! sj#yaml#JoinArray()
   "    - 'one'
   "    - 'two'
   elseif first_line =~ ':$' && s:IsValidLineNo(line_no + 1)
+    let join_type = 'normal'
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = map(lines, 's:StripComment(v:val)')
 
     for line in lines
-      if line =~ nestedExp
-        " the child lines being nested is a problem, expect the user joins
-        " them first
-        return 0
-      endif
     endfor
   endif
 
   if !empty(lines)
-    for line in lines
+    if join_type == 'nested'
+      let body_lines = lines[1:len(lines)]
+    else
+      let body_lines = lines
+    endif
+
+    for line in body_lines
       if line !~ '^\s*$' && line !~ '^\s*-'
         " one non-blank line is not part of the array, it must be a nested
-        " construct, do nothing, make the user join that one first
+        " construct, can't handle that
+        return 0
+      endif
+
+      if line =~ nestedExp
+        " can't handle nested subexpressions
         return 0
       endif
     endfor
@@ -165,6 +174,7 @@ function! sj#yaml#JoinMap()
   let first_line   = s:StripComment(line)
   let lines        = []
   let last_line_no = 0
+  let join_type    = ''
 
   let nestedExp     = '\v^(\s*(-\s+)+)(.*)$'
   let nestedPropExp = '\v^(\s*(-\s+)+.+:)$'
@@ -174,6 +184,7 @@ function! sj#yaml#JoinMap()
   "  - prop:
   "     one: 1
   if first_line =~ nestedPropExp
+    let join_type = 'nested_in_map_in_array'
     let [lines, last_line_no] = s:GetChildren(line_no)
     let first_line = sj#Rtrim(substitute(first_line, nestedPropExp, '\1', ''))
 
@@ -182,6 +193,7 @@ function! sj#yaml#JoinMap()
   "  - one: 1
   "    two: 2
   elseif first_line =~ nestedExp
+    let join_type = 'nested_in_array'
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = [substitute(first_line, nestedExp, '\3', '')] + lines
     let first_line = sj#Rtrim(substitute(first_line, nestedExp, '\1', ''))
@@ -197,24 +209,29 @@ function! sj#yaml#JoinMap()
   "     one: 1
   "     two: 2
   elseif first_line =~ '\k\+:\s*$'
+    let join_type = 'normal'
     let [lines, last_line_no] = s:GetChildren(line_no)
-
-    if len(lines) > 0
-      let base_indent = len(matchstr(lines[0], '^\s*'))
-      for line in lines
-        if len(matchstr(line, '^\s*')) != base_indent
-          " a nested map, can't handle that
-          return 0
-        endif
-      endfor
-    endif
   endif
 
   if len(lines) > 0
-    for line in lines
+    if join_type == 'nested_in_array'
+      let body_lines = lines[1:len(lines)]
+    else
+      let body_lines = lines
+    endif
+
+    if len(body_lines) > 0
+      let base_indent = len(matchstr(body_lines[0], '^\s*'))
+    endif
+
+    for line in body_lines
       if line =~ '^\s*-'
-        " one of the lines is a part of an array, do nothing, make the user
-        " join that one first
+        " one of the lines is a part of an array, we can't handle nested subexpressions
+        return 0
+      endif
+
+      if len(matchstr(line, '^\s*')) != base_indent
+        " a nested map, can't handle that
         return 0
       endif
     endfor

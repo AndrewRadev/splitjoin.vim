@@ -625,6 +625,27 @@ describe "yaml" do
       EOF
     end
 
+    specify "Not handled: containing nested maps within lists (recursive)" do
+      set_file_contents <<~EOF
+        list1:
+          - one: 1
+          - two: 2
+            four:
+              five: 6
+      EOF
+
+      vim.search 'two'
+      join
+
+      assert_file_contents <<~EOF
+        list1:
+          - one: 1
+          - two: 2
+            four:
+              five: 6
+      EOF
+    end
+
     specify "stripping comments" do
       set_file_contents <<~EOF
         root_a#list: # root object
