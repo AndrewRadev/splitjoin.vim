@@ -73,9 +73,6 @@ function! sj#yaml#JoinArray()
     let join_type = 'normal'
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = map(lines, 's:StripComment(v:val)')
-
-    for line in lines
-    endfor
   endif
 
   if !empty(lines)
