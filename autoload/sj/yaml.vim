@@ -70,9 +70,25 @@ function! sj#yaml#JoinArray()
   elseif first_line =~ ':$' && s:IsValidLineNo(line_no + 1)
     let [lines, last_line_no] = s:GetChildren(line_no)
     let lines = map(lines, 's:StripComment(v:val)')
+
+    for line in lines
+      if line =~ nestedExp
+        " the child lines being nested is a problem, expect the user joins
+        " them first
+        return 0
+      endif
+    endfor
   endif
 
-  if !empty(lines) && lines[0] =~ '^\s*-'
+  if !empty(lines)
+    for line in lines
+      if line !~ '^\s*$' && line !~ '^\s*-'
+        " one non-blank line is not part of the array, it must be a nested
+        " construct, do nothing, make the user join that one first
+        return 0
+      endif
+    endfor
+
     let lines       = map(lines, 'sj#Trim(substitute(v:val, "^\\s*-", "", ""))')
     let lines       = filter(lines, '!sj#BlankString(v:val)')
     let replacement = first_line . ' [' . s:JoinArrayItems(lines) . ']'
@@ -182,9 +198,27 @@ function! sj#yaml#JoinMap()
   "     two: 2
   elseif first_line =~ '\k\+:\s*$'
     let [lines, last_line_no] = s:GetChildren(line_no)
+
+    if len(lines) > 0
+      let base_indent = len(matchstr(lines[0], '^\s*'))
+      for line in lines
+        if len(matchstr(line, '^\s*')) != base_indent
+          " a nested map, can't handle that
+          return 0
+        endif
+      endfor
+    endif
   endif
 
   if len(lines) > 0
+    for line in lines
+      if line =~ '^\s*-'
+        " one of the lines is a part of an array, do nothing, make the user
+        " join that one first
+        return 0
+      endif
+    endfor
+
     let lines = sj#TrimList(lines)
     let lines = s:NormalizeWhitespace(lines)
     let lines = map(lines, 's:StripComment(v:val)')
