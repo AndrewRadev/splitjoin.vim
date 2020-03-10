@@ -843,7 +843,7 @@ function! sj#ruby#SplitArrayLiteral()
 
   let closing_bracket = s:ArrayLiteralClosingBracket(opening_bracket)
 
-  let array_pattern = '\%(\k\|\s\)*\ze\V'.closing_bracket
+  let array_pattern = '\V'.opening_bracket.'\m\zs.*\ze\V'.closing_bracket
   let [start_col, end_col] = sj#SearchColsUnderCursor(array_pattern)
   if start_col <= 0
     return 0
