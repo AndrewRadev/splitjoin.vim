@@ -157,9 +157,9 @@ function! s:SplitList(delimiter)
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
 
   if sj#settings#Read('trailing_comma')
-    let body  = start."\n".join(items, ",\n").",\n".end
+    let body = start."\n".join(items, ",\n").",\n".end
   else
-    let body  = start."\n".join(items, ",\n")."\n".end
+    let body = start."\n".join(items, ",\n")."\n".end
   endif
 
   call sj#ReplaceMotion('Va'.start, body)

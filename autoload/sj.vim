@@ -560,6 +560,7 @@ endfunction
 function! sj#LocateBracesOnLine(open, close, ...)
   let [_bufnum, line, col, _off] = getpos('.')
   let search_pattern = '\V'.a:open.'\m.*\V'.a:close
+  let current_line = line('.')
 
   " bail early if there's obviously no match
   if getline('.') !~ search_pattern
@@ -581,7 +582,12 @@ function! sj#LocateBracesOnLine(open, close, ...)
 
   if found > 0
     let from = col('.')
+
     normal! %
+    if line('.') != current_line
+      return [-1, -1]
+    endif
+
     let to = col('.')
 
     return [from, to]
