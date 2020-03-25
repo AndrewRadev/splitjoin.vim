@@ -90,11 +90,11 @@ function! sj#js#JoinFunction()
 endfunction
 
 function! sj#js#SplitArray()
-  return s:SplitList(['[', ']'])
+  return s:SplitList(['[', ']'], 'cursor_inside')
 endfunction
 
 function! sj#js#SplitArgs()
-  return s:SplitList(['(', ')'])
+  return s:SplitList(['(', ')'], 'cursor_on_line')
 endfunction
 
 function! sj#js#JoinArray()
@@ -141,14 +141,21 @@ function! sj#js#JoinOneLineIf()
   return 1
 endfunction
 
-function! s:SplitList(delimiter)
+function! s:SplitList(delimiter, cursor_position)
   let start = a:delimiter[0]
   let end   = a:delimiter[1]
 
   let lineno = line('.')
   let indent = indent('.')
 
-  let [from, to] = sj#LocateBracesOnLine(start, end)
+  if a:cursor_position == 'cursor_inside'
+    let [from, to] = sj#LocateBracesAroundCursor(start, end)
+  elseif a:cursor_position == 'cursor_on_line'
+    let [from, to] = sj#LocateBracesOnLine(start, end)
+  else
+    echoerr "Invalid value for a:cursor_position: ".a:cursor_position
+    return
+  endif
 
   if from < 0 && to < 0
     return 0
