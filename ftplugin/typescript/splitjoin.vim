@@ -1,12 +1,14 @@
 let b:splitjoin_split_callbacks = [
-      \ 'sj#js#SplitArgs',
-      \ 'sj#js#SplitArray',
-      \ 'sj#js#SplitObjectLiteral',
       \ 'sj#js#SplitFunction',
+      \ 'sj#js#SplitObjectLiteral',
+      \ 'sj#js#SplitFatArrowFunction',
+      \ 'sj#js#SplitArray',
       \ 'sj#js#SplitOneLineIf',
+      \ 'sj#js#SplitArgs',
       \ ]
 
 let b:splitjoin_join_callbacks = [
+      \ 'sj#js#JoinFatArrowFunction',
       \ 'sj#js#JoinArray',
       \ 'sj#js#JoinArgs',
       \ 'sj#js#JoinFunction',
