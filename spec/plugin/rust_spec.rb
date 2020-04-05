@@ -400,6 +400,9 @@ describe "rust" do
       SomeStruct { foo, bar, ..Default::default() }
     EOF
 
+    # No trailing comma on the default regardless of setting:
+    vim.command('let b:splitjoin_trailing_comma = 1')
+
     vim.search('foo')
     split
 

@@ -269,16 +269,33 @@ function! sj#rust#SplitCurlyBrackets()
     let parser = sj#argparser#rust#Construct(from + 1, to - 1, getline('.'))
     call parser.Process()
     let pairs = parser.args
+    if len(pairs) <= 0
+      return 0
+    endif
 
     let body = join(pairs, ",\n")
     if sj#settings#Read('trailing_comma')
-      let body .= ','
+      if pairs[-1] =~ '^\.\.'
+        " interpolated sruct, a trailing comma would be invalid
+      else
+        let body .= ','
+      endif
     endif
+
     call sj#ReplaceCols(from, to, "{\n".body."\n}")
+
     if is_only_pairs && sj#settings#Read('align')
       let body_start = line('.') + 1
       let body_end   = body_start + len(pairs) - 1
-      call sj#Align(body_start, body_end, 'json_object')
+
+      if pairs[-1] =~ '^\.\.'
+        " interpolated struct, don't align that one
+        let body_end -= 1
+      endif
+
+      if body_end - body_start > 0
+        call sj#Align(body_start, body_end, 'json_object')
+      endif
     endif
   else
     " it's just a normal block
