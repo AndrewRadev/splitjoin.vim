@@ -9,7 +9,7 @@ function! sj#haml#SplitInterpolation()
     return 0
   endif
 
-  exe 's/'.pattern.'/\r=/'
+  call sj#Keeppatterns('s/'.pattern.'/\r=/')
   call s:SetIndent(lineno + 1, lineno + 1, indent + &sw)
 
   return 1
