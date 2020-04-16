@@ -347,7 +347,25 @@ function! sj#rust#JoinCurlyBrackets()
   " just in case we're joining a StructName { key: value, }:
   let body = substitute(body, ',$', '', '')
 
+  let in_import = 0
   if line =~ '^\s*use\s\+\%(\k\+::\)\+\s*{$'
+    let in_import = 1
+  endif
+  if !in_import
+    let pos = getpos('.')
+
+    " we might still be in a nested import, let's see if we can find it
+    while searchpair('{', '', '}', 'Wb', s:skip_syntax, 0, 100) > 0
+      if getline('.') =~ '^\s*use\s\+\%(\k\+::\)\+\s*{$'
+        let in_import = 1
+        break
+      endif
+    endwhile
+
+    call setpos('.', pos)
+  endif
+
+  if in_import
     let body = '{'.body.'}'
   elseif sj#settings#Read('curly_brace_padding')
     let body = '{ '.body.' }'

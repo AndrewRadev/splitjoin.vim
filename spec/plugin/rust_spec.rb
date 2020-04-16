@@ -444,6 +444,47 @@ describe "rust" do
     EOF
   end
 
+  specify "imports with nesting" do
+    set_file_contents <<~EOF
+      use my_mod::{one, {two, three}, four};
+    EOF
+
+    vim.search 'one'
+    split
+
+    assert_file_contents <<~EOF
+      use my_mod::{
+          one,
+          {two, three},
+          four
+      };
+    EOF
+
+    vim.search 'two'
+    split
+
+    assert_file_contents <<~EOF
+      use my_mod::{
+          one,
+          {
+              two,
+              three
+          },
+          four
+      };
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      use my_mod::{
+          one,
+          {two, three},
+          four
+      };
+    EOF
+  end
+
   specify "blocks" do
     set_file_contents <<~EOF
       if opt.verbose == 1 { foo(); do_thing(); bar() }
