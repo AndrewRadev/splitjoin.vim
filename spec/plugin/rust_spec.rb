@@ -421,6 +421,29 @@ describe "rust" do
     EOF
   end
 
+  specify "imports" do
+    set_file_contents <<~EOF
+      use my_mod::foo::{Alpha, Beta as _, Gamma};
+    EOF
+
+    vim.search 'Alpha'
+    split
+
+    assert_file_contents <<~EOF
+      use my_mod::foo::{
+          Alpha,
+          Beta as _,
+          Gamma
+      };
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      use my_mod::foo::{Alpha, Beta as _, Gamma};
+    EOF
+  end
+
   specify "blocks" do
     set_file_contents <<~EOF
       if opt.verbose == 1 { foo(); do_thing(); bar() }

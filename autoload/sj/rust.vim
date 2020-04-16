@@ -255,8 +255,27 @@ function! sj#rust#SplitCurlyBrackets()
   endif
 
   let body = sj#Trim(sj#GetCols(from + 1, to - 1))
+  let prefix = sj#GetCols(0, from - 1)
 
-  if body =~ '^\%(\k\+,\s*\)\=\k\+:' ||
+  if prefix =~ '^\s*use\s\+\%(\k\+::\)\+\s*$'
+    " then it's a module import:
+    "   use my_mod::{Alpha, Beta as _, Gamma};
+
+    " A full parser is overkill, but it'll work
+    let parser = sj#argparser#rust#Construct(from + 1, to - 1, getline('.'))
+    call parser.Process()
+    let imports = parser.args
+    if len(imports) <= 0
+      return 0
+    endif
+
+    let body = join(imports, ",\n")
+    if sj#settings#Read('trailing_comma')
+      let body .= ','
+    endif
+
+    call sj#ReplaceCols(from, to, "{\n".body."\n}")
+  elseif body =~ '^\%(\k\+,\s*\)\=\k\+:' ||
         \ body =~ '^\k\+\%(,\s*\k\+\)*$' ||
         \ body =~ '\%(^\|,\s*\)\.\.\k'
     " then it's a
@@ -327,7 +346,14 @@ function! sj#rust#JoinCurlyBrackets()
   let body = join(lines, ' ')
   " just in case we're joining a StructName { key: value, }:
   let body = substitute(body, ',$', '', '')
-  let body = '{ '.body.' }'
+
+  if line =~ '^\s*use\s\+\%(\k\+::\)\+\s*{$'
+    let body = '{'.body.'}'
+  elseif sj#settings#Read('curly_brace_padding')
+    let body = '{ '.body.' }'
+  else
+    let body = '{'.body.'}'
+  endif
 
   if sj#settings#Read('normalize_whitespace')
     let body = substitute(body, '\s\+\k\+\zs:\s\+', ': ', 'g')
