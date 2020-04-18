@@ -61,17 +61,20 @@ function! sj#argparser#rust#PushArg() dict
 endfunction
 
 " Expects self.Process() to have been run
+"
+" Possibilities:
+"   StructName { key: value }, or
+"   StructName { prop1, prop2 }, or
+"   StructName { prop1, ..Foo }, or
+"   StructName { #[cfg] prop1, ..Foo }
+"
 function! sj#argparser#rust#IsValidStruct() dict
-  " Possibilities:
-  "   StructName { key: value }, or
-  "   StructName { prop1, prop2 }, or
-  "   StructName { prop1, ..Foo }, or
-  "   StructName { #[cfg] prop1, ..Foo }
-  "
+  let visibility = '\%(pub\%((crate)\)\=\s*\)\='
+
   for entry in self.args
-    if entry.argument !~ '^\k\+$' &&
-          \ entry.argument !~ '^\k\+:' &&
-          \ entry.argument !~ '^\.\.\k'
+    if entry.argument !~ '^'.visibility.'\k\+$' &&
+          \ entry.argument !~ '^'.visibility.'\k\+:' &&
+          \ entry.argument !~ '^'.visibility.'\.\.\k'
       return 0
     endif
   endfor
@@ -80,14 +83,20 @@ function! sj#argparser#rust#IsValidStruct() dict
 endfunction
 
 " Expects self.Process() to have been run
+"
+" Possibilities:
+"   StructName { key: value, other_key: expression() }
+"
 function! sj#argparser#rust#IsOnlyStructPairs() dict
+  let visibility = '\%(pub\%((crate)\)\=\s*\)\='
+
   for entry in self.args
     if len(entry.attributes) > 0
       " then it's not just pairs, there's also an attribute
       return 0
     endif
 
-    if entry.argument !~ '^\k\+:'
+    if entry.argument !~ '^'.visibility.'\k\+:'
       return 0
     endif
   endfor
