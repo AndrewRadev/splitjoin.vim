@@ -421,6 +421,30 @@ describe "rust" do
     EOF
   end
 
+  specify "structs with item attributes" do
+    set_file_contents <<~EOF
+      SomeStruct { foo, #[arg] #[cfg(test)] bar: "baz" }
+    EOF
+
+    vim.search('foo')
+    split
+
+    assert_file_contents <<~EOF
+      SomeStruct {
+          foo,
+          #[arg]
+          #[cfg(test)]
+          bar: "baz"
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      SomeStruct { foo, #[arg] #[cfg(test)] bar: "baz" }
+    EOF
+  end
+
   specify "imports" do
     set_file_contents <<~EOF
       use my_mod::foo::{Alpha, Beta as _, Gamma};

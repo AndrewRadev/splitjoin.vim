@@ -256,46 +256,47 @@ function! sj#rust#SplitCurlyBrackets()
 
   let body = sj#Trim(sj#GetCols(from + 1, to - 1))
   let prefix = sj#GetCols(0, from - 1)
+  let indent = indent(line('.')) + (exists('*shiftwidth') ? shiftwidth() : &sw)
+
+  let parser = sj#argparser#rust#Construct(from + 1, to - 1, getline('.'))
+  call parser.Process()
+  let args = parser.args
+  if len(args) <= 0
+    return 0
+  endif
 
   if prefix =~ '^\s*use\s\+\%(\k\+::\)\+\s*$'
     " then it's a module import:
     "   use my_mod::{Alpha, Beta as _, Gamma};
-
-    " A full parser is overkill, but it'll work
-    let parser = sj#argparser#rust#Construct(from + 1, to - 1, getline('.'))
-    call parser.Process()
-    let imports = parser.args
-    if len(imports) <= 0
-      return 0
-    endif
-
+    let imports = map(args, 'v:val.argument')
     let body = join(imports, ",\n")
     if sj#settings#Read('trailing_comma')
       let body .= ','
     endif
 
     call sj#ReplaceCols(from, to, "{\n".body."\n}")
-  elseif body =~ '^\%(\k\+,\s*\)\=\k\+:' ||
-        \ body =~ '^\k\+\%(,\s*\k\+\)*$' ||
-        \ body =~ '\%(^\|,\s*\)\.\.\k'
+  elseif parser.IsValidStruct()
     " then it's a
-    "   StructName { key: value }, or
-    "   StructName { prop1, prop2 }, or
-    "   StructName { prop1, ..Foo }
     "
-    let is_only_pairs = body !~ '\%(^\|,\s*\)\k\+,'
+    let is_only_pairs = parser.IsOnlyStructPairs()
 
-    let parser = sj#argparser#rust#Construct(from + 1, to - 1, getline('.'))
-    call parser.Process()
-    let pairs = parser.args
-    if len(pairs) <= 0
-      return 0
-    endif
+    let items = []
+    let last_arg = ''
+    for arg in args
+      let last_arg = arg.argument
 
-    let body = join(pairs, ",\n")
+      " attributes are not indented, so let's give them appropriate whitespace
+      let whitespace = repeat(' ', indent)
+      let components = map(copy(arg.attributes), 'whitespace.v:val')
+
+      call add(components, arg.argument)
+      call add(items, join(components, "\n"))
+    endfor
+
+    let body = join(items, ",\n")
     if sj#settings#Read('trailing_comma')
-      if pairs[-1] =~ '^\.\.'
-        " interpolated sruct, a trailing comma would be invalid
+      if last_arg =~ '^\.\.'
+        " interpolated struct, a trailing comma would be invalid
       else
         let body .= ','
       endif
@@ -305,9 +306,9 @@ function! sj#rust#SplitCurlyBrackets()
 
     if is_only_pairs && sj#settings#Read('align')
       let body_start = line('.') + 1
-      let body_end   = body_start + len(pairs) - 1
+      let body_end   = body_start + len(items) - 1
 
-      if pairs[-1] =~ '^\.\.'
+      if items[-1] =~ '^\.\.'
         " interpolated struct, don't align that one
         let body_end -= 1
       endif
@@ -317,7 +318,7 @@ function! sj#rust#SplitCurlyBrackets()
       endif
     endif
   else
-    " it's just a normal block
+    " it's just a normal block, ignore the parsed content
     let body = substitute(body, ';\ze.', ";\n", 'g')
     call sj#ReplaceCols(from, to, "{\n".body."\n}")
   endif
