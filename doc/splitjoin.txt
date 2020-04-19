@@ -1230,6 +1230,31 @@ particular scenario.
 In order to silence these messages, if you find them annoying, set this
 variable to 1.
 
+                                            *splitjoin_disabled_split_callbacks*
+>
+    let g:splitjoin_disabled_split_callbacks = ['sj#html#SplitAttributes']
+<
+Default value: []
+
+This setting allows you to disable a particular split type by adding its
+function callback to the list. To find the specific name to disable, you'd
+need to dig into the source code of the plugin in
+`ftplugin/<filetype-name>/splitjoin.vim`. If you're not sure which callback
+performs which split, try disabling them one by one until you've got the
+behaviour you're looking for.
+
+                                             *splitjoin_disabled_join_callbacks*
+>
+    let g:splitjoin_disabled_join_callbacks = ['sj#html#JoinAttributes']
+<
+Default value: []
+
+This setting allows you to disable a particular join type by adding its
+function callback to the list. To find the specific name to disable, you'd
+need to dig into the source code of the plugin in
+`ftplugin/<filetype-name>/splitjoin.vim`. If you're not sure which callback
+performs which join, try disabling them one by one until you've got the
+behaviour you're looking for.
 
                                                 *splitjoin_normalize_whitespace*
 >

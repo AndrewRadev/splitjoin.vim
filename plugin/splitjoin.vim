@@ -9,7 +9,10 @@ set cpo&vim
 " Defaults:
 " =========
 
-call sj#settings#SetDefault('quiet',                                   0)
+call sj#settings#SetDefault('quiet',                    0)
+call sj#settings#SetDefault('disabled_split_callbacks', [])
+call sj#settings#SetDefault('disabled_join_callbacks',  [])
+
 call sj#settings#SetDefault('normalize_whitespace',                    1)
 call sj#settings#SetDefault('trailing_comma',                          0)
 call sj#settings#SetDefault('align',                                   0)
@@ -64,12 +67,18 @@ function! s:Split()
   " expand any folds under the cursor, or we might replace the wrong area
   silent! foldopen
 
+  let disabled_callbacks = sj#settings#Read('disabled_split_callbacks')
+
   let saved_view = winsaveview()
   let saved_whichwrap = &whichwrap
   set whichwrap-=l
 
   if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
   for callback in b:splitjoin_split_callbacks
+    if index(disabled_callbacks, callback) >= 0
+      continue
+    endif
+
     try
       call sj#PushCursor()
 
@@ -105,12 +114,18 @@ function! s:Join()
   " expand any folds under the cursor, or we might replace the wrong area
   silent! foldopen
 
+  let disabled_callbacks = sj#settings#Read('disabled_join_callbacks')
+
   let saved_view = winsaveview()
   let saved_whichwrap = &whichwrap
   set whichwrap-=l
 
   if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
   for callback in b:splitjoin_join_callbacks
+    if index(disabled_callbacks, callback) >= 0
+      continue
+    endif
+
     try
       call sj#PushCursor()
 
