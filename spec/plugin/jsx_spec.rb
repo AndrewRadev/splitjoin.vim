@@ -28,6 +28,19 @@ describe "JSX" do
       assert_file_contents 'let button = <Button />;'
     end
 
+    specify "joining on a single line" do
+      set_file_contents 'let button = <Button prop="value"></Button>;'
+      setup_filetype
+
+      vim.search 'Button'
+      join
+      remove_indentation
+
+      assert_file_contents <<~EOF
+        let button = <Button prop="value" />;
+      EOF
+    end
+
     specify "with attributes" do
       set_file_contents 'let button = <Button foo="bar" bar="baz" />;'
       setup_filetype

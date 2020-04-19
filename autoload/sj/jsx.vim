@@ -25,21 +25,13 @@ function! sj#jsx#JoinHtmlTag()
     return 0
   endif
 
-  let tag = sj#GetMotion('vat')
-  let body = sj#GetMotion('vit')
+  let tag               = sj#GetMotion('vat')
+  let tag_name          = matchstr(tag, '^<\zs\k[^>/[:space:]]*')
+  let empty_tag_pattern = '>\_s*</\s*'.tag_name.'\s*>$'
 
-  if len(split(tag, "\n")) == 1
-    " then it's just one line, ignore
-    return 0
-  endif
-
-  let body = sj#Trim(body)
-
-  if body == ''
+  if tag =~ empty_tag_pattern
     " then there's no contents, let's turn it into a self-closing tag
-    let tag_name = matchstr(tag, '^<\zs\k[^>/[:space:]]*')
-    let self_closing_tag = substitute(tag, '>\_s\+</\s*'.tag_name.'\s*>$', ' />', '')
-
+    let self_closing_tag = substitute(tag, empty_tag_pattern, ' />', '')
     if self_closing_tag == tag
       " then the substitution failed for some reason
       return 0
@@ -47,7 +39,15 @@ function! sj#jsx#JoinHtmlTag()
 
     call sj#ReplaceMotion('vat', self_closing_tag)
   else
+    " There's contents in the tag, let's try to single-line it
+    if len(split(tag, "\n")) == 1
+      " already single-line, nothing to do
+      return 0
+    endif
+
+    let body = sj#GetMotion('vit')
     let body = join(sj#TrimList(split(body, "\n")), ' ')
+
     call sj#ReplaceMotion('vit', body)
   end
 
