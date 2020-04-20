@@ -7,19 +7,19 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Usage..................................: |splitjoin-usage|
 
     C......................................: |splitjoin-c|
-    CSS....................................: |splitjoin-css|
     Coffeescript...........................: |splitjoin-coffee|
+    CSS....................................: |splitjoin-css|
     Elixir.................................: |splitjoin-elixir|
     Eruby..................................: |splitjoin-eruby|
     Go.....................................: |splitjoin-go|
     HAML...................................: |splitjoin-haml|
-    HTML...................................: |splitjoin-html|
     Handlebars.............................: |splitjoin-handlebars|
-    JSX/TSX................................: |splitjoin-jsx| |splitjoin-tsx|
+    HTML...................................: |splitjoin-html|
     Javascript.............................: |splitjoin-javascript| |splitjoin-json|
+    JSX/TSX................................: |splitjoin-jsx| |splitjoin-tsx|
     Lua....................................: |splitjoin-lua|
-    PHP....................................: |splitjoin-php|
     Perl...................................: |splitjoin-perl|
+    PHP....................................: |splitjoin-php|
     Python.................................: |splitjoin-python|
     Ruby...................................: |splitjoin-ruby|
     Rust...................................: |splitjoin-rust|
@@ -224,35 +224,6 @@ Function calls ~
 <
 
 ==============================================================================
-CSS                                                              *splitjoin-css*
-
-These also work for SCSS and LESS -- see |splitjoin-scss|, |splitjoin-less|.
-
-Style definitions ~
->
-    a { color: #0000FF; text-decoration: underline; }
-
-    a {
-      color: #0000FF;
-      text-decoration: underline;
-    }
-
-Multiline selectors ~
->
-    h1,
-    h2,
-    h3 {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    h1, h2, h3 {
-      font-size: 18px;
-      font-weight: bold;
-    }
-<
-
-==============================================================================
 COFFEESCRIPT                                                  *splitjoin-coffee*
 
 Functions ~
@@ -328,6 +299,35 @@ splitting.
     bar = '''
       example with single quotes
     '''
+<
+
+==============================================================================
+CSS                                                              *splitjoin-css*
+
+These also work for SCSS and LESS -- see |splitjoin-scss|, |splitjoin-less|.
+
+Style definitions ~
+>
+    a { color: #0000FF; text-decoration: underline; }
+
+    a {
+      color: #0000FF;
+      text-decoration: underline;
+    }
+
+Multiline selectors ~
+>
+    h1,
+    h2,
+    h3 {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    h1, h2, h3 {
+      font-size: 18px;
+      font-weight: bold;
+    }
 <
 
 ==============================================================================
@@ -423,6 +423,27 @@ Evaluated ruby ~
 <
 
 ==============================================================================
+HANDLEBARS                                                *splitjoin-handlebars*
+
+Components ~
+>
+    {{some/component-name foo=bar bar=baz}}
+
+    {{some/component-name
+      foo=bar
+      bar=baz
+    }}
+<
+Block components ~
+>
+    {{#component-name foo=bar}}Some content{{/component-name}}
+
+    {{#component-name foo=bar}}
+      Some contents
+    {{/component-name}}
+<
+
+==============================================================================
 HTML                                                            *splitjoin-html*
 
 This works for other HTML-like languages as well: XML, Eruby, JSX, TSX, Vue
@@ -449,46 +470,6 @@ Attributes ~
       Click me!
     </button>
 <
-
-==============================================================================
-HANDLEBARS                                                *splitjoin-handlebars*
-
-Components ~
->
-    {{some/component-name foo=bar bar=baz}}
-
-    {{some/component-name
-      foo=bar
-      bar=baz
-    }}
-<
-Block components ~
->
-    {{#component-name foo=bar}}Some content{{/component-name}}
-
-    {{#component-name foo=bar}}
-      Some contents
-    {{/component-name}}
-<
-
-==============================================================================
-JSX                                                              *splitjoin-jsx*
-                                                                 *splitjoin-tsx*
-
-Both HTML and Javascript splitters and joiners work for JSX and TSX. There's
-also one additional transformation:
-
-Self-closing tags ~
->
-    let button = <Button />;
-
-    let button = <Button>
-        </Button>;
-
-
-Note that, in Vim, these languages are supported within the  `javascrptreact`
-and `typescriptreact` filetypes, so if callbacks don't work right,
-double-check the detected filetype of the buffer.
 
 ==============================================================================
 JAVASCRIPT                                                *splitjoin-javascript*
@@ -561,6 +542,25 @@ Fat-arrow functions ~
 <
 
 ==============================================================================
+JSX                                                              *splitjoin-jsx*
+                                                                 *splitjoin-tsx*
+
+Both HTML and Javascript splitters and joiners work for JSX and TSX. There's
+also one additional transformation:
+
+Self-closing tags ~
+>
+    let button = <Button />;
+
+    let button = <Button>
+        </Button>;
+
+
+Note that, in Vim, these languages are supported within the  `javascrptreact`
+and `typescriptreact` filetypes, so if callbacks don't work right,
+double-check the detected filetype of the buffer.
+
+==============================================================================
 LUA                                                              *splitjoin-lua*
 
 For Lua, only splitting and joining functions is implemented at this point.
@@ -584,63 +584,6 @@ Functions ~
 
     local something = other(function (one, two) print("foo") end)
 <
-
-==============================================================================
-PHP                                                              *splitjoin-php*
-
-Arrays ~
->
-    foo = array('one' => 'two', 'two' => 'three')
-
-    foo = array(
-      'one' => 'two',
-      'two' => 'three'
-    )
-<
-Short arrays ~
->
-    $one = ['two', 'three', 'four']
-
-    $one = [
-      'two',
-      'three',
-      'four'
-    ]
-<
-If-clauses ~
->
-    if ($foo) { $a = "bar"; }
-
-    if ($foo) {
-      $a = "bar";
-    }
-<
-PHP markers ~
->
-    <?php echo "OK"; ?>
-
-    <?php
-    echo "OK";
-    ?>
-<
-Method calls~
-
-Affects all the arrows after the cursor when |splitjoin_php_method_chain_full|
-is set to 1. Otherwise, it affects only a single arrow (the default
-behaviour).
->
-    $var = $one->two->three()->four();
-
-    $var = $one
-        ->two->three()->four();
-
-    # OR
-
-    $var = $one
-        ->two
-        ->three()
-        ->four();
-
 
 ==============================================================================
 PERL                                                            *splitjoin-perl*
@@ -707,6 +650,63 @@ Word lists ~
       three
     );
 <
+
+==============================================================================
+PHP                                                              *splitjoin-php*
+
+Arrays ~
+>
+    foo = array('one' => 'two', 'two' => 'three')
+
+    foo = array(
+      'one' => 'two',
+      'two' => 'three'
+    )
+<
+Short arrays ~
+>
+    $one = ['two', 'three', 'four']
+
+    $one = [
+      'two',
+      'three',
+      'four'
+    ]
+<
+If-clauses ~
+>
+    if ($foo) { $a = "bar"; }
+
+    if ($foo) {
+      $a = "bar";
+    }
+<
+PHP markers ~
+>
+    <?php echo "OK"; ?>
+
+    <?php
+    echo "OK";
+    ?>
+<
+Method calls~
+
+Affects all the arrows after the cursor when |splitjoin_php_method_chain_full|
+is set to 1. Otherwise, it affects only a single arrow (the default
+behaviour).
+>
+    $var = $one->two->three()->four();
+
+    $var = $one
+        ->two->three()->four();
+
+    # OR
+
+    $var = $one
+        ->two
+        ->three()
+        ->four();
+
 
 ==============================================================================
 PYTHON                                                        *splitjoin-python*
