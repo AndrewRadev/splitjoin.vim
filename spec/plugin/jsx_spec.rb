@@ -65,13 +65,13 @@ describe "JSX" do
         </Button>;
       EOF
 
+      vim.search '<Button'
       join
       remove_indentation
 
       assert_file_contents <<~EOF
-        let button = <Button
-        foo="bar"
-        bar="baz" />;
+        let button = <Button foo="bar" bar="baz">
+        </Button>;
       EOF
 
       join
