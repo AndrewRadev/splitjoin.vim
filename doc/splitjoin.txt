@@ -15,6 +15,7 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     HAML...................................: |splitjoin-haml|
     HTML...................................: |splitjoin-html|
     Handlebars.............................: |splitjoin-handlebars|
+    JSX/TSX................................: |splitjoin-jsx| |splitjoin-tsx|
     Javascript.............................: |splitjoin-javascript| |splitjoin-json|
     Lua....................................: |splitjoin-lua|
     PHP....................................: |splitjoin-php|
@@ -469,6 +470,25 @@ Block components ~
       Some contents
     {{/component-name}}
 <
+
+==============================================================================
+JSX                                                              *splitjoin-jsx*
+                                                                 *splitjoin-tsx*
+
+Both HTML and Javascript splitters and joiners work for JSX and TSX. There's
+also one additional transformation:
+
+Self-closing tags ~
+>
+    let button = <Button />;
+
+    let button = <Button>
+        </Button>;
+
+
+Note that, in Vim, these languages are supported within the  `javascrptreact`
+and `typescriptreact` filetypes, so if callbacks don't work right,
+double-check the detected filetype of the buffer.
 
 ==============================================================================
 JAVASCRIPT                                                *splitjoin-javascript*
