@@ -6,12 +6,13 @@ let b:splitjoin_split_callbacks = [
       \ 'sj#js#SplitArray',
       \ 'sj#js#SplitFunction',
       \ 'sj#js#SplitOneLineIf',
-      \ 'sj#js#SplitArgs'
+      \ 'sj#js#SplitArgs',
+      \ 'sj#jsx#SplitSelfClosingTag'
       \ ]
 
 let b:splitjoin_join_callbacks = [
       \ 'sj#html#JoinAttributes',
-      \ 'sj#html#JoinTags',
+      \ 'sj#jsx#JoinHtmlTag',
       \ 'sj#js#JoinFatArrowFunction',
       \ 'sj#js#JoinArray',
       \ 'sj#js#JoinArgs',

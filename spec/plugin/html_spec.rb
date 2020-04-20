@@ -22,6 +22,25 @@ describe "html" do
     assert_file_contents joined_html
   end
 
+  specify "tags in other content" do
+    set_file_contents 'One <div class="foo">Two</div> Three'
+    vim.search 'div'
+    split
+    remove_indentation
+
+    assert_file_contents <<~EOF
+      One <div class="foo">
+      Two
+      </div> Three
+    EOF
+
+    vim.search 'div'
+    join
+    remove_indentation
+
+    assert_file_contents 'One <div class="foo">Two</div> Three'
+  end
+
   specify "tags" do
     joined_html = '<div class="foo">bar</div>'
 
