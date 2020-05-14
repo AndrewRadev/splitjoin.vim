@@ -99,4 +99,48 @@ describe "elixir" do
       EOF
     end
   end
+
+  specify "arrays" do
+    set_file_contents <<~EOF
+      [a, b, c]
+    EOF
+
+    split
+
+    assert_file_contents <<~EOF
+      [
+        a,
+        b,
+        c
+      ]
+    EOF
+
+    vim.search('[')
+    join
+
+    assert_file_contents <<~EOF
+      [a, b, c]
+    EOF
+
+    set_file_contents <<~EOF
+      [a: 1, b: 2, c: %{a: 1, b: 2}]
+    EOF
+
+    split
+
+    assert_file_contents <<~EOF
+      [
+        a: 1,
+        b: 2,
+        c: %{a: 1, b: 2}
+      ]
+    EOF
+
+    vim.search('[')
+    join
+
+    assert_file_contents <<~EOF
+      [a: 1, b: 2, c: %{a: 1, b: 2}]
+    EOF
+  end
 end
