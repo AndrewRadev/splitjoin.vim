@@ -11,11 +11,12 @@ Vimrunner::RSpec.configure do |config|
     vim = Vimrunner.start_gvim
     vim.add_plugin(plugin_path, 'plugin/splitjoin.vim')
 
-    vim.add_plugin(plugin_path.join('spec/support/rust.vim'))
-    vim.append_runtimepath(plugin_path.join('spec/support/rust.vim/after'))
+    # Up-to-date filetype support:
+    vim.prepend_runtimepath(plugin_path.join('spec/support/rust.vim'))
+    vim.prepend_runtimepath(plugin_path.join('spec/support/vim-javascript'))
 
-    vim.add_plugin(plugin_path.join('spec/support/vim-javascript'))
-    vim.append_runtimepath(plugin_path.join('spec/support/vim-javascript/after'))
+    # Alignment tool for alignment tests:
+    vim.add_plugin(plugin_path.join('spec/support/tabular'), 'plugin/Tabular.vim')
 
     if vim.echo('exists(":packadd")').to_i > 0
       vim.command('packadd matchit')

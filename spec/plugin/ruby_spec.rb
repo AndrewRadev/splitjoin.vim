@@ -459,8 +459,6 @@ describe "ruby" do
     end
 
     it "aligns thens in supercompact cases" do
-      skip 'we need to add an alignment tool to the spec configuration'
-
       set_file_contents <<~EOF
         case
         when cond1
@@ -472,6 +470,7 @@ describe "ruby" do
         end
       EOF
 
+      vim.command('let b:splitjoin_align = 1')
       join
 
       assert_file_contents <<~EOF

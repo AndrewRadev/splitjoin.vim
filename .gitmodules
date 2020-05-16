@@ -4,3 +4,6 @@
 [submodule "spec/support/vim-javascript"]
 	path = spec/support/vim-javascript
 	url = https://github.com/pangloss/vim-javascript
+[submodule "spec/support/tabular"]
+	path = spec/support/tabular
+	url = https://github.com/godlygeek/tabular
