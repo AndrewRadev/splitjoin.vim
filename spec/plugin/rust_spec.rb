@@ -87,6 +87,8 @@ describe "rust" do
   end
 
   specify "question mark operator for Option" do
+    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+
     set_file_contents <<~EOF
       fn test() -> Option<T> {
           let thing = Some(3)?;

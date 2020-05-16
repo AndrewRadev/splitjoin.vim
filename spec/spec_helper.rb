@@ -18,6 +18,9 @@ Vimrunner::RSpec.configure do |config|
     # Alignment tool for alignment tests:
     vim.add_plugin(plugin_path.join('spec/support/tabular'), 'plugin/Tabular.vim')
 
+    # bootstrap filetypes
+    vim.command 'autocmd BufNewFile,BufRead *.rs set filetype=rust'
+
     if vim.echo('exists(":packadd")').to_i > 0
       vim.command('packadd matchit')
     else
