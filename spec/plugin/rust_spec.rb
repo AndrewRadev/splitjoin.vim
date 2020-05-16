@@ -3,10 +3,6 @@ require 'spec_helper'
 describe "rust" do
   let(:filename) { 'test.rs' }
 
-  before :each do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-  end
-
   specify "match clauses with trailing comma" do
     set_file_contents <<~EOF
       match one {
