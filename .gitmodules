@@ -1,3 +1,6 @@
 [submodule "spec/support/rust.vim"]
 	path = spec/support/rust.vim
 	url = https://github.com/rust-lang/rust.vim
+[submodule "spec/support/vim-javascript"]
+	path = spec/support/vim-javascript
+	url = https://github.com/pangloss/vim-javascript

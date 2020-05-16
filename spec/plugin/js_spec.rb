@@ -112,8 +112,6 @@ describe "javascript" do
     end
 
     specify "in an object" do
-      pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
       set_file_contents 'let foo = {"key": bar => "baz"};'
 
       vim.search 'bar'
@@ -131,8 +129,6 @@ describe "javascript" do
     end
 
     specify "gives priority to objects in argument list" do
-      pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
       set_file_contents 'const func = ({ a, b, c }) => a + b'
 
       vim.search 'b,'

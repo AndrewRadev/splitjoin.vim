@@ -14,6 +14,9 @@ Vimrunner::RSpec.configure do |config|
     vim.add_plugin(plugin_path.join('spec/support/rust.vim'))
     vim.append_runtimepath(plugin_path.join('spec/support/rust.vim/after'))
 
+    vim.add_plugin(plugin_path.join('spec/support/vim-javascript'))
+    vim.append_runtimepath(plugin_path.join('spec/support/vim-javascript/after'))
+
     if vim.echo('exists(":packadd")').to_i > 0
       vim.command('packadd matchit')
     else
