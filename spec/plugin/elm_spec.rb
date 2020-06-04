@@ -11,23 +11,25 @@ describe 'elm' do
   end
 
   describe 'splitting/joining a list' do
-    specify 'splitting a list' do
-      set_file_contents <<~EOF
-        list =
-            [1, 2, 3, 4]
-      EOF
+    describe 'splitting a list' do
+      specify 'with a simple list' do
+        set_file_contents <<~EOF
+          list =
+              [1, 2, 3, 4]
+        EOF
 
-      vim.search '['
-      split
+        vim.search '['
+        split
 
-      assert_file_contents <<~EOF
-        list =
-            [ 1
-            , 2
-            , 3
-            , 4
-            ]
-      EOF
+        assert_file_contents <<~EOF
+          list =
+              [ 1
+              , 2
+              , 3
+              , 4
+              ]
+        EOF
+      end
     end
   end
 end
