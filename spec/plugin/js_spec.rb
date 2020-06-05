@@ -60,6 +60,23 @@ describe "javascript" do
       assert_file_contents 'let foo = (one, two) => "bar";'
     end
 
+    specify "arguments, no curly braces, no semicolon at the end" do
+      set_file_contents 'let foo = arg => foo(arg)'
+
+      vim.search 'arg'
+      split
+
+      assert_file_contents <<~EOF
+        let foo = arg => {
+          return foo(arg)
+        }
+      EOF
+
+      join
+
+      assert_file_contents 'let foo = arg => foo(arg)'
+    end
+
     specify "one argument, curly braces, no semicolon at the end" do
       set_file_contents 'let foo = arg => { return "bar" }'
 

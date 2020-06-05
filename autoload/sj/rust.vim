@@ -200,8 +200,7 @@ function! sj#rust#SplitExprClosure()
   endif
 
   let start_col = col('.')
-  call s:JumpBracketsTill('\%([,;]\|$\)')
-  let end_col = col('.') - 1
+  let end_col = s:JumpBracketsTill('\%([,;]\|$\)')
 
   let closure_contents = sj#GetCols(start_col, end_col)
   call sj#ReplaceCols(start_col, end_col, "{\n".closure_contents."\n}")
@@ -504,50 +503,65 @@ endfunction
 " Note: special handling for < and >
 "
 function! s:JumpBracketsTill(end_pattern)
-  let opening_brackets = '([<{"'''
-  let closing_brackets = ')]>}"'''
+  try
+    " ensure we can't go to the next line:
+    let saved_whichwrap = &whichwrap
+    set whichwrap-=l
+    " ensure we can go to the very end of the line
+    let saved_virtualedit = &virtualedit
+    set virtualedit=onemore
 
-  let original_whichwrap = &whichwrap
-  set whichwrap+=l
+    let opening_brackets = '([<{"'''
+    let closing_brackets = ')]>}"'''
 
-  let remainder_of_line = s:RemainderOfLine()
-  while remainder_of_line !~ '^'.a:end_pattern
-    let [opening_bracket_match, offset] = s:BracketMatch(remainder_of_line, opening_brackets)
-    let [closing_bracket_match, _]      = s:BracketMatch(remainder_of_line, closing_brackets)
-
-    if opening_bracket_match < 0 && closing_bracket_match >= 0
-      let closing_bracket = closing_brackets[closing_bracket_match]
-      if closing_bracket == '>'
-        " an unmatched > in this context means comparison do nothing
-      else
-        " there's an extra closing bracket from outside the list, bail out
-        break
-      endif
-    elseif opening_bracket_match >= 0
-      " then try to jump to the closing bracket
-      let opening_bracket = opening_brackets[opening_bracket_match]
-      let closing_bracket = closing_brackets[opening_bracket_match]
-
-      " first, go to the opening bracket
-      if offset > 0
-        exe "normal! ".offset."l"
-      end
-
-      if opening_bracket == closing_bracket
-        " same bracket (quote), search for it, unless it's escaped
-        call search('\\\@<!\V'.closing_bracket, 'W', line('.'))
-      else
-        " different closing, use searchpair
-        call searchpair('\V'.opening_bracket, '', '\V'.closing_bracket, 'W', '', line('.'))
-        let rem = s:RemainderOfLine()
-      endif
-    endif
-
-    normal! l
     let remainder_of_line = s:RemainderOfLine()
-  endwhile
+    while remainder_of_line !~ '^'.a:end_pattern
+          \ && remainder_of_line !~ '^\s*$'
+      let [opening_bracket_match, offset] = s:BracketMatch(remainder_of_line, opening_brackets)
+      let [closing_bracket_match, _]      = s:BracketMatch(remainder_of_line, closing_brackets)
 
-  let &whichwrap = original_whichwrap
+      if opening_bracket_match < 0 && closing_bracket_match >= 0
+        let closing_bracket = closing_brackets[closing_bracket_match]
+        if closing_bracket == '>'
+          " an unmatched > in this context means comparison do nothing
+        else
+          " there's an extra closing bracket from outside the list, bail out
+          break
+        endif
+      elseif opening_bracket_match >= 0
+        " then try to jump to the closing bracket
+        let opening_bracket = opening_brackets[opening_bracket_match]
+        let closing_bracket = closing_brackets[opening_bracket_match]
+
+        " first, go to the opening bracket
+        if offset > 0
+          exe "normal! ".offset."l"
+        end
+
+        if opening_bracket == closing_bracket
+          " same bracket (quote), search for it, unless it's escaped
+          call search('\\\@<!\V'.closing_bracket, 'W', line('.'))
+        else
+          " different closing, use searchpair
+          call searchpair('\V'.opening_bracket, '', '\V'.closing_bracket, 'W', '', line('.'))
+        endif
+      endif
+
+      normal! l
+      let remainder_of_line = s:RemainderOfLine()
+      if remainder_of_line =~ '^$'
+        " we have no more content, the current column is the end of the expression
+        return col('.')
+      endif
+    endwhile
+
+    " we're past the final column of the expression, so return the previous
+    " one:
+    return col('.') - 1
+  finally
+    let &whichwrap = saved_whichwrap
+    let &virtualedit = saved_virtualedit
+  endtry
 endfunction
 
 function! s:RemainderOfLine()
