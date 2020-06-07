@@ -400,9 +400,12 @@ function! sj#SearchSkip(pattern, skip, ...)
   let stopline = (a:0 >= 2) ? a:2 : 0
   let timeout  = (a:0 >= 3) ? a:3 : 0
 
-  " just delegate to search() directly if no skip expression was given
   if skip == ''
+    " no skip, can delegate to native search()
     return search(pattern, flags, stopline, timeout)
+  elseif has('patch-8.2.915')
+    " the native search() function can do this now:
+    return search(pattern, flags, stopline, timeout, skip)
   endif
 
   " search for the pattern, skipping a match if necessary
