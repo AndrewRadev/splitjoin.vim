@@ -1,11 +1,37 @@
-function! sj#elm#SplitList()
+function! sj#elm#LocateOutermostBracesAroundCursor()
+  call sj#PushCursor()
+
   let [from, to] = sj#LocateBracesAroundCursor('[', ']')
+
+  while from > 0
+    call cursor(line('.'), from - 1)
+
+    let [newFrom, newTo] = sj#LocateBracesAroundCursor('[', ']')
+
+    if newFrom < 0
+      break
+    endif
+
+    let [from, to] = [newFrom, newTo]
+  endwhile
+
+  call sj#PopCursor()
+
+  return [from, to]
+endfunction
+
+function! sj#elm#SplitList()
+  let [from, to] = sj#elm#LocateOutermostBracesAroundCursor()
 
   if from < 0
     return 0
   endif
 
   let args = sj#elm#ListArgs(from, to)
+
+  if len(args) < 2
+    return 0
+  endif
 
   let replacement = join(args, "\n, ")
 
@@ -15,7 +41,29 @@ function! sj#elm#SplitList()
   return 1
 endfunction
 
+function! sj#elm#SplitTuple()
+  let [from, to] = sj#LocateBracesAroundCursor('(', ')')
+
+  if from < 0
+    return 0
+  endif
+
+  let args = sj#elm#ListArgs(from, to)
+
+  if len(args) < 2
+    return 0
+  endif
+
+  let replacement = join(args, "\n, ")
+
+  let replacement = "( ".replacement."\n)"
+  call sj#ReplaceCols(from, to, replacement)
+
+  return 1
+endfunction
+
 function sj#elm#ListArgs(from, to)
+  call sj#PushCursor()
   let bufferBefore = @@
 
   call cursor(line('.'), a:from + 1)
@@ -43,6 +91,7 @@ function sj#elm#ListArgs(from, to)
   endif
 
   let @@ = bufferBefore
+  call sj#PopCursor()
 
   return args
 endfunction

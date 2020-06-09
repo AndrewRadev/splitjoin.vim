@@ -86,6 +86,36 @@ describe 'elm' do
         EOF
       end
 
+      specify 'with a sub-list in a list of list' do
+        set_file_contents <<~EOF
+          list =
+              [ [123, 456]
+              , [78, 89, 90]
+              ]
+        EOF
+
+        vim.search '123'
+        split
+
+        assert_file_contents <<~EOF
+          list =
+              [ [ 123
+              , 456
+              ]
+              , [78, 89, 90]
+              ]
+        EOF
+        # there is kind of a bug in the syntax here
+        # it should indent the sub-list instead, like:
+        #
+        # list =
+        #     [ [ 123
+        #       , 456
+        #     ]
+        #     , [78, 89, 90]
+        #     ]
+      end
+
       specify 'with a list of tuples' do
         set_file_contents <<~EOF
           list =
@@ -119,6 +149,21 @@ describe 'elm' do
               ]
         EOF
       end
+
+      specify 'with a list of only one element' do
+        set_file_contents <<~EOF
+          list =
+              [(1, "\\"two, three, four")]
+        EOF
+
+        vim.search '['
+        split
+
+        assert_file_contents <<~EOF
+          list =
+              [(1, "\\"two, three, four")]
+        EOF
+      end
     end
 
     xspecify 'joining a list' do
@@ -138,6 +183,61 @@ describe 'elm' do
         list =
           [1, 2, 3, 4]
       EOF
+    end
+  end
+
+  describe 'splitting/joining a tuple' do
+    describe 'splitting a tuple' do
+      specify 'with a simple tuple' do
+        set_file_contents <<~EOF
+          tuple =
+              (123, "blah", pi)
+        EOF
+
+        vim.search '('
+        split
+
+        assert_file_contents <<~EOF
+          tuple =
+              ( 123
+              , "blah"
+              , pi
+              )
+        EOF
+      end
+
+      specify 'with a tuple holding tricky content' do
+        set_file_contents <<~EOF
+          tuple =
+              (("\\" (booh, gotcha!)"), [(pi / 6, rotate <| square)], (12, 43))
+        EOF
+
+        vim.search '('
+        split
+
+        assert_file_contents <<~EOF
+          tuple =
+              ( ("\\" (booh, gotcha!)")
+              , [(pi / 6, rotate <| square)]
+              , (12, 43)
+              )
+        EOF
+      end
+
+      specify 'with something that is not a tuple' do
+        set_file_contents <<~EOF
+          not_a_tuple =
+              ([1, 2, 3, 4] |> List.map ((*) 2))
+        EOF
+
+        vim.search '('
+        split
+
+        assert_file_contents <<~EOF
+          not_a_tuple =
+              ([1, 2, 3, 4] |> List.map ((*) 2))
+        EOF
+      end
     end
   end
 end
