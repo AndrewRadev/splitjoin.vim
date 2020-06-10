@@ -1,27 +1,60 @@
-function! sj#elm#LocateOutermostBracesAroundCursor()
+function! sj#elm#LocateClosestBraces(column)
   call sj#PushCursor()
 
-  let [from, to] = sj#LocateBracesAroundCursor('[', ']')
+  let skip = sj#SkipSyntax(['elmString', 'elmTripleString', 'elmComment'])
+  let currentLine = line('.')
 
-  while from > 0
-    call cursor(line('.'), from - 1)
+  call cursor(currentLine, a:column)
+  let from = searchpairpos('[{([]', '', '[})]]', 'bcn', skip, currentLine)
 
-    let [newFrom, newTo] = sj#LocateBracesAroundCursor('[', ']')
+  if from[0] == 0
+    call sj#PopCursor()
 
-    if newFrom < 0
-      break
-    endif
+    return [-1, -1]
+  end
 
-    let [from, to] = [newFrom, newTo]
-  endwhile
+  call cursor(from[0], from[1])
+  normal! %
+
+  if line('.') != currentLine
+    call sj#PopCursor()
+
+    return [-1, -1]
+  endif 
+
+  let to = col('.')
 
   call sj#PopCursor()
 
-  return [from, to]
+  return [from[1], to]
+endfunction
+
+function! sj#elm#LocateOutermostBraces(column)
+  if a:column < 1
+    return [-1, -1]
+  endif
+
+  let currentMatch = sj#elm#LocateClosestBraces(a:column)
+
+  if currentMatch[0] < 1
+    return [-1, -1]
+  endif
+
+  echomsg currentMatch
+
+  let betterMatch = sj#elm#LocateOutermostBraces(currentMatch[0] - 1)
+
+  echomsg betterMatch
+
+  if betterMatch[0] < 1
+    return currentMatch
+  endif
+
+  return betterMatch
 endfunction
 
 function! sj#elm#SplitList()
-  let [from, to] = sj#elm#LocateOutermostBracesAroundCursor()
+  let [from, to] = sj#elm#LocateOutermostBraces(col('.'))
 
   if from < 0
     return 0
@@ -35,28 +68,7 @@ function! sj#elm#SplitList()
 
   let replacement = join(args, "\n, ")
 
-  let replacement = "[ ".replacement."\n]"
-  call sj#ReplaceCols(from, to, replacement)
-
-  return 1
-endfunction
-
-function! sj#elm#SplitTuple()
-  let [from, to] = sj#LocateBracesAroundCursor('(', ')')
-
-  if from < 0
-    return 0
-  endif
-
-  let args = sj#elm#ListArgs(from, to)
-
-  if len(args) < 2
-    return 0
-  endif
-
-  let replacement = join(args, "\n, ")
-
-  let replacement = "( ".replacement."\n)"
+  let replacement = sj#elm#CharAt(from)." ".replacement."\n".sj#elm#CharAt(to)
   call sj#ReplaceCols(from, to, replacement)
 
   return 1
@@ -106,8 +118,12 @@ function sj#elm#CaptureWord()
   return @@
 endfunction
 
+function sj#elm#CharAt(column)
+  return getline('.')[a:column - 1]
+endfunction
+
 function sj#elm#CurrentChar()
-  return getline('.')[col('.') - 1]
+  return sj#elm#CharAt(col('.'))
 endfunction
 
 function sj#elm#AddToArgAndGetToNextWord(arg, newPart)

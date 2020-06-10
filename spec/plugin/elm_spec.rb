@@ -122,7 +122,7 @@ describe 'elm' do
               [(123, 456), (78, 89)]
         EOF
 
-        vim.search '['
+        vim.search '123'
         split
 
         assert_file_contents <<~EOF
@@ -220,6 +220,23 @@ describe 'elm' do
               ( ("\\" (booh, gotcha!)")
               , [(pi / 6, rotate <| square)]
               , (12, 43)
+              )
+        EOF
+      end
+
+      specify 'with a tuple holding a list' do
+        set_file_contents <<~EOF
+          tuple =
+              ([123, 456, 789], 12121)
+        EOF
+
+        vim.search '['
+        split
+
+        assert_file_contents <<~EOF
+          tuple =
+              ( [123, 456, 789]
+              , 12121
               )
         EOF
       end
