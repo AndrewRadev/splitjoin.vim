@@ -434,16 +434,43 @@ endfunction
 
 function! sj#rust#SplitIfLetIntoMatch()
   let if_let_pattern =  'if\s\+let\s\+\(.*\)\s\+=\s\+\(.\{-}\)\s*{'
+  let else_pattern = '}\s\+else\s\+{'
 
   if search(if_let_pattern, 'We', line('.')) <= 0
     return 0
   endif
 
   let match_line = substitute(getline('.'), if_let_pattern, "match \\2 {\n\\1 => {", '')
-  let body = sj#GetMotion('vi{')
+  let body = sj#Trim(sj#GetMotion('vi{'))
+
+  " multiple lines or ends with `;` -> wrap it in a block
+  if len(split(body, "\n")) > 1
+        \ || body =~ ';\s*\%(//.*\)\=$'
+    let body = "{\n".body."\n}"
+  endif
+
+  " Is there an else clause?
+  call sj#PushCursor()
+  let else_body = '()'
+  normal! %
+  if search(else_pattern, 'We', line('.')) > 0
+    let else_body = sj#Trim(sj#GetMotion('vi{'))
+
+    " multiple lines or ends with `;` -> wrap it in a block
+    if len(split(else_body, "\n")) > 1
+          \ || else_body =~ ';\s*\%(//.*\)\=$'
+      let else_body = "{\n".else_body."\n}"
+    endif
+
+    " Delete block, delete rest of line:
+    normal! "_da{T}"_D
+  endif
+
+  " Back to the if-let line:
+  call sj#PopCursor()
   call sj#ReplaceMotion('V', match_line)
   normal! j$
-  call sj#ReplaceMotion('Va{', " {\n".body."},\n_ => (),\n}")
+  call sj#ReplaceMotion('Va{', body.",\n_ => ".else_body.",\n}")
 
   return 1
 endfunction
@@ -461,24 +488,35 @@ function! sj#rust#JoinEmptyMatchIntoIfLet()
   " find end point
   normal! f{%
   let outer_end_lineno = line('.')
-  let inner_end_lineno = prevnonblank(outer_end_lineno - 1)
-  if getline(inner_end_lineno) =~ '^\s*_\s*=>\s*(),\=$'
-    " it's a default match, ignore this one
-    let inner_end_lineno = prevnonblank(inner_end_lineno - 1)
-  endif
 
-  if inner_end_lineno == 0
-    " No inner end } found
-    return 0
-  endif
-  if getline(inner_end_lineno) !~ '^\s*},\=\s*$'
-    " not a }
+  let inner_start_lineno = search(pattern_pattern, 'Wb', outer_start_lineno)
+  if inner_start_lineno <= 0
     return 0
   endif
 
-  exe inner_end_lineno
-  normal! 0f}%
   let inner_start_lineno = line('.')
+  if getline(inner_start_lineno) =~ '^\s*_\s*=>'
+    " it's a default match, ignore this one for now
+    let inner_start_lineno = search(pattern_pattern, 'Wb', outer_start_lineno)
+    if inner_start_lineno <= 0
+      return 0
+    endif
+
+    if getline(inner_start_lineno) =~ '^\s*_\s*=>'
+      " more than one _ => clause?
+      return 0
+    endif
+  endif
+
+  if getline(inner_start_lineno) =~ '{,\=\s*$'
+    " it's a block, mark its area:
+    exe inner_start_lineno
+    normal! 0f{%
+    let inner_end_lineno = line('.')
+  else
+    " not a }, so just one line
+    let inner_end_lineno = inner_start_lineno
+  endif
 
   if prevnonblank(inner_start_lineno - 1) != outer_start_lineno
     " the inner start is not immediately after the outer start
@@ -489,13 +527,44 @@ function! sj#rust#JoinEmptyMatchIntoIfLet()
   let match_pattern = sj#Trim(matchstr(getline(inner_start_lineno), pattern_pattern))
 
   " currently on inner start, so let's take its contents:
-  let body = sj#Trim(sj#GetMotion('vi{'))
+  if inner_start_lineno == inner_end_lineno
+    " one-line body, take everything up to the comma
+    exe inner_start_lineno
+    let body = substitute(getline('.'), '^\s*.\{-}\s\+=>\s*\(.\{-}\),\=\s*$', '\1', '')
+  else
+    " block body, take everything inside
+    let body = sj#Trim(sj#GetMotion('vi{'))
+  endif
+
+  " look for an else clause
+  call sj#PushCursor()
+  exe outer_start_lineno
+  let else_body = ''
+  if search('^\s*_\s*=>\s*\zs\S', 'W', outer_end_lineno) > 0
+    let fallback_value = strpart(getline('.'), col('.') - 1)
+
+    if fallback_value =~ '^{'
+      " the else-clause is going to be in a block
+      let else_body = sj#Trim(sj#GetMotion('vi{'))
+    elseif fallback_value =~ '^()'
+      " ignore it
+    else
+      " one-line value, remove its trailing comma and any comments
+      let else_body = substitute(fallback_value, ',\=\s*\%(//.*\)\=$', '', '')
+    endif
+  endif
+  call sj#PopCursor()
 
   " jump on outer start
   exe outer_start_lineno
   call sj#ReplaceMotion('V', 'if let '.match_pattern.' = '.match_value.' {')
   normal! 0f{
   call sj#ReplaceMotion('va{', "{\n".body."\n}")
+
+  if else_body != ''
+    normal! 0f{%
+    call sj#ReplaceMotion('V', "} else {\n".else_body."\n}")
+  endif
 
   return 1
 endfunction

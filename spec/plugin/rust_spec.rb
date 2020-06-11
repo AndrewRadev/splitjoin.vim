@@ -699,43 +699,179 @@ describe "rust" do
     EOF
   end
 
-  specify "if-let into match" do
-    set_file_contents <<~EOF
-      if let Some(value) = iterator.next() {
-          println!("do something with {}", value);
-      }
-    EOF
+  describe "if-let and match" do
+    specify "basic if-let into match" do
+      set_file_contents <<~EOF
+        if let Some(value) = iterator.next() {
+            println!("do something with {}", value);
+        }
+      EOF
 
-    vim.search('let')
-    split
+      vim.search('let')
+      split
 
-    assert_file_contents <<~EOF
-      match iterator.next() {
-          Some(value) =>  {
-              println!("do something with {}", value);
-          },
-          _ => (),
-      }
-    EOF
-  end
+      assert_file_contents <<~EOF
+        match iterator.next() {
+            Some(value) => {
+                println!("do something with {}", value);
+            },
+            _ => (),
+        }
+      EOF
+    end
 
-  specify "match into if-let" do
-    set_file_contents <<~EOF
-      match iterator.next() {
-          Some(value) =>  {
-              println!("do something with {}", value);
-          },
-          _ => (),
-      }
-    EOF
+    specify "if-let with else" do
+      set_file_contents <<~EOF
+        if let Some(value) = iterator.next() {
+            Some("Okay")
+        } else {
+            None
+        }
+      EOF
 
-    vim.search('match')
-    join
+      vim.search('let')
+      split
 
-    assert_file_contents <<~EOF
-      if let Some(value) = iterator.next() {
-          println!("do something with {}", value);
-      }
-    EOF
+      assert_file_contents <<~EOF
+        match iterator.next() {
+            Some(value) => Some("Okay"),
+            _ => None,
+        }
+      EOF
+    end
+
+    specify "if-let with multi-line else" do
+      set_file_contents <<~EOF
+        if let Some(value) = iterator.next() {
+            Some("Okay")
+        } else {
+            println!("None");
+            None
+        }
+      EOF
+
+      vim.search('let')
+      split
+
+      assert_file_contents <<~EOF
+        match iterator.next() {
+            Some(value) => Some("Okay"),
+            _ => {
+                println!("None");
+                None
+            },
+        }
+      EOF
+    end
+
+    specify "if-let with else with semicolon" do
+      set_file_contents <<~EOF
+        if let Some(value) = iterator.next() {
+            println!("do something with {}", value);
+        } else {
+            println!("Nothing!");
+        }
+      EOF
+
+      vim.search('let')
+      split
+
+      assert_file_contents <<~EOF
+        match iterator.next() {
+            Some(value) => {
+                println!("do something with {}", value);
+            },
+            _ => {
+                println!("Nothing!");
+            },
+        }
+      EOF
+    end
+
+    specify "empty match with block into if-let" do
+      set_file_contents <<~EOF
+        match iterator.next() {
+            Some(value) => {
+                println!("do something with {}", value);
+            },
+            _ => (),
+        }
+      EOF
+
+      vim.search('match')
+      join
+
+      assert_file_contents <<~EOF
+        if let Some(value) = iterator.next() {
+            println!("do something with {}", value);
+        }
+      EOF
+    end
+
+    specify "empty match on one line into if-let" do
+      set_file_contents <<~EOF
+        match iterator.next() {
+            Some(value) => Some(value * 2),
+            _ => (),
+        }
+      EOF
+
+      vim.search('match')
+      join
+
+      assert_file_contents <<~EOF
+        if let Some(value) = iterator.next() {
+            Some(value * 2)
+        }
+      EOF
+    end
+
+    specify "match into if-let-else" do
+      set_file_contents <<~EOF
+        match iterator.next() {
+            Some(value) => Some(value * 2),
+            _ => None,
+        }
+      EOF
+
+      vim.search('match')
+      join
+
+      assert_file_contents <<~EOF
+        if let Some(value) = iterator.next() {
+            Some(value * 2)
+        } else {
+            None
+        }
+      EOF
+    end
+
+    specify "match into multiline if-let-else" do
+      set_file_contents <<~EOF
+        match iterator.next() {
+            Some(value) => {
+                println!("if");
+                Some(value * 2)
+            },
+            _ => {
+                println!("if");
+                None
+            },
+        }
+      EOF
+
+      vim.search('match')
+      join
+
+      assert_file_contents <<~EOF
+        if let Some(value) = iterator.next() {
+            println!("if");
+            Some(value * 2)
+        } else {
+            println!("if");
+            None
+        }
+      EOF
+    end
   end
 end
