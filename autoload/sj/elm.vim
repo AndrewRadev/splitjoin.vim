@@ -68,7 +68,7 @@ function! sj#elm#SplitList()
 
   call cursor(line('.'), from)
   let [previousLine, previousCol] = searchpos('\S', 'bn')
-  if previousLine == line('.') && previousCol > 0 && sj#elm#CharAt(previousCol) == '='
+  if previousLine == line('.') && previousCol > 0 && sj#elm#CharAt(previousCol) =~ '[=:]'
     let replacement = "\n".replacement
     let from = previousCol + 1
   end

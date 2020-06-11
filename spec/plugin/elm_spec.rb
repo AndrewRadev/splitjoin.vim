@@ -312,6 +312,46 @@ describe 'elm' do
         EOF
       end
 
+      specify 'a tricky record definition' do
+        set_file_contents <<~EOF
+          type alias MyAwsomeType =
+              { id: {short: String, long: String}, count: Int }
+        EOF
+
+        vim.search 'long'
+        split
+
+        assert_file_contents <<~EOF
+          type alias MyAwsomeType =
+              { id: {short: String, long: String}
+              , count: Int
+              }
+        EOF
+
+        vim.search 'long'
+        split
+
+        assert_file_contents <<~EOF
+          type alias MyAwsomeType =
+              { id:
+              { short: String
+              , long: String
+              }
+              , count: Int
+              }
+        EOF
+        # there is kind of a bug in the syntax here
+        # it should indent the sub-record instead, like:
+        #
+        # type alias MyAwsomeType =
+        #     { id:
+        #         { short: String
+        #         , long: String
+        #         }
+        #     , count: Int
+        #     }
+      end
+
       specify 'a tricky record update' do
         set_file_contents <<~EOF
           my_updated_record =
