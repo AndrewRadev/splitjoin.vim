@@ -311,6 +311,41 @@ describe 'elm' do
               }
         EOF
       end
+
+      specify 'a tricky record update' do
+        set_file_contents <<~EOF
+          my_updated_record =
+              {my_previous_record | firstName = "John" |> String.toUpper, lastName = "Doe", address = { city = "Paris, 12e", zipCode = "75012", street: "123 rue de Picpus"}}
+        EOF
+
+        vim.search 'city'
+        split
+
+        assert_file_contents <<~EOF
+          my_updated_record =
+              { my_previous_record
+              | firstName = "John" |> String.toUpper
+              , lastName = "Doe"
+              , address = { city = "Paris, 12e", zipCode = "75012", street: "123 rue de Picpus"}
+              }
+        EOF
+
+        vim.search 'city'
+        split
+
+        assert_file_contents <<~EOF
+          my_updated_record =
+              { my_previous_record
+              | firstName = "John" |> String.toUpper
+              , lastName = "Doe"
+              , address =
+                  { city = "Paris, 12e"
+                  , zipCode = "75012"
+                  , street: "123 rue de Picpus"
+                  }
+              }
+        EOF
+      end
     end
   end
 end

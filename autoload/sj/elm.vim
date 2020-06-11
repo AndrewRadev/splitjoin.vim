@@ -50,6 +50,8 @@ function! sj#elm#LocateOutermostBraces(column)
 endfunction
 
 function! sj#elm#SplitList()
+  call sj#PushCursor()
+
   let [from, to] = sj#elm#LocateOutermostBraces(col('.'))
 
   if from < 0
@@ -64,8 +66,16 @@ function! sj#elm#SplitList()
 
   let replacement = join(parts, "\n")
 
-  let replacement = replacement
+  call cursor(line('.'), from)
+  let [previousLine, previousCol] = searchpos('\S', 'bn')
+  if previousLine == line('.') && previousCol > 0 && sj#elm#CharAt(previousCol) == '='
+    let replacement = "\n".replacement
+    let from = previousCol + 1
+  end
+
   call sj#ReplaceCols(from, to, replacement)
+
+  call sj#PopCursor()
 
   return 1
 endfunction
@@ -81,7 +91,6 @@ function sj#elm#SplitParts(from, to)
   let openingChar = sj#elm#CurrentChar()
   let parts = []
 
-  echomsg [openingCol, openingChar]
   while col('.') < a:to
     call searchpair('[{(\[]', ',\|\(\(<\)\@<!|\(>\)\@!\)', '[})\]]', '', skip, currentLine)
     let closingCol = col('.')
