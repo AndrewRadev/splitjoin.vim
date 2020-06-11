@@ -257,4 +257,60 @@ describe 'elm' do
       end
     end
   end
+
+  describe 'splitting/joining a record' do
+    describe 'splitting a record' do
+      specify 'a record type definition' do
+        set_file_contents <<~EOF
+          type alias MyAwesomeType =
+              {firstName : String, lastName : String}
+        EOF
+
+        vim.search '{'
+        split
+
+        assert_file_contents <<~EOF
+          type alias MyAwesomeType =
+              { firstName : String
+              , lastName : String
+              }
+        EOF
+      end
+
+      specify 'a record instanciation' do
+        set_file_contents <<~EOF
+          my_little_record =
+              {firstName = "John", lastName = "Doe"}
+        EOF
+
+        vim.search '{'
+        split
+
+        assert_file_contents <<~EOF
+          my_little_record =
+              { firstName = "John"
+              , lastName = "Doe"
+              }
+        EOF
+      end
+
+      specify 'a record update' do
+        set_file_contents <<~EOF
+          my_updated_record =
+              {my_previous_record | firstName = "John", lastName = "Doe"}
+        EOF
+
+        vim.search '{'
+        split
+
+        assert_file_contents <<~EOF
+          my_updated_record =
+              { my_previous_record
+              | firstName = "John"
+              , lastName = "Doe"
+              }
+        EOF
+      end
+    end
+  end
 end

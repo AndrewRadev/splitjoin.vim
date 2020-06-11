@@ -20,7 +20,7 @@ function! sj#elm#LocateClosestBraces(column)
     call sj#PopCursor()
 
     return [-1, -1]
-  endif 
+  endif
 
   let to = col('.')
 
@@ -40,11 +40,7 @@ function! sj#elm#LocateOutermostBraces(column)
     return [-1, -1]
   endif
 
-  echomsg currentMatch
-
   let betterMatch = sj#elm#LocateOutermostBraces(currentMatch[0] - 1)
-
-  echomsg betterMatch
 
   if betterMatch[0] < 1
     return currentMatch
@@ -60,63 +56,50 @@ function! sj#elm#SplitList()
     return 0
   endif
 
-  let args = sj#elm#ListArgs(from, to)
+  let parts = sj#elm#SplitParts(from, to)
 
-  if len(args) < 2
+  if len(parts) <= 2
     return 0
   endif
 
-  let replacement = join(args, "\n, ")
+  let replacement = join(parts, "\n")
 
-  let replacement = sj#elm#CharAt(from)." ".replacement."\n".sj#elm#CharAt(to)
+  let replacement = replacement
   call sj#ReplaceCols(from, to, replacement)
 
   return 1
 endfunction
 
-function sj#elm#ListArgs(from, to)
+function sj#elm#SplitParts(from, to)
   call sj#PushCursor()
-  let bufferBefore = @@
+  let skip = sj#SkipSyntax(['elmString', 'elmTripleString', 'elmComment'])
+  let currentLine = line('.')
 
-  call cursor(line('.'), a:from + 1)
+  call cursor(currentLine, a:from)
 
-  let args = []
-  let arg = ""
+  let openingCol = a:from
+  let openingChar = sj#elm#CurrentChar()
+  let parts = []
 
+  echomsg [openingCol, openingChar]
   while col('.') < a:to
-    let character = sj#elm#CurrentChar()
-    if character == ","
-      if len(arg) > 0
-        call add(args, arg)
-        let arg = ""
-      endif
-      call cursor(line('.'), col('.') + 1)
-    elseif character =~ "[\"'{\[(]"
-      let arg = sj#elm#AddToArgAndGetToNextWord(arg, sj#elm#CaptureMatching(character))
-    else
-      let arg = sj#elm#AddToArgAndGetToNextWord(arg, sj#elm#CaptureWord())
-    endif
+    call searchpair('[{(\[]', ',\|\(\(<\)\@<!|\(>\)\@!\)', '[})\]]', '', skip, currentLine)
+    let closingCol = col('.')
+    let closingChar = sj#elm#CurrentChar()
+    let part = openingChar.' '.sj#Trim(sj#GetByPosition([0, currentLine, openingCol + 1, 0], [0, currentLine, closingCol - 1, 0]))
+    call add(parts, part)
+    let openingCol = closingCol
+    let openingChar = closingChar
+    call cursor(currentLine, openingCol)
   endwhile
 
-  if len(arg) > 0
-    call add(args, arg)
-  endif
+  call add(parts, sj#elm#CharAt(a:to))
 
-  let @@ = bufferBefore
   call sj#PopCursor()
 
-  return args
+  return parts
 endfunction
 
-function sj#elm#CaptureMatching(character)
-  execute "normal! ya" . a:character
-  return @@
-endfunction
-
-function sj#elm#CaptureWord()
-  normal! yiw
-  return @@
-endfunction
 
 function sj#elm#CharAt(column)
   return getline('.')[a:column - 1]
@@ -124,22 +107,4 @@ endfunction
 
 function sj#elm#CurrentChar()
   return sj#elm#CharAt(col('.'))
-endfunction
-
-function sj#elm#AddToArgAndGetToNextWord(arg, newPart)
-  let newArg = sj#Trim(sj#elm#AddToArg(a:arg, a:newPart))
-  call cursor(line('.'), col('.') + len(a:newPart))
-  return newArg
-endfunction
-
-function sj#elm#AddToArg(arg, newPart)
-  if a:arg == ""
-    return a:newPart
-  endif
-
-  if a:newPart == "." || a:arg =~ "\\.$"
-    return join([a:arg, a:newPart], "")
-  else
-
-  return join([a:arg, a:newPart], " ")
 endfunction
