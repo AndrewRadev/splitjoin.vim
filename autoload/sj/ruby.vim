@@ -1169,14 +1169,15 @@ function! s:FindComments(start_line_no, end_line_no)
     exe lineno
     normal! 0
 
-    while search('\s*#.*$', 'Wc', lineno) > 0
+    while search('#', 'Wc', lineno) > 0
       let col = col('.')
 
-      normal! f#
-      if synIDattr(synID(lineno, col('.'), 1), "name") == 'rubyComment'
+      if synIDattr(synID(lineno, col, 1), "name") == 'rubyComment'
         let comment = sj#GetCols(col, col('$'))
         call add(comments, [lineno, col, comment])
         break
+      else
+        normal! l
       endif
     endwhile
   endfor
