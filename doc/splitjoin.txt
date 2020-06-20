@@ -447,7 +447,7 @@ Block components ~
 HTML                                                            *splitjoin-html*
 
 This works for other HTML-like languages as well: XML, Eruby, JSX, TSX, Vue
-templates, Django templates.
+templates, Svelte.js, Django templates.
 
 Tags ~
 >
