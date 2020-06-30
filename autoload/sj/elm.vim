@@ -1,11 +1,15 @@
+function! sj#elm#SkipSyntax()
+  return sj#SkipSyntax(['elmString', 'elmTripleString', 'elmComment'])
+endfunction
+
 function! sj#elm#LocateClosestBraces(column)
   call sj#PushCursor()
 
-  let skip = sj#SkipSyntax(['elmString', 'elmTripleString', 'elmComment'])
+  let skip = sj#elm#SkipSyntax()
   let currentLine = line('.')
 
   call cursor(currentLine, a:column)
-  let from = searchpairpos('[{([]', '', '[})]]', 'bcn', skip, currentLine)
+  let from = searchpairpos('[{(\[]', '', '[})\]]', 'bcn', skip, currentLine)
 
   if from[0] == 0
     call sj#PopCursor()
@@ -74,6 +78,60 @@ function! sj#elm#SplitList()
   end
 
   call sj#ReplaceCols(from, to, replacement)
+
+  call sj#PopCursor()
+
+  return 1
+endfunction
+
+function sj#elm#LocateClosestMultilineBraces()
+  call sj#PushCursor()
+
+  let skip = sj#elm#SkipSyntax()
+
+  let currentLine = line('.')
+
+  normal! $
+
+  let [toLine, toCol] = searchpairpos('[{(\[]', '', '[})\]]', '', skip, line('$'))
+
+  if toLine < currentLine
+    call sj#PopCursor()
+    return [[-1, -1], [-1, -1]]
+  endif
+
+  normal! %
+
+  let fromLine = line('.')
+  let fromCol = col('.')
+
+  if fromLine >= toLine
+    call sj#PopCursor()
+    return [[-1, -1], [-1, -1]]
+  endif
+
+  call sj#PopCursor()
+
+  return [[fromLine, fromCol], [toLine, toCol]]
+endfunction
+
+function sj#elm#JoinList()
+  call sj#PushCursor()
+
+  let [from, to] = sj#elm#LocateClosestMultilineBraces()
+
+  if from[0] < 0
+    call sj#PopCursor()
+
+    return 0
+  endif
+
+  call cursor(from[0], from[1])
+  let original = sj#GetByPosition([0, from[0], from[1]], [0, to[0], to[1]])
+  let transformed = substitute(substitute(original, '^\(.\)\s*', '\1', ''), '\s*\n\s*', '', 'g')
+
+  call sj#ReplaceByPosition([0, from[0], from[1]], [0, to[0], to[1]], transformed)
+
 
   call sj#PopCursor()
 

@@ -166,7 +166,7 @@ describe 'elm' do
       end
     end
 
-    xspecify 'joining a list' do
+    specify 'joining a list' do
       set_file_contents <<~EOF
         list =
             [ 1
@@ -181,7 +181,7 @@ describe 'elm' do
 
       assert_file_contents <<~EOF
         list =
-          [1, 2, 3, 4]
+            [1, 2, 3, 4]
       EOF
     end
   end
