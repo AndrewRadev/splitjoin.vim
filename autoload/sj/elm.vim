@@ -116,26 +116,31 @@ function sj#elm#LocateClosestMultilineBraces()
 endfunction
 
 function sj#elm#JoinList()
-  call sj#PushCursor()
-
   let [from, to] = sj#elm#LocateClosestMultilineBraces()
 
   if from[0] < 0
-    call sj#PopCursor()
-
     return 0
   endif
 
-  call cursor(from[0], from[1])
   let original = sj#GetByPosition([0, from[0], from[1]], [0, to[0], to[1]])
-  let transformed = substitute(substitute(original, '^\(.\)\s*', '\1', ''), '\s*\n\s*', '', 'g')
-
-  call sj#ReplaceByPosition([0, from[0], from[1]], [0, to[0], to[1]], transformed)
-
-
-  call sj#PopCursor()
+  let joined = sj#elm#SpaceRecordUpdateSeparator(
+    \sj#elm#JoinOuterBraces(
+    \sj#elm#JoinLines(original)))
+  call sj#ReplaceByPosition([0, from[0], from[1]], [0, to[0], to[1]], joined)
 
   return 1
+endfunction
+
+function sj#elm#JoinOuterBraces(text)
+  return substitute(substitute(a:text, '\s*\(.\)$', '\1', ''), '^\(.\)\s*', '\1', '')
+endfunction
+
+function sj#elm#JoinLines(text)
+  return substitute(substitute(a:text, '\s*\n\s*,', ',', 'g'), '\s*\n\s*', ' ', 'g')
+endfunction
+
+function sj#elm#SpaceRecordUpdateSeparator(text)
+  return substitute(a:text, '^{\s*\(\w\+\)|', '{\1 |', '')
 endfunction
 
 function sj#elm#SplitParts(from, to)

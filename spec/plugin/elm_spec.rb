@@ -184,6 +184,34 @@ describe 'elm' do
             [1, 2, 3, 4]
       EOF
     end
+
+    specify 'joining a list whithin a list containing lists' do
+      set_file_contents <<~EOF
+        list =
+            [ [ [1, 2, 3, 4],
+                [3, 4, 6],
+                [2, 3, 4, 5, 6]
+              ],
+              [ [2, 3, 4, 5, 6],
+                [0, 4, 2],
+                [6, 2, 3, 4]
+              ]
+            ]
+      EOF
+
+      vim.search '1'
+      join
+
+      assert_file_contents <<~EOF
+        list =
+            [ [[1, 2, 3, 4], [3, 4, 6], [2, 3, 4, 5, 6]],
+              [ [2, 3, 4, 5, 6],
+                [0, 4, 2],
+                [6, 2, 3, 4]
+              ]
+            ]
+      EOF
+    end
   end
 
   describe 'splitting/joining a tuple' do
@@ -243,7 +271,7 @@ describe 'elm' do
 
       specify 'with something that is not a tuple' do
         set_file_contents <<~EOF
-          not_a_tuple =
+          notATuple =
               ([1, 2, 3, 4] |> List.map ((*) 2))
         EOF
 
@@ -251,8 +279,28 @@ describe 'elm' do
         split
 
         assert_file_contents <<~EOF
-          not_a_tuple =
+          notATuple =
               ([1, 2, 3, 4] |> List.map ((*) 2))
+        EOF
+      end
+    end
+
+    describe 'joining a tuple' do
+      specify 'a simple tuple' do
+        set_file_contents <<~EOF
+          aTuple =
+              ( 123
+              , "456"
+              , [7, 8, 9]
+              )
+        EOF
+
+        vim.search '7'
+        join
+
+        assert_file_contents <<~EOF
+          aTuple =
+              (123, "456", [7, 8, 9])
         EOF
       end
     end
@@ -279,7 +327,7 @@ describe 'elm' do
 
       specify 'a record instanciation' do
         set_file_contents <<~EOF
-          my_little_record =
+          myLittleRecord =
               {firstName = "John", lastName = "Doe"}
         EOF
 
@@ -287,7 +335,7 @@ describe 'elm' do
         split
 
         assert_file_contents <<~EOF
-          my_little_record =
+          myLittleRecord =
               { firstName = "John"
               , lastName = "Doe"
               }
@@ -296,16 +344,16 @@ describe 'elm' do
 
       specify 'a record update' do
         set_file_contents <<~EOF
-          my_updated_record =
-              {my_previous_record | firstName = "John", lastName = "Doe"}
+          myUpdatedRecord =
+              {myPreviousRecord | firstName = "John", lastName = "Doe"}
         EOF
 
         vim.search '{'
         split
 
         assert_file_contents <<~EOF
-          my_updated_record =
-              { my_previous_record
+          myUpdatedRecord =
+              { myPreviousRecord
               | firstName = "John"
               , lastName = "Doe"
               }
@@ -354,16 +402,16 @@ describe 'elm' do
 
       specify 'a tricky record update' do
         set_file_contents <<~EOF
-          my_updated_record =
-              {my_previous_record | firstName = "John" |> String.toUpper, lastName = "Doe", address = { city = "Paris, 12e", zipCode = "75012", street: "123 rue de Picpus"}}
+          myUpdatedRecord =
+              {myPreviousRecord | firstName = "John" |> String.toUpper, lastName = "Doe", address = { city = "Paris, 12e", zipCode = "75012", street: "123 rue de Picpus"}}
         EOF
 
         vim.search 'city'
         split
 
         assert_file_contents <<~EOF
-          my_updated_record =
-              { my_previous_record
+          myUpdatedRecord =
+              { myPreviousRecord
               | firstName = "John" |> String.toUpper
               , lastName = "Doe"
               , address = { city = "Paris, 12e", zipCode = "75012", street: "123 rue de Picpus"}
@@ -374,8 +422,8 @@ describe 'elm' do
         split
 
         assert_file_contents <<~EOF
-          my_updated_record =
-              { my_previous_record
+          myUpdatedRecord =
+              { myPreviousRecord
               | firstName = "John" |> String.toUpper
               , lastName = "Doe"
               , address =
@@ -384,6 +432,100 @@ describe 'elm' do
                   , street: "123 rue de Picpus"
                   }
               }
+        EOF
+      end
+    end
+
+    describe 'joining a record' do
+      specify 'joining a record type alias' do
+        set_file_contents <<~EOF
+          type alias MyAwesomeType =
+              { firstName : String
+              , lastName : String
+              }
+        EOF
+
+        vim.search '{'
+        join
+
+        assert_file_contents <<~EOF
+          type alias MyAwesomeType =
+              {firstName : String, lastName : String}
+        EOF
+      end
+
+      specify 'joining a new record' do
+        set_file_contents <<~EOF
+          myBrokenRecord =
+              { firstName = "Foo"
+              , lastName = "Bar, Baz"
+              }
+        EOF
+
+        vim.search '{'
+        join
+
+        assert_file_contents <<~EOF
+          myBrokenRecord =
+              {firstName = "Foo", lastName = "Bar, Baz"}
+        EOF
+      end
+
+      specify 'joining a record update' do
+        set_file_contents <<~EOF
+          myUpdatedRecord =
+              { myPreviousRecord
+              | firstName = "John"
+              , lastName = "Doe"
+              }
+        EOF
+
+        vim.search '{'
+        join
+
+        assert_file_contents <<~EOF
+          myUpdatedRecord =
+              {myPreviousRecord | firstName = "John", lastName = "Doe"}
+        EOF
+      end
+
+      specify 'a tricky record update' do
+        set_file_contents <<~EOF
+          myUpdatedRecord =
+              { myPreviousRecord
+              | firstName =
+                  "John"
+                      |> String.toUpper
+              , lastName = "Doe"
+              , address =
+                  { city = "Paris, 12e"
+                  , zipCode = "75012"
+                  , street: "123 rue de Picpus"
+                  }
+              }
+        EOF
+
+        vim.search 'city'
+        join
+
+        assert_file_contents <<~EOF
+          myUpdatedRecord =
+              { myPreviousRecord
+              | firstName =
+                  "John"
+                      |> String.toUpper
+              , lastName = "Doe"
+              , address =
+                  {city = "Paris, 12e", zipCode = "75012", street: "123 rue de Picpus"}
+              }
+        EOF
+
+        vim.search 'city'
+        join
+
+        assert_file_contents <<~EOF
+          myUpdatedRecord =
+              {myPreviousRecord | firstName = "John" |> String.toUpper, lastName = "Doe", address = {city = "Paris, 12e", zipCode = "75012", street: "123 rue de Picpus"}}
         EOF
       end
     end
