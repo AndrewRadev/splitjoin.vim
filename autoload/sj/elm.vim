@@ -1,8 +1,76 @@
+" vim: foldmethod=marker
+
+" Split / Join {{{1
+"
+" function! sj#elm#Join() {{{2
+"
+" Attempts to join the multiline tuple, record or list closest
+" to current curspor position.
+function! sj#elm#Join()
+  let [from, to] = sj#elm#ClosestMultilineBraces()
+
+  if from[0] < 0
+    return 0
+  endif
+
+  let original = sj#GetByPosition([0, from[0], from[1]], [0, to[0], to[1]])
+  let joined = sj#elm#JoinOuterBraces(sj#elm#JoinLines(original))
+  call sj#ReplaceByPosition([0, from[0], from[1]], [0, to[0], to[1]], joined)
+
+  return 1
+endfunction
+
+" function! sj#elm#Split() {{{2
+"
+" Attempts to split the tuple, record or list fursest to current
+" curspor position on the same line.
+function! sj#elm#Split()
+  call sj#PushCursor()
+
+  let [from, to] = sj#elm#CurrentLineOutermostBraces(col('.'))
+
+  if from < 0
+    return 0
+  endif
+
+  let parts = sj#elm#SplitParts(from, to)
+
+  if len(parts) <= 2
+    return 0
+  endif
+
+  let replacement = join(parts, "\n")
+
+  call cursor(line('.'), from)
+  let [previousLine, previousCol] = searchpos('\S', 'bn')
+  if previousLine == line('.') && previousCol > 0 && sj#elm#CharAt(previousCol) =~ '[=:]'
+    let replacement = "\n".replacement
+    let from = previousCol + 1
+  end
+
+  call sj#ReplaceCols(from, to, replacement)
+
+  call sj#PopCursor()
+
+  return 1
+endfunction
+
+
+" Helper functions {{{1
+
+" function! sj#elm#SkipSyntax() {{{2
+"
+" Returns Elm's typical skippable syntax (strings and comments)
 function! sj#elm#SkipSyntax()
   return sj#SkipSyntax(['elmString', 'elmTripleString', 'elmComment'])
 endfunction
 
-function! sj#elm#LocateClosestBraces(column)
+" function! sj#elm#CurrentLineClosestBraces(column) {{{2
+"
+" Returns the columns corresponding to the bracing pair closest
+" to and surrounding given column as a list ([opening, closing]).
+" Returns [-1, -1] when there is none on the same line.
+function! sj#elm#CurrentLineClosestBraces(column)
   call sj#PushCursor()
 
   let skip = sj#elm#SkipSyntax()
@@ -33,18 +101,23 @@ function! sj#elm#LocateClosestBraces(column)
   return [from[1], to]
 endfunction
 
-function! sj#elm#LocateOutermostBraces(column)
+" function! sj#elm#CurrentLineOutermostBraces(column) {{{2
+"
+" Returns the colums corresponding to the bracing pair furthest
+" to and surrounding given column as a list ([opening, closing]).
+" Returns [-1, -1] when there is none on the same line.
+function! sj#elm#CurrentLineOutermostBraces(column)
   if a:column < 1
     return [-1, -1]
   endif
 
-  let currentMatch = sj#elm#LocateClosestBraces(a:column)
+  let currentMatch = sj#elm#CurrentLineClosestBraces(a:column)
 
   if currentMatch[0] < 1
     return [-1, -1]
   endif
 
-  let betterMatch = sj#elm#LocateOutermostBraces(currentMatch[0] - 1)
+  let betterMatch = sj#elm#CurrentLineOutermostBraces(currentMatch[0] - 1)
 
   if betterMatch[0] < 1
     return currentMatch
@@ -53,38 +126,19 @@ function! sj#elm#LocateOutermostBraces(column)
   return betterMatch
 endfunction
 
-function! sj#elm#SplitList()
-  call sj#PushCursor()
-
-  let [from, to] = sj#elm#LocateOutermostBraces(col('.'))
-
-  if from < 0
-    return 0
-  endif
-
-  let parts = sj#elm#SplitParts(from, to)
-
-  if len(parts) <= 2
-    return 0
-  endif
-
-  let replacement = join(parts, "\n")
-
-  call cursor(line('.'), from)
-  let [previousLine, previousCol] = searchpos('\S', 'bn')
-  if previousLine == line('.') && previousCol > 0 && sj#elm#CharAt(previousCol) =~ '[=:]'
-    let replacement = "\n".replacement
-    let from = previousCol + 1
-  end
-
-  call sj#ReplaceCols(from, to, replacement)
-
-  call sj#PopCursor()
-
-  return 1
-endfunction
-
-function sj#elm#LocateClosestMultilineBraces()
+" function! sj#elm#ClosestMultilineBraces() {{{2
+"
+" Returns the position of the closest pair of multiline braces
+" around the cursor.
+"
+" The positions are given as a couple of arrays:
+"
+"   [[startLine, startCol], [endLine, endCol]]
+"
+" When no position is found, returns:
+"
+"   [[-1, -1], [-1, -1]]
+function! sj#elm#ClosestMultilineBraces()
   call sj#PushCursor()
 
   let skip = sj#elm#SkipSyntax()
@@ -115,35 +169,41 @@ function sj#elm#LocateClosestMultilineBraces()
   return [[fromLine, fromCol], [toLine, toCol]]
 endfunction
 
-function sj#elm#JoinList()
-  let [from, to] = sj#elm#LocateClosestMultilineBraces()
-
-  if from[0] < 0
-    return 0
-  endif
-
-  let original = sj#GetByPosition([0, from[0], from[1]], [0, to[0], to[1]])
-  let joined = sj#elm#SpaceRecordUpdateSeparator(
-    \sj#elm#JoinOuterBraces(
-    \sj#elm#JoinLines(original)))
-  call sj#ReplaceByPosition([0, from[0], from[1]], [0, to[0], to[1]], joined)
-
-  return 1
-endfunction
-
-function sj#elm#JoinOuterBraces(text)
+" function! sj#elm#JoinOuterBraces(text)
+"
+" Removes spaces separating the first and last char of a string
+" with the closest non-space char found.
+"
+" ex:
+"
+"   [ 1, 2, 3 ] => [1, 2, 3]
+function! sj#elm#JoinOuterBraces(text)
   return substitute(substitute(a:text, '\s*\(.\)$', '\1', ''), '^\(.\)\s*', '\1', '')
 endfunction
 
-function sj#elm#JoinLines(text)
+" function! sj#elm#JoinLines(text)
+"
+" Joins lines in text, removing complementary spaces around
+" newline chars when the last line starts with a ',' and keeping
+" one whitespace for other cases.
+function! sj#elm#JoinLines(text)
   return substitute(substitute(a:text, '\s*\n\s*,', ',', 'g'), '\s*\n\s*', ' ', 'g')
 endfunction
 
-function sj#elm#SpaceRecordUpdateSeparator(text)
-  return substitute(a:text, '^{\s*\(\w\+\)|', '{\1 |', '')
-endfunction
-
-function sj#elm#SplitParts(from, to)
+" function! sj#elm#SplitParts(from, to)
+"
+" Splits a section of a line according to bracing characters
+" rules.
+"
+" ex:
+"   "[1,2,3]"
+"   v
+"   [ "[ 1", ", 2", ", 3", "]" ]
+"
+"   "{a | foo = bar, baz = buzz}"
+"   v
+"   [ "{ a", "| foo = bar", ", baz = buzz", "}" ]
+function! sj#elm#SplitParts(from, to)
   call sj#PushCursor()
   let skip = sj#SkipSyntax(['elmString', 'elmTripleString', 'elmComment'])
   let currentLine = line('.')
@@ -172,11 +232,16 @@ function sj#elm#SplitParts(from, to)
   return parts
 endfunction
 
-
-function sj#elm#CharAt(column)
+" function! sj#elm#CharAt(column)
+"
+" Returns the char sitting at given column of current line.
+function! sj#elm#CharAt(column)
   return getline('.')[a:column - 1]
 endfunction
 
-function sj#elm#CurrentChar()
+" function! sj#elm#CurrentChar()
+"
+" Returns the character at current cursor's position
+function! sj#elm#CurrentChar()
   return sj#elm#CharAt(col('.'))
 endfunction
