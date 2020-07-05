@@ -14,12 +14,14 @@ Vimrunner::RSpec.configure do |config|
     # Up-to-date filetype support:
     vim.prepend_runtimepath(plugin_path.join('spec/support/rust.vim'))
     vim.prepend_runtimepath(plugin_path.join('spec/support/vim-javascript'))
+    vim.prepend_runtimepath(plugin_path.join('spec/support/vim-elm-syntax'))
 
     # Alignment tool for alignment tests:
     vim.add_plugin(plugin_path.join('spec/support/tabular'), 'plugin/Tabular.vim')
 
     # bootstrap filetypes
     vim.command 'autocmd BufNewFile,BufRead *.rs set filetype=rust'
+    vim.command 'autocmd BufNewFile,BufRead *.elm set filetype=elm'
 
     if vim.echo('exists(":packadd")').to_i > 0
       vim.command('packadd matchit')

@@ -7,3 +7,6 @@
 [submodule "spec/support/tabular"]
 	path = spec/support/tabular
 	url = https://github.com/godlygeek/tabular
+[submodule "spec/support/vim-elm-syntax"]
+	path = spec/support/vim-elm-syntax
+	url = https://github.com/andys8/vim-elm-syntax
