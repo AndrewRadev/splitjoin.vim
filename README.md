@@ -47,6 +47,7 @@ This currently works for various constructs in the following languages:
 - CSS
 - Coffeescript
 - Elixir
+- Elm
 - Eruby
 - Go
 - HAML

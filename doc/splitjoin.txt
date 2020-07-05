@@ -10,6 +10,7 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Coffeescript...........................: |splitjoin-coffee|
     CSS....................................: |splitjoin-css|
     Elixir.................................: |splitjoin-elixir|
+    Elm..................................  : |splitjoin-elm|
     Eruby..................................: |splitjoin-eruby|
     Go.....................................: |splitjoin-go|
     HAML...................................: |splitjoin-haml|
@@ -340,6 +341,21 @@ Do-blocks ~
     def function(arguments) when condition do
       body
     end
+<
+
+==============================================================================
+ELM                                                              *splitjoin-elm*
+
+Lists, tuples, records ~
+>
+    myUpdatedRecord =
+        {myPreviousRecord | firstName = "John", lastName = "Doe"}
+
+    myUpdatedRecord =
+        { myPreviousRecord
+        | firstName = "John"
+        , lastName = "Doe"
+        }
 <
 
 ==============================================================================
