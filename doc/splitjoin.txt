@@ -1074,6 +1074,29 @@ Empty matches and if-let ~
         _ => (),
     }
 <
+Import lists ~
+
+With the cursor on the pre-curly bracket part of an import:
+>
+    use std::io::{Read, Write, Process};
+
+    use std::io::Read;
+    use std::io::Write;
+    use std::io::Process;
+<
+Joining works downwards -- attempting to join the current line with as many as
+possible below. It will look for the common part between the first two imports
+and try to apply it on any later ones that match.
+
+With the cursor in the curly brackets:
+>
+    use std::io::{Read, Write};
+
+    use std::io::{
+        Read,
+        Write
+    };
+<
 
 ==============================================================================
 SCSS                                                            *splitjoin-scss*

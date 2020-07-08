@@ -4,6 +4,7 @@ let b:splitjoin_split_callbacks = [
       \ 'sj#rust#SplitMatchClause',
       \ 'sj#rust#SplitQuestionMark',
       \ 'sj#rust#SplitCurlyBrackets',
+      \ 'sj#rust#SplitImportList',
       \ 'sj#rust#SplitUnwrapIntoEmptyMatch',
       \ 'sj#rust#SplitIfLetIntoMatch',
       \ ]
@@ -14,4 +15,5 @@ let b:splitjoin_join_callbacks = [
       \ 'sj#rust#JoinMatchStatement',
       \ 'sj#rust#JoinClosure',
       \ 'sj#rust#JoinCurlyBrackets',
+      \ 'sj#rust#JoinImportList',
       \ ]

@@ -569,6 +569,122 @@ function! sj#rust#JoinEmptyMatchIntoIfLet()
   return 1
 endfunction
 
+function! sj#rust#SplitImportList()
+  if sj#SearchUnderCursor('^\s*use\s\+\%(\k\+::\)\+{', 'e') <= 0
+    return 0
+  endif
+
+  let prefix = sj#Trim(strpart(getline('.'), 0, col('.') - 1))
+  let body   = sj#GetMotion('vi{')
+  let parser = sj#argparser#rust#Construct(1, len(body), body)
+
+  call parser.Process()
+  let imports = map(parser.args, 'v:val.argument')
+  if len(imports) <= 0
+    return 0
+  endif
+
+  let replacement = join(map(imports, '"'.prefix.'".v:val.";"'), "\n")
+  call sj#ReplaceMotion('V', replacement)
+
+  return 1
+endfunction
+
+function! sj#rust#JoinImportList()
+  let import_pattern = '^\s*use\s\+\%(\k\+::\)\+'
+  if sj#SearchUnderCursor(import_pattern) <= 0
+    return 0
+  endif
+
+  let imports = [sj#Trim(getline('.'))]
+  let start_line = line('.')
+  let last_line = line('.')
+  normal! j
+
+  while sj#SearchUnderCursor(import_pattern) > 0
+    if line('.') == last_line
+      " we haven't moved, stop here
+      break
+    endif
+    let last_line = line('.')
+
+    call add(imports, sj#Trim(getline('.')))
+    normal! j
+  endwhile
+
+  if len(imports) <= 1
+    return 0
+  endif
+
+  " find common prefix based on first two imports
+  let first_prefix_parts  = split(imports[0], '::')
+  let second_prefix_parts = split(imports[1], '::')
+
+  if first_prefix_parts[0] != second_prefix_parts[0]
+    " no match at all, nothing we can do
+    return 0
+  endif
+
+  " find only the next ones that match the common prefix
+  let common_prefix = ''
+  for i in range(1, min([len(first_prefix_parts), len(second_prefix_parts)]) - 1)
+    if first_prefix_parts[i] != second_prefix_parts[i]
+      let common_prefix = join(first_prefix_parts[:(i - 1)], '::') . '::'
+      break
+    endif
+  endfor
+
+  if common_prefix == ''
+    " it hasn't been changed, meaning we should have a duplicate line. Let's
+    " check:
+    if imports[0] == imports[1]
+      " just delete the first line and move on
+      exe start_line . 'delete'
+      return 1
+    else
+      return 0
+    endif
+  endif
+
+  let compatible_imports = imports[:1]
+  for import in imports[2:]
+    if stridx(import, common_prefix) == 0
+      call add(compatible_imports, import)
+    else
+      break
+    endif
+  endfor
+
+  " Get the differences between the imports
+  let differences = []
+  for import in compatible_imports
+    let difference = strpart(import, len(common_prefix))
+    let difference = substitute(difference, ';\s*\%(//.*\)\=$', '', '')
+
+    if difference =~ '^{.*}$'
+      " there's a list of imports, merge them together
+      let parser = sj#argparser#rust#Construct(2, len(difference) - 1, difference)
+      call parser.Process()
+      for part in map(parser.args, 'v:val.argument')
+        call add(differences, part)
+      endfor
+    else
+      call add(differences, difference)
+    endif
+  endfor
+
+  if exists('*uniq')
+    " remove successive duplicates
+    call uniq(differences)
+  endif
+
+  let replacement = common_prefix . '{' . join(differences, ', ') . '};'
+  let end_line = start_line + len(compatible_imports) - 1
+  call sj#ReplaceLines(start_line, end_line, replacement)
+
+  return 0
+endfunction
+
 " Note: special handling for < and >
 "
 function! s:JumpBracketsTill(end_pattern)
