@@ -92,8 +92,6 @@ describe "python" do
   end
 
   specify "splitting within a string" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
     set_file_contents <<~EOF
       run("one", "two", "three {}".format(four))
     EOF
@@ -174,8 +172,6 @@ describe "python" do
   end
 
   specify "dictionary within tuple" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
     set_file_contents <<~EOF
       out = ("one", {"two": "three"}, "four")
     EOF
