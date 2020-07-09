@@ -464,70 +464,6 @@ describe "rust" do
     EOF
   end
 
-  specify "imports" do
-    set_file_contents <<~EOF
-      use my_mod::foo::{Alpha, Beta as _, Gamma};
-    EOF
-
-    vim.search 'Alpha'
-    split
-
-    assert_file_contents <<~EOF
-      use my_mod::foo::{
-          Alpha,
-          Beta as _,
-          Gamma
-      };
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      use my_mod::foo::{Alpha, Beta as _, Gamma};
-    EOF
-  end
-
-  specify "imports with nesting" do
-    set_file_contents <<~EOF
-      use my_mod::{one, {two, three}, four};
-    EOF
-
-    vim.search 'one'
-    split
-
-    assert_file_contents <<~EOF
-      use my_mod::{
-          one,
-          {two, three},
-          four
-      };
-    EOF
-
-    vim.search 'two'
-    split
-
-    assert_file_contents <<~EOF
-      use my_mod::{
-          one,
-          {
-              two,
-              three
-          },
-          four
-      };
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      use my_mod::{
-          one,
-          {two, three},
-          four
-      };
-    EOF
-  end
-
   specify "blocks" do
     set_file_contents <<~EOF
       if opt.verbose == 1 { foo(); do_thing(); bar() }
@@ -698,6 +634,30 @@ describe "rust" do
   end
 
   describe "imports" do
+    specify "with cursor in curly brackets" do
+      set_file_contents <<~EOF
+        use std::io::{Read as R, foo::{Bar, Baz}, Write};
+      EOF
+
+      vim.search('Read as R')
+      split
+
+      assert_file_contents <<~EOF
+        use std::io::{
+            Read as R,
+            foo::{Bar, Baz},
+            Write
+        };
+      EOF
+
+      vim.search('io::{')
+      join
+
+      assert_file_contents <<~EOF
+        use std::io::{Read as R, foo::{Bar, Baz}, Write};
+      EOF
+    end
+
     specify "with cursor outside curly brackets" do
       set_file_contents <<~EOF
         use std::io::{Read, foo::{Bar, Baz}, Write};
@@ -720,27 +680,24 @@ describe "rust" do
       EOF
     end
 
-    specify "with cursor in curly brackets" do
+    specify "aliases" do
       set_file_contents <<~EOF
-        use std::io::{Read, foo::{Bar, Baz}, Write};
+        use std::io::{Read as R, Write as W};
       EOF
 
-      vim.search('Read,')
+      vim.search('io::')
       split
 
       assert_file_contents <<~EOF
-        use std::io::{
-            Read,
-            foo::{Bar, Baz},
-            Write
-        };
+        use std::io::Read as R;
+        use std::io::Write as W;
       EOF
 
-      vim.search('io::{')
+      vim.search('io::Read')
       join
 
       assert_file_contents <<~EOF
-        use std::io::{Read, foo::{Bar, Baz}, Write};
+        use std::io::{Read as R, Write as W};
       EOF
     end
 
