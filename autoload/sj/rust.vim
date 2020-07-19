@@ -1,4 +1,5 @@
 let s:skip_syntax = sj#SkipSyntax(['String', 'Comment'])
+let s:ending_semicolon_pattern = ';\s*\%(//.*\)\=$'
 
 function! sj#rust#SplitMatchClause()
   if !sj#SearchUnderCursor('^.*\s*=>\s*.*$')
@@ -444,8 +445,7 @@ function! sj#rust#SplitIfLetIntoMatch()
   let body = sj#Trim(sj#GetMotion('vi{'))
 
   " multiple lines or ends with `;` -> wrap it in a block
-  if len(split(body, "\n")) > 1
-        \ || body =~ ';\s*\%(//.*\)\=$'
+  if len(split(body, "\n")) > 1 || body =~ s:ending_semicolon_pattern
     let body = "{\n".body."\n}"
   endif
 
@@ -457,8 +457,7 @@ function! sj#rust#SplitIfLetIntoMatch()
     let else_body = sj#Trim(sj#GetMotion('vi{'))
 
     " multiple lines or ends with `;` -> wrap it in a block
-    if len(split(else_body, "\n")) > 1
-          \ || else_body =~ ';\s*\%(//.*\)\=$'
+    if len(split(else_body, "\n")) > 1 || else_body =~ s:ending_semicolon_pattern
       let else_body = "{\n".else_body."\n}"
     endif
 
@@ -604,7 +603,6 @@ function! sj#rust#SplitImportList()
 endfunction
 
 function! sj#rust#JoinImportList()
-  let ending_semicolon_pattern = ';\s*\%(//.*\)\=$'
   let import_pattern = '^\s*use\s\+\%(\k\+::\)\+'
 
   if sj#SearchUnderCursor(import_pattern) <= 0
@@ -612,7 +610,7 @@ function! sj#rust#JoinImportList()
   endif
 
   let first_import = getline('.')
-  let first_import = substitute(first_import, ending_semicolon_pattern, '', '')
+  let first_import = substitute(first_import, s:ending_semicolon_pattern, '', '')
   let imports = [sj#Trim(first_import)]
 
   let start_line = line('.')
@@ -627,7 +625,7 @@ function! sj#rust#JoinImportList()
     let last_line = line('.')
 
     let import_line = getline('.')
-    let import_line = substitute(import_line, ending_semicolon_pattern, '', '')
+    let import_line = substitute(import_line, s:ending_semicolon_pattern, '', '')
 
     call add(imports, sj#Trim(import_line))
     normal! j
