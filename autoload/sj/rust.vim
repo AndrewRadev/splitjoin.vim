@@ -579,24 +579,42 @@ function! sj#rust#SplitImportList()
   let parser = sj#argparser#rust#Construct(1, len(body), body)
 
   call parser.Process()
-  let imports = map(parser.args, 'v:val.argument')
-  if len(imports) <= 0
+
+  let expanded_imports = []
+  for arg in parser.args
+    let import = arg.argument
+
+    if import == 'self'
+      let expanded_import = substitute(prefix, '::$', ';', '')
+    else
+      let expanded_import = prefix . import . ';'
+    end
+
+    call add(expanded_imports, expanded_import)
+  endfor
+
+  if len(expanded_imports) <= 0
     return 0
   endif
 
-  let replacement = join(map(imports, '"'.prefix.'".v:val.";"'), "\n")
+  let replacement = join(expanded_imports, "\n")
   call sj#ReplaceMotion('V', replacement)
 
   return 1
 endfunction
 
 function! sj#rust#JoinImportList()
+  let ending_semicolon_pattern = ';\s*\%(//.*\)\=$'
   let import_pattern = '^\s*use\s\+\%(\k\+::\)\+'
+
   if sj#SearchUnderCursor(import_pattern) <= 0
     return 0
   endif
 
-  let imports = [sj#Trim(getline('.'))]
+  let first_import = getline('.')
+  let first_import = substitute(first_import, ending_semicolon_pattern, '', '')
+  let imports = [sj#Trim(first_import)]
+
   let start_line = line('.')
   let last_line = line('.')
   normal! j
@@ -608,7 +626,10 @@ function! sj#rust#JoinImportList()
     endif
     let last_line = line('.')
 
-    call add(imports, sj#Trim(getline('.')))
+    let import_line = getline('.')
+    let import_line = substitute(import_line, ending_semicolon_pattern, '', '')
+
+    call add(imports, sj#Trim(import_line))
     normal! j
   endwhile
 
@@ -629,19 +650,32 @@ function! sj#rust#JoinImportList()
   let common_prefix = ''
   for i in range(1, min([len(first_prefix_parts), len(second_prefix_parts)]) - 1)
     if first_prefix_parts[i] != second_prefix_parts[i]
-      let common_prefix = join(first_prefix_parts[:(i - 1)], '::') . '::'
+      let common_prefix = join(first_prefix_parts[:(i - 1)], '::')
       break
     endif
   endfor
 
   if common_prefix == ''
-    " it hasn't been changed, meaning we should have a duplicate line. Let's
-    " check:
-    if imports[0] == imports[1]
-      " just delete the first line and move on
+    if len(imports[0]) > len(imports[1])
+      let longer_import  = imports[0]
+      let shorter_import = imports[1]
+    else
+      let longer_import  = imports[1]
+      let shorter_import = imports[0]
+    endif
+
+    " it hasn't been changed, meaning we completely matched the shorter import
+    " within the longer.
+    if longer_import == shorter_import
+      " they're perfectly identical, just delete the first line and move on
       exe start_line . 'delete'
       return 1
+    elseif stridx(longer_import, shorter_import) == 0
+      " the shorter is included, consider it a prefix, and we'll puts `self`
+      " in there later
+      let common_prefix = shorter_import
     else
+      " something unexpected went wrong, let's give up
       return 0
     endif
   endif
@@ -659,7 +693,7 @@ function! sj#rust#JoinImportList()
   let differences = []
   for import in compatible_imports
     let difference = strpart(import, len(common_prefix))
-    let difference = substitute(difference, ';\s*\%(//.*\)\=$', '', '')
+    let difference = substitute(difference, '^::', '', '')
 
     if difference =~ '^{.*}$'
       " there's a list of imports, merge them together
@@ -668,6 +702,9 @@ function! sj#rust#JoinImportList()
       for part in map(parser.args, 'v:val.argument')
         call add(differences, part)
       endfor
+    elseif len(difference) == 0
+      " this is the parent module
+      call add(differences, 'self')
     else
       call add(differences, difference)
     endif
@@ -678,7 +715,7 @@ function! sj#rust#JoinImportList()
     call uniq(differences)
   endif
 
-  let replacement = common_prefix . '{' . join(differences, ', ') . '};'
+  let replacement = common_prefix . '::{' . join(differences, ', ') . '};'
   let end_line = start_line + len(compatible_imports) - 1
   call sj#ReplaceLines(start_line, end_line, replacement)
 

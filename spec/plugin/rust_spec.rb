@@ -759,6 +759,57 @@ describe "rust" do
         use std::io::Write;
       EOF
     end
+
+    specify 'correctly splits a `self` import' do
+      set_file_contents 'use std::io::{self, Write};'
+      split
+
+      assert_file_contents <<~EOF
+        use std::io;
+        use std::io::Write;
+      EOF
+
+      set_file_contents 'use std::io::{Read, self, Write};'
+      split
+
+      assert_file_contents <<~EOF
+        use std::io::Read;
+        use std::io;
+        use std::io::Write;
+      EOF
+    end
+
+    specify 'correctly joins a `self` import' do
+      # As the first arg
+      set_file_contents <<~EOF
+        use std::io;
+        use std::io::Read;
+        use std::io::Write;
+      EOF
+      vim.normal('gg')
+      join
+      assert_file_contents 'use std::io::{self, Read, Write};'
+
+      # As the second arg
+      set_file_contents <<~EOF
+        use std::io::Read;
+        use std::io;
+        use std::io::Write;
+      EOF
+      vim.normal('gg')
+      join
+      assert_file_contents 'use std::io::{Read, self, Write};'
+
+      # After the second arg
+      set_file_contents <<~EOF
+        use std::io::Read;
+        use std::io::Write;
+        use std::io;
+      EOF
+      vim.normal('gg')
+      join
+      assert_file_contents 'use std::io::{Read, Write, self};'
+    end
   end
 
   describe "if-let and match" do
