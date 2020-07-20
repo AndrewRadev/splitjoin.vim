@@ -142,5 +142,23 @@ describe "elixir" do
     assert_file_contents <<~EOF
       [a: 1, b: 2, c: %{a: 1, b: 2}]
     EOF
+
+    set_file_contents <<~EOF
+      []
+    EOF
+
+    vim.search('[')
+    split
+
+    assert_file_contents <<~EOF
+      []
+    EOF
+
+    vim.search('[')
+    join
+
+    assert_file_contents <<~EOF
+      []
+    EOF
   end
 end

@@ -54,7 +54,7 @@ function! sj#elixir#SplitArray()
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
 
-  if len(items) == 0
+  if len(items) == 0 || to - from < 2
     return 1
   endif
 
