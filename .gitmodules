@@ -10,3 +10,6 @@
 [submodule "spec/support/vim-elm-syntax"]
 	path = spec/support/vim-elm-syntax
 	url = https://github.com/andys8/vim-elm-syntax
+[submodule "spec/support/vim-elixir"]
+	path = spec/support/vim-elixir
+	url = https://github.com/elixir-editors/vim-elixir

@@ -15,6 +15,7 @@ Vimrunner::RSpec.configure do |config|
     vim.prepend_runtimepath(plugin_path.join('spec/support/rust.vim'))
     vim.prepend_runtimepath(plugin_path.join('spec/support/vim-javascript'))
     vim.prepend_runtimepath(plugin_path.join('spec/support/vim-elm-syntax'))
+    vim.prepend_runtimepath(plugin_path.join('spec/support/vim-elixir'))
 
     # Alignment tool for alignment tests:
     vim.add_plugin(plugin_path.join('spec/support/tabular'), 'plugin/Tabular.vim')
@@ -22,6 +23,7 @@ Vimrunner::RSpec.configure do |config|
     # bootstrap filetypes
     vim.command 'autocmd BufNewFile,BufRead *.rs set filetype=rust'
     vim.command 'autocmd BufNewFile,BufRead *.elm set filetype=elm'
+    vim.command 'autocmd BufNewFile,BufRead *.ex set filetype=elixir'
 
     if vim.echo('exists(":packadd")').to_i > 0
       vim.command('packadd matchit')
