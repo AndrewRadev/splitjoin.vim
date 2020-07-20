@@ -54,6 +54,10 @@ function! sj#elixir#SplitArray()
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
 
+  if len(items) == 0
+    return 1
+  endif
+
   " substitute [1, 2, | tail]
   let items[-1] = substitute(items[-1], "\\(|[^>].*\\)", "\n\\1", "")
 
@@ -76,6 +80,10 @@ function! sj#elixir#JoinArray()
   let body = substitute(body, ',\ze\_s*$', '', '')
 
   let items = split(body, ",\s*\n")
+
+  if len(items) == 0
+    return 1
+  endif
 
   " join isolated | tail on the last line
   let items[-1] = substitute(items[-1], "[[:space:]]*\\(|[^>].*\\)", " \\1", "")
