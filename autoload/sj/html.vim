@@ -41,14 +41,15 @@ endfunction
 function! sj#html#SplitAttributes()
   let lineno = line('.')
   let line = getline('.')
+  let skip = sj#SkipSyntax(['htmlString'])
 
   " Check if we are really on a single tag line
-  if search('<', 'bcWe', line('.')) <= 0
+  if sj#SearchSkip('<', skip, 'bcWe', line('.')) <= 0
     return 0
   endif
   let start = col('.')
 
-  if search('>', 'W', line('.')) <= 0
+  if sj#SearchSkip('>', skip, 'W', line('.')) <= 0
     return 0
   endif
   let end = col('.')
@@ -83,6 +84,8 @@ function! sj#html#SplitAttributes()
     let body = join(args, "\n")
   endif
 
+  " go back to the start column or va< can get confused with <> in strings
+  exe 'normal! 0'.start.'|'
   call sj#ReplaceMotion('va<', body)
 
   if sj#settings#Read('html_attributes_hanging')

@@ -124,4 +124,17 @@ describe "html" do
 
     simple_test(joined_html, split_html)
   end
+
+  specify "brackets within strings" do
+    joined_html = <<~EOF
+      <label for="{{ $input->id }}" class="mt-2">
+    EOF
+    split_html = <<~EOF
+      <label
+      for="{{ $input->id }}"
+      class="mt-2">
+    EOF
+
+    simple_test(joined_html, split_html)
+  end
 end
