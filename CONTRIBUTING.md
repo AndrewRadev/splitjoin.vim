@@ -13,7 +13,14 @@ This project uses [rspec](http://rspec.info/) and [vimrunner](https://github.com
 
 If you're not familiar with ruby, it's okay to skip them. I'd definitely appreciate it if you could take a look at the tests and attempt to write something that describes your change. Even if you don't, TravisCI should run the tests on every pull request, so we'll know right away if there's a regression. In that case, I'll work on the tests myself and see what I can do.
 
-To run the test suite, provided you have ruby installed, first you need bundler:
+To run the test suite, you need to first make sure you've got git submodules checked out:
+
+```
+$ git submodule init
+$ git submodule update
+```
+
+Then, provided you have ruby installed, you need bundler:
 
 ```
 $ gem install bundler
