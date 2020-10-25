@@ -149,21 +149,22 @@ function! sj#rust#JoinMatchStatement()
   let second_line  = match_line + 2
   let closing_line = match_line + 3
 
-  if getline(first_line) =~ '^\s*Ok(\(\k\+\)) => \1' ||
-        \ getline(second_line) =~ '^\s*Ok(\(\k\+\)) => \1'
+  let ok_pattern   = '^\s*Ok(\(\k\+\))\s*=>\s*\1'
+  let err_pattern  = '^\s*Err(\k\+)\s*=>\s*return\s\+Err('
+  let some_pattern = '^\s*Some(\(\k\+\))\s*=>\s*\1'
+  let none_pattern = '^\s*None\s*=>\s*return\s\+None\>'
+
+  if getline(first_line) =~# ok_pattern || getline(second_line) =~# ok_pattern
     let expr_type = 'Result'
-  elseif getline(first_line) =~ '^\s*None => return None,' ||
-        \ getline(second_line) =~ '^\s*None => return None,'
+  elseif getline(first_line) =~# none_pattern || getline(second_line) =~# none_pattern
     let expr_type = 'Option'
   else
     return 0
   endif
 
-  if getline(second_line) =~ '^\s*Err(\k\+) => return Err(' ||
-        \ getline(first_line) =~ '^\s*Err(\k\+) => return Err('
+  if getline(second_line) =~# err_pattern || getline(first_line) =~# err_pattern
     let expr_type = 'Result'
-  elseif getline(second_line) =~ '^\s*Some(\(\k\+\)) => \1' ||
-        \ getline(first_line) =~ '^\s*Some(\(\k\+\)) => \1'
+  elseif getline(second_line) =~# some_pattern || getline(first_line) =~# some_pattern
     let expr_type = 'Option'
   else
     return 0
