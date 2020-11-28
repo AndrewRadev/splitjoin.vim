@@ -29,7 +29,7 @@ endfunction
 
 " function! sj#r#ParseJsonObject(text)
 "
-" Wrapper around sj#argparser#js#Cosntruct to simply parse a given string
+" Wrapper around sj#argparser#js#Construct to simply parse a given string
 "
 function! sj#r#ParseJsonObject(text)
   let parser = sj#argparser#js#Construct(0, len(a:text), a:text)
@@ -43,42 +43,18 @@ endfunction
 " string
 "
 function! sj#r#ParseJsonFromMotion(motion)
-  call sj#PushCursor()
-  execute "silent normal! " . a:motion . "\<esc>"
-  execute "silent normal! \<esc>"
-  call sj#PopCursor()
-  let text = join(sj#r#GetTextRange("'<", "'>"), "\n")
+  let text = sj#GetMotion(a:motion)
   return sj#r#ParseJsonObject(text)
 endfunction
 
 " function! sj#r#GetTextRange(start, end)
 "
 " Get the text between positions marked by getpos("start") and getpos("end")
-"
-" inspired by: https://stackoverflow.com/questions/1533565
 function! sj#r#GetTextRange(start, end)
-  let [line_start, col_start] = getpos(a:start)[1:2]
-  let [line_end, col_end] = getpos(a:end)[1:2]
-  let lines = getline(line_start, line_end)
-  if len(lines) == 0
-    return []
-  endif
-  let lines[-1] = lines[-1][: col_end - (&selection == 'inclusive' ? 1 : 2)]
-  let lines[0] = lines[0][col_start - 1:]
-  return lines
-endfunction
+  let text = sj#GetByPosition(getpos(a:start), getpos(a:end))
+  let lines = split(text, "\n")
 
-" function! sj#r#GetTextMotion(motion)
-"
-" Get the text bound by the visual selection after a given normal-mode motion
-" string
-"
-function! sj#r#GetTextMotion(motion)
-  call sj#PushCursor()
-  execute "silent normal! " . a:motion . "\<esc>"
-  execute "silent normal! \<esc>"
-  call sj#PopCursor()
-  return sj#r#GetTextRange("'<", "'>")
+  return lines
 endfunction
 
 " function! sj#r#IsValidSelection(motion)
