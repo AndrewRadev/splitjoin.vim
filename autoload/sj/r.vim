@@ -15,7 +15,8 @@ function! sj#r#SplitFuncall()
   let items = s:ParseJsonFromMotion("va(\<esc>vi(")
   let items = map(items, {k, v -> v . (k+1 < len(items) ? "," : "")})
 
-  if g:r_indent_align_args && len(items)
+  let r_indent_align_args = get(g:, 'r_indent_align_args', 1)
+  if r_indent_align_args && len(items)
     let items[0]  = "(" . items[0]
     let items[-1] = items[-1] . ")"
     let lines = items
@@ -53,16 +54,15 @@ function! sj#r#JoinFuncall()
   return 1
 endfunction
 
-" function! s:Triml(text [, mask])
+" function! s:DoMotion(motion)
 "
-" A shorthand for trim with setting dir=1
+" Perform a normal-mode motion command
 "
-function! s:Triml(text, ...)
-  let inlen = len(a:text)
-  let text = a:0 > 0
-        \ ? trim(a:text, a:1, 1)
-        \ : substitute(a:text, '^\s*', '', 'g')
-  return [text, inlen - len(text)]
+function s:DoMotion(motion)
+  call sj#PushCursor()
+  execute "silent normal! " . a:motion . "\<esc>"
+  execute "silent normal! \<esc>"
+  call sj#PopCursor()
 endfunction
 
 " function! s:MoveCursor(lines, cols)
@@ -89,7 +89,7 @@ function! s:ParseJsonObject(text)
   return parser.args
 endfunction
 
-" function! sj#r#ParseFromMotion(motion)
+" function! s:ParseJsonFromMotion(motion)
 "
 " Parse a json object from the visual selection of a given normal-mode motion
 " string
@@ -99,50 +99,32 @@ function! s:ParseJsonFromMotion(motion)
   return s:ParseJsonObject(text)
 endfunction
 
-" function! s:GetTextRange(start, end)
-"
-" Get the text between positions marked by getpos("start") and getpos("end")
-function! s:GetTextRange(start, end)
-  let text = sj#GetByPosition(getpos(a:start), getpos(a:end))
-  let lines = split(text, "\n")
-
-  return lines
-endfunction
-
 " function! s:IsValidSelection(motion)
 "
 " Test whether a visual selection contains more than a single character after
 " performing the given normal-mode motion string
 "
 function! s:IsValidSelection(motion)
-  call sj#PushCursor()
-  execute "silent normal! " . a:motion . "\<esc>"
-  execute "silent normal! \<esc>"
-  let is_valid = getpos("'<") != getpos("'>")
-  call sj#PopCursor()
-  return is_valid
+  call s:DoMotion(a:motion)
+  return getpos("'<") != getpos("'>")
 endfunction
 
-" function! s:ReplaceMotionPreserveCursor(motion, lines [, inserts [, mask]]) {{{2
-"
-" Replace the normal mode "motion" with a list of "lines", separated by line
-" breaks, and optionally "inserts" characters, while making a best attempt at
-" preserving the cursor's location within the text block if it's replaced with
-" similar text. Optionally, a "mask" can be provided which is a boolean list
-" indication which text in "lines" originate as part of the original text of the
-" visual selection.
+" function! s:ReplaceMotionPreserveCursor(motion, rep) {{{2
+" 
+" Replace the normal mode "motion" selection with a list of replacement lines,
+" "rep", separated by line breaks, Assuming the non-whitespace content of
+" "motion" is identical to the non-whitespace content of the joined lines of
+" "rep", the cursor will be repositioned to the resulting location of the
+" current character under the cursor.
 "
 function! s:ReplaceMotionPreserveCursor(motion, rep, ...)
   " default to interpretting all lines of text as originally from text to replace
   let rep = a:rep
-  let mask = a:0 > 2 ? a:2 : repeat([1], len(a:rep))
 
   " do motion and get bounds & text
-  call sj#PushCursor()
-  execute "silent normal! " . a:motion . "\<esc>"
-  execute "silent normal! \<esc>"
-  call sj#PopCursor()
-  let ini = map(s:GetTextRange("'<", "."), {k, v -> s:Triml(v)[0]})
+  call s:DoMotion(a:motion)
+  let ini = split(sj#GetByPosition(getpos("'<"), getpos(".")), "\n")
+  let ini = map(ini, {k, v -> sj#Ltrim(v)})
 
   " do replacement
   let body = join(a:rep, "\n")
@@ -152,39 +134,38 @@ function! s:ReplaceMotionPreserveCursor(motion, rep, ...)
   silent normal! `<
 
   " try to reconcile initial selection against replacement lines
-  let [cursory, cursorx] = [0, 0]
+  let [cursory, cursorx, leading_ws] = [0, 0, 0]
   while len(ini) && len(rep)
-    " rep[0] (next replacement line) should be present in initial selection
-    if mask[0]
-      let i = stridx(ini[0], rep[0])
-      let j = stridx(rep[0], ini[0])
-      if i >= 0
-        " if an entire line of the replacement text found in initial then we'll
-        " need our cursor to move to the next line if more lines are insered
-        let [ini[0], ws] = s:Triml(ini[0][i+len(rep[0]):])
-        let cursorx += i + len(rep[0])
-        let ini = len(ini[0]) ? ini : ini[1:]
-        let rep = rep[1:]
-        if len(ini)
-          let cursory += 1
-          let cursorx = 0
-        endif
-      elseif j >= 0
-        " if an entire line of the initial is found in the replacement then
-        " we'll need our cursor to move rightward through length of the initial
-        let [rep[0], ws] = s:Triml(rep[0][j+len(ini[0]):])
-        let cursorx += j + len(ini[0])
-        let ini = ini[1:]
-        let cursorx += (len(ini) && len(ini[0]) ? ws : 0)
-      else
-        let ini = []
-      endif
-      " continue to next rep (replacement line)
-    else
+    let i = stridx(ini[0], rep[0])
+    let j = stridx(rep[0], ini[0])
+    if i >= 0 
+      " if an entire line of the replacement text found in initial then we'll
+      " need our cursor to move to the next line if more lines are insered
+      let ini[0] = sj#Ltrim(ini[0][i+len(rep[0]):])
+      let cursorx += i + len(rep[0])
+      let ini = len(ini[0]) ? ini : ini[1:]
       let rep = rep[1:]
-    endif
+      if len(ini)
+        let cursory += 1
+        let cursorx = 0
+      endif
+    elseif j >= 0
+      " if an entire line of the initial is found in the replacement then 
+      " we'll need our cursor to move rightward through length of the initial
+      let rep[0] = rep[0][j+len(ini[0]):]
+      let leading_ws = len(rep[0])
+      let rep[0] = sj#Ltrim(rep[0])
+      let leading_ws = leading_ws - len(rep[0])
+      let cursorx += j + len(ini[0])
+      let ini = ini[1:]
+      let cursorx += (len(ini) && len(ini[0]) ? leading_ws : 0)
+    else
+      let ini = []
+    endif 
   endwhile
 
   call s:MoveCursor(cursory, max([cursorx-1, 0]))
   call sj#PushCursor()
 endfunction
+
+
