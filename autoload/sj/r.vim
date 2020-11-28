@@ -117,7 +117,7 @@ endfunction
 " "rep", the cursor will be repositioned to the resulting location of the
 " current character under the cursor.
 "
-function! s:ReplaceMotionPreserveCursor(motion, rep, ...)
+function! s:ReplaceMotionPreserveCursor(motion, rep)
   " default to interpretting all lines of text as originally from text to replace
   let rep = a:rep
 
