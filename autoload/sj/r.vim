@@ -1,6 +1,58 @@
 " Only real syntax that's interesting is cParen and cConditional
 let s:skip = sj#SkipSyntax(['rComment'])
 
+" function! sj#r#SplitFuncall()
+"
+" Split the R function call if the cursor lies within the arguments of a
+" function call
+"
+function! sj#r#SplitFuncall()
+  if !s:IsValidSelection("va(")
+    return 0
+  endif
+
+  call sj#PushCursor()
+  let items = s:ParseJsonFromMotion("va(\<esc>vi(")
+  let items = map(items, {k, v -> v . (k+1 < len(items) ? "," : "")})
+
+  if g:r_indent_align_args && len(items)
+    let items[0]  = "(" . items[0]
+    let items[-1] = items[-1] . ")"
+    let lines = items
+  else
+    let lines = ["("] + items + [")"]
+  endif
+
+  call sj#PopCursor()
+  call s:ReplaceMotionPreserveCursor('va(', lines)
+
+  return 1
+endfunction
+
+" function! sj#r#JoinFuncall()
+"
+" Join an R function call if the cursor lies within the arguments of a
+" function call
+"
+function! sj#r#JoinFuncall()
+  if !s:IsValidSelection("va(")
+    return 0
+  endif
+
+  call sj#PushCursor()
+  let items = s:ParseJsonFromMotion("va(\<esc>vi(")
+
+  " clean up unwanted spaces around parens which can occur during nested joins
+  let text = join(items, ", ")
+  let text = substitute(text, '(\s', '(', 'g')
+  let text = substitute(text, '\s)', ')', 'g')
+
+  call sj#PopCursor()
+  call s:ReplaceMotionPreserveCursor("va(", ["(" . text . ")"])
+
+  return 1
+endfunction
+
 " function! s:Triml(text [, mask])
 "
 " A shorthand for trim with setting dir=1
@@ -135,56 +187,4 @@ function! s:ReplaceMotionPreserveCursor(motion, rep, ...)
 
   call s:MoveCursor(cursory, max([cursorx-1, 0]))
   call sj#PushCursor()
-endfunction
-
-" function! sj#r#SplitFuncall()
-"
-" Split the R function call if the cursor lies within the arguments of a
-" function call
-"
-function! sj#r#SplitFuncall()
-  if !s:IsValidSelection("va(")
-    return 0
-  endif
-
-  call sj#PushCursor()
-  let items = s:ParseJsonFromMotion("va(\<esc>vi(")
-  let items = map(items, {k, v -> v . (k+1 < len(items) ? "," : "")})
-
-  if g:r_indent_align_args && len(items)
-    let items[0]  = "(" . items[0]
-    let items[-1] = items[-1] . ")"
-    let lines = items
-  else
-    let lines = ["("] + items + [")"]
-  endif
-
-  call sj#PopCursor()
-  call s:ReplaceMotionPreserveCursor('va(', lines)
-
-  return 1
-endfunction
-
-" function! sj#r#JoinFuncall()
-"
-" Join an R function call if the cursor lies within the arguments of a
-" function call
-"
-function! sj#r#JoinFuncall()
-  if !s:IsValidSelection("va(")
-    return 0
-  endif
-
-  call sj#PushCursor()
-  let items = s:ParseJsonFromMotion("va(\<esc>vi(")
-
-  " clean up unwanted spaces around parens which can occur during nested joins
-  let text = join(items, ", ")
-  let text = substitute(text, '(\s', '(', 'g')
-  let text = substitute(text, '\s)', ')', 'g')
-
-  call sj#PopCursor()
-  call s:ReplaceMotionPreserveCursor("va(", ["(" . text . ")"])
-
-  return 1
 endfunction
