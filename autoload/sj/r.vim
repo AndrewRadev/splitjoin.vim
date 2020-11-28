@@ -187,7 +187,14 @@ function! sj#r#SplitFuncall()
   call sj#PushCursor()
   let items = sj#r#ParseJsonFromMotion("va(\<esc>vi(")
   let items = map(items, {k, v -> v . (k+1 < len(items) ? "," : "")})
-  let lines = ["("] + items + [")"]
+
+  if g:r_indent_align_args && len(items)
+    let items[0]  = "(" . items[0]
+    let items[-1] = items[-1] . ")"
+    let lines = items
+  else
+    let lines = ["("] + items + [")"]
+  endif
 
   call sj#PopCursor()
   call sj#r#ReplaceMotionPreserveCursor('va(', lines)
