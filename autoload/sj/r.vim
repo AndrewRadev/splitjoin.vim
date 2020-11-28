@@ -1,37 +1,31 @@
 " Only real syntax that's interesting is cParen and cConditional
 let s:skip = sj#SkipSyntax(['rComment'])
 
-
-
 " function! sj#r#triml(text [, mask])
 "
 " A shorthand for trim with setting dir=1
 "
 function! sj#r#triml(text, ...)
   let inlen = len(a:text)
-  let text = a:0 > 0 
-  \ ? trim(a:text, a:1, 1) 
-  \ : substitute(a:text, '^\s*', '', 'g')
+  let text = a:0 > 0
+        \ ? trim(a:text, a:1, 1)
+        \ : substitute(a:text, '^\s*', '', 'g')
   return [text, inlen - len(text)]
 endfunction
-
-
 
 " function! sj#r#MoveCursor(lines, cols)
 "
 " Reposition cursor given relative lines offset and columns from the start of
 " the line
 "
-function! sj#r#MoveCursor(lines, cols) 
+function! sj#r#MoveCursor(lines, cols)
   let y = a:lines > 0 ? a:lines . 'j^' : a:lines < 0 ? a:lines . 'k^' : ''
   let x = a:cols  > 0 ? a:cols  . 'l'  : a:cols  < 0 ? a:cols  . 'h'  : ''
   let motion = y . x
   if len(motion)
-      execute 'silent normal! ' . motion
+    execute 'silent normal! ' . motion
   endif
 endfunction
-
-
 
 " function! sj#r#ParseJsonObject(text)
 "
@@ -42,8 +36,6 @@ function! sj#r#ParseJsonObject(text)
   call parser.Process()
   return parser.args
 endfunction
-
-
 
 " function! sj#r#ParseFromMotion(motion)
 "
@@ -59,10 +51,8 @@ function! sj#r#ParseJsonFromMotion(motion)
   return sj#r#ParseJsonObject(text)
 endfunction
 
-
-
 " function! sj#r#GetTextRange(start, end)
-" 
+"
 " Get the text between positions marked by getpos("start") and getpos("end")
 "
 " inspired by: https://stackoverflow.com/questions/1533565
@@ -78,22 +68,18 @@ function! sj#r#GetTextRange(start, end)
   return lines
 endfunction
 
-
-
 " function! sj#r#GetTextMotion(motion)
 "
 " Get the text bound by the visual selection after a given normal-mode motion
 " string
 "
-function! sj#r#GetTextMotion(motion) 
+function! sj#r#GetTextMotion(motion)
   call sj#PushCursor()
   execute "silent normal! " . a:motion . "\<esc>"
   execute "silent normal! \<esc>"
   call sj#PopCursor()
   return sj#r#GetTextRange("'<", "'>")
- endfunction 
-
-
+endfunction
 
 " function! sj#r#IsValidSelection(motion)
 "
@@ -109,10 +95,8 @@ function! sj#r#IsValidSelection(motion)
   return is_valid
 endfunction
 
-
-
 " function! sj#r#ReplaceMotionPreserveCursor(motion, lines [, inserts [, mask]]) {{{2
-" 
+"
 " Replace the normal mode "motion" with a list of "lines", separated by line
 " breaks, and optionally "inserts" characters, while making a best attempt at
 " preserving the cursor's location within the text block if it's replaced with
@@ -142,11 +126,11 @@ function! sj#r#ReplaceMotionPreserveCursor(motion, rep, ...)
   " try to reconcile initial selection against replacement lines
   let [cursory, cursorx] = [0, 0]
   while len(ini) && len(rep)
-    " rep[0] (next replacement line) should be present in initial selection 
-    if mask[0] 
+    " rep[0] (next replacement line) should be present in initial selection
+    if mask[0]
       let i = stridx(ini[0], rep[0])
       let j = stridx(rep[0], ini[0])
-      if i >= 0 
+      if i >= 0
         " if an entire line of the replacement text found in initial then we'll
         " need our cursor to move to the next line if more lines are insered
         let [ini[0], ws] = sj#r#triml(ini[0][i+len(rep[0]):])
@@ -158,7 +142,7 @@ function! sj#r#ReplaceMotionPreserveCursor(motion, rep, ...)
           let cursorx = 0
         endif
       elseif j >= 0
-        " if an entire line of the initial is found in the replacement then 
+        " if an entire line of the initial is found in the replacement then
         " we'll need our cursor to move rightward through length of the initial
         let [rep[0], ws] = sj#r#triml(rep[0][j+len(ini[0]):])
         let cursorx += j + len(ini[0])
@@ -166,8 +150,8 @@ function! sj#r#ReplaceMotionPreserveCursor(motion, rep, ...)
         let cursorx += (len(ini) && len(ini[0]) ? ws : 0)
       else
         let ini = []
-      endif 
-    " continue to next rep (replacement line)
+      endif
+      " continue to next rep (replacement line)
     else
       let rep = rep[1:]
     endif
@@ -176,7 +160,6 @@ function! sj#r#ReplaceMotionPreserveCursor(motion, rep, ...)
   call sj#r#MoveCursor(cursory, max([cursorx-1, 0]))
   call sj#PushCursor()
 endfunction
-
 
 " function! sj#r#SplitFuncall()
 "
@@ -206,8 +189,6 @@ function! sj#r#SplitFuncall()
   return 1
 endfunction
 
-
-
 " function! sj#r#JoinFuncall()
 "
 " Join an R function call if the cursor lies within the arguments of a
@@ -231,4 +212,3 @@ function! sj#r#JoinFuncall()
 
   return 1
 endfunction
-
