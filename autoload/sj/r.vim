@@ -51,7 +51,10 @@ endfunction
 " string
 "
 function! sj#r#ParseJsonFromMotion(motion)
+  call sj#PushCursor()
   execute "silent normal! " . a:motion . "\<esc>"
+  execute "silent normal! \<esc>"
+  call sj#PopCursor()
   let text = join(sj#r#GetTextRange("'<", "'>"), "\n")
   return sj#r#ParseJsonObject(text)
 endfunction
@@ -85,6 +88,7 @@ endfunction
 function! sj#r#GetTextMotion(motion) 
   call sj#PushCursor()
   execute "silent normal! " . a:motion . "\<esc>"
+  execute "silent normal! \<esc>"
   call sj#PopCursor()
   return sj#r#GetTextRange("'<", "'>")
  endfunction 
