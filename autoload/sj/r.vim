@@ -41,17 +41,41 @@ function! sj#r#JoinFuncall()
   endif
 
   call sj#PushCursor()
-  let items = s:ParseJsonFromMotion("va(\<esc>vi(")
 
-  " clean up unwanted spaces around parens which can occur during nested joins
+  let existing_text = sj#GetMotion("va(\<esc>vi(")
+  let items = s:ParseJsonObject(existing_text)
   let text = join(items, ", ")
-  let text = substitute(text, '(\s', '(', 'g')
-  let text = substitute(text, '\s)', ')', 'g')
+
+  " if replacement wouldn't have any effect, fail to attempt a latter callback 
+  if text == existing_text
+    return 0
+  endif
 
   call sj#PopCursor()
   call s:ReplaceMotionPreserveCursor("va(", ["(" . text . ")"])
 
   return 1
+endfunction
+
+" function! sj#r#JoinSmart()
+"
+" Reexecute :SplitjoinJoin at the end of the line, where it is more likely
+" to find a code block relevant to being joined.
+"
+function! sj#r#JoinSmart()
+  call sj#PushCursor()
+
+  let cur_pos = getpos(".")
+  silent normal! $
+  let end_pos = getpos(".")
+
+  if cur_pos[1:2] != end_pos[1:2]
+    execute ":SplitjoinJoin"
+    call sj#PopCursor()
+    return 1
+  else
+
+  return 0
 endfunction
 
 " function! s:DoMotion(motion)

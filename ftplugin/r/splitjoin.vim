@@ -6,6 +6,7 @@ endif
 
 if !exists('b:splitjoin_join_callbacks')
   let b:splitjoin_join_callbacks = [
-        \ 'sj#r#JoinFuncall'
+        \ 'sj#r#JoinFuncall',
+        \ 'sj#r#JoinSmart'
         \ ]
 endif
