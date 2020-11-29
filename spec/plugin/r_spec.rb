@@ -19,15 +19,11 @@ describe "R" do
     vim.search('1,')
     split
 
-    # Remove indentation to avoid issues with R indent changes
-    vim.normal('g<<G')
-    vim.write
-
     assert_file_contents <<~EOF
       print(
-      1,
-      a = 2,
-      3
+        1,
+        a = 2,
+        3
       )
     EOF
 
