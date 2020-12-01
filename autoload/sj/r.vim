@@ -46,7 +46,7 @@ function! sj#r#JoinFuncall()
   let items = s:ParseJsonObject(existing_text)
   let text = join(items, ", ")
 
-  " if replacement wouldn't have any effect, fail to attempt a latter callback 
+  " if replacement wouldn't have any effect, fail to attempt a latter callback
   if text == existing_text
     return 0
   endif
@@ -63,19 +63,22 @@ endfunction
 " to find a code block relevant to being joined.
 "
 function! sj#r#JoinSmart()
-  call sj#PushCursor()
+  try
+    call sj#PushCursor()
 
-  let cur_pos = getpos(".")
-  silent normal! $
-  let end_pos = getpos(".")
+    let cur_pos = getpos(".")
+    silent normal! $
+    let end_pos = getpos(".")
 
-  if cur_pos[1:2] != end_pos[1:2]
-    execute ":SplitjoinJoin"
+    if cur_pos[1:2] != end_pos[1:2]
+      execute ":SplitjoinJoin"
+      return 1
+    else
+      return 0
+    endif
+  finally
     call sj#PopCursor()
-    return 1
-  else
-
-  return 0
+  endtr
 endfunction
 
 " function! s:DoMotion(motion)
@@ -134,7 +137,7 @@ function! s:IsValidSelection(motion)
 endfunction
 
 " function! s:ReplaceMotionPreserveCursor(motion, rep) {{{2
-" 
+"
 " Replace the normal mode "motion" selection with a list of replacement lines,
 " "rep", separated by line breaks, Assuming the non-whitespace content of
 " "motion" is identical to the non-whitespace content of the joined lines of
@@ -162,7 +165,7 @@ function! s:ReplaceMotionPreserveCursor(motion, rep)
   while len(ini) && len(rep)
     let i = stridx(ini[0], rep[0])
     let j = stridx(rep[0], ini[0])
-    if i >= 0 
+    if i >= 0
       " if an entire line of the replacement text found in initial then we'll
       " need our cursor to move to the next line if more lines are insered
       let ini[0] = sj#Ltrim(ini[0][i+len(rep[0]):])
@@ -174,7 +177,7 @@ function! s:ReplaceMotionPreserveCursor(motion, rep)
         let cursorx = 0
       endif
     elseif j >= 0
-      " if an entire line of the initial is found in the replacement then 
+      " if an entire line of the initial is found in the replacement then
       " we'll need our cursor to move rightward through length of the initial
       let rep[0] = rep[0][j+len(ini[0]):]
       let leading_ws = len(rep[0])
@@ -185,7 +188,7 @@ function! s:ReplaceMotionPreserveCursor(motion, rep)
       let cursorx += (len(ini) && len(ini[0]) ? leading_ws : 0)
     else
       let ini = []
-    endif 
+    endif
   endwhile
 
   call s:MoveCursor(cursory, max([cursorx-1, 0]))
