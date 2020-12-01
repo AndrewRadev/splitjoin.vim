@@ -22,6 +22,7 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Perl...................................: |splitjoin-perl|
     PHP....................................: |splitjoin-php|
     Python.................................: |splitjoin-python|
+    R......................................: |splitjoin-r|
     Ruby...................................: |splitjoin-ruby|
     Rust...................................: |splitjoin-rust|
     SCSS/Less..............................: |splitjoin-scss| |splitjoin-less|
@@ -786,6 +787,25 @@ Note that splitting `a, b = b, a` would not result in an expression that works
 the same way, due to the special handling by python of this case to swap two
 values.
 
+==============================================================================
+R                                                                  *splitjoin-r*
+
+Function calls ~
+>
+    print(1, 2, 3)
+
+    # with g:r_indent_align_args = 0
+    print(
+      1,
+      2,
+      3
+    )
+
+    # with g:r_indent_align_args = 1
+    print(1,
+          2,
+          3)
+<
 
 ==============================================================================
 RUBY                                                            *splitjoin-ruby*
