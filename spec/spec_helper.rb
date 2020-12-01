@@ -16,6 +16,7 @@ Vimrunner::RSpec.configure do |config|
     vim.prepend_runtimepath(plugin_path.join('spec/support/vim-javascript'))
     vim.prepend_runtimepath(plugin_path.join('spec/support/vim-elm-syntax'))
     vim.prepend_runtimepath(plugin_path.join('spec/support/vim-elixir'))
+    vim.prepend_runtimepath(plugin_path.join('spec/support/R-Vim-runtime'))
 
     # Alignment tool for alignment tests:
     vim.add_plugin(plugin_path.join('spec/support/tabular'), 'plugin/Tabular.vim')
