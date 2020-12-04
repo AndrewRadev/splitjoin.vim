@@ -388,7 +388,7 @@ describe "ruby" do
     end
   end
 
-  describe 'cases' do
+  describe "cases" do
     it "joins cases with well formed when-thens" do
       set_file_contents <<~EOF
         case
@@ -577,7 +577,30 @@ describe "ruby" do
       join
 
       assert_file_contents <<~EOF
-      foo = { bar: 1, one: 2 }
+        foo = { bar: 1, one: 2 }
+      EOF
+    end
+
+    specify "with string syntax and ':'" do
+      set_file_contents <<~EOF
+        foo = { 'bar baz ': 1, "one two ": 2 }
+      EOF
+
+      vim.search 'bar:'
+      split
+
+      assert_file_contents <<~EOF
+        foo = {
+          'bar baz ': 1,
+          "one two ": 2
+        }
+      EOF
+
+      vim.search 'foo'
+      join
+
+      assert_file_contents <<~EOF
+        foo = { 'bar baz ': 1, "one two ": 2 }
       EOF
     end
 

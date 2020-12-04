@@ -13,6 +13,7 @@ function! sj#argparser#ruby#Construct(start_index, end_index, line)
         \ 'PushArg':          function('sj#argparser#ruby#PushArg'),
         \ 'AtFunctionEnd':    function('sj#argparser#ruby#AtFunctionEnd'),
         \ 'ExpandOptionHash': function('sj#argparser#ruby#ExpandOptionHash'),
+        \ 'MarkOptionArg':    function('sj#argparser#ruby#MarkOptionArg'),
         \ })
 
   return parser
@@ -29,8 +30,15 @@ function! sj#argparser#ruby#Process() dict
       continue
     elseif self.AtFunctionEnd()
       break
-    elseif self.body[0] =~ "[\"'{\[`(/]"
-      call self.JumpPair("\"'{[`(/", "\"'}]`)/")
+    elseif self.body[0] =~ '[''"]'
+      call self.JumpPair("'\"", "'\"")
+
+      " Example: 'some key': value
+      if len(self.body) > 1 && self.body[1] == ':'
+        call self.MarkOptionArg('new')
+      endif
+    elseif self.body[0] =~ "[{\[`(/]"
+      call self.JumpPair("{[`(/", "}]`)/")
     elseif self.body[0] == '%'
       call self.PushChar()
       if self.body[0] =~ '[qQrswWx]'
@@ -43,20 +51,11 @@ function! sj#argparser#ruby#Process() dict
         call self.JumpPair(delimiter, delimiter)
       endif
     elseif self.body =~ '^=>'
-      let self.current_arg_type = 'option'
-      if sj#BlankString(self.hash_type)
-        let self.hash_type = 'classic'
-      elseif self.hash_type == 'new'
-        let self.hash_type = 'mixed'
-      endif
+      " Example: 'some key' => value
+      call self.MarkOptionArg('classic')
     elseif self.body =~ '^\(\k\|[?!]\):[^:]'
-      let self.current_arg_type = 'option'
-      if sj#BlankString(self.hash_type)
-        let self.hash_type = 'new'
-      elseif self.hash_type == 'classic'
-        let self.hash_type = 'mixed'
-      endif
-      call self.PushChar()
+      " Example: some_key: value
+      call self.MarkOptionArg('new')
     endif
 
     call self.PushChar()
@@ -91,7 +90,7 @@ function! sj#argparser#ruby#ExpandOptionHash() dict
   if len(self.opts) <= 0 && len(self.args) > 0
     " then try parsing the last parameter
     let last = self.args[-1]
-    let hash_pattern = '^{\(.*\(=>\|\k:\).*\)}$'
+    let hash_pattern = '^{\(.*\(=>\|\k:\|[''"]:\).*\)}$'
 
     if last =~ hash_pattern
       " then it seems to be a hash, expand it
@@ -192,6 +191,18 @@ function! sj#argparser#ruby#LocateFunction()
   endif
 
   return ['', -1, -1, 'none']
+endfunction
+
+function! sj#argparser#ruby#MarkOptionArg(type) dict
+  let self.current_arg_type = 'option'
+
+  if a:type == 'new' && sj#BlankString(self.hash_type)
+    let self.hash_type = 'new'
+  elseif a:type == 'classic' && sj#BlankString(self.hash_type)
+    let self.hash_type = 'classic'
+  elseif a:type != self.hash_type
+    let self.hash_type = 'mixed'
+  endif
 endfunction
 
 function! sj#argparser#ruby#LocateHash()
