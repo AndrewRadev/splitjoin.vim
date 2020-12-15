@@ -54,6 +54,7 @@ This currently works for various constructs in the following languages:
 - HTML (and HTML-like markup)
 - Handlebars
 - Javascript (within JSX, TSX, Vue.js templates as well)
+- JSON
 - Lua
 - PHP
 - Perl
