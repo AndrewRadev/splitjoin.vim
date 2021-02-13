@@ -37,3 +37,19 @@ function! sj#eruby#JoinIfClause()
 
   return 0
 endfunction
+
+function! sj#eruby#SplitHtmlTags()
+  if eval(sj#SkipSyntax(['erubyDelimiter', 'erubyExpression']))
+    return 0
+  endif
+
+  return sj#html#SplitTags()
+endfunction
+
+function! sj#eruby#SplitHtmlAttributes()
+  if eval(sj#SkipSyntax(['erubyDelimiter', 'erubyExpression']))
+    return 0
+  endif
+
+  return sj#html#SplitAttributes()
+endfunction

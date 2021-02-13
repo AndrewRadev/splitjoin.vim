@@ -19,6 +19,7 @@ describe "eruby" do
       <%= link_to "Home", "/", remote: true, confirm: "Y?" %>
     EOF
 
+    vim.search 'link_to'
     split
 
     assert_file_contents <<~EOF

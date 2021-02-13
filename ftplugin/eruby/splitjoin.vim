@@ -1,8 +1,8 @@
 let b:splitjoin_split_callbacks = [
-      \ 'sj#html#SplitTags',
+      \ 'sj#eruby#SplitHtmlTags',
       \ 'sj#eruby#SplitIfClause',
       \ 'sj#ruby#SplitOptions',
-      \ 'sj#html#SplitAttributes',
+      \ 'sj#eruby#SplitHtmlAttributes',
       \ ]
 
 let b:splitjoin_join_callbacks = [

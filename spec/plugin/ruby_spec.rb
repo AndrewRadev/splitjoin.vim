@@ -1421,6 +1421,21 @@ describe "ruby" do
         }
       EOF
     end
+
+    specify "[edge case] finds a function around the cursor, not after" do
+      set_file_contents <<~EOF
+        foo :one, :two => (true || false || foo(bar, baz))
+      EOF
+
+      vim.search ':one'
+      split
+
+      assert_file_contents <<~EOF
+        foo :one, {
+          :two => (true || false || foo(bar, baz))
+        }
+      EOF
+    end
   end
 
   describe "arrays" do

@@ -123,6 +123,7 @@ endfunction
 " =================
 
 function! sj#argparser#ruby#LocateFunction()
+  call sj#PushCursor()
   let [_bufnum, _start_line, start_col, _off] = getpos('.')
   let skip = sj#SkipSyntax(['rubyInterpolationDelimiter', 'rubyString'])
 
@@ -160,6 +161,8 @@ function! sj#argparser#ruby#LocateFunction()
     endif
   endif
 
+  call sj#PopCursor()
+
   " The second pattern matches functions without brackets:
   "
   "   - a keyword
@@ -177,6 +180,7 @@ function! sj#argparser#ruby#LocateFunction()
     " first, figure out the function name
     call search('\k\+', 'cW', line('.'))
     let function_name = expand('<cword>')
+    let function_start_col = col('.')
 
     " go to the end of the matching pattern
     call search(pattern, 'cWe', line('.'))
@@ -185,7 +189,7 @@ function! sj#argparser#ruby#LocateFunction()
     let from = col('.')
     let to   = -1 " we're not sure about the end
 
-    if sj#CursorBetween(from - 1, col('$'))
+    if sj#ColBetween(start_col, function_start_col - 1, col('$'))
       return [function_name, from, to, function_type]
     endif
   endif
