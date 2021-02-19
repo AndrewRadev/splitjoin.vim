@@ -641,9 +641,9 @@ Hashes ~
 <
 Lists ~
 >
-    my @var = ['one', 'two', 'three'];
+    my $var = ['one', 'two', 'three'];
 
-    my @var = [
+    my $var = [
       'one',
       'two',
       'three'
