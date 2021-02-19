@@ -130,7 +130,11 @@ function! sj#perl#SplitSquareBracketedList()
   endif
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
-  let body  = "[\n".join(items, ",\n")."\n]"
+  let body  = "[\n".join(items, ",\n")
+  if sj#settings#Read('trailing_comma')
+      let body .= ","
+  endif
+  let body .= "\n]"
   call sj#ReplaceMotion('Va[', body)
 
   return 1
@@ -143,7 +147,11 @@ function! sj#perl#SplitRoundBracketedList()
   endif
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
-  let body  = "(\n".join(items, ",\n")."\n)"
+  let body  = "(\n".join(items, ",\n")
+  if sj#settings#Read('trailing_comma')
+      let body .= ","
+  endif
+  let body .= "\n)"
   call sj#ReplaceMotion('Va(', body)
 
   return 1
