@@ -8,6 +8,10 @@ describe "perl" do
     vim.set(:shiftwidth, 2)
   end
 
+  after :each do
+    vim.command('silent! unlet g:splitjoin_trailing_comma')
+  end
+
   after :all do
     # The perl filetype messes with iskeyword...
     vim.command('set iskeyword-=:')
@@ -92,6 +96,25 @@ describe "perl" do
     assert_file_contents "my @var = ['one', 'two', 'three'];"
   end
 
+  specify "square-bracketed list, trailing comma" do
+    vim.command('let g:splitjoin_trailing_comma = 1')
+    set_file_contents "my @var = ['one', 'two', 'three'];"
+
+    split
+
+    assert_file_contents <<~EOF
+      my @var = [
+        'one',
+        'two',
+        'three',
+      ];
+    EOF
+
+    join
+
+    assert_file_contents "my @var = ['one', 'two', 'three'];"
+  end
+
   specify "round-bracketed list" do
     set_file_contents "my @var = ('one', 'two', 'three');"
 
@@ -102,6 +125,25 @@ describe "perl" do
         'one',
         'two',
         'three'
+      );
+    EOF
+
+    join
+
+    assert_file_contents "my @var = ('one', 'two', 'three');"
+  end
+
+  specify "round-bracketed list, trailing comma" do
+    vim.command('let g:splitjoin_trailing_comma = 1')
+    set_file_contents "my @var = ('one', 'two', 'three');"
+
+    split
+
+    assert_file_contents <<~EOF
+      my @var = (
+        'one',
+        'two',
+        'three',
       );
     EOF
 
