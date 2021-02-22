@@ -121,6 +121,9 @@ function! sj#ReplaceMotion(motion, text)
   call setreg('"', a:text, 'v')
   exec 'silent noautocmd normal! '.a:motion.'p'
 
+  " TODO (2021-02-22) Not a good idea to rely on reindent here
+  silent normal! gv=
+
   call setreg('"', saved_register_text, saved_register_type)
   call setpos("'<", saved_opening_visual)
   call setpos("'>", saved_closing_visual)
@@ -190,6 +193,8 @@ endfunction
 function! sj#GetMotion(motion)
   call sj#PushCursor()
 
+  let saved_selection = &selection
+  let &selection = "inclusive"
   let saved_register_text = getreg('z', 1)
   let saved_register_type = getregtype('z')
   let saved_opening_visual = getpos("'<")
@@ -207,6 +212,8 @@ function! sj#GetMotion(motion)
   call setreg('z', saved_register_text, saved_register_type)
   call setpos("'<", saved_opening_visual)
   call setpos("'>", saved_closing_visual)
+  let &selection = saved_selection
+
   call sj#PopCursor()
 
   return text
