@@ -110,16 +110,23 @@ function! sj#ReplaceMotion(motion, text)
   " reset clipboard to avoid problems with 'unnamed' and 'autoselect'
   let saved_clipboard = &clipboard
   set clipboard=
+  let saved_selection = &selection
+  let &selection = "inclusive"
 
   let saved_register_text = getreg('"', 1)
   let saved_register_type = getregtype('"')
+  let saved_opening_visual = getpos("'<")
+  let saved_closing_visual = getpos("'>")
 
   call setreg('"', a:text, 'v')
-  exec 'silent normal! '.a:motion.'p'
-  silent normal! gv=
+  exec 'silent noautocmd normal! '.a:motion.'p'
 
   call setreg('"', saved_register_text, saved_register_type)
+  call setpos("'<", saved_opening_visual)
+  call setpos("'>", saved_closing_visual)
+
   let &clipboard = saved_clipboard
+  let &selection = saved_selection
 endfunction
 
 " function! sj#ReplaceLines(start, end, text) {{{2
@@ -185,9 +192,11 @@ function! sj#GetMotion(motion)
 
   let saved_register_text = getreg('z', 1)
   let saved_register_type = getregtype('z')
+  let saved_opening_visual = getpos("'<")
+  let saved_closing_visual = getpos("'>")
 
   let @z = ''
-  exec 'silent normal! '.a:motion.'"zy'
+  exec 'silent noautocmd normal! '.a:motion.'"zy'
   let text = @z
 
   if text == ''
@@ -196,6 +205,8 @@ function! sj#GetMotion(motion)
   endif
 
   call setreg('z', saved_register_text, saved_register_type)
+  call setpos("'<", saved_opening_visual)
+  call setpos("'>", saved_closing_visual)
   call sj#PopCursor()
 
   return text

@@ -194,5 +194,3 @@ function! s:ReplaceMotionPreserveCursor(motion, rep)
   call s:MoveCursor(cursory, max([cursorx-1, 0]))
   call sj#PushCursor()
 endfunction
-
-
