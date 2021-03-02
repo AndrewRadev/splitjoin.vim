@@ -41,6 +41,11 @@ function! sj#rust#JoinMatchClause()
     return 0
   endif
 
+  " Remove semicolons when joining, they don't work in non-block form
+  if body[len(body) - 1] == ';'
+    let body = body[0 : len(body) - 2]
+  endif
+
   call sj#ReplaceMotion('Va{', body)
   return 1
 endfunction

@@ -57,6 +57,25 @@ describe "rust" do
     EOF
   end
 
+  specify "match clauses with a semicolon" do
+    set_file_contents <<~EOF
+      match one {
+          Ok(two) => {
+              some_expression(three);
+          },
+      }
+    EOF
+
+    vim.search 'Ok(two)'
+    join
+
+    assert_file_contents <<~EOF
+      match one {
+          Ok(two) => some_expression(three),
+      }
+    EOF
+  end
+
   specify "question mark operator for io::Result" do
     set_file_contents <<~EOF
       fn test() -> io::Result {
