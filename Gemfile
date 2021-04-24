@@ -2,7 +2,7 @@ source 'http://rubygems.org'
 
 gem 'rake'
 gem 'rspec'
-gem 'vimrunner', '0.3.4'
+gem 'vimrunner'
 gem 'pry'
 
 gem 'guard'
