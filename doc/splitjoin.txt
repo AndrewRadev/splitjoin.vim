@@ -494,11 +494,11 @@ JAVA                                                            *splitjoin-java*
 
 If clauses ~
 >
-    if (val1 && val2 || val3);
+    if (foo && bar) { baz };
 
-    if (val1
-            && val2
-            || val3);
+    if (foo && bar) {
+        baz
+    };
 <
 Function calls ~
 >
@@ -508,6 +508,14 @@ Function calls ~
             arg2,
             arg3,
             arg4);
+<
+Lambda functions ~
+>
+    some_function(foo -> "bar");
+
+    some_function(foo -> {
+      return "bar";
+    });
 <
 
 ==============================================================================

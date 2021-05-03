@@ -259,6 +259,8 @@ function! s:SearchOpeningBracketOnLine(closing_bracket)
 endfunction
 
 " Note: Duplicated in rust.vim, with some differences
+" TODO: Duplicated in java.vim, identically :/. Figure out what to extract
+" maybe
 "
 function! s:JumpBracketsTill(end_pattern)
   try
