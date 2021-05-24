@@ -8,8 +8,8 @@ endif
 
 if !exists('b:splitjoin_join_callbacks')
   let b:splitjoin_join_callbacks = [
+        \ 'sj#java#JoinLambda',
         \ 'sj#java#JoinFuncall',
         \ 'sj#java#JoinIfClause',
-        \ 'sj#java#JoinLambda',
         \ ]
 endif

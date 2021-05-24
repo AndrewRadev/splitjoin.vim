@@ -67,7 +67,7 @@ function! sj#java#SplitLambda()
   if strpart(getline('.'), col('.') - 1) =~ '^\s*{'
     " then we have a curly bracket group, easy split:
     let body = sj#GetMotion('vi{')
-    call sj#ReplaceMotion('vi{', "\n".sj#Trim(body)."\n")
+    call sj#ReplaceMotion('vi{', "\nreturn ".sj#Trim(body).";\n")
     return 1
   endif
 
@@ -75,11 +75,7 @@ function! sj#java#SplitLambda()
   let end_col = sj#JumpBracketsTill('[\])};,]', {'opening': '([{"''', 'closing': ')]}"'''})
 
   let body = sj#GetCols(start_col, end_col)
-  if getline('.') =~ ';\s*\%(//.*\)\=$'
-    let replacement = "{\nreturn ".body.";\n}"
-  else
-    let replacement = "{\nreturn ".body."\n}"
-  endif
+  let replacement = "{\nreturn ".body.";\n}"
 
   call sj#ReplaceCols(start_col, end_col, replacement)
   return 1

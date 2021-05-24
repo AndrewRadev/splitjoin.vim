@@ -63,14 +63,14 @@ describe "java" do
 
   describe "lambda expressions" do
     specify "arguments, curly braces" do
-      set_file_contents 'Consumer<Integer> method = (n) -> { System.out.println(n); };'
+      set_file_contents 'Consumer<Integer> method = (n) -> { System.out.println(n) };'
 
       vim.search '(n)'
       split
 
       assert_file_contents <<~EOF
         Consumer<Integer> method = (n) -> {
-          System.out.println(n);
+          return System.out.println(n);
         };
       EOF
 
