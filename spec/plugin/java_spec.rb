@@ -5,7 +5,7 @@ describe "java" do
 
   before :each do
     vim.set(:expandtab)
-    vim.set(:shiftwidth, 2)
+    vim.set(:shiftwidth, 4)
   end
 
   specify "if-clause body without curly brackets" do
@@ -16,7 +16,7 @@ describe "java" do
 
     assert_file_contents <<~EOF
       if (isTrue())
-        doSomething();
+          doSomething();
     EOF
 
     join
@@ -32,7 +32,7 @@ describe "java" do
 
     assert_file_contents <<~EOF
       if (isTrue()) {
-        doSomething();
+          doSomething();
       }
     EOF
 
@@ -52,8 +52,8 @@ describe "java" do
 
     assert_file_contents <<~EOF
       if (val1()
-          && val2()
-          || val3())
+              && val2()
+              || val3())
           body();
     EOF
 
@@ -77,8 +77,8 @@ describe "java" do
 
     assert_file_contents <<~EOF
       if (val1()
-          && val2()
-          || val3()) {
+              && val2()
+              || val3()) {
           body();
       }
     EOF
@@ -100,9 +100,9 @@ describe "java" do
 
     assert_file_contents <<~EOF
       myfunction(lots,
-          of,
-          different,
-          parameters);
+              of,
+              different,
+              parameters);
     EOF
 
     join
@@ -137,7 +137,7 @@ describe "java" do
 
       assert_file_contents <<~EOF
         Consumer<Integer> method = (n) -> {
-          return System.out.println(n);
+            return System.out.println(n);
         };
       EOF
 
@@ -154,7 +154,7 @@ describe "java" do
 
       assert_file_contents <<~EOF
         Consumer<Integer> method = (n) -> {
-          return System.out.println(n);
+            return System.out.println(n);
         };
       EOF
 
@@ -171,7 +171,7 @@ describe "java" do
 
       assert_file_contents <<~EOF
         Consumer<Void> method = () -> {
-          return System.out.println("okay");
+            return System.out.println("okay");
         };
       EOF
 
@@ -188,7 +188,7 @@ describe "java" do
 
       assert_file_contents <<~EOF
         Consumer<Integer> method = n -> {
-          return System.out.println(n);
+            return System.out.println(n);
         };
       EOF
 
