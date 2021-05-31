@@ -1,6 +1,6 @@
 let s:skip = sj#SkipSyntax(['javaComment', 'javaString'])
 
-function! sj#java#SplitIfClause()
+function! sj#java#SplitIfClauseBody()
   if sj#SearchSkip('^\s*if (.\+) .\+;\?', s:skip, 'bc', line('.')) <= 0
     return 0
   endif
@@ -8,6 +8,11 @@ function! sj#java#SplitIfClause()
   " skip nested () brackets
   normal! ^w%l
   let body = sj#Trim(sj#GetMotion('vg_'))
+
+  if body == '{'
+    " nothing to split
+    return 0
+  endi
 
   if body[0] == '{'
     let with_curly_brackets = 1
@@ -17,7 +22,11 @@ function! sj#java#SplitIfClause()
     let with_curly_brackets = 0
   endif
 
-  if body =~ '\n'
+  if body[0] == ')'
+    " normal! l didn't work, body must be on another line, nothing to do here
+    return 0
+  " elseif body =~ '//\|/*'
+  elseif body =~ '\n'
     " it's more than one line, nevermind
     return 0
   endif
@@ -31,7 +40,7 @@ function! sj#java#SplitIfClause()
   return 1
 endfunction
 
-function! sj#java#JoinIfClause()
+function! sj#java#JoinIfClauseBody()
   if sj#SearchSkip('^\s*if\s*(.\+)\s*{$', s:skip, 'e', line('.')) > 0
     normal! va{J
     return 1
@@ -42,6 +51,52 @@ function! sj#java#JoinIfClause()
   else
     return 0
   endif
+endfunction
+
+function! sj#java#SplitIfClauseCondition()
+  normal! ^
+  if sj#SearchSkip('^\s*if\s\+(', s:skip, 'ce', line('.')) <= 0
+    return 0
+  endif
+
+  let start_pos = getpos('.')
+  normal! %
+  let end_pos = getpos('.')
+
+  if start_pos[1] != end_pos[1]
+    " closing ) was on a different line, don't split
+    return 0
+  endif
+
+  if start_pos[2] == end_pos[2]
+    " same column, we didn't move
+    return 0
+  endif
+
+  let items = sj#TrimList(split(sj#GetByPosition(start_pos, end_pos), '\ze\(&&\|||\)'))
+  let body  = join(items, "\n")
+
+  call sj#ReplaceByPosition(start_pos, end_pos, body)
+  return 1
+endfunction
+
+function! sj#java#JoinIfClauseCondition()
+  normal! ^
+  if sj#SearchSkip('^\s*if\s*(', s:skip, 'ce', line('.')) <= 0
+    return 0
+  endif
+
+  let start_line = line('.')
+  normal! %
+  let end_line = line('.')
+
+  if start_line == end_line
+    " closing ) was on the same line, nothing to do
+    return 0
+  endif
+
+  normal! va)J
+  return 1
 endfunction
 
 function! sj#java#SplitFuncall()

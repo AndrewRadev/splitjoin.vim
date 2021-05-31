@@ -492,7 +492,7 @@ Attributes ~
 ==============================================================================
 JAVA                                                            *splitjoin-java*
 
-If clauses ~
+If-clause bodies ~
 >
     if (isTrue())
       doSomething();
@@ -504,6 +504,16 @@ If clauses ~
     }
 
     if (isTrue()) { doSomething(); }
+<
+If-clause conditions ~
+>
+    if (val1 && val2 || val3)
+        body();
+
+    if (val1
+            && val2
+            || val3)
+        body();
 <
 Function calls ~
 >
@@ -525,7 +535,7 @@ Lambda functions ~
 
 ==============================================================================
 JAVASCRIPT                                                *splitjoin-javascript*
-                                                          *splitjoin-json*
+                                                            *splitjoin-json*
 
 Object and Array splitting also work for JSON, if it's set as a separate
 filetype. (If it's just set to "javascript", it'll just apply javascript

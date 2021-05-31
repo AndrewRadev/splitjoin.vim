@@ -8,7 +8,7 @@ describe "java" do
     vim.set(:shiftwidth, 2)
   end
 
-  specify "if-clause without curly brackets" do
+  specify "if-clause body without curly brackets" do
     set_file_contents "if (isTrue()) doSomething();"
 
     vim.search 'if'
@@ -24,7 +24,7 @@ describe "java" do
     assert_file_contents "if (isTrue()) doSomething();"
   end
 
-  specify "if-clause with curly brackets" do
+  specify "if-clause body with curly brackets" do
     set_file_contents "if (isTrue()) { doSomething(); }"
 
     vim.search 'if'
@@ -39,6 +39,57 @@ describe "java" do
     join
 
     assert_file_contents "if (isTrue()) { doSomething(); }"
+  end
+
+  specify "if-clause condition without curly brackets" do
+    set_file_contents <<~EOF
+      if (val1() && val2() || val3())
+          body();
+    EOF
+
+    vim.search 'if'
+    split
+
+    assert_file_contents <<~EOF
+      if (val1()
+          && val2()
+          || val3())
+          body();
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      if (val1() && val2() || val3())
+          body();
+    EOF
+  end
+
+  specify "if-clause condition with curly brackets" do
+    set_file_contents <<~EOF
+      if (val1() && val2() || val3()) {
+          body();
+      }
+    EOF
+
+    vim.search 'if'
+    split
+
+    assert_file_contents <<~EOF
+      if (val1()
+          && val2()
+          || val3()) {
+          body();
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      if (val1() && val2() || val3()) {
+          body();
+      }
+    EOF
   end
 
   specify "function_call" do
