@@ -1,30 +1,47 @@
 let s:skip = sj#SkipSyntax(['javaComment', 'javaString'])
 
 function! sj#java#SplitIfClause()
-  if sj#SearchUnderCursor('if\s*(.\{-})\s*{', 'e', s:skip) <= 0
+  if sj#SearchSkip('^\s*if (.\+) .\+;\?', s:skip, 'bc', line('.')) <= 0
     return 0
   endif
 
-  let body = sj#GetMotion('vi{')
+  " skip nested () brackets
+  normal! ^w%l
+  let body = sj#Trim(sj#GetMotion('vg_'))
+
+  if body[0] == '{'
+    let with_curly_brackets = 1
+    normal! f{
+    let body = sj#Trim(sj#GetMotion('vi{'))
+  else
+    let with_curly_brackets = 0
+  endif
+
   if body =~ '\n'
     " it's more than one line, nevermind
     return 0
   endif
 
-  call sj#ReplaceMotion('va{', "{\n".sj#Trim(body)."\n}")
+  if with_curly_brackets
+    call sj#ReplaceMotion('va{', "{\n".body."\n}")
+  else
+    call sj#ReplaceMotion('vg_', "\n".body)
+  endif
+
   return 1
 endfunction
 
 function! sj#java#JoinIfClause()
-  if sj#SearchUnderCursor('if\s*(.\{-})\s*{$', '', s:skip) <=  0
+  if sj#SearchSkip('^\s*if\s*(.\+)\s*{$', s:skip, 'e', line('.')) > 0
+    normal! va{J
+    return 1
+  elseif sj#SearchSkip('^\s*if\s*(.\+)\s*$', s:skip, 'bc', line('.')) > 0 &&
+        \ indent(nextnonblank(line('.') + 1)) > indent(line('.'))
+    normal! J
+    return 1
+  else
     return 0
   endif
-
-  call sj#PushCursor()
-  normal! f{
-  normal! va{J
-  call sj#PopCursor()
-  return 1
 endfunction
 
 function! sj#java#SplitFuncall()

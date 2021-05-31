@@ -494,11 +494,16 @@ JAVA                                                            *splitjoin-java*
 
 If clauses ~
 >
-    if (foo && bar) { baz };
+    if (isTrue())
+      doSomething();
 
-    if (foo && bar) {
-        baz
-    };
+    if (isTrue()) doSomething();
+
+    if (isTrue()) {
+      doSomething();
+    }
+
+    if (isTrue()) { doSomething(); }
 <
 Function calls ~
 >
@@ -577,7 +582,7 @@ One-line if conditionals ~
       doSomething();
     }
 
-    if (isTrue()) doSomething;
+    if (isTrue()) doSomething();
 <
 Fat-arrow functions ~
 >

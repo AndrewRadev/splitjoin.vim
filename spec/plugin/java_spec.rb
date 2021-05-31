@@ -8,21 +8,37 @@ describe "java" do
     vim.set(:shiftwidth, 2)
   end
 
-  specify "if-clause" do
-    set_file_contents "if (foo && bar) { baz; }"
+  specify "if-clause without curly brackets" do
+    set_file_contents "if (isTrue()) doSomething();"
 
     vim.search 'if'
     split
 
     assert_file_contents <<~EOF
-      if (foo && bar) {
-        baz;
+      if (isTrue())
+        doSomething();
+    EOF
+
+    join
+
+    assert_file_contents "if (isTrue()) doSomething();"
+  end
+
+  specify "if-clause with curly brackets" do
+    set_file_contents "if (isTrue()) { doSomething(); }"
+
+    vim.search 'if'
+    split
+
+    assert_file_contents <<~EOF
+      if (isTrue()) {
+        doSomething();
       }
     EOF
 
     join
 
-    assert_file_contents "if (foo && bar) { baz; }"
+    assert_file_contents "if (isTrue()) { doSomething(); }"
   end
 
   specify "function_call" do
