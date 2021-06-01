@@ -30,6 +30,8 @@ call sj#settings#SetDefault('python_brackets_on_separate_lines',       0)
 call sj#settings#SetDefault('handlebars_closing_bracket_on_same_line', 0)
 call sj#settings#SetDefault('handlebars_hanging_arguments',            0)
 call sj#settings#SetDefault('html_attribute_bracket_on_new_line',      0)
+call sj#settings#SetDefault('java_argument_split_first_newline',       0)
+call sj#settings#SetDefault('java_argument_split_last_newline',        0)
 
 if !exists('g:splitjoin_join_mapping')
   let g:splitjoin_join_mapping = 'gJ'

@@ -112,7 +112,20 @@ function! sj#java#SplitFuncall()
   let end = col('.')
 
   let items = sj#ParseJsonObjectBody(start, end)
-  let body = '('.join(items, ",\n").')'
+
+  if sj#settings#Read('java_argument_split_first_newline')
+    let body = "(\n"
+  else
+    let body = "("
+  endif
+
+  let body .= join(items, ",\n")
+
+  if sj#settings#Read('java_argument_split_last_newline')
+    let body .= "\n)"
+  else
+    let body .= ")"
+  endif
 
   call sj#PopCursor()
 
@@ -125,7 +138,9 @@ function! sj#java#JoinFuncall()
     return 0
   endif
 
-  normal! va(J
+  let lines = sj#TrimList(split(sj#GetMotion('vi('), "\n"))
+  call sj#ReplaceMotion('va(', '('.join(lines, ' ').')')
+
   return 1
 endfunction
 
