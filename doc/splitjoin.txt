@@ -1820,6 +1820,33 @@ If set to 1:
 
 Joining a chain will also join all the methods calls.
 
+                                   *splitjoin_java_argument_split_first_newline*
+                                    *splitjoin_java_argument_split_last_newline*
+>
+    let g:splitjoin_java_argument_split_first_newline = 1
+    let g:splitjoin_java_argument_split_last_newline  = 1
+<
+Default value: 0
+
+These variables control whether a newline will be placed between the bracket
+and the first or last item of a java argument list when splitting. With the
+default, both set to 0, a split might look like this:
+>
+    functionCall(one,
+            two,
+            three)
+<
+With both values set to 1, a space will be left before the first item and
+after the last one:
+>
+    functionCall(
+            one,
+            two,
+            three
+            )
+<
+This is a setting that might be generalized for other languages and constructs
+at a later time.
 
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*
