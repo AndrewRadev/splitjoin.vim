@@ -586,7 +586,7 @@ describe "ruby" do
         foo = { 'bar baz ': 1, "one two ": 2 }
       EOF
 
-      vim.search 'bar:'
+      vim.search 'bar'
       split
 
       assert_file_contents <<~EOF
@@ -1434,6 +1434,20 @@ describe "ruby" do
         foo :one, {
           :two => (true || false || foo(bar, baz))
         }
+      EOF
+    end
+
+    specify "[edge case] block after a list of arguments" do
+      set_file_contents <<~EOF
+        function_call(one, two) { bar }
+      EOF
+
+      vim.search 'function_call'
+      split
+
+      # Unchanged
+      assert_file_contents <<~EOF
+        function_call(one, two) { bar }
       EOF
     end
   end

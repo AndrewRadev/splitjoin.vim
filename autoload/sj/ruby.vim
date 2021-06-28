@@ -520,6 +520,11 @@ function! sj#ruby#SplitOptions()
   let [from, to, args, opts, hash_type, cursor_arg] =
         \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))
 
+  if !(from <= col('.') && col('.') <= to)
+    " then this is not around the cursor, bail out
+    return 0
+  endif
+
   let no_options = len(opts) < 1 && len(args) > 0 && option_type == 'option'
   let both_args_and_opts = sj#settings#Read('ruby_options_as_arguments') && cursor_arg < len(args)
 
