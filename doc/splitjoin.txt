@@ -1058,6 +1058,14 @@ function's arguments?).
 
     one.two.three(foo, bar)
 
+Ruby 3.0 endless def ~
+>
+    def foo(one, two)
+      bar
+    end
+
+    def foo(one, two) = bar
+<
 
 ==============================================================================
 RUST                                                          *splitjoin-rust*

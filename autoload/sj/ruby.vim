@@ -1078,6 +1078,65 @@ function! sj#ruby#SplitModuleNamespace()
   return 1
 endfunction
 
+function! sj#ruby#SplitEndlessDef()
+  " taken from vim-ruby
+  let endless_def_pattern = '\<def\s\+\k\+[!?]\=\%((.*)\|\s\)\zs\s*\zs='
+  if search(endless_def_pattern, 'Wce', line('.')) <= 0
+        \ && search(endless_def_pattern, 'Wcbe', line('.')) <= 0
+    return 0
+  endif
+
+  let line             = getline('.')
+  let equal_sign_index = col('.') - 1
+  let definition       = sj#Rtrim(strpart(line, 0, equal_sign_index))
+  let body             = sj#Ltrim(strpart(line, equal_sign_index + 1))
+
+  call sj#ReplaceLines(line('.'), line('.'), definition."\n".body."\nend")
+  return 1
+endfunction
+
+function! sj#ruby#JoinOnelineDef()
+  if search('\<def\s\+\k\+[!?]\=\%((.*)\)\s*\%(#.*\)\=$', 'Wbc', line('.')) <= 0
+    return 0
+  endif
+
+  let def_line_no = line('.')
+  normal %
+  let end_line_no = line('.')
+
+  if def_line_no == end_line_no
+        \ || getline(end_line_no) !~ '\<end\>'
+    " then the cursor hasn't moved
+    return 0
+  endif
+
+  if end_line_no - def_line_no != 2
+    " then it's not a one-line method
+    return 0
+  endif
+
+  let [result, offset] = s:HandleComments(def_line_no, end_line_no)
+  if !result
+    return 1
+  endif
+  let def_line_no += offset
+  let end_line_no += offset
+
+  let lines = sj#GetLines(def_line_no, end_line_no)
+
+  let def_line = lines[0]
+  let end_line = lines[-1]
+  let body     = join(lines[1:-2], "\n")
+
+  let def_line = sj#Trim(def_line)
+  let body     = sj#Trim(body)
+
+  let replacement = def_line.' = '.body
+
+  call sj#ReplaceLines(def_line_no, end_line_no, replacement)
+  return 1
+endfunction
+
 " Helper functions
 
 function! s:JoinHashWithCurlyBraces()

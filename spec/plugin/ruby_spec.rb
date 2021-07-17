@@ -1750,4 +1750,27 @@ describe "ruby" do
       EOF
     end
   end
+
+  describe "oneline method definitions" do
+    specify "with the cursor on the definition" do
+      set_file_contents <<~EOF
+        def foo(one, two) = bar
+      EOF
+
+      vim.search 'def'
+      split
+
+      assert_file_contents <<~EOF
+        def foo(one, two)
+          bar
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        def foo(one, two) = bar
+      EOF
+    end
+  end
 end

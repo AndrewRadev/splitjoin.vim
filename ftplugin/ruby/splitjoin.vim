@@ -12,6 +12,7 @@ if !exists('b:splitjoin_split_callbacks')
         \ 'sj#ruby#SplitTernaryClause',
         \ 'sj#ruby#SplitOptions',
         \ 'sj#ruby#SplitString',
+        \ 'sj#ruby#SplitEndlessDef',
         \ ]
 endif
 
@@ -29,5 +30,6 @@ if !exists('b:splitjoin_join_callbacks')
         \ 'sj#ruby#JoinHeredoc',
         \ 'sj#ruby#JoinWhenThen',
         \ 'sj#ruby#JoinCase',
+        \ 'sj#ruby#JoinOnelineDef',
         \ ]
 endif
