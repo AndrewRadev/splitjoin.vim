@@ -162,6 +162,9 @@ function! s:SplitList(delimiter, cursor_position)
   endif
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
+  if empty(items)
+    return 0
+  endif
 
   if sj#settings#Read('trailing_comma')
     let body = start."\n".join(items, ",\n").",\n".end
