@@ -1,4 +1,5 @@
 let b:splitjoin_split_callbacks = [
+      \ 'sj#jsx#SplitJsxExpression',
       \ 'sj#html#SplitTags',
       \ 'sj#html#SplitAttributes',
       \ 'sj#js#SplitObjectLiteral',
@@ -11,6 +12,7 @@ let b:splitjoin_split_callbacks = [
       \ ]
 
 let b:splitjoin_join_callbacks = [
+      \ 'sj#jsx#JoinJsxExpression',
       \ 'sj#html#JoinAttributes',
       \ 'sj#jsx#JoinHtmlTag',
       \ 'sj#js#JoinFatArrowFunction',

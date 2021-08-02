@@ -1,3 +1,72 @@
+function! sj#jsx#SplitJsxExpression()
+  " Examples:
+  "
+  "   let x = <tag>
+  "   () => <tag>
+  "   return <tag>
+  "
+  let pattern = '\%(\%(let\|const\|var\)\s\+\k\+\s*=\s*\|)\s*=>\|return\s\+\)\s*' .
+        \ '\zs<\k[^>/[:space:]]*'
+
+  if sj#SearchUnderCursor(pattern) <= 0
+    return 0
+  endif
+
+  " is it a fully-closed jsx tag?
+  let body = sj#GetMotion('vat')
+  if body =~ '^<\(\k\+\).*</\1>$'
+    if body =~ "\n"
+      " multiple lines, not splitting
+      return 0
+    endif
+
+    call sj#ReplaceMotion('vat', "(\n".sj#Trim(body)."\n)")
+    return 1
+  endif
+
+  " is it a self-closing tag?
+  let body = sj#GetMotion('va>')
+  if body =~ '^<\k\+.*/>$'
+    if body =~ "\n"
+      " multiple lines, not splitting
+      return 0
+    endif
+
+    call sj#ReplaceMotion('va>', "(\n".sj#Trim(body)."\n)")
+    return 1
+  endif
+
+  return 0
+endfunction
+
+function! sj#jsx#JoinJsxExpression()
+  " Examples:
+  "
+  "   let x = (
+  "   () => (
+  "   return (
+  "
+  let pattern = '\%(\%(let\|const\|var\)\s\+\k\+\s*=\s*\|)\s*=>\|return\s\+\)\s*($'
+  if sj#SearchUnderCursor(pattern) <= 0
+    return 0
+  endif
+
+  normal! $
+  let body = sj#Trim(sj#GetMotion('vi('))
+  if body =~ "\n"
+    " multiline tag, no point in handling
+    return 0
+  endif
+
+  if body !~ '^<\k\+.*/>$' && body !~ '^<\(\k\+\).*</\1>$'
+    " doesn't look like a tag
+    return 0
+  endif
+
+  call sj#ReplaceMotion('va(', body)
+  return 1
+endfunction
+
 function! sj#jsx#SplitSelfClosingTag()
   if s:noTagUnderCursor()
     return 0
