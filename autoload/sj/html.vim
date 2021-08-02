@@ -86,7 +86,7 @@ function! sj#html#SplitAttributes()
 
   " go back to the start column or va< can get confused with <> in strings
   exe 'normal! 0'.start.'|'
-  call sj#ReplaceMotion('va<', body)
+  call sj#ReplaceMotion('va<', sj#Trim(body))
 
   if sj#settings#Read('html_attributes_hanging')
     " For some strange reason, built-in HTML indenting fails here.
