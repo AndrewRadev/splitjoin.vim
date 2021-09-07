@@ -100,6 +100,28 @@ describe "elixir" do
     end
   end
 
+  describe "do-blocks" do
+    specify "with round brackets" do
+      set_file_contents <<~EOF
+        let(:one, do: two() |> three(four()))
+      EOF
+
+      split
+
+      assert_file_contents <<~EOF
+        let(:one) do
+          two() |> three(four())
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        let(:one, do: two() |> three(four()))
+      EOF
+    end
+  end
+
   specify "arrays" do
     set_file_contents <<~EOF
       [a, b, c]

@@ -1,16 +1,28 @@
 function! sj#elixir#SplitDef()
-  let function_pattern = ',\s*do:'
-  let line             = getline('.')
-
-  if line !~ function_pattern
+  let [function_start, function_end] = sj#argparser#elixir#LocateFunction()
+  if function_start < 0
     return 0
   endif
 
-  let line = substitute(line, function_pattern, '\r', '')
-  exe 's/'.function_pattern.'/ do\r/'
-  call append(line('.'), 'end')
-  normal! =2=
+  let parser = sj#argparser#elixir#Construct(function_start, function_end, getline('.'))
+  call parser.Process()
+  if len(parser.args) <= 0 || parser.args[-1] !~ '^do:'
+    return 0
+  endif
 
+  let line = getline('.')
+  let args = join(parser.args[0:-2], ', ')
+  let new_line = strpart(line, 0, function_start - 1) . args
+  if function_end > 0
+    let new_line .= strpart(line, function_end)
+  else
+    " we didn't detect an end, so it goes on to the end of the line
+  endif
+
+  let do_body = substitute(parser.args[-1], '^do:\s*', '', '')
+  let do_block = " do\n" . do_body . "\nend"
+
+  call sj#ReplaceLines(line('.'), line('.'), new_line . do_block)
   return 1
 endfunction
 
@@ -33,8 +45,13 @@ function! sj#elixir#JoinDef()
     return 0
   endif
 
-  let joined_line = substitute(def_line, function_pattern, ', do: ', '')
-  let joined_line = joined_line.sj#Trim(body_line)
+  if def_line =~ ')'.function_pattern
+    let joined_line = substitute(def_line, ')'.function_pattern, ', do: ', '')
+    let joined_line = joined_line.sj#Trim(body_line).')'
+  else
+    let joined_line = substitute(def_line, function_pattern, ', do: ', '')
+    let joined_line = joined_line.sj#Trim(body_line)
+  endif
 
   call sj#ReplaceLines(def_lineno, end_lineno, joined_line)
   return 1
