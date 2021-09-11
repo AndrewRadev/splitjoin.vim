@@ -20,16 +20,21 @@ function! sj#argparser#elixir#LocateFunction()
     let found = sj#SearchSkip(pattern, skip, 'cW', line('.'))
   endif
   if found > 0
+    " first, figure out the function name
+    call search('\k\+', 'cW', line('.'))
+    let function_name = expand('<cword>')
+
     " go to the end of the matching pattern
     call search(pattern, 'cWe', line('.'))
     " look for the starting bracket
     if sj#SearchSkip('\k\+\s*\zs(\s*\%#', skip, 'bcW', line('.'))
+      let function_type = 'with_round_braces'
       let from = col('.') + 1
       normal! h%h
       let to = col('.')
 
       if sj#ColBetween(start_col, from - 1, to + 1)
-        return [from, to]
+        return [function_name, from, to, function_type]
       endif
     endif
   endif
@@ -54,20 +59,22 @@ function! sj#argparser#elixir#LocateFunction()
   if found > 0
     " first, figure out the function name
     call search('\k\+', 'cW', line('.'))
+    let function_name = expand('<cword>')
     let function_start_col = col('.')
 
     " go to the end of the matching pattern
     call search(pattern, 'cWe', line('.'))
 
+    let function_type = 'with_spaces'
     let from = col('.')
     let to   = -1 " we're not sure about the end
 
     if sj#ColBetween(start_col, function_start_col - 1, col('$'))
-      return [from, to]
+      return [function_name, from, to, function_type]
     endif
   endif
 
-  return [-1, -1]
+  return ['', -1, -1, 'none']
 endfunction
 
 function! sj#argparser#elixir#Construct(start_index, end_index, line)

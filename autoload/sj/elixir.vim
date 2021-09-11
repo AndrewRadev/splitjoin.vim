@@ -1,5 +1,6 @@
 function! sj#elixir#SplitDef()
-  let [function_start, function_end] = sj#argparser#elixir#LocateFunction()
+  let [function_name, function_start, function_end, function_type] =
+        \ sj#argparser#elixir#LocateFunction()
   if function_start < 0
     return 0
   endif
@@ -27,11 +28,17 @@ function! sj#elixir#SplitDef()
 endfunction
 
 function! sj#elixir#JoinDef()
-  let function_pattern = '\s*do\s*\%(#.*\)\=$'
-  let def_lineno       = line('.')
-  let def_line         = getline(def_lineno)
+  let do_pattern = '\s*do\s*\%(#.*\)\=$'
+  let def_lineno = line('.')
+  let def_line   = getline(def_lineno)
 
-  if def_line !~ function_pattern
+  if def_line !~ do_pattern
+    return 0
+  endif
+
+  let [function_name, function_start, function_end, function_type] =
+        \ sj#argparser#elixir#LocateFunction()
+  if function_start < 0
     return 0
   endif
 
@@ -45,15 +52,15 @@ function! sj#elixir#JoinDef()
     return 0
   endif
 
-  if def_line =~ ')'.function_pattern
-    let joined_line = substitute(def_line, ')'.function_pattern, ', do: ', '')
-    let joined_line = joined_line.sj#Trim(body_line).')'
-  else
-    let joined_line = substitute(def_line, function_pattern, ', do: ', '')
-    let joined_line = joined_line.sj#Trim(body_line)
+  exe 'keeppatterns s/'.do_pattern.'//'
+  if function_end < 0
+    let function_end = col('$') - 1
   endif
+  let args = sj#GetCols(function_start, function_end)
+  call sj#ReplaceCols(function_start, function_end, args.', do: '.sj#Trim(body_line))
+  exe end_lineno.'delete _'
+  exe body_lineno.'delete _'
 
-  call sj#ReplaceLines(def_lineno, end_lineno, joined_line)
   return 1
 endfunction
 

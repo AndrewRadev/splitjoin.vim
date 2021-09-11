@@ -8,7 +8,7 @@ describe "elixir" do
     vim.set(:shiftwidth, 2)
   end
 
-  describe "functions" do
+  describe "function definitions" do
     specify "0 arity" do
       set_file_contents <<~EOF
         defmodule Foo do
@@ -106,6 +106,7 @@ describe "elixir" do
         let(:one, do: two() |> three(four()))
       EOF
 
+      vim.search ':one'
       split
 
       assert_file_contents <<~EOF
