@@ -1,4 +1,4 @@
-function! sj#elixir#SplitDef()
+function! sj#elixir#SplitDoBlock()
   let [function_name, function_start, function_end, function_type] =
         \ sj#argparser#elixir#LocateFunction()
   if function_start < 0
@@ -27,7 +27,7 @@ function! sj#elixir#SplitDef()
   return 1
 endfunction
 
-function! sj#elixir#JoinDef()
+function! sj#elixir#JoinDoBlock()
   let do_pattern = '\s*do\s*\%(#.*\)\=$'
   let def_lineno = line('.')
   let def_line   = getline(def_lineno)
