@@ -123,78 +123,10 @@ endfunction
 " =================
 
 function! sj#argparser#ruby#LocateFunction()
-  call sj#PushCursor()
-  let [_bufnum, _start_line, start_col, _off] = getpos('.')
-  let skip = sj#SkipSyntax(['rubyInterpolationDelimiter', 'rubyString'])
-
-  " The first pattern matches functions with brackets and consists of the
-  " following:
-  "
-  "   - a keyword
-  "   - an opening round bracket
-  "   - something that's not a comma and doesn't look like an operator
-  "     (to avoid a few edge cases)
-  "
-  let pattern = '\v(^|\s|\.|::)\k+[?!]?\(\s*[^,=<>+-/*^%})\]]'
-  let found = sj#SearchSkip(pattern, skip, 'bcW', line('.'))
-  if found <= 0
-    " try searching forward
-    let found = sj#SearchSkip(pattern, skip, 'cW', line('.'))
-  endif
-  if found > 0
-    " first, figure out the function name
-    call search('\k\+', 'cW', line('.'))
-    let function_name = expand('<cword>')
-
-    " go to the end of the matching pattern
-    call search(pattern, 'cWe', line('.'))
-    " look for the starting bracket
-    if sj#SearchSkip('\k\+[?!]\?\s*\zs(\s*\%#', skip, 'bcW', line('.'))
-      let function_type = 'with_round_braces'
-      let from = col('.') + 1
-      normal! h%h
-      let to = col('.')
-
-      if sj#ColBetween(start_col, from - 1, to + 1)
-        return [function_name, from, to, function_type]
-      endif
-    endif
-  endif
-
-  call sj#PopCursor()
-
-  " The second pattern matches functions without brackets:
-  "
-  "   - a keyword
-  "   - at least one space
-  "   - something that's not a comma and doesn't look like an operator
-  "     (to avoid a few edge cases)
-  "
-  let pattern = '\v(^|\s|\.|::)\k+[?!]?\s+[^ ,=<>+-/*^%})\]]'
-  let found = sj#SearchSkip(pattern, skip, 'bcW', line('.'))
-  if found <= 0
-    " try searching forward
-    let found = sj#SearchSkip(pattern, skip, 'cW', line('.'))
-  endif
-  if found > 0
-    " first, figure out the function name
-    call search('\k\+', 'cW', line('.'))
-    let function_name = expand('<cword>')
-    let function_start_col = col('.')
-
-    " go to the end of the matching pattern
-    call search(pattern, 'cWe', line('.'))
-
-    let function_type = 'with_spaces'
-    let from = col('.')
-    let to   = -1 " we're not sure about the end
-
-    if sj#ColBetween(start_col, function_start_col - 1, col('$'))
-      return [function_name, from, to, function_type]
-    endif
-  endif
-
-  return ['', -1, -1, 'none']
+  return sj#argparser#common#LocateRubylikeFunction(
+        \ '\k\+[?!]\=',
+        \ ['rubyInterpolationDelimiter', 'rubyString']
+        \ )
 endfunction
 
 function! sj#argparser#ruby#MarkOptionArg(type) dict
