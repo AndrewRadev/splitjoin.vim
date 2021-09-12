@@ -15,9 +15,9 @@ function! sj#elixir#SplitDoBlock()
   let args      = []
 
   for arg in parser.args
-    if arg =~ '^do:'
+    if arg =~ '^do:' && do_body == ''
       let do_body = substitute(arg, '^do:\s*', '', '')
-    elseif arg =~ '^else:' && is_if
+    elseif arg =~ '^else:' && is_if && else_body == ''
       let else_body = substitute(arg, '^else:\s*', '', '')
     else
       call add(args, arg)
