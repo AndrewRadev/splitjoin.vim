@@ -5,23 +5,54 @@ function! sj#elixir#SplitDoBlock()
     return 0
   endif
 
+  let is_if = function_name == 'if' || function_name == 'unless'
+
   let parser = sj#argparser#elixir#Construct(function_start, function_end, getline('.'))
   call parser.Process()
-  if len(parser.args) <= 0 || parser.args[-1] !~ '^do:'
+
+  let do_body   = ''
+  let else_body = ''
+  let args      = []
+
+  for arg in parser.args
+    if arg =~ '^do:'
+      let do_body = substitute(arg, '^do:\s*', '', '')
+    elseif arg =~ '^else:' && is_if
+      let else_body = substitute(arg, '^else:\s*', '', '')
+    else
+      call add(args, arg)
+    endif
+  endfor
+
+  if do_body == ''
     return 0
   endif
 
   let line = getline('.')
-  let args = join(parser.args[0:-2], ', ')
-  let new_line = strpart(line, 0, function_start - 1) . args
+
+  if is_if && function_type == 'with_round_braces'
+    " skip the round brackets before the if-clause
+    let new_line = strpart(line, 0, function_start - 2) . ' ' . join(args, ', ')
+  else
+    let new_line = strpart(line, 0, function_start - 1) . join(args, ', ')
+  endif
+
   if function_end > 0
-    let new_line .= strpart(line, function_end)
+    if is_if && function_type == 'with_round_braces'
+      " skip the round brackets after the if-clause
+      let new_line .= strpart(line, function_end + 1)
+    else
+      let new_line .= strpart(line, function_end)
+    end
   else
     " we didn't detect an end, so it goes on to the end of the line
   endif
 
-  let do_body = substitute(parser.args[-1], '^do:\s*', '', '')
-  let do_block = " do\n" . do_body . "\nend"
+  if else_body != ''
+    let do_block = " do\n" . do_body . "\nelse\n" . else_body . "\nend"
+  else
+    let do_block = " do\n" . do_body . "\nend"
+  endif
 
   call sj#ReplaceLines(line('.'), line('.'), new_line . do_block)
   return 1
@@ -42,11 +73,25 @@ function! sj#elixir#JoinDoBlock()
     return 0
   endif
 
+  let is_if       = function_name == 'if' || function_name == 'unless'
   let body_lineno = line('.') + 1
-  let end_lineno  = line('.') + 2
+  let body_line   = getline(body_lineno)
 
-  let body_line = getline(body_lineno)
-  let end_line  = getline(end_lineno)
+  if is_if && getline(line('.') + 2) =~ '^\s*else\>'
+    let else_lineno = line('.') + 2
+    let else_line   = getline(else_lineno)
+
+    let else_body_lineno = line('.') + 3
+    let else_body_line   = getline(else_body_lineno)
+
+    let end_lineno = line('.') + 4
+    let end_line   = getline(end_lineno)
+  else
+    let else_line = ''
+
+    let end_lineno = line('.') + 2
+    let end_line   = getline(end_lineno)
+  endif
 
   if end_line !~ '^\s*end$'
     return 0
@@ -56,11 +101,15 @@ function! sj#elixir#JoinDoBlock()
   if function_end < 0
     let function_end = col('$') - 1
   endif
-  let args = sj#GetCols(function_start, function_end)
-  call sj#ReplaceCols(function_start, function_end, args.', do: '.sj#Trim(body_line))
-  exe end_lineno.'delete _'
-  exe body_lineno.'delete _'
 
+  let args = sj#GetCols(function_start, function_end)
+  let joined_args = ', do: '.sj#Trim(body_line)
+  if else_line != ''
+    let joined_args .= ', else: '.sj#Trim(else_body_line)
+  endif
+
+  call sj#ReplaceCols(function_start, function_end, args . joined_args)
+  exe body_lineno.','.end_lineno.'delete _'
   return 1
 endfunction
 

@@ -121,6 +121,75 @@ describe "elixir" do
         let(:one, do: two() |> three(four()))
       EOF
     end
+
+    specify "with no brackets" do
+      set_file_contents <<~EOF
+        let :one, do: two() |> three(four())
+      EOF
+
+      vim.search ':one'
+      split
+
+      assert_file_contents <<~EOF
+        let :one do
+          two() |> three(four())
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        let :one, do: two() |> three(four())
+      EOF
+    end
+  end
+
+  describe "if-blocks" do
+    specify "with no brackets" do
+      set_file_contents <<~EOF
+        if 2 > 1, do: print("OK"), else: print("Not OK")
+      EOF
+
+      vim.search '2 > 1'
+      split
+
+      assert_file_contents <<~EOF
+        if 2 > 1 do
+          print("OK")
+        else
+          print("Not OK")
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        if 2 > 1, do: print("OK"), else: print("Not OK")
+      EOF
+    end
+
+    specify "with round brackets" do
+      set_file_contents <<~EOF
+        if(2 > 1, do: print("OK"), else: print("Not OK"))
+      EOF
+
+      vim.search '2 > 1'
+      split
+
+      assert_file_contents <<~EOF
+        if 2 > 1 do
+          print("OK")
+        else
+          print("Not OK")
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        if 2 > 1, do: print("OK"), else: print("Not OK")
+      EOF
+    end
   end
 
   specify "arrays" do
