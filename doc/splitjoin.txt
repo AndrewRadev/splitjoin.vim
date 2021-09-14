@@ -339,9 +339,20 @@ ELIXIR                                                        *splitjoin-elixir*
 Do-blocks ~
 >
     def function(arguments) when condition, do: body
-
     def function(arguments) when condition do
       body
+    end
+
+    let :one, do: two() |> three(four())
+    let :one do
+      two() |> three(four())
+    end
+
+    if(foo, do: bar, else: baz)
+    if foo do
+      bar
+    else
+      baz
     end
 <
 
