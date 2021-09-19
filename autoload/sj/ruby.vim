@@ -1198,6 +1198,7 @@ function! s:JoinHashWithoutBraces()
 
   call cursor(start_lineno, 0)
   exe "normal! V".(end_lineno - start_lineno)."jJ"
+  return 1
 endfunction
 
 function! s:HandleComments(start_line_no, end_line_no)
