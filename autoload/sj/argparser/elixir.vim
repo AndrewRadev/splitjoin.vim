@@ -1,6 +1,6 @@
 function! sj#argparser#elixir#LocateFunction()
   return sj#argparser#common#LocateRubylikeFunction(
-        \ '\k\+',
+        \ '\k\+[?!]\=',
         \ ['elixirString', 'elixirAtom']
         \ )
 endfunction
