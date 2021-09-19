@@ -113,6 +113,29 @@ function! sj#elixir#JoinDoBlock()
   return 1
 endfunction
 
+function! sj#elixir#JoinCommaDelimitedItems()
+  if getline('.') !~ ',\s*$'
+    return 0
+  endif
+
+  let start_lineno = line('.')
+  let end_lineno   = start_lineno
+  let lineno       = nextnonblank(start_lineno + 1)
+  let line         = getline(lineno)
+
+  while lineno <= line('$') && line =~ ',\s*$'
+    let end_lineno = lineno
+    let lineno     = nextnonblank(lineno + 1)
+    let line       = getline(lineno)
+  endwhile
+
+  let end_lineno = lineno
+
+  call cursor(start_lineno, 0)
+  exe "normal! V".(end_lineno - start_lineno)."jJ"
+  return 1
+endfunction
+
 function! sj#elixir#SplitArray()
   let [from, to] = sj#LocateBracesAroundCursor('[', ']', [
         \ 'elixirInterpolationDelimiter',

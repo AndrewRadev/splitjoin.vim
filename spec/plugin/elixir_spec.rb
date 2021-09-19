@@ -192,6 +192,59 @@ describe "elixir" do
     end
   end
 
+  describe "joining comma-separated arguments" do
+    specify "with a level of indent" do
+      set_file_contents <<~EOF
+        for a <- 1..10,
+          Integer.is_odd(a) do
+          a
+        end
+      EOF
+
+      vim.search 'for'
+      join
+
+      assert_file_contents <<~EOF
+        for a <- 1..10, Integer.is_odd(a) do
+          a
+        end
+      EOF
+    end
+
+    specify "with no indent" do
+      set_file_contents <<~EOF
+        for a <- 1..10,
+        Integer.is_odd(a) do
+          a
+        end
+      EOF
+
+      vim.search 'for'
+      join
+
+      assert_file_contents <<~EOF
+        for a <- 1..10, Integer.is_odd(a) do
+          a
+        end
+      EOF
+    end
+
+    specify "multiple lines" do
+      set_file_contents <<~EOF
+        if Enum.member?(one, two),
+          do: query |> where(three, four),
+          else: five
+      EOF
+
+      vim.search 'Enum'
+      join
+
+      assert_file_contents <<~EOF
+        if Enum.member?(one, two), do: query |> where(three, four), else: five
+      EOF
+    end
+  end
+
   specify "arrays" do
     set_file_contents <<~EOF
       [a, b, c]

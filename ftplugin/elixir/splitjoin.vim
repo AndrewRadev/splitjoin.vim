@@ -6,4 +6,5 @@ let b:splitjoin_split_callbacks = [
 let b:splitjoin_join_callbacks = [
       \ 'sj#elixir#JoinDoBlock',
       \ 'sj#elixir#JoinArray',
+      \ 'sj#elixir#JoinCommaDelimitedItems',
       \ ]

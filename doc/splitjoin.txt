@@ -355,6 +355,17 @@ Do-blocks ~
       baz
     end
 <
+Comma-separated method calls (join only): ~
+>
+    for a <- 1..10,
+      Integer.is_odd(a) do
+      a
+    end
+
+    for a <- 1..10, Integer.is_odd(a) do
+      a
+    end
+<
 
 ==============================================================================
 ELM                                                              *splitjoin-elm*
