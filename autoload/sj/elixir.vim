@@ -189,3 +189,85 @@ function! sj#elixir#JoinArray()
 
   return 1
 endfunction
+
+function! sj#elixir#SplitPipe()
+  let line = getline('.')
+
+  if line =~ '^\s*|>\s\+'
+    return 0
+  endif
+
+  call sj#PushCursor()
+  normal! 0f(
+  let [function_name, function_start, function_end, function_type] =
+        \ sj#argparser#elixir#LocateFunction()
+  call sj#PopCursor()
+
+  if function_start < 0
+    return 0
+  endif
+
+  let parser = sj#argparser#elixir#Construct(function_start, function_end, line)
+  call parser.Process()
+
+  let args = parser.args
+
+  let function_call = sj#Trim(strpart(line, 0, function_start - 2))
+  let result = args[0] . "\n|> " . function_call . '(' . join(args[1:], ', ') . ')'
+
+  call sj#ReplaceLines(line('.'), line('.'), result)
+
+  return 1
+endfunction
+
+function! sj#elixir#JoinPipe()
+  call sj#PushCursor()
+
+  let pipe_pattern = '^\s*|>\s\+'
+  let line = getline('.')
+
+  if line !~ pipe_pattern
+    normal! j
+    let line = getline('.')
+  endif
+
+  let line_num = line('.')
+  let prev_line = sj#Trim(getline(line_num - 1))
+
+  if line !~ pipe_pattern || prev_line =~ pipe_pattern
+    call sj#PopCursor()
+    return 0
+  endif
+
+  let atom_pattern = ':\k\+'
+  let module_pattern = '\k\%(\k\|\.\)*'
+  let function_pattern = '\k\+[?!]\='
+  let atom_or_module_pattern = '\%(' . atom_pattern . '\.\|' . module_pattern . '\.\)\='
+  let empty_args_pattern = pipe_pattern . '\(' . atom_or_module_pattern . function_pattern . '\)()'
+
+  if line =~ empty_args_pattern
+    let function_name = substitute(line, empty_args_pattern, '\1', '')
+    let result = function_name . '(' . prev_line . ')'
+    call sj#PopCursor()
+  else
+    normal! f(l
+    let [function_name, function_start, function_end, function_type] =
+          \ sj#argparser#elixir#LocateFunction()
+    call sj#PopCursor()
+
+    if function_start < 0
+      return 0
+    endif
+
+    let parser = sj#argparser#elixir#Construct(function_start, function_end, line)
+    call parser.Process()
+
+    let args = parser.args
+    let function_call = substitute(strpart(line, 0, function_start - 2), '|>\s\+', '', '')
+    let result = function_call . '(' . prev_line . ', ' . join(args, ', ') . ')'
+  endif
+
+  call sj#ReplaceLines(line_num - 1, line_num, result)
+
+  return 1
+endfunction

@@ -366,6 +366,27 @@ Comma-separated method calls (join only): ~
       a
     end
 <
+Pipelines: ~
+>
+    String.length("splitjoin")
+
+    "splitjoin"
+    |> String.length()
+<
+This doesn't currently work properly for multi-line arguments:
+>
+    String.length(
+      Enum.join([
+        "split",
+        "join"
+      ])
+    )
+
+    if true do
+      "splitjoin"
+    end
+    |> String.length()
+<
 
 ==============================================================================
 ELM                                                              *splitjoin-elm*
