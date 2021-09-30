@@ -189,3 +189,106 @@ function! sj#elixir#JoinArray()
 
   return 1
 endfunction
+
+let s:pipe_pattern = '^\s*|>\s\+'
+let s:atom_pattern = ':\k\+'
+let s:module_pattern = '\k\%(\k\|\.\)*'
+let s:function_pattern = '\k\+[?!]\='
+let s:atom_or_module_pattern = '\%(' . s:atom_pattern . '\.\|' . s:module_pattern . '\.\)\='
+
+function! sj#elixir#SplitPipe()
+  let line = getline('.')
+
+  call sj#PushCursor()
+  normal! 0f(
+  let [function_name, function_start, function_end, function_type] =
+        \ sj#argparser#elixir#LocateFunction()
+  call sj#PopCursor()
+
+  " We only support function calls that start at the beginning of the line
+  " (accounting for whitespace)
+  let prefix = strpart(line, 0, function_start - 1)
+  let prefix_pattern = '^\s*' . s:atom_or_module_pattern . function_name . '\((\|\s\+\)$'
+
+  if function_start < 0 || prefix !~ prefix_pattern
+    return 0
+  endif
+
+  let comment_pattern = '\s*\(#.*\)\=$'
+
+  if function_end < 0
+    let comment_start = match(line, comment_pattern)
+
+    if comment_start < 0
+      let rest = 'none'
+    else
+      let rest = strpart(line, comment_start)
+      let function_end = comment_start
+    endif
+  else
+    let rest = strpart(line, function_end + 1)
+
+    if rest !~ '^' . comment_pattern
+      return 0
+    endif
+  end
+
+  let parser = sj#argparser#elixir#Construct(function_start, function_end, line)
+  call parser.Process()
+
+  let args = parser.args
+
+  let function_call = sj#Trim(strpart(line, 0, function_start - 2))
+  let result = args[0] . "\n|> " . function_call . '(' . join(args[1:], ', ') . ')' . rest
+
+  call sj#ReplaceLines(line('.'), line('.'), result)
+
+  return 1
+endfunction
+
+function! sj#elixir#JoinPipe()
+  call sj#PushCursor()
+
+  let line = getline('.')
+
+  if line !~ s:pipe_pattern
+    normal! j
+    let line = getline('.')
+  endif
+
+  let line_num = line('.')
+  let prev_line = sj#Trim(getline(line_num - 1))
+
+  if line !~ s:pipe_pattern || prev_line =~ s:pipe_pattern
+    call sj#PopCursor()
+    return 0
+  endif
+
+  let empty_args_pattern = s:pipe_pattern . '\(' . s:atom_or_module_pattern . s:function_pattern . '\)()'
+
+  if line =~ empty_args_pattern
+    let function_name = substitute(line, empty_args_pattern, '\1', '')
+    let result = function_name . '(' . prev_line . ')'
+    call sj#PopCursor()
+  else
+    normal! f(l
+    let [function_name, function_start, function_end, function_type] =
+          \ sj#argparser#elixir#LocateFunction()
+    call sj#PopCursor()
+
+    if function_start < 0
+      return 0
+    endif
+
+    let parser = sj#argparser#elixir#Construct(function_start, function_end, line)
+    call parser.Process()
+
+    let args = parser.args
+    let function_call = substitute(strpart(line, 0, function_start - 2), '|>\s\+', '', '')
+    let result = function_call . '(' . prev_line . ', ' . join(args, ', ') . ')'
+  endif
+
+  call sj#ReplaceLines(line_num - 1, line_num, result)
+
+  return 1
+endfunction
