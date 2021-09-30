@@ -602,5 +602,51 @@ describe "elixir" do
         |> foo(baz)
       EOF
     end
+
+    specify "splitting multiple functions on one line does nothing" do
+      set_file_contents <<~EOF
+        foo("one") + bar("two")
+      EOF
+
+      vim.search 'foo'
+      split
+
+      assert_file_contents <<~EOF
+        foo("one") + bar("two")
+      EOF
+
+      vim.search 'bar'
+      split
+
+      assert_file_contents <<~EOF
+        foo("one") + bar("two")
+      EOF
+    end
+
+    specify "splitting with whitespace and a comment at the end works" do
+      set_file_contents <<~EOF
+        foo("one", "two") # bar
+      EOF
+
+      vim.search 'foo'
+      split
+
+      assert_file_contents <<~EOF
+        "one"
+        |> foo("two") # bar
+      EOF
+
+      set_file_contents <<~EOF
+        foo "one", "two" # bar
+      EOF
+
+      vim.search 'foo'
+      split
+
+      assert_file_contents <<~EOF
+        "one"
+        |> foo("two") # bar
+      EOF
+    end
   end
 end

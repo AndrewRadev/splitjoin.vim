@@ -207,13 +207,32 @@ function! sj#elixir#SplitPipe()
     return 0
   endif
 
+  let comment_pattern = '\s*\(#.*\)\=$'
+
+  if function_end < 0
+    let comment_start = match(line, comment_pattern)
+
+    if comment_start < 0
+      let rest = 'none'
+    else
+      let rest = strpart(line, comment_start)
+      let function_end = comment_start
+    endif
+  else
+    let rest = strpart(line, function_end + 1)
+
+    if rest !~ '^' . comment_pattern
+      return 0
+    endif
+  end
+
   let parser = sj#argparser#elixir#Construct(function_start, function_end, line)
   call parser.Process()
 
   let args = parser.args
 
   let function_call = sj#Trim(strpart(line, 0, function_start - 2))
-  let result = args[0] . "\n|> " . function_call . '(' . join(args[1:], ', ') . ')'
+  let result = args[0] . "\n|> " . function_call . '(' . join(args[1:], ', ') . ')' . rest
 
   call sj#ReplaceLines(line('.'), line('.'), result)
 
