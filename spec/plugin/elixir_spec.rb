@@ -673,5 +673,25 @@ describe "elixir" do
           else: foo
       EOF
     end
+
+    specify "with a pipe within the args" do
+      set_file_contents <<~EOF
+        IO.inspect("foo" |> String.length())
+      EOF
+
+      vim.search 'foo'
+      split
+
+      assert_file_contents <<~EOF
+        "foo" |> String.length()
+        |> IO.inspect()
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        IO.inspect("foo" |> String.length())
+      EOF
+    end
   end
 end
