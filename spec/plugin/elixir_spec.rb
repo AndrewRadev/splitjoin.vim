@@ -623,6 +623,26 @@ describe "elixir" do
       EOF
     end
 
+    specify "splitting multiple no-parens functions on one line does nothing" do
+      set_file_contents <<~EOF
+        IO.puts 3 + String.length "foo"
+      EOF
+
+      vim.search 'IO'
+      split
+
+      assert_file_contents <<~EOF
+        IO.puts 3 + String.length "foo"
+      EOF
+
+      vim.search 'String.length'
+      split
+
+      assert_file_contents <<~EOF
+        IO.puts 3 + String.length "foo"
+      EOF
+    end
+
     specify "splitting with whitespace and a comment at the end works" do
       set_file_contents <<~EOF
         foo("one", "two") # bar
