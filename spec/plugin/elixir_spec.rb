@@ -648,5 +648,30 @@ describe "elixir" do
         |> foo("two") # bar
       EOF
     end
+
+    specify "ignores function calls that do not start at the beginning of the line" do
+      set_file_contents <<~EOF
+        if foo,
+          do: "one" |> bla(a)
+          else: foo
+      EOF
+
+      vim.search 'bla'
+      split
+
+      assert_file_contents <<~EOF
+        if foo,
+          do: "one" |> bla(a)
+          else: foo
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        if foo,
+          do: "one" |> bla(a)
+          else: foo
+      EOF
+    end
   end
 end

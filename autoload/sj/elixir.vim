@@ -190,12 +190,14 @@ function! sj#elixir#JoinArray()
   return 1
 endfunction
 
+let s:pipe_pattern = '^\s*|>\s\+'
+let s:atom_pattern = ':\k\+'
+let s:module_pattern = '\k\%(\k\|\.\)*'
+let s:function_pattern = '\k\+[?!]\='
+let s:atom_or_module_pattern = '\%(' . s:atom_pattern . '\.\|' . s:module_pattern . '\.\)\='
+
 function! sj#elixir#SplitPipe()
   let line = getline('.')
-
-  if line =~ '^\s*|>\s\+'
-    return 0
-  endif
 
   call sj#PushCursor()
   normal! 0f(
@@ -203,7 +205,12 @@ function! sj#elixir#SplitPipe()
         \ sj#argparser#elixir#LocateFunction()
   call sj#PopCursor()
 
-  if function_start < 0
+  " We only support function calls that start at the beginning of the line
+  " (accounting for whitespace)
+  let prefix = strpart(line, 0, function_start - 1)
+  let prefix_pattern = '^\s*' . s:atom_or_module_pattern . function_name . '\((\|\s\+\)$'
+
+  if function_start < 0 || prefix !~ prefix_pattern
     return 0
   endif
 
@@ -242,10 +249,9 @@ endfunction
 function! sj#elixir#JoinPipe()
   call sj#PushCursor()
 
-  let pipe_pattern = '^\s*|>\s\+'
   let line = getline('.')
 
-  if line !~ pipe_pattern
+  if line !~ s:pipe_pattern
     normal! j
     let line = getline('.')
   endif
@@ -253,16 +259,12 @@ function! sj#elixir#JoinPipe()
   let line_num = line('.')
   let prev_line = sj#Trim(getline(line_num - 1))
 
-  if line !~ pipe_pattern || prev_line =~ pipe_pattern
+  if line !~ s:pipe_pattern || prev_line =~ s:pipe_pattern
     call sj#PopCursor()
     return 0
   endif
 
-  let atom_pattern = ':\k\+'
-  let module_pattern = '\k\%(\k\|\.\)*'
-  let function_pattern = '\k\+[?!]\='
-  let atom_or_module_pattern = '\%(' . atom_pattern . '\.\|' . module_pattern . '\.\)\='
-  let empty_args_pattern = pipe_pattern . '\(' . atom_or_module_pattern . function_pattern . '\)()'
+  let empty_args_pattern = s:pipe_pattern . '\(' . s:atom_or_module_pattern . s:function_pattern . '\)()'
 
   if line =~ empty_args_pattern
     let function_name = substitute(line, empty_args_pattern, '\1', '')
