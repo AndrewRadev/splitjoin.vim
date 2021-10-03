@@ -11,20 +11,27 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install submodules
+          command: |
+            git submodule init
+            git submodule update
+      - run:
           name: Install bundler
           command: gem install bundler:2.1.4
       - ruby/bundle-install
 
       - run:
           name: Install dependencies
-          command: sudo apt-get update && sudo apt-get -y install xvfb vim-gtk3
+          command: |
+            sudo apt-get update
+            sudo apt-get -y install xvfb vim-gtk3
       - run:
           name: Which (g)vim?
           command: xvfb-run gvim --version
 
       - run:
           name: Run tests
-          command: xvfb-run bundle exec rspec spec
+          command: xvfb-run bundle exec rspec -fd spec
 
 workflows:
   test:
