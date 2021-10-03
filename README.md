@@ -1,5 +1,5 @@
 [![GitHub version](https://badge.fury.io/gh/andrewradev%2Fsplitjoin.vim.svg)](https://badge.fury.io/gh/andrewradev%2Fsplitjoin.vim)
-[![Build Status](https://circleci.com/gh/AndrewRadev/splitjoin.vim.svg?style=svg)](https://circleci.com/gh/AndrewRadev/splitjoin.vim)
+[![Build Status](https://circleci.com/gh/AndrewRadev/splitjoin.vim/tree/main.svg?style=shield)](https://circleci.com/gh/AndrewRadev/splitjoin.vim?branch=main)
 
 ## Usage
 
