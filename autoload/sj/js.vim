@@ -225,7 +225,12 @@ function! sj#js#SplitFatArrowFunction()
   let start_col = col('.')
   let end_col = sj#JumpBracketsTill('[\])};,]', {'opening': '([{"''', 'closing': ')]}"'''})
 
-  let body = sj#GetCols(start_col, end_col)
+  let body = sj#Trim(sj#GetCols(start_col, end_col))
+  if body =~ '^({.*})$'
+    " then we have ({ <object> }) to avoid ambiguity, not needed anymore:
+    let body = substitute(body, '^(\({.*}\))$', '\1', '')
+  endif
+
   if getline('.') =~ ';\s*\%(//.*\)\=$'
     let replacement = "{\nreturn ".body.";\n}"
   else
@@ -245,7 +250,13 @@ function! sj#js#JoinFatArrowFunction()
 
   let body = sj#Trim(sj#GetMotion('vi{'))
   let body = substitute(body, '^return\s*', '', '')
-  let body = substitute(body, ';$', '', '')
+  let body = substitute(body, '\s*;$', '', '')
+
+  if body =~ '^{.*}$'
+    " ({ <object> }), because otherwise it's ambiguous
+    let body = '('.body.')'
+  endif
+
   call sj#ReplaceMotion('va{', body)
   return 1
 endfunction

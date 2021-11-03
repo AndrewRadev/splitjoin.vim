@@ -172,6 +172,24 @@ describe "javascript" do
         }, three]
       EOF
     end
+
+    specify "object body in round brackets" do
+      set_file_contents '[1, 2, 3].map(n => ({ square: n * n }));'
+
+      vim.search 'n =>'
+      split
+
+      assert_file_contents <<~EOF
+        [1, 2, 3].map(n => {
+          return { square: n * n };
+        });
+      EOF
+
+      vim.search 'n =>'
+      join
+
+      assert_file_contents '[1, 2, 3].map(n => ({ square: n * n }));'
+    end
   end
 
   specify "object literals" do
