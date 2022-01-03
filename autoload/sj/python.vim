@@ -1,4 +1,4 @@
-let s:skip = sj#SkipSyntax(['pythonString', 'pythonComment'])
+let s:skip = sj#SkipSyntax(['pythonString', 'pythonComment', 'pythonStrInterpRegion'])
 
 function! sj#python#SplitStatement()
   if sj#SearchSkip('^[^:]*\zs:\s*\S', s:skip, '', line('.'))
