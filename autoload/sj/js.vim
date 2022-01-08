@@ -260,14 +260,3 @@ function! sj#js#JoinFatArrowFunction()
   call sj#ReplaceMotion('va{', body)
   return 1
 endfunction
-
-function! s:SearchOpeningBracketOnLine(closing_bracket)
-  let skip_expr =
-        \ "synIDattr(synID(line('.'),col('.'),1),'name') =~ 'string\\|comment'"
-  let bracket_pair = strpart('(){}[]', stridx(')}]', a:closing_bracket) * 2, 2)
-  let [lineno, col] = searchpairpos(
-        \   escape(bracket_pair[0], '\['), '', bracket_pair[1],
-        \   'bWn', skip_expr, line('.')
-        \ )
-  return col
-endfunction

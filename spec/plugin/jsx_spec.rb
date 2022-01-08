@@ -152,4 +152,27 @@ describe "JSX" do
       assert_file_contents '() => <Button foo="bar" />'
     end
   end
+
+  describe "Lambdas in tags" do
+    specify "splits tag first" do
+      set_file_contents <<~EOF
+        return (
+          <Tag category={ C } onClick={ () => toggleCategory(C) } />
+        );
+      EOF
+      setup_filetype
+
+      vim.search 'category'
+      split
+      remove_indentation
+
+      assert_file_contents <<~EOF
+        return (
+        <Tag
+        category={ C }
+        onClick={ () => toggleCategory(C) } />
+        );
+      EOF
+    end
+  end
 end
