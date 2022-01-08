@@ -49,7 +49,8 @@ function! sj#html#SplitAttributes()
   endif
   let start = col('.')
 
-  if sj#SearchSkip('>', skip, 'W', line('.')) <= 0
+  " Avoid matching =>
+  if sj#SearchSkip('\%(^\|[^=]\)\zs>', skip, 'W', line('.')) <= 0
     return 0
   endif
   let end = col('.')
@@ -84,9 +85,7 @@ function! sj#html#SplitAttributes()
     let body = join(args, "\n")
   endif
 
-  " go back to the start column or va< can get confused with <> in strings
-  exe 'normal! 0'.start.'|'
-  call sj#ReplaceMotion('va<', sj#Trim(body))
+  call sj#ReplaceCols(start, end, sj#Trim(body))
 
   if sj#settings#Read('html_attributes_hanging')
     " For some strange reason, built-in HTML indenting fails here.
@@ -110,19 +109,28 @@ function! sj#html#JoinAttributes()
     return 0
   endif
 
-  let start = search('<', 'bcWn')
-  let end   = search('>', 'Wcn')
+  let skip = sj#SkipSyntax(['htmlString'])
 
-  if start == end
+  if sj#SearchSkip('<', skip, 'bcW') <= 0
+    return 0
+  endif
+  let start_pos = getpos('.')
+
+  if sj#SearchSkip('\%(^\|[^=]\)\zs>', skip, 'Wc') <= 0
+    return 0
+  endif
+  let end_pos = getpos('.')
+
+  if start_pos[1] == end_pos[1]
     " tag is single-line, nothing to join
     return 0
   endif
 
-  let lines = split(sj#GetMotion('va<'), "\n")
+  let lines = split(sj#GetByPosition(start_pos, end_pos), "\n")
   let joined = join(sj#TrimList(lines), ' ')
   let joined = substitute(joined, '\s*>$', '>', '')
 
-  call sj#ReplaceMotion('va<', joined)
+  call sj#ReplaceByPosition(start_pos, end_pos, joined)
   return 1
 endfunction
 

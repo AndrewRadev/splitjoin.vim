@@ -9,6 +9,10 @@ describe "JSX" do
     vim.set(:shiftwidth, 2)
   end
 
+  after :each do
+    vim.command('silent! unlet g:splitjoin_html_attributes_bracket_on_new_line')
+  end
+
   describe "self-closing tags" do
     specify "basic" do
       set_file_contents '<Button />;'
@@ -154,7 +158,10 @@ describe "JSX" do
   end
 
   describe "Lambdas in tags" do
-    specify "splits tag first" do
+    # Reference: https://github.com/AndrewRadev/splitjoin.vim/issues/182
+    specify "doesn't get confused by =>" do
+      vim.command('let g:splitjoin_html_attributes_bracket_on_new_line = 1')
+
       set_file_contents <<~EOF
         return (
           <Tag category={ C } onClick={ () => toggleCategory(C) } />
@@ -170,7 +177,18 @@ describe "JSX" do
         return (
         <Tag
         category={ C }
-        onClick={ () => toggleCategory(C) } />
+        onClick={ () => toggleCategory(C) }
+        />
+        );
+      EOF
+
+      vim.search 'Tag'
+      join
+      remove_indentation
+
+      assert_file_contents <<~EOF
+        return (
+        <Tag category={ C } onClick={ () => toggleCategory(C) } />
         );
       EOF
     end
