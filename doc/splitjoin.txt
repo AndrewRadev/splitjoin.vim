@@ -7,6 +7,7 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Usage..................................: |splitjoin-usage|
 
     C......................................: |splitjoin-c|
+    Clojure................................: |splitjoin-clojure|
     Coffeescript...........................: |splitjoin-coffee|
     CSS....................................: |splitjoin-css|
     Elixir.................................: |splitjoin-elixir|
@@ -224,6 +225,28 @@ Function calls ~
             arg2,
             arg3,
             arg4);
+<
+==============================================================================
+CLOJURE                                                      *splitjoin-clojure*
+
+Lists ~
+>
+    (map (fn [x] (.toUpperCase x)) (.split "one two three" " "))
+    (map
+      (fn [x] (.toUpperCase x))
+      (.split "one two three" " "))
+
+    [::namespace/function one two three]
+    [::namespace/function
+     one
+     two
+     three]
+
+    #{:a :b :c :d}
+    #{:a
+      :b
+      :c
+      :d}
 <
 
 ==============================================================================

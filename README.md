@@ -45,6 +45,7 @@ This currently works for various constructs in the following languages:
 
 - C
 - CSS
+- Clojure
 - Coffeescript
 - Elixir
 - Elm
