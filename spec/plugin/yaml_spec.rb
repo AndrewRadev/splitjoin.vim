@@ -8,6 +8,10 @@ describe "yaml" do
     vim.set 'shiftwidth', 2
   end
 
+  after :each do
+    vim.command('silent! unlet g:splitjoin_curly_brace_padding')
+  end
+
   describe "arrays" do
     specify "basic" do
       set_file_contents <<~EOF
@@ -396,7 +400,6 @@ describe "yaml" do
         end: true
       EOF
     end
-
   end
 
   describe "maps" do
@@ -445,6 +448,20 @@ describe "yaml" do
         root:
           one: 1
       EOF
+    end
+
+    specify "without padding" do
+      vim.command 'let g:splitjoin_curly_brace_padding = 0'
+
+      set_file_contents <<~EOF
+        root:
+          one: 1
+      EOF
+
+      vim.search 'root:'
+      join
+
+      assert_file_contents 'root: {one: 1}'
     end
 
     specify "complex keys" do
@@ -669,6 +686,5 @@ describe "yaml" do
           - prop: { a: 'one', b: 'two' }
       EOF
     end
-
   end
 end

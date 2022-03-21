@@ -237,7 +237,11 @@ function! sj#yaml#JoinMap()
     let lines = s:NormalizeWhitespace(lines)
     let lines = map(lines, 's:StripComment(v:val)')
 
-    let replacement = first_line . ' { '. join(lines, ', ') . ' }'
+    if sj#settings#Read('curly_brace_padding')
+      let replacement = first_line . ' { '. join(lines, ', ') . ' }'
+    else
+      let replacement = first_line . ' {'. join(lines, ', ') . '}'
+    endif
 
     call sj#ReplaceLines(line_no, last_line_no, replacement)
     silent! normal! zO
