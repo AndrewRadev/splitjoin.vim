@@ -673,12 +673,12 @@ endfunction
 " start and end.
 "
 " Different languages have different rules for delimiters, so it might be a
-" better idea to write a specific parser. See autoload/sj/argparser/js.vim for
-" inspiration.
+" better idea to write a specific parser. See autoload/sj/argparser/json.vim
+" for inspiration.
 "
 function! sj#ParseJsonObjectBody(from, to)
   " Just use js object parser
-  let parser = sj#argparser#js#Construct(a:from, a:to, getline('.'))
+  let parser = sj#argparser#json#Construct(a:from, a:to, getline('.'))
   call parser.Process()
   return parser.args
 endfunction

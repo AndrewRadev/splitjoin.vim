@@ -686,5 +686,20 @@ describe "yaml" do
           - prop: { a: 'one', b: 'two' }
       EOF
     end
+
+    specify "splitting paths in maps" do
+      set_file_contents <<~EOF
+        - copy: { dest: /etc/default/locale, content: "LANG=en_US.UTF-8" }
+      EOF
+
+      vim.search 'dest'
+      split
+
+      assert_file_contents <<~EOF
+        - copy:
+            dest: /etc/default/locale
+            content: "LANG=en_US.UTF-8"
+      EOF
+    end
   end
 end
