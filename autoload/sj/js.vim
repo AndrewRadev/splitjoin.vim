@@ -3,23 +3,28 @@ function! sj#js#SplitObjectLiteral()
 
   if from < 0 && to < 0
     return 0
-  else
-    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
-    let body = join(pairs, ",\n")
-    if sj#settings#Read('trailing_comma')
-      let body .= ','
-    endif
-    let body  = "{\n".body."\n}"
-    call sj#ReplaceMotion('Va{', body)
-
-    if sj#settings#Read('align')
-      let body_start = line('.') + 1
-      let body_end   = body_start + len(pairs) - 1
-      call sj#Align(body_start, body_end, 'json_object')
-    endif
-
-    return 1
   endif
+
+  if synIDattr(synID(line('.'), from, 1), "name") == 'jsxBraces'
+    " from jsx-pretty
+    return 0
+  endif
+
+  let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
+  let body = join(pairs, ",\n")
+  if sj#settings#Read('trailing_comma')
+    let body .= ','
+  endif
+  let body  = "{\n".body."\n}"
+  call sj#ReplaceMotion('Va{', body)
+
+  if sj#settings#Read('align')
+    let body_start = line('.') + 1
+    let body_end   = body_start + len(pairs) - 1
+    call sj#Align(body_start, body_end, 'json_object')
+  endif
+
+  return 1
 endfunction
 
 function! sj#js#SplitFunction()
