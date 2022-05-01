@@ -854,6 +854,34 @@ describe "rust" do
       EOF
     end
 
+    specify "handles multiple attributes" do
+      set_file_contents <<~EOF
+        #[cfg(test1)]
+        #[test2]
+        use crate::{import1, import2};
+      EOF
+
+      vim.search('crate::')
+      split
+
+      assert_file_contents <<~EOF
+        #[cfg(test1)]
+        #[test2]
+        use crate::import1;
+        #[cfg(test1)]
+        #[test2]
+        use crate::import2;
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        #[cfg(test1)]
+        #[test2]
+        use crate::{import1, import2};
+      EOF
+    end
+
     specify "doesn't join different attributes" do
       set_file_contents <<~EOF
         #[cfg(foo)]

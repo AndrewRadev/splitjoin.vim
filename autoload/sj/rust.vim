@@ -602,18 +602,11 @@ function! sj#rust#SplitImportList()
     return 0
   endif
 
-  if getline(prevnonblank(line('.') - 1)) =~ '^#['
-    let start_line = prevnonblank(line('.') - 1)
-    let end_line = start_line
-    let tested_line = start_line
+  let attributes = s:GetLineAttributes(line('.'))
 
-    while tested_line =~ '^#['
-      let start_line = tested_line
-      let tested_line = prevnonblank(tested_line - 1)
-    endwhile
-
-    let attributes = join(getline(start_line, end_line), "\n")
-    let expanded_imports = [expanded_imports[0]] + map(expanded_imports[1:-1], 'attributes . "\n" . v:val')
+  if len(attributes) > 0
+    let attribute_block = join(attributes, "\n")
+    let expanded_imports = [expanded_imports[0]] + map(expanded_imports[1:-1], 'attribute_block . "\n" . v:val')
   endif
 
   let replacement = join(expanded_imports, "\n")
@@ -636,20 +629,31 @@ function! sj#rust#JoinImportList()
 
   let start_line = line('.')
   let last_line = line('.')
-  normal! j
+  let attributes = s:GetLineAttributes(start_line)
+
+  " If there's no attributes, get the next line, otherwise skip the attribute
+  " lines
+  exe 'normal! ' . (len(attributes) + 1) . 'j'
 
   while sj#SearchUnderCursor(import_pattern) > 0
     if line('.') == last_line
       " we haven't moved, stop here
       break
     endif
+
+    let local_attributes = s:GetLineAttributes(line('.'))
+    if local_attributes != attributes
+      " This import is not compatible, stop here
+      break
+    endif
+
     let last_line = line('.')
 
     let import_line = getline('.')
     let import_line = substitute(import_line, s:ending_semicolon_pattern, '', '')
 
     call add(imports, sj#Trim(import_line))
-    normal! j
+    exe 'normal! ' . (len(attributes) + 1) . 'j'
   endwhile
 
   if len(imports) <= 1
@@ -735,7 +739,10 @@ function! sj#rust#JoinImportList()
   endif
 
   let replacement = common_prefix . '::{' . join(differences, ', ') . '};'
-  let end_line = start_line + len(compatible_imports) - 1
+
+  let attribute_line_count = (len(compatible_imports) - 1) * len(attributes)
+  let end_line = start_line + len(compatible_imports) + attribute_line_count - 1
+
   call sj#ReplaceLines(start_line, end_line, replacement)
 
   return 0
@@ -754,4 +761,22 @@ function! s:FunctionReturnType()
   else
     return ''
   endif
+endfunction
+
+function s:GetLineAttributes(line)
+  let end_line = prevnonblank(a:line - 1)
+
+  if getline(end_line) !~ '^#['
+    return []
+  endif
+
+  let start_line = end_line
+  let tested_line = start_line
+
+  while getline(tested_line) =~ '^#['
+    let start_line = tested_line
+    let tested_line = prevnonblank(tested_line - 1)
+  endwhile
+
+  return getline(start_line, end_line)
 endfunction
