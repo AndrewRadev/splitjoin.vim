@@ -829,6 +829,49 @@ describe "rust" do
       join
       assert_file_contents 'use std::io::{Read, Write, self};'
     end
+
+    specify "correctly handles attributes" do
+      set_file_contents <<~EOF
+        #[cfg(test)]
+        use crate::{import1, import2};
+      EOF
+
+      vim.search('crate::')
+      split
+
+      assert_file_contents <<~EOF
+        #[cfg(test)]
+        use crate::import1;
+        #[cfg(test)]
+        use crate::import2;
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        #[cfg(test)]
+        use crate::{import1, import2};
+      EOF
+    end
+
+    specify "doesn't join different attributes" do
+      set_file_contents <<~EOF
+        #[cfg(foo)]
+        use crate::import1;
+        #[cfg(bar)]
+        use crate::import2;
+      EOF
+
+      vim.search('crate::import1')
+      join
+
+      set_file_contents <<~EOF
+        #[cfg(foo)]
+        use crate::import1;
+        #[cfg(bar)]
+        use crate::import2;
+      EOF
+    end
   end
 
   describe "if-let and match" do

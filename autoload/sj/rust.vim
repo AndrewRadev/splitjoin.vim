@@ -602,6 +602,20 @@ function! sj#rust#SplitImportList()
     return 0
   endif
 
+  if getline(prevnonblank(line('.') - 1)) =~ '^#['
+    let start_line = prevnonblank(line('.') - 1)
+    let end_line = start_line
+    let tested_line = start_line
+
+    while tested_line =~ '^#['
+      let start_line = tested_line
+      let tested_line = prevnonblank(tested_line - 1)
+    endwhile
+
+    let attributes = join(getline(start_line, end_line), "\n")
+    let expanded_imports = [expanded_imports[0]] + map(expanded_imports[1:-1], 'attributes . "\n" . v:val')
+  endif
+
   let replacement = join(expanded_imports, "\n")
   call sj#ReplaceMotion('V', replacement)
 
@@ -610,6 +624,7 @@ endfunction
 
 function! sj#rust#JoinImportList()
   let import_pattern = '^\s*use\s\+\%(\k\+::\)\+'
+  let attribute_pattern = '^#['
 
   if sj#SearchUnderCursor(import_pattern) <= 0
     return 0
