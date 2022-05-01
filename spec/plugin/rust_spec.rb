@@ -699,6 +699,26 @@ describe "rust" do
       EOF
     end
 
+    specify "with cursor outside curly brackets of a multiline import" do
+      # Note: This might not work in the future, if it causes trouble
+      set_file_contents <<~EOF
+        use std::io::{
+          Read,
+          foo::{Bar, Baz},
+          Write
+        };
+      EOF
+
+      vim.search('io::')
+      split
+
+      assert_file_contents <<~EOF
+        use std::io::Read;
+        use std::io::foo::{Bar, Baz};
+        use std::io::Write;
+      EOF
+    end
+
     specify "aliases" do
       set_file_contents <<~EOF
         use std::io::{Read as R, Write as W};
