@@ -881,6 +881,7 @@ describe "rust" do
         #[cfg(test1)]
         #[test2]
         use crate::{import1, import2};
+        // Dummy line
       EOF
 
       vim.search('crate::')
@@ -893,6 +894,7 @@ describe "rust" do
         #[cfg(test1)]
         #[test2]
         use crate::import2;
+        // Dummy line
       EOF
 
       join
@@ -901,6 +903,7 @@ describe "rust" do
         #[cfg(test1)]
         #[test2]
         use crate::{import1, import2};
+        // Dummy line
       EOF
     end
 
