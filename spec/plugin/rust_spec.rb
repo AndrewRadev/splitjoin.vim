@@ -707,6 +707,7 @@ describe "rust" do
           foo::{Bar, Baz},
           Write
         };
+        // Next line
       EOF
 
       vim.search('io::')
@@ -716,6 +717,7 @@ describe "rust" do
         use std::io::Read;
         use std::io::foo::{Bar, Baz};
         use std::io::Write;
+        // Next line
       EOF
     end
 
@@ -799,7 +801,7 @@ describe "rust" do
       EOF
     end
 
-    specify 'correctly splits a `self` import' do
+    specify "correctly splits a `self` import" do
       set_file_contents 'use std::io::{self, Write};'
       split
 
@@ -818,7 +820,7 @@ describe "rust" do
       EOF
     end
 
-    specify 'correctly joins a `self` import' do
+    specify "correctly joins a `self` import" do
       # As the first arg
       set_file_contents <<~EOF
         use std::io;

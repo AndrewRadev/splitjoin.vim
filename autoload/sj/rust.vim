@@ -610,8 +610,12 @@ function! sj#rust#SplitImportList()
   endif
 
   let replacement = join(expanded_imports, "\n")
-  " Try to select a potentially multiline area:
-  call sj#ReplaceMotion('va{$o0', replacement)
+  if body =~ '\n'
+    " Select a multiline area
+    call sj#ReplaceMotion('va{$o0', replacement . "\n")
+  else
+    call sj#ReplaceMotion('V', replacement)
+  endif
 
   return 1
 endfunction
