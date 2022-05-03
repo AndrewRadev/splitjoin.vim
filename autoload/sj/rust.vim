@@ -622,7 +622,7 @@ endfunction
 
 function! sj#rust#JoinImportList()
   let import_pattern = '^\s*use\s\+\%(\k\+::\)\+'
-  let attribute_pattern = '^#['
+  let attribute_pattern = '^\s*#['
 
   if sj#SearchUnderCursor(import_pattern) <= 0
     return 0
@@ -771,14 +771,14 @@ endfunction
 function s:GetLineAttributes(line)
   let end_line = prevnonblank(a:line - 1)
 
-  if getline(end_line) !~ '^#['
+  if getline(end_line) !~ '^\s*#['
     return []
   endif
 
   let start_line = end_line
   let tested_line = start_line
 
-  while getline(tested_line) =~ '^#['
+  while getline(tested_line) =~ '^\s*#['
     let start_line = tested_line
     let tested_line = prevnonblank(tested_line - 1)
   endwhile
