@@ -378,7 +378,8 @@ describe "ruby" do
           do_something_else
       EOF
 
-      join
+      # Call command instead of mapping to avoid default mapping
+      vim.command 'SplitjoinJoin'
 
       assert_file_contents <<~EOF
         when condition

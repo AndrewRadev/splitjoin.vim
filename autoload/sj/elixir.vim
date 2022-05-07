@@ -156,11 +156,9 @@ function! sj#elixir#SplitArray()
 
   " substitute [1, 2, | tail]
   let items[-1] = substitute(items[-1], "\\(|[^>].*\\)", "\n\\1", "")
-
   let body = "[\n" . join(items, ",\n") . "\n]"
 
   call sj#ReplaceMotion('Va[', body)
-
   return 1
 endfunction
 
@@ -176,9 +174,8 @@ function! sj#elixir#JoinArray()
   let body = substitute(body, ',\ze\_s*$', '', '')
 
   let items = split(body, ",\s*\n")
-
   if len(items) == 0
-    return 1
+    return 0
   endif
 
   " join isolated | tail on the last line
@@ -186,7 +183,6 @@ function! sj#elixir#JoinArray()
 
   let body = join(sj#TrimList(items), ', ')
   call sj#ReplaceMotion('Va[', '['.body.']')
-
   return 1
 endfunction
 
@@ -250,7 +246,6 @@ function! sj#elixir#JoinPipe()
   call sj#PushCursor()
 
   let line = getline('.')
-
   if line !~ s:pipe_pattern
     normal! j
     let line = getline('.')
@@ -289,6 +284,5 @@ function! sj#elixir#JoinPipe()
   endif
 
   call sj#ReplaceLines(line_num - 1, line_num, result)
-
   return 1
 endfunction

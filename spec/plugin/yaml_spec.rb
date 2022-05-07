@@ -229,7 +229,8 @@ describe "yaml" do
       EOF
 
       vim.search 'list'
-      join
+      # Call command instead of mapping to avoid default mapping
+      vim.command 'SplitjoinJoin'
 
       # Does nothing, needs to be joined from the inside first
       assert_file_contents <<~EOF
@@ -247,7 +248,8 @@ describe "yaml" do
       EOF
 
       vim.search 'list'
-      join
+      # Call command instead of mapping to avoid default mapping
+      vim.command 'SplitjoinJoin'
 
       assert_file_contents <<~EOF
         list:
@@ -466,7 +468,7 @@ describe "yaml" do
 
     specify "complex keys" do
       set_file_contents <<~EOF
-        map:
+        root:
           one value: 1
           'my:key': 2
       EOF
@@ -475,7 +477,7 @@ describe "yaml" do
       join
 
       assert_file_contents <<~EOF
-        map: { one value: 1, 'my:key': 2 }
+        root: { one value: 1, 'my:key': 2 }
       EOF
     end
 
@@ -633,7 +635,8 @@ describe "yaml" do
       EOF
 
       vim.search 'map'
-      join
+      # Call command instead of mapping to avoid default mapping
+      vim.command 'SplitjoinJoin'
 
       assert_file_contents <<~EOF
         map:
@@ -652,7 +655,8 @@ describe "yaml" do
       EOF
 
       vim.search 'two'
-      join
+      # Call command instead of mapping to avoid default mapping
+      vim.command 'SplitjoinJoin'
 
       assert_file_contents <<~EOF
         list1:

@@ -6,12 +6,12 @@ module Support
     end
 
     def split
-      vim.command 'SplitjoinSplit'
+      vim.command 'normal gS'
       vim.write
     end
 
     def join
-      vim.command 'SplitjoinJoin'
+      vim.command 'normal gJ'
       vim.write
     end
 

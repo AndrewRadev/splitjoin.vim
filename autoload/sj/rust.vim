@@ -186,6 +186,8 @@ function! sj#rust#JoinMatchStatement()
   else
     call sj#ReplaceByPosition(match_position, end_position, expr.'.unwrap()')
   endif
+
+  return 1
 endfunction
 
 function! sj#rust#SplitBlockClosure()

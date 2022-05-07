@@ -539,7 +539,8 @@ describe "elixir" do
       EOF
 
       vim.search 'baz'
-      join
+      # Call command instead of mapping to avoid default mapping
+      vim.command 'SplitjoinJoin'
 
       assert_file_contents <<~EOF
         bar
@@ -677,7 +678,8 @@ describe "elixir" do
       EOF
 
       vim.search 'bla'
-      split
+      # Call command instead of mapping to avoid default mapping
+      vim.command 'SplitjoinSplit'
 
       assert_file_contents <<~EOF
         if foo,
@@ -685,7 +687,8 @@ describe "elixir" do
           else: foo
       EOF
 
-      join
+      # Call command instead of mapping to avoid default mapping
+      vim.command 'SplitjoinJoin'
 
       assert_file_contents <<~EOF
         if foo,
