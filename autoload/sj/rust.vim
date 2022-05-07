@@ -749,8 +749,7 @@ function! sj#rust#JoinImportList()
   let end_line = start_line + len(compatible_imports) + attribute_line_count - 1
 
   call sj#ReplaceLines(start_line, end_line, replacement)
-
-  return 0
+  return 1
 endfunction
 
 function! s:FunctionReturnType()
