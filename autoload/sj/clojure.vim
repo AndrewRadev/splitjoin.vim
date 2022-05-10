@@ -45,4 +45,5 @@ function! sj#clojure#JoinList()
 
   let bracket = getline('.')[col('.') - 1]
   exe 'normal! va'.bracket.'J'
+  return 1
 endfunction
