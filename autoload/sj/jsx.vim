@@ -94,7 +94,11 @@ function! sj#jsx#JoinHtmlTag()
     return 0
   endif
 
-  let tag               = sj#GetMotion('vat')
+  let tag = sj#GetMotion('vat')
+  if tag =~ '^\s*$'
+    return 0
+  endif
+
   let tag_name          = matchstr(tag, '^<\zs\k[^>/[:space:]]*')
   let empty_tag_pattern = '>\_s*</\s*'.tag_name.'\s*>$'
 

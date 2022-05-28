@@ -155,6 +155,22 @@ describe "JSX" do
 
       assert_file_contents '() => <Button foo="bar" />'
     end
+
+    specify "variable assignment with a lambda" do
+      set_file_contents <<~EOF
+        const foo: Bar = (args) => {
+          return <Component prop={args.prop} />;
+        };
+      EOF
+      setup_filetype
+
+      vim.search 'args'
+      join
+
+      assert_file_contents <<~EOF
+        const foo: Bar = (args) => <Component prop={args.prop} />;
+      EOF
+    end
   end
 
   describe "Lambdas in tags" do
