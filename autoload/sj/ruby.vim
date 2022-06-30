@@ -1080,7 +1080,7 @@ endfunction
 
 function! sj#ruby#SplitEndlessDef()
   " taken from vim-ruby
-  let endless_def_pattern = '\<def\s\+\k\+[!?]\=\%((.*)\|\s\)\zs\s*\zs='
+  let endless_def_pattern = '\<def\s\+\%(\k\+\.\)\=\k\+[!?]\=\%((.*)\|\s\)\zs\s*\zs='
   if search(endless_def_pattern, 'Wce', line('.')) <= 0
         \ && search(endless_def_pattern, 'Wcbe', line('.')) <= 0
     return 0
@@ -1096,7 +1096,8 @@ function! sj#ruby#SplitEndlessDef()
 endfunction
 
 function! sj#ruby#JoinOnelineDef()
-  if search('\<def\s\+\k\+[!?]\=\%((.*)\)\s*\%(#.*\)\=$', 'Wbc', line('.')) <= 0
+  " adapted from vim-ruby
+  if search('\<def\s\+\%(\k\+\.\)\=\k\+[!?]\=\%((.*)\)\s*\%(#.*\)\=$', 'Wbc', line('.')) <= 0
     return 0
   endif
 
