@@ -482,6 +482,10 @@ function! sj#rust#SplitIfLetIntoMatch()
   return 1
 endfunction
 
+function! sj#rust#SplitArgs()
+  return s:SplitList(['(', ')'], 'cursor_on_line')
+endfunction
+
 function! sj#rust#JoinEmptyMatchIntoIfLet()
   let match_pattern = 'match\s\+\zs.\{-}\ze\s\+{$'
   let pattern_pattern = '^\s*\zs.\{-}\ze\s\+=>'
@@ -754,6 +758,10 @@ function! sj#rust#JoinImportList()
   return 1
 endfunction
 
+function! sj#rust#JoinArgs()
+  return s:JoinList(['(', ')'])
+endfunction
+
 function! s:FunctionReturnType()
   let found_result = search(')\_s\+->\_s\+\%(\k\|::\)*Result\>', 'Wbn')
   let found_option = search(')\_s\+->\_s\+\%(\k\|::\)*Option\>', 'Wbn')
@@ -785,4 +793,63 @@ function s:GetLineAttributes(line)
   endwhile
 
   return getline(start_line, end_line)
+endfunction
+
+function! s:SplitList(delimiter, cursor_position)
+  let start = a:delimiter[0]
+  let end   = a:delimiter[1]
+
+  let lineno = line('.')
+  let indent = indent('.')
+
+  if a:cursor_position == 'cursor_inside'
+    let [from, to] = sj#LocateBracesAroundCursor(start, end)
+  elseif a:cursor_position == 'cursor_on_line'
+    let [from, to] = sj#LocateBracesOnLine(start, end)
+  else
+    echoerr "Invalid value for a:cursor_position: ".a:cursor_position
+    return
+  endif
+
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  let items = sj#ParseJsonObjectBody(from + 1, to - 1)
+  if empty(items)
+    return 0
+  endif
+
+  if sj#settings#Read('trailing_comma')
+    let body = start."\n".join(items, ",\n").",\n".end
+  else
+    let body = start."\n".join(items, ",\n")."\n".end
+  endif
+
+  call sj#ReplaceMotion('Va'.start, body)
+
+  return 1
+endfunction
+
+function! s:JoinList(delimiter)
+  let start = a:delimiter[0]
+  let end   = a:delimiter[1]
+
+  let line = getline('.')
+
+  if line !~ start . '\s*$'
+    return 0
+  endif
+
+  call search(start, 'c', line('.'))
+  let body = sj#GetMotion('Vi'.start)
+
+  let lines = split(body, "\n")
+  let lines = sj#TrimList(lines)
+  let body  = sj#Trim(join(lines, ' '))
+  let body  = substitute(body, ',\s*$', '', '')
+
+  call sj#ReplaceMotion('Va'.start, start.body.end)
+
+  return 1
 endfunction
