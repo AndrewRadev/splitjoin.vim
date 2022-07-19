@@ -321,168 +321,6 @@ describe "rust" do
     EOF
   end
 
-  specify "structs" do
-    set_file_contents <<~EOF
-      SomeStruct { foo: bar, bar: baz }
-    EOF
-
-    vim.search('foo')
-    split
-
-    assert_file_contents <<~EOF
-      SomeStruct {
-          foo: bar,
-          bar: baz
-      }
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      SomeStruct { foo: bar, bar: baz }
-    EOF
-  end
-
-  specify "structs (trailing comma)" do
-    set_file_contents <<~EOF
-      SomeStruct { foo: bar, bar: baz }
-    EOF
-
-    vim.command('let b:splitjoin_trailing_comma = 1')
-    vim.search('foo')
-    split
-
-    assert_file_contents <<~EOF
-      SomeStruct {
-          foo: bar,
-          bar: baz,
-      }
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      SomeStruct { foo: bar, bar: baz }
-    EOF
-  end
-
-  specify "structs with shorthand definitions" do
-    set_file_contents <<~EOF
-      SomeStruct { foo, bar: baz }
-    EOF
-
-    vim.search('foo')
-    split
-
-    assert_file_contents <<~EOF
-      SomeStruct {
-          foo,
-          bar: baz
-      }
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      SomeStruct { foo, bar: baz }
-    EOF
-  end
-
-  specify "structs with only shorthand definitions" do
-    set_file_contents <<~EOF
-      SomeStruct { foo, bar }
-    EOF
-
-    vim.search('foo')
-    split
-
-    assert_file_contents <<~EOF
-      SomeStruct {
-          foo,
-          bar
-      }
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      SomeStruct { foo, bar }
-    EOF
-  end
-
-  specify "structs with defaults" do
-    set_file_contents <<~EOF
-      SomeStruct { foo, bar, ..Default::default() }
-    EOF
-
-    # No trailing comma on the default regardless of setting:
-    vim.command('let b:splitjoin_trailing_comma = 1')
-
-    vim.search('foo')
-    split
-
-    assert_file_contents <<~EOF
-      SomeStruct {
-          foo,
-          bar,
-          ..Default::default()
-      }
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      SomeStruct { foo, bar, ..Default::default() }
-    EOF
-  end
-
-  specify "structs with item attributes" do
-    set_file_contents <<~EOF
-      SomeStruct { foo, #[arg] #[cfg(test)] bar: "baz" }
-    EOF
-
-    vim.search('foo')
-    split
-
-    assert_file_contents <<~EOF
-      SomeStruct {
-          foo,
-          #[arg]
-          #[cfg(test)]
-          bar: "baz"
-      }
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      SomeStruct { foo, #[arg] #[cfg(test)] bar: "baz" }
-    EOF
-  end
-
-  specify "structs with visibility modifiers" do
-    set_file_contents <<~EOF
-      SomeStruct { foo, pub bar: "baz", pub(crate) baz }
-    EOF
-
-    vim.search('foo')
-    split
-
-    assert_file_contents <<~EOF
-      SomeStruct {
-          foo,
-          pub bar: "baz",
-          pub(crate) baz
-      }
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      SomeStruct { foo, pub bar: "baz", pub(crate) baz }
-    EOF
-  end
-
   specify "blocks" do
     set_file_contents <<~EOF
       if opt.verbose == 1 { foo(); do_thing(); bar() }
@@ -586,70 +424,234 @@ describe "rust" do
     EOF
   end
 
-  specify "struct with nested lambda (with curly brackets)" do
-    set_file_contents <<~EOF
-      Operation { input, callback: |x, y| { x + y } }
-    EOF
+  describe "structs" do
+    specify "basic" do
+      set_file_contents <<~EOF
+        SomeStruct { foo: bar, bar: baz }
+      EOF
 
-    vim.search('input')
-    split
+      vim.search('foo')
+      split
 
-    assert_file_contents <<~EOF
-      Operation {
-          input,
-          callback: |x, y| { x + y }
-      }
-    EOF
-  end
+      assert_file_contents <<~EOF
+        SomeStruct {
+            foo: bar,
+            bar: baz
+        }
+      EOF
 
-  specify "struct with nested lambda (without curly brackets)" do
-    set_file_contents <<~EOF
-      Operation { input, callback: |x, y| x + y }
-    EOF
+      join
 
-    vim.search('input')
-    split
+      assert_file_contents <<~EOF
+        SomeStruct { foo: bar, bar: baz }
+      EOF
+    end
 
-    assert_file_contents <<~EOF
-      Operation {
-          input,
-          callback: |x, y| x + y
-      }
-    EOF
-  end
+    specify "structs (trailing comma)" do
+      set_file_contents <<~EOF
+        SomeStruct { foo: bar, bar: baz }
+      EOF
 
-  specify "struct with comma in character" do
-    set_file_contents <<~EOF
-      Operation { input, thing: ',', test }
-    EOF
+      vim.command('let b:splitjoin_trailing_comma = 1')
+      vim.search('foo')
+      split
 
-    vim.search('input')
-    split
+      assert_file_contents <<~EOF
+        SomeStruct {
+            foo: bar,
+            bar: baz,
+        }
+      EOF
 
-    assert_file_contents <<~EOF
-      Operation {
-          input,
-          thing: ',',
-          test
-      }
-    EOF
-  end
+      join
 
-  specify "struct with lifetime" do
-    set_file_contents <<~EOF
-      Operation { input, thing: Test<'a>, test }
-    EOF
+      assert_file_contents <<~EOF
+        SomeStruct { foo: bar, bar: baz }
+      EOF
+    end
 
-    vim.search('input')
-    split
+    specify "with shorthand definitions" do
+      set_file_contents <<~EOF
+        SomeStruct { foo, bar: baz }
+      EOF
 
-    assert_file_contents <<~EOF
-      Operation {
-          input,
-          thing: Test<'a>,
-          test
-      }
-    EOF
+      vim.search('foo')
+      split
+
+      assert_file_contents <<~EOF
+        SomeStruct {
+            foo,
+            bar: baz
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        SomeStruct { foo, bar: baz }
+      EOF
+    end
+
+    specify "with only shorthand definitions" do
+      set_file_contents <<~EOF
+        SomeStruct { foo, bar }
+      EOF
+
+      vim.search('foo')
+      split
+
+      assert_file_contents <<~EOF
+        SomeStruct {
+            foo,
+            bar
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        SomeStruct { foo, bar }
+      EOF
+    end
+
+    specify "with defaults" do
+      set_file_contents <<~EOF
+        SomeStruct { foo, bar, ..Default::default() }
+      EOF
+
+      # No trailing comma on the default regardless of setting:
+      vim.command('let b:splitjoin_trailing_comma = 1')
+
+      vim.search('foo')
+      split
+
+      assert_file_contents <<~EOF
+        SomeStruct {
+            foo,
+            bar,
+            ..Default::default()
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        SomeStruct { foo, bar, ..Default::default() }
+      EOF
+    end
+
+    specify "with item attributes" do
+      set_file_contents <<~EOF
+        SomeStruct { foo, #[arg] #[cfg(test)] bar: "baz" }
+      EOF
+
+      vim.search('foo')
+      split
+
+      assert_file_contents <<~EOF
+        SomeStruct {
+            foo,
+            #[arg]
+            #[cfg(test)]
+            bar: "baz"
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        SomeStruct { foo, #[arg] #[cfg(test)] bar: "baz" }
+      EOF
+    end
+
+    specify "with visibility modifiers" do
+      set_file_contents <<~EOF
+        SomeStruct { foo, pub bar: "baz", pub(crate) baz }
+      EOF
+
+      vim.search('foo')
+      split
+
+      assert_file_contents <<~EOF
+        SomeStruct {
+            foo,
+            pub bar: "baz",
+            pub(crate) baz
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        SomeStruct { foo, pub bar: "baz", pub(crate) baz }
+      EOF
+    end
+
+    specify "with nested lambda (with curly brackets)" do
+      set_file_contents <<~EOF
+        Operation { input, callback: |x, y| { x + y } }
+      EOF
+
+      vim.search('input')
+      split
+
+      assert_file_contents <<~EOF
+        Operation {
+            input,
+            callback: |x, y| { x + y }
+        }
+      EOF
+    end
+
+    specify "with nested lambda (without curly brackets)" do
+      set_file_contents <<~EOF
+        Operation { input, callback: |x, y| x + y }
+      EOF
+
+      vim.search('input')
+      split
+
+      assert_file_contents <<~EOF
+        Operation {
+            input,
+            callback: |x, y| x + y
+        }
+      EOF
+    end
+
+    specify "with comma in character" do
+      set_file_contents <<~EOF
+        Operation { input, thing: ',', test }
+      EOF
+
+      vim.search('input')
+      split
+
+      assert_file_contents <<~EOF
+        Operation {
+            input,
+            thing: ',',
+            test
+        }
+      EOF
+    end
+
+    specify "with lifetime" do
+      set_file_contents <<~EOF
+        Operation { input, thing: Test<'a>, test }
+      EOF
+
+      vim.search('input')
+      split
+
+      assert_file_contents <<~EOF
+        Operation {
+            input,
+            thing: Test<'a>,
+            test
+        }
+      EOF
+    end
   end
 
   describe "imports" do
