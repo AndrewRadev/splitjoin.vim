@@ -815,7 +815,9 @@ function! s:SplitList(delimiter, cursor_position)
     return 0
   endif
 
-  let items = sj#ParseJsonObjectBody(from + 1, to - 1)
+  let parser = sj#argparser#rust_list#Construct(from + 1, to - 1, getline('.'))
+  call parser.Process()
+  let items = parser.args
   if empty(items)
     return 0
   endif

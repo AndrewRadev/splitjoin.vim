@@ -424,6 +424,55 @@ describe "rust" do
     EOF
   end
 
+  describe "argument lists" do
+    specify "basic" do
+      set_file_contents <<~EOF
+        println!("{} {}", foo, bar);
+      EOF
+
+      vim.search('println')
+      split
+
+      assert_file_contents <<~EOF
+        println!(
+            "{} {}",
+            foo,
+            bar
+        );
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        println!("{} {}", foo, bar);
+      EOF
+    end
+
+    specify "with lifetime stuff" do
+      set_file_contents <<~EOF
+        function_call(foo, Type::<'a, T>::new(), 'c', &reference);
+      EOF
+
+      vim.search('function_call')
+      split
+
+      assert_file_contents <<~EOF
+        function_call(
+            foo,
+            Type::<'a, T>::new(),
+            'c',
+            &reference
+        );
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        function_call(foo, Type::<'a, T>::new(), 'c', &reference);
+      EOF
+    end
+  end
+
   describe "structs" do
     specify "basic" do
       set_file_contents <<~EOF
