@@ -1,20 +1,20 @@
-function! sj#argparser#rust#Construct(start_index, end_index, line)
+function! sj#argparser#rust_struct#Construct(start_index, end_index, line)
   let parser = sj#argparser#common#Construct(a:start_index, a:end_index, a:line)
 
   call extend(parser, {
         \ 'current_arg_attributes': [],
         \
-        \ 'PushArg': function('sj#argparser#rust#PushArg'),
-        \ 'Process': function('sj#argparser#rust#Process'),
+        \ 'PushArg': function('sj#argparser#rust_struct#PushArg'),
+        \ 'Process': function('sj#argparser#rust_struct#Process'),
         \
-        \ 'IsValidStruct':     function('sj#argparser#rust#IsValidStruct'),
-        \ 'IsOnlyStructPairs': function('sj#argparser#rust#IsOnlyStructPairs'),
+        \ 'IsValidStruct':     function('sj#argparser#rust_struct#IsValidStruct'),
+        \ 'IsOnlyStructPairs': function('sj#argparser#rust_struct#IsOnlyStructPairs'),
         \ })
 
   return parser
 endfunction
 
-function! sj#argparser#rust#Process() dict
+function! sj#argparser#rust_struct#Process() dict
   while !self.Finished()
     if self.body[0] == ','
       call self.PushArg()
@@ -49,7 +49,7 @@ endfunction
 
 " Pushes the current argument to the args and initializes a new one. Special
 " handling for attributes
-function! sj#argparser#rust#PushArg() dict
+function! sj#argparser#rust_struct#PushArg() dict
   call add(self.args, {
         \ "attributes": self.current_arg_attributes,
         \ "argument":   sj#Trim(self.current_arg)
@@ -68,7 +68,7 @@ endfunction
 "   StructName { prop1, ..Foo }, or
 "   StructName { #[cfg] prop1, ..Foo }
 "
-function! sj#argparser#rust#IsValidStruct() dict
+function! sj#argparser#rust_struct#IsValidStruct() dict
   let visibility = '\%(pub\%((crate)\)\=\s*\)\='
 
   for entry in self.args
@@ -87,7 +87,7 @@ endfunction
 " Possibilities:
 "   StructName { key: value, other_key: expression() }
 "
-function! sj#argparser#rust#IsOnlyStructPairs() dict
+function! sj#argparser#rust_struct#IsOnlyStructPairs() dict
   let visibility = '\%(pub\%((crate)\)\=\s*\)\='
 
   for entry in self.args

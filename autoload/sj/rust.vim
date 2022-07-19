@@ -266,7 +266,7 @@ function! sj#rust#SplitCurlyBrackets()
   let prefix = sj#GetCols(0, from - 1)
   let indent = indent(line('.')) + (exists('*shiftwidth') ? shiftwidth() : &sw)
 
-  let parser = sj#argparser#rust#Construct(from + 1, to - 1, getline('.'))
+  let parser = sj#argparser#rust_struct#Construct(from + 1, to - 1, getline('.'))
   call parser.Process()
   let args = parser.args
   if len(args) <= 0
@@ -587,7 +587,7 @@ function! sj#rust#SplitImportList()
 
   let prefix = sj#Trim(strpart(getline('.'), 0, col('.') - 1))
   let body   = sj#GetMotion('vi{')
-  let parser = sj#argparser#rust#Construct(1, len(body), body)
+  let parser = sj#argparser#rust_struct#Construct(1, len(body), body)
 
   call parser.Process()
 
@@ -731,7 +731,7 @@ function! sj#rust#JoinImportList()
 
     if difference =~ '^{.*}$'
       " there's a list of imports, merge them together
-      let parser = sj#argparser#rust#Construct(2, len(difference) - 1, difference)
+      let parser = sj#argparser#rust_struct#Construct(2, len(difference) - 1, difference)
       call parser.Process()
       for part in map(parser.args, 'v:val.argument')
         call add(differences, part)
