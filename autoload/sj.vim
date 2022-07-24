@@ -1,5 +1,107 @@
 " vim: foldmethod=marker
 
+" Main entry points {{{1
+"
+" The two main functions that loop through callbacks and execute them.
+"
+" function! sj#Split() {{{2
+"
+function! sj#Split()
+  if !exists('b:splitjoin_split_callbacks')
+    return
+  end
+
+  " expand any folds under the cursor, or we might replace the wrong area
+  silent! foldopen
+
+  let disabled_callbacks = sj#settings#Read('disabled_split_callbacks')
+
+  let saved_view = winsaveview()
+  let saved_whichwrap = &whichwrap
+  set whichwrap-=l
+
+  if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
+  for callback in b:splitjoin_split_callbacks
+    if index(disabled_callbacks, callback) >= 0
+      continue
+    endif
+
+    try
+      call sj#PushCursor()
+
+      if call(callback, [])
+        silent! call repeat#set("\<plug>SplitjoinSplit")
+        let &whichwrap = saved_whichwrap
+        if !sj#settings#Read('quiet')
+          " clear progress message
+          redraw | echo ""
+        endif
+        return 1
+      endif
+
+    finally
+      call sj#PopCursor()
+    endtry
+  endfor
+
+  call winrestview(saved_view)
+  let &whichwrap = saved_whichwrap
+  if !sj#settings#Read('quiet')
+    " clear progress message
+    redraw | echo ""
+  endif
+  return 0
+endfunction
+
+" function! sj#Join() {{{2
+"
+function! sj#Join()
+  if !exists('b:splitjoin_join_callbacks')
+    return
+  end
+
+  " expand any folds under the cursor, or we might replace the wrong area
+  silent! foldopen
+
+  let disabled_callbacks = sj#settings#Read('disabled_join_callbacks')
+
+  let saved_view = winsaveview()
+  let saved_whichwrap = &whichwrap
+  set whichwrap-=l
+
+  if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
+  for callback in b:splitjoin_join_callbacks
+    if index(disabled_callbacks, callback) >= 0
+      continue
+    endif
+
+    try
+      call sj#PushCursor()
+
+      if call(callback, [])
+        silent! call repeat#set("\<plug>SplitjoinJoin")
+        let &whichwrap = saved_whichwrap
+        if !sj#settings#Read('quiet')
+          " clear progress message
+          redraw | echo ""
+        endif
+        return 1
+      endif
+
+    finally
+      call sj#PopCursor()
+    endtry
+  endfor
+
+  call winrestview(saved_view)
+  let &whichwrap = saved_whichwrap
+  if !sj#settings#Read('quiet')
+    " clear progress message
+    redraw | echo ""
+  endif
+  return 0
+endfunction
+
 " Cursor stack manipulation {{{1
 "
 " In order to make the pattern of saving the cursor and restoring it
