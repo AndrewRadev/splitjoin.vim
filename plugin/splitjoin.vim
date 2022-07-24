@@ -9,7 +9,7 @@ set cpo&vim
 " Defaults:
 " =========
 
-let g:splitjoin_defaults = {
+let g:splitjoin_default_settings = {
       \ 'quiet':                    0,
       \ 'disabled_split_callbacks': [],
       \ 'disabled_join_callbacks':  [],

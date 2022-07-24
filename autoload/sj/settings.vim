@@ -12,7 +12,7 @@
 "   - g:splitjoin_option_bar
 "
 " and return the first one that exists. If none exist, it reads the default
-" value, if one is set in `g:splitjoin_defaults`
+" value, if one is set in `g:splitjoin_default_settings`
 "
 function! sj#settings#Read(...)
   let options = a:000
@@ -28,8 +28,8 @@ function! sj#settings#Read(...)
   endfor
 
   for option in options
-    if has_key(g:splitjoin_defaults, option)
-      return g:splitjoin_defaults[option]
+    if has_key(g:splitjoin_default_settings, option)
+      return g:splitjoin_default_settings[option]
     endif
   endfor
 
