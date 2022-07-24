@@ -1,5 +1,152 @@
 " vim: foldmethod=marker
 
+" Commands {{{1
+
+let s:init_done = v:false
+
+" function! s:init() {{{2
+"
+" Initialize plugin options.
+"
+function! s:init()
+  call sj#settings#SetDefault('quiet',                                   0)
+  call sj#settings#SetDefault('disabled_split_callbacks',                [])
+  call sj#settings#SetDefault('disabled_join_callbacks',                 [])
+  call sj#settings#SetDefault('normalize_whitespace',                    1)
+  call sj#settings#SetDefault('trailing_comma',                          0)
+  call sj#settings#SetDefault('align',                                   0)
+  call sj#settings#SetDefault('curly_brace_padding',                     1)
+  call sj#settings#SetDefault('ruby_curly_braces',                       1)
+  call sj#settings#SetDefault('ruby_heredoc_type',                       '<<~')
+  call sj#settings#SetDefault('ruby_trailing_comma',                     0)
+  call sj#settings#SetDefault('ruby_hanging_args',                       1)
+  call sj#settings#SetDefault('ruby_do_block_split',                     1)
+  call sj#settings#SetDefault('ruby_options_as_arguments',               0)
+  call sj#settings#SetDefault('coffee_suffix_if_clause',                 1)
+  call sj#settings#SetDefault('perl_brace_on_same_line',                 1)
+  call sj#settings#SetDefault('php_method_chain_full',                   0)
+  call sj#settings#SetDefault('python_brackets_on_separate_lines',       0)
+  call sj#settings#SetDefault('handlebars_closing_bracket_on_same_line', 0)
+  call sj#settings#SetDefault('handlebars_hanging_arguments',            0)
+  call sj#settings#SetDefault('html_attribute_bracket_on_new_line',      0)
+  call sj#settings#SetDefault('java_argument_split_first_newline',       0)
+  call sj#settings#SetDefault('java_argument_split_last_newline',        0)
+endfunction
+
+" function! sj#Split() {{{2
+"
+" Invoked by :SplitjoinSplit command.
+" Returns 1 if successful, 0 if the command didn't do anything.
+"
+function! sj#Split() abort
+  if !s:init_done
+    call s:init()
+    let s:init_done = v:true
+  endif
+
+  if !exists('b:splitjoin_split_callbacks')
+    return
+  endif
+
+  " expand any folds under the cursor, or we might replace the wrong area
+  silent! foldopen
+
+  let disabled_callbacks = sj#settings#Read('disabled_split_callbacks')
+
+  let saved_view = winsaveview()
+  let saved_whichwrap = &whichwrap
+  set whichwrap-=l
+
+  if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
+  for callback in b:splitjoin_split_callbacks
+    if index(disabled_callbacks, callback) >= 0
+      continue
+    endif
+
+    try
+      call sj#PushCursor()
+
+      if call(callback, [])
+        silent! call repeat#set("\<plug>SplitjoinSplit")
+        let &whichwrap = saved_whichwrap
+        if !sj#settings#Read('quiet')
+          " clear progress message
+          redraw | echo ""
+        endif
+        return 1
+      endif
+
+    finally
+      call sj#PopCursor()
+    endtry
+  endfor
+
+  call winrestview(saved_view)
+  let &whichwrap = saved_whichwrap
+  if !sj#settings#Read('quiet')
+    " clear progress message
+    redraw | echo ""
+  endif
+  return 0
+endfunction
+
+" function! sj#Join() {{{2
+"
+" Invoked by :SplitjoinJoin command.
+" Returns 1 if successful, 0 if the command didn't do anything.
+"
+function! sj#Join() abort
+  if !s:init_done
+    call s:init()
+    let s:init_done = v:true
+  endif
+
+  if !exists('b:splitjoin_join_callbacks')
+    return
+  endif
+
+  " expand any folds under the cursor, or we might replace the wrong area
+  silent! foldopen
+
+  let disabled_callbacks = sj#settings#Read('disabled_join_callbacks')
+
+  let saved_view = winsaveview()
+  let saved_whichwrap = &whichwrap
+  set whichwrap-=l
+
+  if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
+  for callback in b:splitjoin_join_callbacks
+    if index(disabled_callbacks, callback) >= 0
+      continue
+    endif
+
+    try
+      call sj#PushCursor()
+
+      if call(callback, [])
+        silent! call repeat#set("\<plug>SplitjoinJoin")
+        let &whichwrap = saved_whichwrap
+        if !sj#settings#Read('quiet')
+          " clear progress message
+          redraw | echo ""
+        endif
+        return 1
+      endif
+
+    finally
+      call sj#PopCursor()
+    endtry
+  endfor
+
+  call winrestview(saved_view)
+  let &whichwrap = saved_whichwrap
+  if !sj#settings#Read('quiet')
+    " clear progress message
+    redraw | echo ""
+  endif
+  return 0
+endfunction
+
 " Cursor stack manipulation {{{1
 "
 " In order to make the pattern of saving the cursor and restoring it
