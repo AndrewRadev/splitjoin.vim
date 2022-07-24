@@ -471,6 +471,52 @@ describe "rust" do
         function_call(foo, Type::<'a, T>::new(), 'c', &reference);
       EOF
     end
+
+    specify "in simple function definitions" do
+      set_file_contents <<~EOF
+        pub(crate) fn call(foo: &str, bar: Bar, baz: ()) {
+      EOF
+
+      vim.search('foo')
+      split
+
+      assert_file_contents <<~EOF
+        pub(crate) fn call(
+            foo: &str,
+            bar: Bar,
+            baz: ()
+        ) {
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        pub(crate) fn call(foo: &str, bar: Bar, baz: ()) {
+      EOF
+    end
+
+    specify "in fancy function definitions" do
+      set_file_contents <<~EOF
+        fn call<'a, T>(foo: &'static str, bar: Bar<'a, T>, baz: ()) {
+      EOF
+
+      vim.search('foo')
+      split
+
+      assert_file_contents <<~EOF
+        fn call<'a, T>(
+            foo: &'static str,
+            bar: Bar<'a, T>,
+            baz: ()
+        ) {
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        fn call<'a, T>(foo: &'static str, bar: Bar<'a, T>, baz: ()) {
+      EOF
+    end
   end
 
   describe "structs" do

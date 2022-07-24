@@ -815,7 +815,14 @@ function! s:SplitList(delimiter, cursor_position)
     return 0
   endif
 
-  let parser = sj#argparser#rust_list#Construct(from + 1, to - 1, getline('.'))
+  let line = getline('.')
+
+  if start == '(' && from > 1 && strpart(line, 0, from - 1) =~ '\<fn \k\+\%(<.*>\)$'
+    let parser = sj#argparser#rust_fn#Construct(from + 1, to - 1, line)
+  else
+    let parser = sj#argparser#rust_list#Construct(from + 1, to - 1, line)
+  endif
+
   call parser.Process()
   let items = parser.args
   if empty(items)
