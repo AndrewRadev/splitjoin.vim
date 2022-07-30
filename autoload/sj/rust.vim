@@ -486,6 +486,10 @@ function! sj#rust#SplitArgs()
   return s:SplitList(['(', ')'], 'cursor_on_line')
 endfunction
 
+function! sj#rust#SplitArray()
+  return s:SplitList(['[', ']'], 'cursor_inside')
+endfunction
+
 function! sj#rust#JoinEmptyMatchIntoIfLet()
   let match_pattern = 'match\s\+\zs.\{-}\ze\s\+{$'
   let pattern_pattern = '^\s*\zs.\{-}\ze\s\+=>'
@@ -760,6 +764,10 @@ endfunction
 
 function! sj#rust#JoinArgs()
   return s:JoinList(['(', ')'])
+endfunction
+
+function! sj#rust#JoinArray()
+  return s:JoinList(['[', ']'])
 endfunction
 
 function! s:FunctionReturnType()

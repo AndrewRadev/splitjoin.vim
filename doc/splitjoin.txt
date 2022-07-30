@@ -1145,6 +1145,27 @@ Structs ~
         line: 1
     }
 <
+Function definitions, calls, and arrays ~
+>
+    fn function_call<T>(values: Vec<T>, s: &'static str) -> ();
+    fn function_call<T>(
+        values: Vec<T>,
+        s: &'static str,
+    ) -> ();
+
+    function_call(Vec::<u32>::new(), &ref);
+    function_call(
+        Vec::<u32>::new(),
+        &ref,
+    );
+
+    vec![one, two, three];
+    vec![
+        one,
+        two,
+        three,
+    ];
+<
 Match clauses ~
 >
     match one {

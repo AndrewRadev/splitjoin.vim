@@ -519,6 +519,31 @@ describe "rust" do
     end
   end
 
+  describe "arrays" do
+    specify "basic" do
+      set_file_contents <<~EOF
+        vec![one, two, three];
+      EOF
+
+      vim.search('one')
+      split
+
+      assert_file_contents <<~EOF
+        vec![
+            one,
+            two,
+            three
+        ];
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        vec![one, two, three];
+      EOF
+    end
+  end
+
   describe "structs" do
     specify "basic" do
       set_file_contents <<~EOF
