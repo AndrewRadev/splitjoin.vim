@@ -818,11 +818,12 @@ function! s:SplitList(delimiter, cursor_position)
   let line = getline('.')
 
   if start == '(' && from > 1 && strpart(line, 0, from - 1) =~ '\<fn \k\+\%(<.*>\)$'
-    let parser = sj#argparser#rust_fn#Construct(from + 1, to - 1, line)
+    let parser_type = 'fn'
   else
-    let parser = sj#argparser#rust_list#Construct(from + 1, to - 1, line)
+    let parser_type = 'list'
   endif
 
+  let parser = sj#argparser#rust_list#Construct(parser_type, from + 1, to - 1, line)
   call parser.Process()
   let items = parser.args
   if empty(items)
