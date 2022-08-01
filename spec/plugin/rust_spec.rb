@@ -3,98 +3,6 @@ require 'spec_helper'
 describe "rust" do
   let(:filename) { 'test.rs' }
 
-  specify "match clauses with trailing comma" do
-    set_file_contents <<~EOF
-      match one {
-          Ok(two) => some_expression(three),
-      }
-    EOF
-
-    vim.search('Ok')
-    split
-
-    assert_file_contents <<~EOF
-      match one {
-          Ok(two) => {
-              some_expression(three)
-          },
-      }
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      match one {
-          Ok(two) => some_expression(three),
-      }
-    EOF
-  end
-
-  specify "match clauses without trailing comma" do
-    set_file_contents <<~EOF
-      match one {
-          Ok(two) => some_expression(three)
-      }
-    EOF
-
-    vim.search('Ok')
-    split
-
-    assert_file_contents <<~EOF
-      match one {
-          Ok(two) => {
-              some_expression(three)
-          },
-      }
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      match one {
-          Ok(two) => some_expression(three),
-      }
-    EOF
-  end
-
-  specify "match clauses with a semicolon" do
-    set_file_contents <<~EOF
-      match one {
-          Ok(two) => {
-              some_expression(three);
-          },
-      }
-    EOF
-
-    vim.search 'Ok(two)'
-    join
-
-    assert_file_contents <<~EOF
-      match one {
-          Ok(two) => some_expression(three),
-      }
-    EOF
-  end
-
-  specify "match clauses with one-line brackets" do
-    set_file_contents <<~EOF
-      match one {
-          Ok(two) => { some_expression(three); },
-      }
-    EOF
-
-    vim.search 'Ok(two)'
-    split
-
-    assert_file_contents <<~EOF
-      match one {
-          Ok(two) => {
-              some_expression(three);
-          },
-      }
-    EOF
-  end
-
   specify "question mark operator for io::Result" do
     set_file_contents <<~EOF
       fn test() -> io::Result {
@@ -441,6 +349,100 @@ describe "rust" do
 
       };
     EOF
+  end
+
+  describe "match clauses" do
+    specify "with trailing comma" do
+      set_file_contents <<~EOF
+        match one {
+            Ok(two) => some_expression(three),
+        }
+      EOF
+
+      vim.search('Ok')
+      split
+
+      assert_file_contents <<~EOF
+        match one {
+            Ok(two) => {
+                some_expression(three)
+            },
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        match one {
+            Ok(two) => some_expression(three),
+        }
+      EOF
+    end
+
+    specify "without trailing comma" do
+      set_file_contents <<~EOF
+        match one {
+            Ok(two) => some_expression(three)
+        }
+      EOF
+
+      vim.search('Ok')
+      split
+
+      assert_file_contents <<~EOF
+        match one {
+            Ok(two) => {
+                some_expression(three)
+            },
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        match one {
+            Ok(two) => some_expression(three),
+        }
+      EOF
+    end
+
+    specify "with a semicolon" do
+      set_file_contents <<~EOF
+        match one {
+            Ok(two) => {
+                some_expression(three);
+            },
+        }
+      EOF
+
+      vim.search 'Ok(two)'
+      join
+
+      assert_file_contents <<~EOF
+        match one {
+            Ok(two) => some_expression(three),
+        }
+      EOF
+    end
+
+    specify "with one-line brackets" do
+      set_file_contents <<~EOF
+        match one {
+            Ok(two) => { some_expression(three); },
+        }
+      EOF
+
+      vim.search 'Ok(two)'
+      split
+
+      assert_file_contents <<~EOF
+        match one {
+            Ok(two) => {
+                some_expression(three);
+            },
+        }
+      EOF
+    end
   end
 
   describe "argument lists" do
