@@ -25,6 +25,7 @@ function! sj#rust#SplitMatchClause()
   endif
 
   let body = sj#GetCols(start_col, body_end_col)
+  let body = substitute(sj#Trim(body), '^{\s*\(.\{-}\)\s*}$', '\1', '')
   call sj#ReplaceCols(start_col, content_end_col, "{\n".body."\n},")
   return 1
 endfunction
