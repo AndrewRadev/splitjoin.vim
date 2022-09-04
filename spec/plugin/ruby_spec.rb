@@ -128,6 +128,33 @@ describe "ruby" do
       EOF
     end
 
+    specify "with one-letter names" do
+      set_file_contents <<~EOF
+        module A
+          module B
+          end
+        end
+      EOF
+
+      vim.search 'A'
+      join
+
+      assert_file_contents <<~EOF
+        module A::B
+        end
+      EOF
+
+      vim.search 'A::B'
+      split
+
+      assert_file_contents <<~EOF
+        module A
+          module B
+          end
+        end
+      EOF
+    end
+
     specify "merging namespaces" do
       set_file_contents <<~EOF
         module Foo::Bar

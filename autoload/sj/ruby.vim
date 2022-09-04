@@ -935,9 +935,9 @@ function! sj#ruby#JoinModuleNamespace()
     return 0
   endif
 
-  let namespace_pattern = '^\s*module\s\+\zs[A-Z]\(\k\|::\)\+\s*$'
-  let class_pattern = '^\s*class\s\+\zs[A-Z]\k\+\s*\(\k\|::\)\+\s*\%(<\s\+\S\+\)\=$'
-  let describe_pattern = '^\s*\%(RSpec\.\)\=describe\s\+\zs[A-Z]\(\k\|::\)\+\s*do'
+  let namespace_pattern = '^\s*module\s\+\zs[A-Z]\(\k\|::\)*\s*$'
+  let class_pattern = '^\s*class\s\+\zs[A-Z]\k*\s*\(\k\|::\)\+\s*\%(<\s\+\S\+\)\=$'
+  let describe_pattern = '^\s*\%(RSpec\.\)\=describe\s\+\zs[A-Z]\(\k\|::\)*\s*do'
 
   if search(namespace_pattern, 'Wbc', line('.')) <= 0
     return 0
@@ -1016,7 +1016,7 @@ function! sj#ruby#JoinModuleNamespace()
 endfunction
 
 function! sj#ruby#SplitModuleNamespace()
-  let namespace_pattern = '^\s*\%(module\|class\|\%\(RSpec\.\)\=describe\)\s\+[A-Z]\k\+::'
+  let namespace_pattern = '^\s*\%(module\|class\|\%\(RSpec\.\)\=describe\)\s\+[A-Z]\k*::'
 
   if search(namespace_pattern, 'Wbc', line('.')) <= 0
     return 0
@@ -1035,7 +1035,7 @@ function! sj#ruby#SplitModuleNamespace()
   endif
 
   " get the module path
-  if search('\V'.keyword.'\m\s\+\zs[A-Z]\k\+', 'W', line('.')) <= 0
+  if search('\V'.keyword.'\m\s\+\zs[A-Z]\k*', 'W', line('.')) <= 0
     return 0
   endif
   let module_path = expand('<cWORD>')
