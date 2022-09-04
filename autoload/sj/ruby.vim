@@ -518,7 +518,7 @@ function! sj#ruby#SplitOptions()
 
   let start_lineno = line('.')
   let [from, to, args, opts, hash_type, cursor_arg] =
-        \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))
+        \ sj#argparser#ruby#ParseArguments(from, to, getline('.'), { 'expand_options': 1 })
 
   if !(from <= col('.') && col('.') <= to)
     " then this is not around the cursor, bail out
@@ -669,7 +669,10 @@ function! sj#ruby#SplitArray()
     return 0
   endif
 
-  let [from, to, args, opts; _rest] = sj#argparser#ruby#ParseArguments(from + 1, to - 1, getline('.'))
+  let [from, to, args, opts; _rest] = sj#argparser#ruby#ParseArguments(from + 1, to - 1, getline('.'), {
+        \ 'expand_options': sj#settings#Read('ruby_expand_options_in_arrays')
+        \ })
+
   if from < 0
     return 0
   endif

@@ -16,6 +16,7 @@ describe "ruby" do
     vim.command('silent! unlet g:splitjoin_trailing_comma')
     vim.command('silent! unlet g:splitjoin_ruby_options_as_arguments')
     vim.command('silent! unlet g:splitjoin_ruby_curly_braces')
+    vim.command('silent! unlet g:splitjoin_ruby_expand_options_in_arrays')
   end
 
   specify "if-clauses" do
@@ -1518,6 +1519,26 @@ describe "ruby" do
     end
 
     specify "last hash inside array doesn't disappear" do
+      set_file_contents "array = [0, { a: 1 }]"
+
+      vim.search '0'
+      split
+
+      assert_file_contents <<~EOF
+        array = [
+          0,
+          { a: 1 }
+        ]
+      EOF
+
+      vim.search 'array ='
+      join
+
+      assert_file_contents "array = [0, { a: 1 }]"
+    end
+
+    specify "last hash inside array can be expanded" do
+      vim.command('let g:splitjoin_ruby_expand_options_in_arrays = 1')
       set_file_contents "array = [0, { a: 1 }]"
 
       vim.search '0'

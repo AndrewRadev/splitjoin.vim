@@ -1706,6 +1706,24 @@ But with the cursor on "first_name", you'll still get:
 The output varies according to other settings as well, like curly brackets.
 
 
+                                       *splitjoin_ruby_expand_options_in_arrays*
+>
+    let g:splitjoin_ruby_expand_options_in_arrays = 1
+<
+Default value: 0
+
+If set to 1, then the last hash of an array will be expanded to "options". For
+example:
+>
+    array = [one, two, { three: four, five: six }]
+    array = [
+      one,
+      two,
+      three: four,
+      five: six,
+    ]
+<
+
                                              *splitjoin_coffee_suffix_if_clause*
 >
     let g:splitjoin_coffee_suffix_if_clause = 0

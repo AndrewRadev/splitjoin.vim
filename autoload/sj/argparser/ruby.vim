@@ -98,7 +98,8 @@ function! sj#argparser#ruby#ExpandOptionHash() dict
 
       let hash = sj#ExtractRx(last, hash_pattern, '\1')
 
-      let [_from, _to, _args, opts, hash_type, _cursor_arg] = sj#argparser#ruby#ParseArguments(0, -1, hash)
+      let [_from, _to, _args, opts, hash_type, _cursor_arg] =
+            \ sj#argparser#ruby#ParseArguments(0, -1, hash, { 'expand_options': 1 })
       call extend(self.opts, opts)
       let self.hash_type = hash_type
     endif
@@ -145,9 +146,11 @@ function! sj#argparser#ruby#LocateHash()
   return sj#LocateBracesOnLine('{', '}', ['rubyInterpolationDelimiter', 'rubyString'])
 endfunction
 
-function! sj#argparser#ruby#ParseArguments(start_index, end_index, line)
+function! sj#argparser#ruby#ParseArguments(start_index, end_index, line, options)
   let parser = sj#argparser#ruby#Construct(a:start_index, a:end_index, a:line)
   call parser.Process()
-  call parser.ExpandOptionHash()
+  if a:options.expand_options
+    call parser.ExpandOptionHash()
+  endif
   return [ a:start_index, parser.index, parser.args, parser.opts, parser.hash_type, parser.cursor_arg ]
 endfunction
