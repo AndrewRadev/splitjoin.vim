@@ -67,3 +67,29 @@ function! sj#tex#JoinBlock()
   call sj#ReplaceByPosition(start, end, replacement)
   return 1
 endfunction
+
+function! sj#tex#SplitCommand()
+  let [start, end] = sj#LocateBracesOnLine('{', '}')
+  if start < 0
+    return 0
+  endif
+
+  let contents = sj#GetCols(start + 1, end - 1)
+  call sj#ReplaceCols(start + 1, end - 1, "%\n".contents."\n")
+  return 1
+endfunction
+
+function! sj#tex#JoinCommand()
+  if search('{\zs%\s*$', 'c', line('.')) <= 0
+    return 0
+  endif
+  let body = sj#GetMotion('Vi{')
+
+  let lines = split(body, "\n")
+  let lines = sj#TrimList(lines)
+  let body  = sj#Trim(join(lines, ' '))
+  let body  = substitute(body, ',\s*$', '', '')
+  let body  = substitute(body, '^%\s*', '', '')
+
+  call sj#ReplaceMotion('Va{', '{' . body . '}')
+endfunction

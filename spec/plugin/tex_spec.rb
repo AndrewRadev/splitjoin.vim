@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "tex" do
-  let(:filename) { 'test.tex' }
+  let(:filename) { 'test.latex' }
 
   before :each do
     vim.set :expandtab
@@ -89,6 +89,28 @@ describe "tex" do
 
     assert_file_contents <<~EOF
       \\begin{enumerate} \\item item1 \\item item2 \\end{enumerate}
+    EOF
+  end
+
+  specify "commands" do
+    set_file_contents <<~EOF
+      \\abstract{Words words words foo bar baz.}
+    EOF
+
+    vim.search 'Words'
+    split
+
+    assert_file_contents <<~EOF
+      \\abstract{%
+        Words words words foo bar baz.
+        }
+    EOF
+
+    vim.search '{%'
+    join
+
+    assert_file_contents <<~EOF
+      \\abstract{Words words words foo bar baz.}
     EOF
   end
 end
