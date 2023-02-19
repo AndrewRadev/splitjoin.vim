@@ -1,5 +1,5 @@
 let s:skip_syntax = sj#SkipSyntax(['String', 'Comment'])
-let s:ending_semicolon_pattern = ';\s*\%(//.*\)\=$'
+let s:eol_pattern = '\s*\%(//.*\)\=$'
 
 function! sj#rust#SplitMatchClause()
   if !sj#SearchUnderCursor('^.*\s*=>\s*.*$')
@@ -11,7 +11,7 @@ function! sj#rust#SplitMatchClause()
   endif
 
   let start_col = col('.')
-  if !search(',\=\s*\%(//.*\)\=$', 'W', line('.'))
+  if !search(',\='.s:eol_pattern, 'W', line('.'))
     return 0
   endif
 
@@ -454,7 +454,7 @@ function! sj#rust#SplitIfLetIntoMatch()
   let body = sj#Trim(sj#GetMotion('vi{'))
 
   " multiple lines or ends with `;` -> wrap it in a block
-  if len(split(body, "\n")) > 1 || body =~ s:ending_semicolon_pattern
+  if len(split(body, "\n")) > 1 || body =~ ';'.s:eol_pattern
     let body = "{\n".body."\n}"
   endif
 
@@ -466,7 +466,7 @@ function! sj#rust#SplitIfLetIntoMatch()
     let else_body = sj#Trim(sj#GetMotion('vi{'))
 
     " multiple lines or ends with `;` -> wrap it in a block
-    if len(split(else_body, "\n")) > 1 || else_body =~ s:ending_semicolon_pattern
+    if len(split(else_body, "\n")) > 1 || else_body =~ ';'.s:eol_pattern
       let else_body = "{\n".else_body."\n}"
     endif
 
@@ -566,7 +566,7 @@ function! sj#rust#JoinEmptyMatchIntoIfLet()
       " ignore it
     else
       " one-line value, remove its trailing comma and any comments
-      let else_body = substitute(fallback_value, ',\=\s*\%(//.*\)\=$', '', '')
+      let else_body = substitute(fallback_value, ','.s:eol_pattern, '', '')
     endif
   endif
   call sj#PopCursor()
@@ -640,7 +640,7 @@ function! sj#rust#JoinImportList()
   endif
 
   let first_import = getline('.')
-  let first_import = substitute(first_import, s:ending_semicolon_pattern, '', '')
+  let first_import = substitute(first_import, ';'.s:eol_pattern, '', '')
   let imports = [sj#Trim(first_import)]
 
   let start_line = line('.')
@@ -666,7 +666,7 @@ function! sj#rust#JoinImportList()
     let last_line = line('.')
 
     let import_line = getline('.')
-    let import_line = substitute(import_line, s:ending_semicolon_pattern, '', '')
+    let import_line = substitute(import_line, ';'.s:eol_pattern, '', '')
 
     call add(imports, sj#Trim(import_line))
     exe 'normal! ' . (len(attributes) + 1) . 'j'
