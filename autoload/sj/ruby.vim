@@ -359,7 +359,15 @@ function! sj#ruby#SplitBlock()
     let multiline_block = ' '.multiline_block
   endif
 
-  let body = join(split(body, '\s*;\s*'), "\n")
+  " match ; if there isn't a (') before it
+  let quotation_not_before = '((\''.*)@<!(\s*;\s*))'
+  " match ; if there isn't a (') after it
+  let quotation_not_after  = '((\s*;\s*)(.*\'')@!)'
+  " match ; if there isn't a (') before it or if there isn't a (') after it
+  let delimiter = '\v'.quotation_not_before.'|'.quotation_not_after
+
+  let body = join(split(body, delimiter), "\n")
+  
   let replacement = substitute(body, '^'.pattern.'$', multiline_block, '')
   " remove leftover whitespace
   let replacement = substitute(replacement, '\s*\n', '\n', 'g')
