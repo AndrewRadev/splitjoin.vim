@@ -250,9 +250,9 @@ function! sj#rust#SplitExprClosure()
   endif
 
   let closure_contents = sj#GetCols(start_col, end_col)
-  if closure_contents =~ '[({[]$'
-    " ends in an opening bracket of some sorts, so it's incomplete, don't
-    " touch it
+  if closure_contents =~ '[({[.,*/%+-]$'
+    " ends in an opening bracket or operator of some sorts, so it's
+    " incomplete, don't touch it
     return 0
   endif
 
