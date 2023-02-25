@@ -1,6 +1,9 @@
 let s:skip_syntax = sj#SkipSyntax(['String', 'Comment'])
 let s:eol_pattern = '\s*\%(//.*\)\=$'
 
+" TODO (2023-02-25) running substitute() on semicolons won't work well for
+" strings. Need a generic solution, sj#DelimiterOffsets(
+
 function! sj#rust#SplitMatchExpression()
   if !sj#SearchUnderCursor('\<match .* {')
     return 0
@@ -221,11 +224,12 @@ function! sj#rust#JoinMatchStatement()
 endfunction
 
 function! sj#rust#SplitBlockClosure()
-  if sj#SearchUnderCursor('|.\{-}|\s*\zs{', 'Wc', line('.')) <= 0
+  if sj#SearchUnderCursor('|.\{-}|\s*\zs{', 'Wc', s:skip_syntax, line('.')) <= 0
     return 0
   endif
 
   let closure_contents = sj#GetMotion('vi{')
+  let closure_contents = substitute(closure_contents, ';\ze.', ";\n", 'g')
   call sj#ReplaceMotion('va{', "{\n".sj#Trim(closure_contents)."\n}")
   return 1
 endfunction
@@ -240,6 +244,10 @@ function! sj#rust#SplitExprClosure()
 
   let start_col = col('.')
   let end_col = sj#JumpBracketsTill('\%([,;]\|$\)', {'opening': '([<{"''', 'closing': ')]>}"'''})
+  if end_col == col('$')
+    " found end-of-line, one character past the actual end
+    let end_col -= 1
+  endif
 
   let closure_contents = sj#GetCols(start_col, end_col)
   if closure_contents =~ '[({[]$'

@@ -381,6 +381,23 @@ describe "rust" do
         };
       EOF
     end
+
+    specify "closures don't eat up the next line when splitting" do
+      set_file_contents <<~EOF
+        |x| x + 1
+        foo()
+      EOF
+
+      vim.search('|x|')
+      split
+
+      assert_file_contents <<~EOF
+        |x| {
+            x + 1
+        }
+        foo()
+      EOF
+    end
   end
 
   describe "match expressions" do
