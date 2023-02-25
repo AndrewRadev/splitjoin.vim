@@ -1,4 +1,5 @@
-# Taken from: https://github.com/google/mirror-branch-action
+# Originally forked from: https://github.com/google/mirror-branch-action
+# Current repo: https://github.com/AndrewRadev/mirror-branch-action
 
 on:
   push:
@@ -12,7 +13,7 @@ jobs:
     steps:
     - name: Mirror action step
       id: mirror
-      uses: google/mirror-branch-action@v1.0
+      uses: AndrewRadev/mirror-branch-action@v1.0
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         source: 'main'
