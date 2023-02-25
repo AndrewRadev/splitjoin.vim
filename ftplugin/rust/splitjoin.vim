@@ -1,6 +1,7 @@
 let b:splitjoin_split_callbacks = [
       \ 'sj#rust#SplitBlockClosure',
       \ 'sj#rust#SplitExprClosure',
+      \ 'sj#rust#SplitMatchExpression',
       \ 'sj#rust#SplitMatchClause',
       \ 'sj#rust#SplitQuestionMark',
       \ 'sj#rust#SplitCurlyBrackets',

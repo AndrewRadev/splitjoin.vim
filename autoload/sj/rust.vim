@@ -1,6 +1,35 @@
 let s:skip_syntax = sj#SkipSyntax(['String', 'Comment'])
 let s:eol_pattern = '\s*\%(//.*\)\=$'
 
+function! sj#rust#SplitMatchExpression()
+  if !sj#SearchUnderCursor('\<match .* {')
+    return 0
+  endif
+
+  call sj#JumpBracketsTill('{', {'opening': '([<"''', 'closing': ')]>"'''})
+  let [from, to] = sj#LocateBracesAroundCursor('{', '}')
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  let parser = sj#argparser#rust_struct#Construct(from + 1, to - 1, getline('.'))
+  call parser.Process()
+  let args = parser.args
+  if len(args) <= 0
+    return 0
+  endif
+
+  let items = map(args, 'v:val.argument')
+  let body = join(items, ",\n")
+  if sj#settings#Read('trailing_comma')
+    let body .= ','
+  endif
+  let body = "{\n" . body . "\n}"
+
+  call sj#ReplaceCols(from, to, body)
+  return 1
+endfunction
+
 function! sj#rust#SplitMatchClause()
   if !sj#SearchUnderCursor('^.*\s*=>\s*.*$')
     return 0
@@ -291,8 +320,6 @@ function! sj#rust#SplitCurlyBrackets()
 
     call sj#ReplaceCols(from, to, "{\n".body."\n}")
   elseif parser.IsValidStruct()
-    " then it's a
-    "
     let is_only_pairs = parser.IsOnlyStructPairs()
 
     let items = []

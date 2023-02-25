@@ -383,6 +383,33 @@ describe "rust" do
     end
   end
 
+  describe "match expressions" do
+    specify "basic" do
+      set_file_contents <<~EOF
+        match x {
+            y => Struct { w, z },
+            z => Struct { y, x },
+        }
+      EOF
+
+      vim.search('match')
+      join
+
+      assert_file_contents <<~EOF
+        match x { y => Struct { w, z }, z => Struct { y, x } }
+      EOF
+
+      split
+
+      assert_file_contents <<~EOF
+        match x {
+            y => Struct { w, z },
+            z => Struct { y, x }
+        }
+      EOF
+    end
+  end
+
   describe "match clauses" do
     specify "with trailing comma" do
       set_file_contents <<~EOF
