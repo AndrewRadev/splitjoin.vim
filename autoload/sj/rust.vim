@@ -213,6 +213,12 @@ function! sj#rust#SplitExprClosure()
   let end_col = sj#JumpBracketsTill('\%([,;]\|$\)', {'opening': '([<{"''', 'closing': ')]>}"'''})
 
   let closure_contents = sj#GetCols(start_col, end_col)
+  if closure_contents =~ '[({[]$'
+    " ends in an opening bracket of some sorts, so it's incomplete, don't
+    " touch it
+    return 0
+  endif
+
   call sj#ReplaceCols(start_col, end_col, "{\n".closure_contents."\n}")
   return 1
 endfunction

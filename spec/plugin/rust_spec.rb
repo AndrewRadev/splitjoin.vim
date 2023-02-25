@@ -144,110 +144,6 @@ describe "rust" do
     EOF
   end
 
-  specify "closures in function calls" do
-    set_file_contents <<~EOF
-      let foo = something.map(|x| x * 2);
-    EOF
-
-    vim.search('|x|')
-    split
-
-    assert_file_contents <<~EOF
-      let foo = something.map(|x| {
-          x * 2
-      });
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      let foo = something.map(|x| x * 2);
-    EOF
-  end
-
-  specify "closures in assignment" do
-    set_file_contents <<~EOF
-      let foo = |x| x + 1;
-    EOF
-
-    vim.search('|x|')
-    split
-
-    assert_file_contents <<~EOF
-      let foo = |x| {
-          x + 1
-      };
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      let foo = |x| x + 1;
-    EOF
-  end
-
-  specify "complicated closures" do
-    set_file_contents <<~EOF
-      let foo = something.map(|x| mul(x, 2), y);
-    EOF
-
-    vim.search('|x|')
-    split
-
-    assert_file_contents <<~EOF
-      let foo = something.map(|x| {
-          mul(x, 2)
-      }, y);
-    EOF
-
-    join
-
-    assert_file_contents <<~EOF
-      let foo = something.map(|x| mul(x, 2), y);
-    EOF
-  end
-
-  specify "splitting closures with comparison operators" do
-    set_file_contents <<~EOF
-      do_stuff.where(|x| x < 5 && x > 3);
-    EOF
-
-    vim.search('|x|')
-    split
-
-    assert_file_contents <<~EOF
-      do_stuff.where(|x| {
-          x < 5 && x > 3
-      });
-    EOF
-  end
-
-  specify "closures with multiple lines" do
-    set_file_contents <<~EOF
-      let closure = |x| {
-        print!("test");
-        x + 1
-      };
-    EOF
-
-    vim.search('|x|')
-    join
-
-    assert_file_contents <<~EOF
-      let closure = |x| { print!("test"); x + 1 };
-    EOF
-
-    vim.search('{')
-    split
-
-    assert_file_contents <<~EOF
-      let closure = |x| {
-          print!("test");
-          x + 1
-      };
-    EOF
-  end
-
   specify "blocks" do
     set_file_contents <<~EOF
       if opt.verbose == 1 { foo(); do_thing(); bar() }
@@ -349,6 +245,142 @@ describe "rust" do
 
       };
     EOF
+  end
+
+  describe "closures" do
+    specify "in function calls" do
+      set_file_contents <<~EOF
+        let foo = something.map(|x| x * 2);
+      EOF
+
+      vim.search('|x|')
+      split
+
+      assert_file_contents <<~EOF
+        let foo = something.map(|x| {
+            x * 2
+        });
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        let foo = something.map(|x| x * 2);
+      EOF
+    end
+
+    specify "in assignment" do
+      set_file_contents <<~EOF
+        let foo = |x| x + 1;
+      EOF
+
+      vim.search('|x|')
+      split
+
+      assert_file_contents <<~EOF
+        let foo = |x| {
+            x + 1
+        };
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        let foo = |x| x + 1;
+      EOF
+    end
+
+    specify "complicated expressions" do
+      set_file_contents <<~EOF
+        let foo = something.map(|x| mul(x, 2), y);
+      EOF
+
+      vim.search('|x|')
+      split
+
+      assert_file_contents <<~EOF
+        let foo = something.map(|x| {
+            mul(x, 2)
+        }, y);
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        let foo = something.map(|x| mul(x, 2), y);
+      EOF
+    end
+
+    specify "splitting with comparison operators" do
+      set_file_contents <<~EOF
+        do_stuff.where(|x| x < 5 && x > 3);
+      EOF
+
+      vim.search('|x|')
+      split
+
+      assert_file_contents <<~EOF
+        do_stuff.where(|x| {
+            x < 5 && x > 3
+        });
+      EOF
+    end
+
+    # Issue: https://github.com/AndrewRadev/splitjoin.vim/issues/198
+    specify "splitting incomplete closures doesn't do anything" do
+      set_file_contents <<~EOF
+        do_stuff.where(|x| StructName {
+          foo: "bar"
+        });
+      EOF
+
+      vim.search('|x|')
+      split
+
+      assert_file_contents <<~EOF
+        do_stuff.where(|x| StructName {
+          foo: "bar"
+        });
+      EOF
+
+      # After we join, we can split it properly
+      vim.search('StructName')
+      join
+      vim.search('|x|')
+      split
+
+      assert_file_contents <<~EOF
+        do_stuff.where(|x| {
+            StructName { foo: "bar" }
+        });
+      EOF
+    end
+
+    specify "closures with multiple lines" do
+      set_file_contents <<~EOF
+        let closure = |x| {
+          print!("test");
+          x + 1
+        };
+      EOF
+
+      vim.search('|x|')
+      join
+
+      assert_file_contents <<~EOF
+        let closure = |x| { print!("test"); x + 1 };
+      EOF
+
+      vim.search('{')
+      split
+
+      assert_file_contents <<~EOF
+        let closure = |x| {
+            print!("test");
+            x + 1
+        };
+      EOF
+    end
   end
 
   describe "match clauses" do
