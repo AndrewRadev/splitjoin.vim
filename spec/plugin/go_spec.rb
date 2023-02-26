@@ -32,9 +32,12 @@ describe "go" do
 
   specify "var/const modifiers" do
     set_file_contents <<~EOF
-      var foo string
-      const bar string
       type ChanDir int
+
+      func Func() {
+        var foo string
+        const bar string
+      }
     EOF
 
     vim.search('var')
@@ -44,17 +47,19 @@ describe "go" do
     vim.search('type')
     split
 
-
     assert_file_contents <<~EOF
-    var (
-      foo string
-    )
-    const (
-      bar string
-    )
-    type (
-      ChanDir int
-    )
+      type (
+        ChanDir int
+      )
+
+      func Func() {
+        var (
+          foo string
+        )
+        const (
+          bar string
+        )
+      }
     EOF
 
     vim.search('var')
@@ -65,9 +70,12 @@ describe "go" do
     join
 
     assert_file_contents <<~EOF
-      var foo string
-      const bar string
       type ChanDir int
+
+      func Func() {
+        var foo string
+        const bar string
+      }
     EOF
   end
 

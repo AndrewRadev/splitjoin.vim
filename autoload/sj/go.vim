@@ -20,9 +20,9 @@ function! sj#go#JoinImports()
 endfunction
 
 function! sj#go#SplitVars()
-  if getline('.') =~ '^\(var\|type\|const\) \k\+ .*$'
-    call sj#Keeppatterns('s/^\(var\|type\|const\) \(\k\+ .*\)$/\1 (\r\2\r)/')
-    normal! k==
+  if getline('.') =~ '^\s*\(var\|type\|const\) \k\+ .*$'
+    call sj#Keeppatterns('s/^\s*\(var\|type\|const\) \(\k\+ .*\)$/\1 (\r\2\r)/')
+    normal! 2k3==
     return 1
   else
     return 0
@@ -30,10 +30,11 @@ function! sj#go#SplitVars()
 endfunction
 
 function! sj#go#JoinVars()
-  if getline('.') =~ '^\(var\|type\|const\) ($' &&
+  if getline('.') =~ '^\s*\(var\|type\|const\) ($' &&
         \ getline(line('.') + 1) =~ '^\s*\k\+ .*$' &&
-        \ getline(line('.') + 2) =~ '^)$'
-    call sj#Keeppatterns('s/^\(var\|type\|const\) (\_s\+\(\k\+ .*\)\_s\+)$/\1 \2/')
+        \ getline(line('.') + 2) =~ '^\s*)$'
+    call sj#Keeppatterns('s/^\s*\(var\|type\|const\) (\_s\+\(\k\+ .*\)\_s\+)$/\1 \2/')
+    normal! ==
     return 1
   else
     return 0
