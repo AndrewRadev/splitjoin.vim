@@ -217,6 +217,27 @@ describe "rust" do
     EOF
   end
 
+  specify "blocks (empty)" do
+    set_file_contents <<~EOF
+      if opt.verbose == 1 { }
+    EOF
+
+    vim.search('opt')
+    split
+
+    assert_file_contents <<~EOF
+      if opt.verbose == 1 {
+
+      }
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      if opt.verbose == 1 {}
+    EOF
+  end
+
   specify "unwrap match split" do
     set_file_contents <<~EOF
       let foo = other::expr() + File::open('test.file').unwrap();
@@ -554,6 +575,33 @@ describe "rust" do
             y => {
                 StructName { w, z }
             },
+        }
+      EOF
+    end
+
+    specify "empty" do
+      set_file_contents <<~EOF
+        match one {
+            Ok(two) => { },
+        }
+      EOF
+
+      vim.search 'Ok(two)'
+      split
+
+      assert_file_contents <<~EOF
+        match one {
+            Ok(two) => {
+
+            },
+        }
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        match one {
+            Ok(two) => {},
         }
       EOF
     end

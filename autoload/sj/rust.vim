@@ -80,6 +80,11 @@ function! sj#rust#JoinMatchClause()
     return 0
   endif
 
+  if len(body) == 0
+    call sj#ReplaceMotion('va{', '{}')
+    return 1
+  endif
+
   " Remove semicolons when joining, they don't work in non-block form
   if body[len(body) - 1] == ';'
     let body = body[0 : len(body) - 2]
@@ -302,17 +307,21 @@ function! sj#rust#SplitCurlyBrackets()
   call sj#SearchUnderCursor('\<if .\{-}{', 'e')
 
   let [from, to] = sj#LocateBracesAroundCursor('{', '}')
-
   if from < 0 && to < 0
     return 0
   endif
 
   if (to - from) < 2
-    " empty {} block
-    return 0
+    call sj#ReplaceMotion('va{', "{\n\n}")
+    return 1
   endif
 
   let body = sj#Trim(sj#GetCols(from + 1, to - 1))
+  if len(body) == 0
+    call sj#ReplaceMotion('va{', "{\n\n}")
+    return 1
+  endif
+
   let prefix = sj#GetCols(0, from - 1)
   let indent = indent(line('.')) + (exists('*shiftwidth') ? shiftwidth() : &sw)
 
@@ -384,7 +393,6 @@ endfunction
 
 function! sj#rust#JoinCurlyBrackets()
   let line = getline('.')
-
   if line !~ '{\s*$'
     return 0
   endif
@@ -393,7 +401,8 @@ function! sj#rust#JoinCurlyBrackets()
 
   " check if we've got an empty block:
   if sj#GetMotion('va{') =~ '^{\_s*}$'
-    return 0
+    call sj#ReplaceMotion('va{', '{}')
+    return 1
   endif
 
   let body = sj#GetMotion('Vi{')
