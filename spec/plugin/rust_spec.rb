@@ -519,6 +519,44 @@ describe "rust" do
         }
       EOF
     end
+
+    # Issue: https://github.com/AndrewRadev/splitjoin.vim/issues/198
+    specify "splitting incomplete match clauses doesn't do anything" do
+      set_file_contents <<~EOF
+        match x {
+            y => StructName {
+                w,
+                z,
+            },
+        }
+      EOF
+
+      vim.search('StructName')
+      split
+
+      assert_file_contents <<~EOF
+        match x {
+            y => StructName {
+                w,
+                z,
+            },
+        }
+      EOF
+
+      # After we join, we can split it properly
+      vim.search('StructName')
+      join
+      vim.search('y =>')
+      split
+
+      assert_file_contents <<~EOF
+        match x {
+            y => {
+                StructName { w, z }
+            },
+        }
+      EOF
+    end
   end
 
   describe "argument lists" do

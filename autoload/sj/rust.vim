@@ -56,8 +56,14 @@ function! sj#rust#SplitMatchClause()
     let body_end_col = content_end_col
   endif
 
-  let body = sj#GetCols(start_col, body_end_col)
-  let body = substitute(sj#Trim(body), '^{\s*\(.\{-}\)\s*}$', '\1', '')
+  let body = sj#Trim(sj#GetCols(start_col, body_end_col))
+  if body =~ '[({[.,*/%+-]$'
+    " ends in an opening bracket or operator of some sorts, so it's
+    " incomplete, don't touch it
+    return 0
+  endif
+
+  let body = substitute(body, '^{\s*\(.\{-}\)\s*}$', '\1', '')
   call sj#ReplaceCols(start_col, content_end_col, "{\n".body."\n},")
   return 1
 endfunction
