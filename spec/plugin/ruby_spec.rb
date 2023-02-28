@@ -987,7 +987,7 @@ describe "ruby" do
       EOF
     end
 
-    it "doesn't get confused when ; is in a string literal when splitting" do
+    it "doesn't get confused when ; is in a string literal(single quotes) when splitting" do
       set_file_contents <<~EOF
         foo { example1; 'some string ; literal' }
       EOF
@@ -999,6 +999,38 @@ describe "ruby" do
         foo do
           example1
           'some string ; literal'
+        end
+      EOF
+    end
+
+    it "doesn't get confused when ; is in a string literal(double quotes) when splitting" do
+      set_file_contents <<~EOF
+        foo { example1; "some string ; literal" }
+      EOF
+
+      vim.search 'example1;'
+      split
+
+      assert_file_contents <<~EOF
+        foo do
+          example1
+          "some string ; literal"
+        end
+      EOF
+    end
+
+    it "doesn't get confused when ; is in a string literal(percent strings) when splitting" do
+      set_file_contents <<~EOF
+        foo { example1; %(some string ; literal) }
+      EOF
+
+      vim.search 'example1;'
+      split
+
+      assert_file_contents <<~EOF
+        foo do
+          example1
+          %(some string ; literal)
         end
       EOF
     end
