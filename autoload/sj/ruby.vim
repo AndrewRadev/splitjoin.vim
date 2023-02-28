@@ -358,21 +358,19 @@ function! sj#ruby#SplitBlock()
   if search('\S\%#', 'Wbn')
     let multiline_block = ' '.multiline_block
   endif
-
-  " match ; if there isn't a (') before it
-  let quotation_not_before = '((\''.*)@<!(\s*;\s*))'
-  " match ; if there isn't a (') after it
-  let quotation_not_after  = '((\s*;\s*)(.*\'')@!)'
-  " match ; if there isn't a (') before it or if there isn't a (') after it
-  let delimiter = '\v'.quotation_not_before.'|'.quotation_not_after
-
-  let body = join(split(body, delimiter), "\n")
   
   let replacement = substitute(body, '^'.pattern.'$', multiline_block, '')
+
   " remove leftover whitespace
   let replacement = substitute(replacement, '\s*\n', '\n', 'g')
 
   call sj#ReplaceMotion('Va{', replacement)
+
+  call search(replacement, 'cw')
+  normal! j0
+  while sj#SearchSkip(';', sj#SkipSyntax(['rubyString']), 'W', line('.')) > 0
+    call execute("normal! r\<cr>") 
+  endwhile
 
   return 1
 endfunction
