@@ -619,16 +619,17 @@ function! sj#rust#JoinEmptyMatchIntoIfLet()
   if search('^\s*_\s*=>\s*\zs\S', 'W', outer_end_lineno) > 0
     let fallback_value = strpart(getline('.'), col('.') - 1)
 
-    if fallback_value =~ '^{'
+    if fallback_value =~ '^(\s*)\|^{\s*}'
+      " ignore it
+    elseif fallback_value =~ '^{'
       " the else-clause is going to be in a block
       let else_body = sj#Trim(sj#GetMotion('vi{'))
-    elseif fallback_value =~ '^()'
-      " ignore it
     else
       " one-line value, remove its trailing comma and any comments
       let else_body = substitute(fallback_value, ','.s:eol_pattern, '', '')
     endif
   endif
+
   call sj#PopCursor()
 
   " jump on outer start

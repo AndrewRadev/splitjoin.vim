@@ -1273,6 +1273,24 @@ describe "rust" do
       EOF
     end
 
+    specify "if-let with empty else" do
+      set_file_contents <<~EOF
+        match x {
+            x => x,
+            _ => (),
+        }
+      EOF
+
+      vim.search('match')
+      join
+
+      assert_file_contents <<~EOF
+        if let x = x {
+            x
+        }
+      EOF
+    end
+
     specify "if-let with multi-line else" do
       set_file_contents <<~EOF
         if let Some(value) = iterator.next() {
