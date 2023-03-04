@@ -1277,7 +1277,7 @@ describe "rust" do
       set_file_contents <<~EOF
         match x {
             x => x,
-            _ => (),
+            _ => {},
         }
       EOF
 
