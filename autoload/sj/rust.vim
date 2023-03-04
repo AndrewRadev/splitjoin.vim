@@ -396,8 +396,11 @@ function! sj#rust#JoinCurlyBrackets()
   if line !~ '{\s*$'
     return 0
   endif
-
   call search('{', 'c', line('.'))
+
+  if eval(s:skip_syntax)
+    return 0
+  endif
 
   " check if we've got an empty block:
   if sj#GetMotion('va{') =~ '^{\_s*}$'
@@ -548,14 +551,15 @@ function! sj#rust#SplitArray()
 endfunction
 
 function! sj#rust#JoinEmptyMatchIntoIfLet()
-  let match_pattern = 'match\s\+\zs.\{-}\ze\s\+{$'
+  let match_pattern = '\<match\s\+\zs.\{-}\ze\s\+{$'
   let pattern_pattern = '^\s*\zs.\{-}\ze\s\+=>'
 
-  if search(match_pattern, 'We', line('.')) <= 0
+  if search(match_pattern, 'Wc', line('.')) <= 0
     return 0
   endif
 
   let outer_start_lineno = line('.')
+  let [_, match_start_col] = searchpos('\<match\s\+', 'nbW', line('.'))
 
   " find end point
   normal! f{%
@@ -629,8 +633,8 @@ function! sj#rust#JoinEmptyMatchIntoIfLet()
 
   " jump on outer start
   exe outer_start_lineno
-  call sj#ReplaceMotion('V', 'if let '.match_pattern.' = '.match_value.' {')
-  normal! 0f{
+  call sj#ReplaceCols(match_start_col, col('$'), 'if let '.match_pattern.' = '.match_value." {\n")
+  normal! $
   call sj#ReplaceMotion('va{', "{\n".body."\n}")
 
   if else_body != ''

@@ -1406,5 +1406,37 @@ describe "rust" do
         }
       EOF
     end
+
+    specify "nested if-let" do
+      set_file_contents <<~EOF
+        match x {
+            x => match x {
+                x => x
+            }
+        }
+      EOF
+
+      vim.search('match')
+      join
+
+      assert_file_contents <<~EOF
+        match x {
+            x => if let x = x {
+                x
+            }
+        }
+      EOF
+
+      split
+
+      assert_file_contents <<~EOF
+        match x {
+            x => match x {
+                x => x,
+                _ => (),
+            }
+        }
+      EOF
+    end
   end
 end
