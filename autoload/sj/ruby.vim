@@ -358,13 +358,18 @@ function! sj#ruby#SplitBlock()
   if search('\S\%#', 'Wbn')
     let multiline_block = ' '.multiline_block
   endif
-
-  let body = join(split(body, '\s*;\s*'), "\n")
+  
   let replacement = substitute(body, '^'.pattern.'$', multiline_block, '')
+
   " remove leftover whitespace
   let replacement = substitute(replacement, '\s*\n', '\n', 'g')
 
   call sj#ReplaceMotion('Va{', replacement)
+
+  normal! j0
+  while sj#SearchSkip(';', sj#SkipSyntax(['rubyString']), 'W', line('.')) > 0
+    call execute("normal! r\<cr>") 
+  endwhile
 
   return 1
 endfunction
