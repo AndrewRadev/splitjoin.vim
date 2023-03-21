@@ -366,7 +366,6 @@ function! sj#ruby#SplitBlock()
 
   call sj#ReplaceMotion('Va{', replacement)
 
-  call search(replacement, 'cW')
   normal! j0
   while sj#SearchSkip(';', sj#SkipSyntax(['rubyString']), 'W', line('.')) > 0
     call execute("normal! r\<cr>") 
