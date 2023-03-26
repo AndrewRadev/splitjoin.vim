@@ -94,6 +94,7 @@ function! sj#go#JoinVars() abort
       call add(variables, matchstr(lhs, '.\{-}\ze\s*=\s*'))
       call add(values, strpart(line, match_end))
     else
+      let line = substitute(line, ',$', '', '')
       call add(variables, line)
     endif
   endfor

@@ -304,14 +304,15 @@ describe "go" do
       set_file_contents <<~EOF
         const (
           const4 int
-          const5 string
+          const5 string,
+          const6 int[]
         )
       EOF
 
       join
 
       assert_file_contents <<~EOF
-        const const4 int, const5 string
+        const const4 int, const5 string, const6 int[]
       EOF
 
       split
@@ -320,6 +321,7 @@ describe "go" do
         const (
           const4 int
           const5 string
+          const6 int[]
         )
       EOF
     end
