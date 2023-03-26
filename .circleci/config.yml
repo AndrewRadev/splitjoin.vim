@@ -1,12 +1,12 @@
 version: 2.1
 
 orbs:
-  ruby: circleci/ruby@0.1.2
+  ruby: circleci/ruby@2.0.0
 
 jobs:
   test:
     docker:
-      - image: circleci/ruby:2.6.3-stretch-node
+      - image: cimg/ruby:3.2.1
     executor: ruby/default
     steps:
       - checkout
