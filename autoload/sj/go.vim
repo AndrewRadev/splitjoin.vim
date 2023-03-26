@@ -1,3 +1,5 @@
+let s:eol_pattern = '\s*\%(\/\/.*\)\=$'
+
 function! sj#go#SplitImports()
   if getline('.') =~ '^import ".*"$'
     call sj#Keeppatterns('s/^import \(".*"\)$/import (\r\1\r)/')
@@ -19,26 +21,95 @@ function! sj#go#JoinImports()
   endif
 endfunction
 
-function! sj#go#SplitVars()
-  if getline('.') =~ '^\s*\(var\|type\|const\) \k\+ .*$'
-    call sj#Keeppatterns('s/^\s*\(var\|type\|const\) \(\k\+ .*\)$/\1 (\r\2\r)/')
-    normal! 2k3==
-    return 1
-  else
+function! sj#go#SplitVars() abort
+  let pattern = '^\s*\(var\|type\|const\)\s\+[[:keyword:], ]\+=\='
+  if sj#SearchUnderCursor(pattern) <= 0
     return 0
   endif
+
+  call search(pattern, 'Wce', line('.'))
+  let line = getline('.')
+
+  if line[col('.') - 1] == '='
+    " before and after =
+    let lhs = sj#Trim(strpart(line, 0, col('.') - 1))
+    let rhs = sj#Ltrim(strpart(line, col('.')))
+
+    let values_parser = sj#argparser#go_vars#Construct(rhs)
+    call values_parser.Process()
+
+    let values = values_parser.args
+    let comment = values_parser.comment
+  else
+    let [comment, comment_start, _] = matchstrpos(line, '\s*\%(\/\/.*\)\=$')
+    if comment == ""
+      let lhs = sj#Trim(line)
+    else
+      let lhs = sj#Trim(strpart(line, 0, comment_start))
+    endif
+
+    let values = []
+  endif
+
+  let [prefix, _, prefix_end] = matchstrpos(lhs, '^\s*\(var\|type\|const\)\s\+')
+  let lhs = strpart(lhs, prefix_end)
+  let variables = split(lhs, ',\s*')
+
+  let declarations = []
+  for i in range(0, len(variables) - 1)
+    if i < len(values)
+      call add(declarations, variables[i] . ' = ' . values[i])
+    else
+      call add(declarations, variables[i])
+    endif
+  endfor
+
+  let replacement = prefix . "(\n"
+  let replacement .= join(declarations, "\n")
+  let replacement .= "\n)"
+  if comment != ''
+    let replacement .= ' ' . sj#Ltrim(comment)
+  endif
+
+  call sj#ReplaceMotion('_vg_', replacement)
+  return 0
 endfunction
 
-function! sj#go#JoinVars()
-  if getline('.') =~ '^\s*\(var\|type\|const\) ($' &&
-        \ getline(line('.') + 1) =~ '^\s*\k\+ .*$' &&
-        \ getline(line('.') + 2) =~ '^\s*)$'
-    call sj#Keeppatterns('s/^\s*\(var\|type\|const\) (\_s\+\(\k\+ .*\)\_s\+)$/\1 \2/')
-    normal! ==
-    return 1
-  else
+function! sj#go#JoinVars() abort
+  let pattern = '^\s*\(var\|type\|const\)\s\+('
+  if sj#SearchUnderCursor(pattern.s:eol_pattern) <= 0
     return 0
   endif
+
+  call search(pattern, 'Wce', line('.'))
+
+  let declarations = sj#TrimList(split(sj#GetMotion('vi('), "\n"))
+  let variables = []
+  let values = []
+
+  for line in declarations
+    let [lhs, _, match_end] = matchstrpos(line, '.\{-}\s*=\s*')
+
+    if match_end > -1
+      call add(variables, matchstr(lhs, '.\{-}\ze\s*=\s*'))
+      call add(values, strpart(line, match_end))
+    else
+      call add(variables, line)
+    endif
+  endfor
+
+  if len(variables) == 0
+    return 0
+  endif
+
+  let combined_declaration = join(variables, ', ')
+
+  if len(values) > 0
+    let combined_declaration .= ' = ' . join(values, ', ')
+  endif
+
+  call sj#ReplaceMotion('va(', combined_declaration)
+  return 1
 endfunction
 
 function! sj#go#SplitStruct()

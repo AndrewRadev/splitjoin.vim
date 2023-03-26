@@ -30,55 +30,6 @@ describe "go" do
     EOF
   end
 
-  specify "var/const modifiers" do
-    set_file_contents <<~EOF
-      type ChanDir int
-
-      func Func() {
-        var foo string
-        const bar string
-      }
-    EOF
-
-    vim.search('var')
-    split
-    vim.search('const')
-    split
-    vim.search('type')
-    split
-
-    assert_file_contents <<~EOF
-      type (
-        ChanDir int
-      )
-
-      func Func() {
-        var (
-          foo string
-        )
-        const (
-          bar string
-        )
-      }
-    EOF
-
-    vim.search('var')
-    join
-    vim.search('const')
-    join
-    vim.search('type')
-    join
-
-    assert_file_contents <<~EOF
-      type ChanDir int
-
-      func Func() {
-        var foo string
-        const bar string
-      }
-    EOF
-  end
-
   specify "structs" do
     set_file_contents <<~EOF
       StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
@@ -273,5 +224,104 @@ describe "go" do
     assert_file_contents <<~EOF
       func foo(x, y int) bool { return x+y == 5 }
     EOF
+  end
+
+  describe "variable declarations" do
+    specify "one per line" do
+      set_file_contents <<~EOF
+        type ChanDir int
+
+        func Func() {
+          var foo string
+          const bar string
+        }
+      EOF
+
+      vim.search('var')
+      split
+      vim.search('const')
+      split
+      vim.search('type')
+      split
+
+      assert_file_contents <<~EOF
+        type (
+          ChanDir int
+        )
+
+        func Func() {
+          var (
+            foo string
+          )
+          const (
+            bar string
+          )
+        }
+      EOF
+
+      vim.search('var')
+      join
+      vim.search('const')
+      join
+      vim.search('type')
+      join
+
+      assert_file_contents <<~EOF
+        type ChanDir int
+
+        func Func() {
+          var foo string
+          const bar string
+        }
+      EOF
+    end
+
+    specify "comma-separated without type" do
+      set_file_contents <<~EOF
+        const (
+          const4 = "4"
+          const5 = "5"
+        )
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        const const4, const5 = "4", "5"
+      EOF
+
+      split
+
+      assert_file_contents <<~EOF
+        const (
+          const4 = "4"
+          const5 = "5"
+        )
+      EOF
+    end
+
+    specify "comma-separated with type, without values" do
+      set_file_contents <<~EOF
+        const (
+          const4 int
+          const5 string
+        )
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        const const4 int, const5 string
+      EOF
+
+      split
+
+      assert_file_contents <<~EOF
+        const (
+          const4 int
+          const5 string
+        )
+      EOF
+    end
   end
 end
