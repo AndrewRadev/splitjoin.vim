@@ -92,6 +92,7 @@ function! sj#go#JoinVars() abort
 
     if match_end > -1
       call add(variables, matchstr(lhs, '.\{-}\ze\s*=\s*'))
+      let line = substitute(line, ',$', '', '')
       call add(values, strpart(line, match_end))
     else
       let line = substitute(line, ',$', '', '')
