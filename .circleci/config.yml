@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Install bundler
           command: gem install bundler:2.1.4
-      - ruby/bundle-install
+      - ruby/install-deps
 
       - run:
           name: Install dependencies
