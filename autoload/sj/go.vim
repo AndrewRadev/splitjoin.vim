@@ -53,7 +53,22 @@ function! sj#go#SplitVars() abort
 
   let [prefix, _, prefix_end] = matchstrpos(lhs, '^\s*\(var\|type\|const\)\s\+')
   let lhs = strpart(lhs, prefix_end)
-  let variables = split(lhs, ',\s*')
+
+  let variables = []
+  let last_type = ''
+  for variable in reverse(split(lhs, ',\s*'))
+    let variable = sj#Trim(variable)
+    let type = matchstr(variable, '^\k\+\s\+\zs\S.*$')
+
+    if empty(type) && !empty(last_type)
+      " No type, take the last one that we saw going backwards
+      call add(variables, variable . ' ' . last_type)
+    else
+      let last_type = type
+      call add(variables, variable)
+    endif
+  endfor
+  call reverse(variables)
 
   let declarations = []
   for i in range(0, len(variables) - 1)
@@ -91,21 +106,40 @@ function! sj#go#JoinVars() abort
     let [lhs, _, match_end] = matchstrpos(line, '.\{-}\s*=\s*')
 
     if match_end > -1
-      call add(variables, matchstr(lhs, '.\{-}\ze\s*=\s*'))
+      let variable_description = matchstr(lhs, '.\{-}\ze\s*=\s*')
       let line = substitute(line, ',$', '', '')
       call add(values, strpart(line, match_end))
     else
       let line = substitute(line, ',$', '', '')
-      call add(variables, line)
+      let variable_description = line
     endif
+
+    let [variable, _, match_end] = matchstrpos(variable_description, '^\k\+\s*')
+    let type = strpart(variable_description, match_end)
+    call add(variables, { 'variable': sj#Rtrim(variable), 'type': type })
   endfor
 
   if len(variables) == 0
     return 0
   endif
 
-  let combined_declaration = join(variables, ', ')
+  " Handle var one, two string -> one should also get "string"
+  let declarations = []
+  let index = 0
+  for entry in variables
+    if empty(entry.type) || (len(variables) > index + 1 && entry.type ==# variables[index + 1].type)
+      " This variable's type is the same as the next one's, so skip it
+      call add(declarations, entry.variable)
+    elseif empty(entry.type)
+      call add(declarations, entry.variable)
+    else
+      call add(declarations, entry.variable . ' ' . entry.type)
+    endif
 
+    let index += 1
+  endfor
+
+  let combined_declaration = join(declarations, ', ')
   if len(values) > 0
     let combined_declaration .= ' = ' . join(values, ', ')
   endif

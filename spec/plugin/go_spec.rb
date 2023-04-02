@@ -281,14 +281,13 @@ describe "go" do
         const (
           const4 = "4"
           const5 = "5",
-          const6
         )
       EOF
 
       join
 
       assert_file_contents <<~EOF
-        const const4, const5, const6 = "4", "5"
+        const const4, const5 = "4", "5"
       EOF
 
       split
@@ -297,7 +296,6 @@ describe "go" do
         const (
           const4 = "4"
           const5 = "5"
-          const6
         )
       EOF
     end
@@ -305,25 +303,27 @@ describe "go" do
     specify "comma-separated with type, without values" do
       set_file_contents <<~EOF
         const (
-          const4 int
+          const4 string,
           const5 string,
           const6 int[]
+          const7 int[]
         )
       EOF
 
       join
 
       assert_file_contents <<~EOF
-        const const4 int, const5 string, const6 int[]
+        const const4, const5 string, const6, const7 int[]
       EOF
 
       split
 
       assert_file_contents <<~EOF
         const (
-          const4 int
+          const4 string
           const5 string
           const6 int[]
+          const7 int[]
         )
       EOF
     end
