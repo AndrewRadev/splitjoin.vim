@@ -30,6 +30,28 @@ describe "go" do
     EOF
   end
 
+  specify "imports with names" do
+    set_file_contents <<~EOF
+      import _ "fmt"
+    EOF
+
+    vim.search('import')
+    split
+
+    assert_file_contents <<~EOF
+      import (
+        _ "fmt"
+      )
+    EOF
+
+    vim.search('import')
+    join
+
+    assert_file_contents <<~EOF
+      import _ "fmt"
+    EOF
+  end
+
   specify "structs" do
     set_file_contents <<~EOF
       StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
@@ -37,7 +59,6 @@ describe "go" do
 
     vim.search 'one:'
     split
-
 
     assert_file_contents <<~EOF
       StructType{

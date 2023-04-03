@@ -1,8 +1,8 @@
-let s:eol_pattern = '\s*\%(\/\/.*\)\=$'
-
 function! sj#go#SplitImports()
-  if getline('.') =~ '^import ".*"$'
-    call sj#Keeppatterns('s/^import \(".*"\)$/import (\r\1\r)/')
+  let pattern = '^import\s\+\(\%(\k\+\s\+\)\=\%(".*"\)\)$'
+
+  if getline('.') =~ pattern
+    call sj#Keeppatterns('s/' . pattern . '/import (\r\1\r)/')
     normal! k==
     return 1
   else
@@ -11,10 +11,10 @@ function! sj#go#SplitImports()
 endfunction
 
 function! sj#go#JoinImports()
-  if getline('.') =~ '^import ($' &&
-        \ getline(line('.') + 1) =~ '^\s*".*"$' &&
+  if getline('.') =~ '^import\s*($' &&
+        \ getline(line('.') + 1) =~ '^\s*\%(\k\+\s\+\)\=".*"$' &&
         \ getline(line('.') + 2) =~ '^)$'
-    call sj#Keeppatterns('s/^import (\_s\+\(".*"\)\_s\+)$/import \1/')
+    call sj#Keeppatterns('s/^import (\_s\+\(\%(\k\+\s\+\)\=\(".*"\)\)\_s\+)$/import \1/')
     return 1
   else
     return 0
@@ -92,7 +92,7 @@ endfunction
 
 function! sj#go#JoinVars() abort
   let pattern = '^\s*\(var\|type\|const\)\s\+('
-  if sj#SearchUnderCursor(pattern.s:eol_pattern) <= 0
+  if sj#SearchUnderCursor(pattern) <= 0
     return 0
   endif
 
@@ -325,7 +325,7 @@ function! sj#go#JoinFuncCallOrDefinition()
     return 0
   endif
 
-  if strpart(getline('.'), 0, col('.')) =~ '\(var\|type\|const\)\s\+($'
+  if strpart(getline('.'), 0, col('.')) =~ '\(var\|type\|const\|import\)\s\+($'
     " This isn't a function call, it's a multilne var/const/type declaration
     return 0
   endif
