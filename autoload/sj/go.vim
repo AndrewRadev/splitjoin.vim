@@ -131,7 +131,7 @@ function! sj#go#JoinVars() abort
     return 0
   endif
 
-  if len(values) > 0 && len(uniq(types)) > 1
+  if len(uniq(types)) > 1
     " We have assignment to values, but we also have different types, so it
     " can't be on one line
     return 0

@@ -324,17 +324,15 @@ describe "go" do
     specify "comma-separated with type, without values" do
       set_file_contents <<~EOF
         const (
-          const4 string,
-          const5 string,
-          const6 int[]
-          const7 int[]
+          const4 string
+          const5 string
         )
       EOF
 
       join
 
       assert_file_contents <<~EOF
-        const const4, const5 string, const6, const7 int[]
+        const const4, const5 string
       EOF
 
       split
@@ -343,8 +341,24 @@ describe "go" do
         const (
           const4 string
           const5 string
-          const6 int[]
-          const7 int[]
+        )
+      EOF
+    end
+
+    specify "different types don't get joined" do
+      set_file_contents <<~EOF
+        const (
+          const4 string
+          const5 int
+        )
+      EOF
+
+      join
+
+      # Triggers the built-in gJ
+      assert_file_contents <<~EOF
+        const (  const4 string
+          const5 int
         )
       EOF
     end
