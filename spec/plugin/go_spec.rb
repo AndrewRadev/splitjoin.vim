@@ -327,5 +327,19 @@ describe "go" do
         )
       EOF
     end
+
+    specify "join single line as a special case" do
+      set_file_contents <<~EOF
+        const (
+          const4, const5 = "4", "5"
+        )
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        const const4, const5 = "4", "5"
+      EOF
+    end
   end
 end

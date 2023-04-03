@@ -99,8 +99,15 @@ function! sj#go#JoinVars() abort
   call search(pattern, 'Wce', line('.'))
 
   let declarations = sj#TrimList(split(sj#GetMotion('vi('), "\n"))
+  if len(declarations) == 1
+    " Only one line, so just join it as-is
+    call sj#ReplaceMotion('va(', declarations[0])
+    return 1
+  endif
+
   let variables = []
   let values = []
+  let types = []
 
   for line in declarations
     let [lhs, _, match_end] = matchstrpos(line, '.\{-}\s*=\s*')
@@ -117,9 +124,16 @@ function! sj#go#JoinVars() abort
     let [variable, _, match_end] = matchstrpos(variable_description, '^\k\+\s*')
     let type = strpart(variable_description, match_end)
     call add(variables, { 'variable': sj#Rtrim(variable), 'type': type })
+    call add(types, type)
   endfor
 
   if len(variables) == 0
+    return 0
+  endif
+
+  if len(values) > 0 && len(uniq(types)) > 1
+    " We have assignment to values, but we also have different types, so it
+    " can't be on one line
     return 0
   endif
 
@@ -308,6 +322,11 @@ function! sj#go#JoinFuncCallOrDefinition()
   let start_lineno = line('.')
 
   if search('($', 'Wc', line('.')) <= 0
+    return 0
+  endif
+
+  if strpart(getline('.'), 0, col('.')) =~ '\(var\|type\|const\)\s\+($'
+    " This isn't a function call, it's a multilne var/const/type declaration
     return 0
   endif
 
