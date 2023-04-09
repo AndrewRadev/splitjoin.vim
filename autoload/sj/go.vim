@@ -213,13 +213,7 @@ function! sj#go#JoinStruct()
     call add(arguments, argument)
   endfor
 
-  if sj#settings#Read('curly_brace_padding')
-    let padding = ' '
-  else
-    let padding = ''
-  endif
-
-  let replacement = '{' . padding . join(arguments, ', ') . padding . '}'
+  let replacement = '{' .  join(arguments, ', ') .  '}'
   call sj#ReplaceMotion('va{', replacement)
   return 1
 endfunction

@@ -71,7 +71,7 @@ describe "go" do
     join
 
     assert_file_contents <<~EOF
-      StructType{ one: 1, two: "asdf", three: []int{1, 2, 3} }
+      StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
     EOF
   end
 
