@@ -11,6 +11,7 @@ describe "settings" do
   after :each do
     vim.command('unlet g:splitjoin_ruby_trailing_comma')
     vim.command('unlet g:splitjoin_disabled_split_callbacks')
+    vim.command('unlet g:splitjoin_mapping_fallback')
   end
 
   specify "precedence" do
@@ -80,6 +81,29 @@ describe "settings" do
     assert_file_contents <<~EOF
       foo = func(one,
                  two) if bar?
+    EOF
+  end
+
+  specify "disabling the built-in mappings" do
+    vim.command('let g:splitjoin_mapping_fallback = 1')
+    set_file_contents <<~EOF
+      one
+      two
+    EOF
+
+    join
+    assert_file_contents 'onetwo'
+
+    vim.command('let g:splitjoin_mapping_fallback = 0')
+    set_file_contents <<~EOF
+      one
+      two
+    EOF
+
+    join
+    assert_file_contents <<~EOF
+      one
+      two
     EOF
   end
 end

@@ -13,6 +13,7 @@ let g:splitjoin_default_settings = {
       \ 'quiet':                    0,
       \ 'disabled_split_callbacks': [],
       \ 'disabled_join_callbacks':  [],
+      \ 'mapping_fallback':         1,
       \
       \ 'normalize_whitespace':                    1,
       \ 'trailing_comma':                          0,
@@ -69,6 +70,11 @@ endif
 " didn't do anything.
 "
 function! s:Mapping(mapping, function)
+  if !sj#settings#Read('mapping_fallback')
+    call call(a:function, [])
+    return
+  endif
+
   if !v:count
     if !call(a:function, [])
       execute 'normal! '.a:mapping

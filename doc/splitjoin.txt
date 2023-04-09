@@ -1449,6 +1449,19 @@ particular scenario.
 In order to silence these messages, if you find them annoying, set this
 variable to 1.
 
+                                                    *splitjoin_mapping_fallback*
+>
+    let g:splitjoin_mapping_fallback = 0
+<
+Default value: 1
+
+If the plugin doesn't split or join something, it'll execute the sequence of
+keys normally. So, if joining is mapped to its default of `gJ` and there's
+nothing valid to join, it'll execute the built-in |gJ|.
+
+Setting this value to 0 will disable this behaviour.
+
+
                                             *splitjoin_disabled_split_callbacks*
 >
     let g:splitjoin_disabled_split_callbacks = ['sj#html#SplitAttributes']
