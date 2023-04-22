@@ -27,6 +27,12 @@ function! sj#go#SplitVars() abort
     return 0
   endif
 
+  if sj#SearchUnderCursor('^\s*type\s\+.*\s\+struct\s*{') > 0
+    " Handled by SplitSingleLineCurlyBracketBlock, which is a bit wonky, but
+    " it seems to work correctly, at least
+    return 0
+  endif
+
   call search(pattern, 'Wce', line('.'))
   let line = getline('.')
 
@@ -169,6 +175,9 @@ function! sj#go#SplitStruct()
   endif
 
   let args = sj#ParseJsonObjectBody(start + 1, end - 1)
+  if len(args) == 0
+    return 0
+  endif
 
   for arg in args
     if arg !~ '^\k\+\s*:'
@@ -181,12 +190,50 @@ function! sj#go#SplitStruct()
   return 1
 endfunction
 
-function! sj#go#JoinStruct()
+function! sj#go#JoinStructDeclaration()
   let start_lineno = line('.')
+  let pattern = '^\s*type\s\+.*\s*\zsstruct\s*{$'
 
-  if search('{$', 'Wc', line('.')) <= 0
+  if search(pattern, 'Wc', line('.')) <= 0 &&
+        \ search(pattern, 'Wcb', line('.')) <= 0
     return 0
   endif
+
+  call sj#PushCursor()
+  normal! f{%
+  let end_lineno = line('.')
+
+  if start_lineno == end_lineno
+    " we haven't moved, brackets not found
+    call sj#PopCursor()
+    return 0
+  endif
+
+  let arguments = []
+  for line in getbufline('%', start_lineno + 1, end_lineno - 1)
+    let argument = substitute(line, ',$', '', '')
+    let argument = sj#Trim(argument)
+
+    call add(arguments, argument)
+  endfor
+
+  let replacement = 'struct{ ' . join(arguments, ', ') . ' }'
+
+  call sj#PopCursor()
+  call sj#ReplaceMotion('vf{%', replacement)
+  return 1
+endfunction
+
+function! sj#go#JoinStruct()
+  let start_lineno = line('.')
+  let pattern = '\k\+\s*{$'
+
+  if search(pattern, 'Wc', line('.')) <= 0 &&
+        \ search(pattern, 'Wcb', line('.')) <= 0
+    return 0
+  endif
+
+  call search(pattern, 'Wce', line('.'))
 
   normal! %
   let end_lineno = line('.')
@@ -225,7 +272,15 @@ function! sj#go#SplitSingleLineCurlyBracketBlock()
   endif
 
   let body = sj#GetMotion('vi{')
-  call sj#ReplaceMotion('va{', "{\n".sj#Trim(body)."\n}")
+
+  if getline('.')[0:start - 1] =~# '\<struct\s*{$'
+    " struct { is enforced by gofmt
+    let padding = ' '
+  else
+    let padding = ''
+  endif
+
+  call sj#ReplaceMotion('va{', padding."{\n".sj#Trim(body)."\n}")
   return 1
 endfunction
 
@@ -320,7 +375,7 @@ function! sj#go#JoinFuncCallOrDefinition()
   endif
 
   if strpart(getline('.'), 0, col('.')) =~ '\(var\|type\|const\|import\)\s\+($'
-    " This isn't a function call, it's a multilne var/const/type declaration
+    " This isn't a function call, it's a multiline var/const/type declaration
     return 0
   endif
 

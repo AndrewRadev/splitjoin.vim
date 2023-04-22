@@ -99,6 +99,28 @@ describe "go" do
     EOF
   end
 
+  specify "struct typedef" do
+    set_file_contents <<~EOF
+      type str struct{ A, B int }
+    EOF
+
+    vim.search 'A'
+    split
+
+    assert_file_contents <<~EOF
+      type str struct {
+        A, B int
+      }
+    EOF
+
+    vim.search 'struct'
+    join
+
+    assert_file_contents <<~EOF
+      type str struct{ A, B int }
+    EOF
+  end
+
   describe "funcs" do
     def assert_split_join(initial, split_expected, join_expected)
       set_file_contents initial
