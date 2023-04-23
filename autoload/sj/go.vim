@@ -214,10 +214,16 @@ function! sj#go#JoinStructDeclaration()
     let argument = substitute(line, ',$', '', '')
     let argument = sj#Trim(argument)
 
-    call add(arguments, argument)
+    if argument != ''
+      call add(arguments, argument)
+    endif
   endfor
 
-  let replacement = 'struct{ ' . join(arguments, ', ') . ' }'
+  if len(arguments) == 0
+    let replacement = 'struct{}'
+  else
+    let replacement = 'struct{ ' . join(arguments, ', ') . ' }'
+  endif
 
   call sj#PopCursor()
   call sj#ReplaceMotion('vf{%', replacement)

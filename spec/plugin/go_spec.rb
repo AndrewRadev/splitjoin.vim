@@ -52,73 +52,97 @@ describe "go" do
     EOF
   end
 
-  specify "structs" do
-    set_file_contents <<~EOF
-      StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
-    EOF
+  describe "structs" do
+    specify "instantiation" do
+      set_file_contents <<~EOF
+        StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+      EOF
 
-    vim.search 'one:'
-    split
+      vim.search 'one:'
+      split
 
-    assert_file_contents <<~EOF
-      StructType{
-        one: 1,
-        two: "asdf",
-        three: []int{1, 2, 3},
-      }
-    EOF
+      assert_file_contents <<~EOF
+        StructType{
+          one: 1,
+          two: "asdf",
+          three: []int{1, 2, 3},
+        }
+      EOF
 
-    join
+      join
 
-    assert_file_contents <<~EOF
-      StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
-    EOF
-  end
+      assert_file_contents <<~EOF
+        StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+      EOF
+    end
 
-  specify "structs without padding" do
-    set_file_contents <<~EOF
-      StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
-    EOF
-    vim.command('let b:splitjoin_curly_brace_padding = 0')
+    specify "instantiation without padding" do
+      set_file_contents <<~EOF
+        StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+      EOF
+      vim.command('let b:splitjoin_curly_brace_padding = 0')
 
-    vim.search 'one:'
-    split
+      vim.search 'one:'
+      split
 
-    assert_file_contents <<~EOF
-      StructType{
-        one: 1,
-        two: "asdf",
-        three: []int{1, 2, 3},
-      }
-    EOF
+      assert_file_contents <<~EOF
+        StructType{
+          one: 1,
+          two: "asdf",
+          three: []int{1, 2, 3},
+        }
+      EOF
 
-    join
+      join
 
-    assert_file_contents <<~EOF
-      StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
-    EOF
-  end
+      assert_file_contents <<~EOF
+        StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+      EOF
+    end
 
-  specify "struct typedef" do
-    set_file_contents <<~EOF
-      type str struct{ A, B int }
-    EOF
+    specify "definition" do
+      set_file_contents <<~EOF
+        type str struct{ A, B int }
+      EOF
 
-    vim.search 'A'
-    split
+      vim.search 'A'
+      split
 
-    assert_file_contents <<~EOF
-      type str struct {
-        A, B int
-      }
-    EOF
+      assert_file_contents <<~EOF
+        type str struct {
+          A, B int
+        }
+      EOF
 
-    vim.search 'struct'
-    join
+      vim.search 'struct'
+      join
 
-    assert_file_contents <<~EOF
-      type str struct{ A, B int }
-    EOF
+      assert_file_contents <<~EOF
+        type str struct{ A, B int }
+      EOF
+    end
+
+    specify "empty definition" do
+      set_file_contents <<~EOF
+        type empty struct{}
+      EOF
+
+      vim.search '{'
+      split
+
+      assert_file_contents <<~EOF
+        type empty struct {
+
+        }
+      EOF
+
+      vim.search 'struct'
+      join
+
+      assert_file_contents <<~EOF
+        type empty struct{}
+      EOF
+    end
   end
 
   describe "funcs" do
