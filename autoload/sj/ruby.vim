@@ -358,7 +358,7 @@ function! sj#ruby#SplitBlock()
   if search('\S\%#', 'Wbn')
     let multiline_block = ' '.multiline_block
   endif
-  
+
   let replacement = substitute(body, '^'.pattern.'$', multiline_block, '')
 
   " remove leftover whitespace
@@ -368,7 +368,7 @@ function! sj#ruby#SplitBlock()
 
   normal! j0
   while sj#SearchSkip(';', sj#SkipSyntax(['rubyString']), 'W', line('.')) > 0
-    call execute("normal! r\<cr>") 
+    call execute("normal! r\<cr>")
   endwhile
 
   return 1
@@ -731,7 +731,7 @@ function! sj#ruby#JoinContinuedMethodCall()
 
   let end_lineno = line('.') - 1
 
-  exe start_lineno.','.end_lineno.'s/\n\_s*//'
+  call sj#Keeppatterns(start_lineno.','.end_lineno.'s/\n\_s*//')
   return 1
 endfunction
 
