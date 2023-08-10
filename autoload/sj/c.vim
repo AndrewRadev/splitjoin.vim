@@ -14,7 +14,6 @@ function! sj#c#SplitFuncall()
   let end = col('.')
 
   let items = sj#ParseJsonObjectBody(start, end)
-  let body = '('.join(items, ",\n").')'
 
   let body = "("
   if sj#settings#Read('c_argument_split_first_newline')
