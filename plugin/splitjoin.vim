@@ -26,6 +26,8 @@ let g:splitjoin_default_settings = {
       \ 'ruby_do_block_split':                     1,
       \ 'ruby_options_as_arguments':               0,
       \ 'ruby_expand_options_in_arrays':           0,
+      \ 'c_argument_split_first_newline':          0,
+      \ 'c_argument_split_last_newline':           0,
       \ 'coffee_suffix_if_clause':                 1,
       \ 'perl_brace_on_same_line':                 1,
       \ 'php_method_chain_full':                   0,
