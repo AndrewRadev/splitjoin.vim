@@ -16,6 +16,19 @@ function! sj#c#SplitFuncall()
   let items = sj#ParseJsonObjectBody(start, end)
   let body = '('.join(items, ",\n").')'
 
+  let body = "("
+  if sj#settings#Read('c_argument_split_first_newline')
+    let body = "(\n"
+  endif
+
+  let body .= join(items, ",\n")
+
+  if sj#settings#Read('c_argument_split_last_newline')
+    let body .= "\n)"
+  else
+    let body .= ")"
+  endif
+
   call sj#PopCursor()
 
   call sj#ReplaceMotion('va(', body)
