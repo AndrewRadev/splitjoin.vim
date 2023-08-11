@@ -1974,6 +1974,16 @@ after the last one:
 This is a setting that might be generalized for other languages and constructs
 at a later time.
 
+                                   *splitjoin_c_argument_split_first_newline*
+                                    *splitjoin_c_argument_split_last_newline*
+>
+    let g:splitjoin_c_argument_split_first_newline = 1
+    let g:splitjoin_c_argument_split_last_newline  = 1
+<
+Default value: 0
+
+Same like the arguments for java.
+
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*
 
