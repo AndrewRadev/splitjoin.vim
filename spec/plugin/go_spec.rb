@@ -142,6 +142,15 @@ describe "go" do
       assert_file_contents <<~EOF
         type empty struct{}
       EOF
+
+      vim.search 'type'
+      split
+
+      assert_file_contents <<~EOF
+        type (
+          empty struct{}
+        )
+      EOF
     end
   end
 

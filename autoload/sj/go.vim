@@ -27,12 +27,6 @@ function! sj#go#SplitVars() abort
     return 0
   endif
 
-  if sj#SearchUnderCursor('^\s*type\s\+.*\s\+struct\s*{') > 0
-    " Handled by SplitSingleLineCurlyBracketBlock, which is a bit wonky, but
-    " it seems to work correctly, at least
-    return 0
-  endif
-
   call search(pattern, 'Wce', line('.'))
   let line = getline('.')
 
