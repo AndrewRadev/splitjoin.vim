@@ -57,6 +57,11 @@ function! sj#go#SplitVars() abort
     let values = []
   endif
 
+  if len(values) > 0 && values[-1] =~ '[{([]\s*$'
+    " the value is incomplete, so let's not attempt to split it
+    return 0
+  endif
+
   let [prefix, _, prefix_end] = matchstrpos(lhs, '^\s*\(var\|type\|const\)\s\+')
   let lhs = strpart(lhs, prefix_end)
 

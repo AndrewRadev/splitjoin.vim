@@ -422,5 +422,32 @@ describe "go" do
         const const4, const5 = "4", "5"
       EOF
     end
+
+    specify "doesn't split multiline declarations" do
+      set_file_contents <<~EOF
+        var first = map[string]any{
+          "k": "v",
+        }
+      EOF
+
+      split
+
+      assert_file_contents <<~EOF
+        var first = map[string]any{
+          "k": "v",
+        }
+      EOF
+
+      vim.normal 'f{'
+      join
+      vim.search('var first')
+      split
+
+      assert_file_contents <<~EOF
+        var (
+          first = map[string]any{ "k": "v", }
+        )
+      EOF
+    end
   end
 end
