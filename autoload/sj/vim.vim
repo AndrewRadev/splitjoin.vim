@@ -8,7 +8,12 @@ function! sj#vim#Split()
   if sj#BlankString(new_line)
     return 0
   else
-    let new_line = "\n\\ ".sj#Trim(new_line)
+    if sj#settings#Read('vim_split_whitespace_after_backslash')
+      let new_line = "\n\\ ".sj#Trim(new_line)
+    else
+      let new_line = "\n\\".sj#Trim(new_line)
+    endif
+
     call sj#ReplaceMotion('vg_', new_line)
     call sj#Keeppatterns('s/\s\+$//e')
 

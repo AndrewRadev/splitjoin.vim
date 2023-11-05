@@ -37,6 +37,7 @@ let g:splitjoin_default_settings = {
       \ 'html_attribute_bracket_on_new_line':      0,
       \ 'java_argument_split_first_newline':       0,
       \ 'java_argument_split_last_newline':        0,
+      \ 'vim_split_whitespace_after_backslash':    1,
       \ }
 
 if !exists('g:splitjoin_join_mapping')
