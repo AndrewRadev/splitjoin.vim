@@ -12,11 +12,29 @@ function! sj#sh#SplitBySemicolon()
   return 1
 endfunction
 
+function! sj#sh#SplitWithBackslash()
+  if !search('\S', 'Wc', line('.'))
+    return 0
+  endif
+
+  exe "normal! i\\\<cr>"
+  return 1
+endfunction
+
 function! sj#sh#JoinWithSemicolon()
   if !nextnonblank(line('.') + 1)
     return 0
   endif
 
   call sj#Keeppatterns('s/;\=\s*\n\_s*/; /e')
+  return 1
+endfunction
+
+function! sj#sh#JoinBackslashedLine()
+  if getline('.') !~ '\\\s*$'
+    return 0
+  endif
+
+  call sj#Keeppatterns('s/\\\=\s*\n\_s*//e')
   return 1
 endfunction
