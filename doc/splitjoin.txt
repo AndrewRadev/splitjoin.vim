@@ -1984,6 +1984,18 @@ Default value: 0
 
 Same like the arguments for java.
 
+                                *splitjoin_vim_split_whitespace_after_backslash*
+>
+    let g:splitjoin_vim_split_whitespace_after_backslash = 0
+<
+Default value: 1
+
+Whether to leave a single space after the `\` of a line break. In many cases,
+when breaking a line, one space is left between the backslash and the line
+part. However, if it's broken at a `.`, it could cause parsing problems. Not
+leaving a space might be safer, set to 0 to do that.
+
+
 ==============================================================================
 INTERNALS                                                *splitjoin-internals*
 
