@@ -28,7 +28,7 @@ describe "vim" do
     assert_file_contents contents
   end
 
-  specify "backslashes" do
+  specify "backslashes with a preceding space" do
     set_file_contents <<~EOF
       let foo = 2 + 2
     EOF
@@ -49,10 +49,8 @@ describe "vim" do
   end
 
   specify "backslashes without a space" do
-    vim.command('let g:splitjoin_vim_split_whitespace_after_backslash = 0')
-
     set_file_contents <<~EOF
-      let foo = 2 + 2
+      let foo = 2+2
     EOF
 
     vim.search('+')
@@ -60,13 +58,13 @@ describe "vim" do
 
     assert_file_contents <<~EOF
       let foo = 2
-            \\+ 2
+            \\+2
     EOF
 
     join
 
     assert_file_contents <<~EOF
-      let foo = 2 + 2
+      let foo = 2+2
     EOF
   end
 end

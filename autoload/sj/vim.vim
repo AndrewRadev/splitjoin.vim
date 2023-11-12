@@ -8,7 +8,21 @@ function! sj#vim#Split()
   if sj#BlankString(new_line)
     return 0
   else
-    if sj#settings#Read('vim_split_whitespace_after_backslash')
+    let add_whitespace = 1
+
+    if col('.') > 1
+      let pair = strpart(getline('.'), col('.') - 2, 2)
+
+      if pair =~ '\s'
+        " we're breaking on whitespace, so make sure to add some:
+        let add_whitespace = 1
+      elseif pair =~ '^\S\S$'
+        " we're breaking a word, so make sure not to have any:
+        let add_whitespace = 0
+      endif
+    endif
+
+    if add_whitespace
       let new_line = "\n\\ ".sj#Trim(new_line)
     else
       let new_line = "\n\\".sj#Trim(new_line)
@@ -29,16 +43,22 @@ function! sj#vim#Join()
 
   if next_lineno > line('$') || next_line !~ continuation_pattern
     return 0
-  else
-    exe next_lineno.'s/'.continuation_pattern.'//'
-    exe current_lineno.','.next_lineno.'join'
-
-    if sj#settings#Read('normalize_whitespace')
-      call sj#CompressWhitespaceOnLine()
-    endif
-
-    return 1
   endif
+
+  if next_line =~ continuation_pattern.'\s'
+    " Then there's some whitespace after the \, rely on :join
+    keeppatterns exe next_lineno.'s/'.continuation_pattern.'//'
+    exe current_lineno.','.next_lineno.'join'
+  else
+    " No whitespace, let's join them directly
+    keeppatterns exe current_lineno.'s/\n'.continuation_pattern.'//'
+  endif
+
+  if sj#settings#Read('normalize_whitespace')
+    call sj#CompressWhitespaceOnLine()
+  endif
+
+  return 1
 endfunction
 
 function! sj#vim#SplitIfClause()
