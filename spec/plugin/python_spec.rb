@@ -92,6 +92,8 @@ describe "python" do
   end
 
   specify "splitting within a string" do
+    pending "Old version on CI" if ENV['CI']
+
     set_file_contents <<~EOF
       run("one", "two", "three {}".format(four))
     EOF
@@ -107,6 +109,8 @@ describe "python" do
   end
 
   specify "chained method calls" do
+    pending "Old version on CI" if ENV['CI']
+
     set_file_contents <<~EOF
       SomeModel.objects.filter(asdf=1, qwer=2).exclude(zxcv=2, tyui=3)
     EOF
@@ -172,6 +176,8 @@ describe "python" do
   end
 
   specify "dictionary within tuple" do
+    pending "Old version on CI" if ENV['CI']
+
     set_file_contents <<~EOF
       out = ("one", {"two": "three"}, "four")
     EOF
