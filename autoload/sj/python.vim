@@ -1,7 +1,7 @@
 let s:skip = sj#SkipSyntax(['pythonString', 'pythonComment', 'pythonStrInterpRegion'])
 
 function! sj#python#SplitStatement()
-  if sj#SearchSkip('^[^:]*\zs:\s*\S', s:skip, '', line('.'))
+  if sj#SearchSkip('^[^:]*\zs:\s*\S', s:skip, 'c', line('.'))
     call sj#Keeppatterns('s/\%#:\s*/:\r/')
     normal! ==
     return 1
@@ -11,7 +11,7 @@ function! sj#python#SplitStatement()
 endfunction
 
 function! sj#python#JoinStatement()
-  if sj#SearchSkip(':\s*$', s:skip, '', line('.')) > 0
+  if sj#SearchSkip(':\s*$', s:skip, 'c', line('.')) > 0
     join
     return 1
   else
