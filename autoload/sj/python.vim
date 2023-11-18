@@ -231,19 +231,18 @@ function! sj#python#JoinAssignment()
 endfunction
 
 function! s:SplitList(regex, opening_char, closing_char)
-  if sj#SearchUnderCursor(a:regex) <= 0
+  let [from, to] = sj#LocateBracesAroundCursor(a:opening_char, a:closing_char, ['pythonString'])
+  if from < 0 && to < 0
     return 0
   endif
 
   call sj#PushCursor()
 
-  " TODO (2012-10-24) connect sj#SearchUnderCursor and sj#LocateBracesOnLine
-  normal! l
-  let start = col('.')
-  normal! h%h
-  let end = col('.')
-
-  let items = sj#ParseJsonObjectBody(start, end)
+  let items = sj#ParseJsonObjectBody(from + 1, to - 1)
+  if len(items) <= 1
+    call sj#PopCursor()
+    return 0
+  endif
 
   if sj#settings#Read('python_brackets_on_separate_lines')
     if sj#settings#Read('trailing_comma')
@@ -256,7 +255,6 @@ function! s:SplitList(regex, opening_char, closing_char)
   endif
 
   call sj#PopCursor()
-
   call sj#ReplaceMotion('va'.a:opening_char, body)
   return 1
 endfunction
