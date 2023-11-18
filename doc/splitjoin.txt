@@ -1293,6 +1293,17 @@ for the `sh` and `zsh` filetypes.
     echo "one"
     echo "two"
 <
+If the line is not made up of semicolon-separated commands, it gets broken up
+with a backslash at the cursor position, for example with the cursor on the
+pipe:
+>
+    echo "one" | wc -c
+
+    echo "one" \
+        | wc -l
+<
+If there is a broken line like that, joining should always join it first,
+before trying anything else.
 
 ==============================================================================
 TEX                                                              *splitjoin-tex*

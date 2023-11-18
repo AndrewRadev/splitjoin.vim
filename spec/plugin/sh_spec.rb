@@ -3,7 +3,12 @@ require 'spec_helper'
 describe "sh" do
   let(:filename) { 'test.sh' }
 
-  describe "splitjoining by semicolon" do
+  before :each do
+    vim.set(:expandtab)
+    vim.set(:shiftwidth, 2)
+  end
+
+  describe "by semicolon" do
     specify "simple case" do
       set_file_contents <<~EOF
         echo "one"; echo "two"
@@ -51,5 +56,46 @@ describe "sh" do
       EOF
     end
   end
-end
 
+  describe "with backslash" do
+    specify "simple case" do
+      set_file_contents <<~EOF
+        echo "one" | wc -c
+      EOF
+
+      vim.search('|')
+      split
+
+      assert_file_contents <<~EOF
+        echo "one" \\
+          | wc -c
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        echo "one" | wc -c
+      EOF
+    end
+
+    specify "between words, finds closest non-whitespace forward" do
+      set_file_contents <<~EOF
+        echo "one" | wc -c
+      EOF
+
+      vim.search(' w')
+      split
+
+      assert_file_contents <<~EOF
+        echo "one" | \\
+          wc -c
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        echo "one" | wc -c
+      EOF
+    end
+  end
+end
