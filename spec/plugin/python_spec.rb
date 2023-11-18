@@ -101,8 +101,8 @@ describe "python" do
 
     assert_file_contents <<~EOF
       run("one",
-              "two",
-              "three {}".format(four))
+          "two",
+          "three {}".format(four))
     EOF
   end
 
@@ -116,7 +116,7 @@ describe "python" do
 
     assert_file_contents <<~EOF
       SomeModel.objects.filter(asdf=1, qwer=2).exclude(zxcv=2,
-              tyui=3)
+                                                       tyui=3)
     EOF
   end
 
@@ -181,8 +181,8 @@ describe "python" do
 
     assert_file_contents <<~EOF
       out = ("one",
-              {"two": "three"},
-              "four")
+             {"two": "three"},
+             "four")
     EOF
 
     vim.search('one')
