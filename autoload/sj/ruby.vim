@@ -6,15 +6,23 @@ let s:invalid_function_names = [
       \ ]
 
 function! sj#ruby#SplitIfClause()
-  let line    = getline('.')
-  let pattern = '\v(.*\S.*) (if|unless|while|until) (.*)'
+  let pattern = '\v(.*\S.*) \zs(if|unless|while|until) (.*)'
+  let skip = sj#SkipSyntax(['rubyString', 'rubyComment'])
 
-  if line =~ pattern
-    call sj#ReplaceMotion('V', substitute(line, pattern, '\2 \3\n\1\nend', ''))
-    return 1
-  else
+  normal! 0
+
+  if sj#SearchSkip(pattern, skip, 'W', line('.')) <= 0
     return 0
   endif
+
+  let line = getline('.')
+  let body = trim(strpart(line, 0, col('.') - 1))
+  let if_clause = trim(strpart(line, col('.') - 1))
+
+  let replacement = if_clause . "\n" . body . "\nend"
+  call sj#ReplaceMotion('V', replacement)
+
+  return 1
 endfunction
 
 function! sj#ruby#JoinIfClause()
