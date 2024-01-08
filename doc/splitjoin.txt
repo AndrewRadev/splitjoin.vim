@@ -882,7 +882,16 @@ Imports ~
     from foo import bar,\
             baz
 <
-Assignment ~
+Ternary assignment ~
+>
+    max_x = x1 if x1 > x2 else x2
+
+    if x1 > x2:
+        max_x = x1
+    else:
+        max_x = x2
+<
+Multiple assignment ~
 >
     a, b = foo("bar"), [one, two, three]
 

@@ -230,6 +230,93 @@ function! sj#python#JoinAssignment()
   return 1
 endfunction
 
+function! sj#python#SplitTernaryAssignment()
+  if getline('.') !~ '^\s*\%(\k\|\.\)\+\s*=\s*\S'
+    return 0
+  endif
+
+  normal! 0
+  let include_syntax = sj#IncludeSyntax(['pythonConditional'])
+
+  if sj#SearchSkip('\<if\>', include_syntax, 'W', line('.')) <= 0
+    return 0
+  endif
+  let if_col = col('.')
+
+  if sj#SearchSkip('\<else\>', include_syntax, 'W', line('.')) <= 0
+    return 0
+  endif
+
+  let else_col = col('.')
+  let line     = getline('.')
+
+  let assignment_if_true = trim(strpart(line, 0, if_col - 1))
+  let if_clause          = trim(strpart(line, if_col - 1, else_col - if_col))
+  let body_if_false      = trim(strpart(line, else_col + len('else')))
+
+  let assignment_prefix   = matchstr(assignment_if_true, '\%(\k\|\.\)\+\s*=')
+  let assignment_if_false = assignment_prefix . ' ' . body_if_false
+
+  let indent      = repeat(' ', shiftwidth())
+  let base_indent = repeat(' ', indent(line('.')))
+
+  let body = join([
+        \   base_indent . if_clause . ':',
+        \   base_indent . indent . assignment_if_true,
+        \   base_indent . 'else:',
+        \   base_indent . indent . assignment_if_false,
+        \ ], "\n")
+  call sj#ReplaceMotion('V', body)
+
+  return 1
+endfunction
+
+function! sj#python#JoinTernaryAssignment()
+  let include_syntax = sj#IncludeSyntax(['pythonConditional'])
+  let start_lineno = line('.')
+  normal! 0
+
+  if sj#SearchSkip('^\s*\zsif\>', include_syntax, 'Wc', line('.')) <= 0
+    return 0
+  endif
+  let if_line = trim(getline('.'))
+  if if_line !~ ':$'
+    return 0
+  endif
+  let if_clause = strpart(if_line, 0, len(if_line) - 1)
+
+  if search('^\s*\zs\%(\k\|\.\)\+\s*=\s*\S', 'Wc', line('.') + 1) <= 0
+    return 0
+  endif
+  let assignment_if_true = trim(getline('.'))
+  let lhs_if_true = matchstr(assignment_if_true, '^\s*\zs\%(\k\|\.\)\+\s*=')
+  let body_if_true = trim(strpart(assignment_if_true, len(lhs_if_true)))
+
+  if sj#SearchSkip('^\s*\zselse:', include_syntax, 'Wc', line('.') + 2) <= 0
+    return 0
+  endif
+  let else_line = trim(getline('.'))
+  if else_line !~ ':$'
+    return 0
+  endif
+
+  if search('^\s*\zs\%(\k\|\.\)\+\s*=\s*\S', 'Wc', line('.') + 3) <= 0
+    return 0
+  endif
+  let assignment_if_false = trim(getline('.'))
+  let lhs_if_false = matchstr(assignment_if_false, '^\s*\zs\%(\k\|\.\)\+\s*=')
+  let body_if_false = trim(strpart(assignment_if_false, len(lhs_if_false)))
+
+  if lhs_if_true != lhs_if_false
+    return 0
+  endif
+
+  let body = lhs_if_true . ' ' . body_if_true . ' ' . if_clause . ' else ' . body_if_false
+  call sj#ReplaceLines(start_lineno, start_lineno + 3, body)
+
+  return 1
+endfunction
+
 function! s:SplitList(regex, opening_char, closing_char)
   let [from, to] = sj#LocateBracesAroundCursor(a:opening_char, a:closing_char, ['pythonString'])
   if from < 0 && to < 0

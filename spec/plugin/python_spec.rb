@@ -91,6 +91,31 @@ describe "python" do
     assert_file_contents 'while True: loop()'
   end
 
+  specify "ternary clauses" do
+    set_file_contents <<~EOF
+      with indent as _:
+          max_x = x1 if x1 > x2 else x2
+    EOF
+
+    vim.search('max_x')
+    split
+
+    assert_file_contents <<~EOF
+      with indent as _:
+          if x1 > x2:
+              max_x = x1
+          else:
+              max_x = x2
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      with indent as _:
+          max_x = x1 if x1 > x2 else x2
+    EOF
+  end
+
   specify "splitting within a string" do
     pending "Old version on CI" if ENV['CI']
 
