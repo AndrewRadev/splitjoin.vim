@@ -364,3 +364,59 @@ function! s:JoinList(regex, opening_char, closing_char)
 
   return 1
 endfunction
+
+function! sj#python#SplitListComprehension()
+  for [opening_char, closing_char] in [['(', ')'], ['[', ']'], ['{', '}']]
+    let [from, to] = sj#LocateBracesAroundCursor(opening_char, closing_char, ['pythonString'])
+    if from > 0 && to > 0
+      break
+    endif
+  endfor
+
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  if to - from < 2
+    " empty list
+    return 0
+  endif
+
+  " Start after the opening bracket
+  let pos = getpos('.')
+  let pos[2] = from + 1
+  call setpos('.', pos)
+
+  let break_columns = []
+  let include_syntax = sj#IncludeSyntax(['pythonRepeat', 'pythonConditional'])
+
+  while sj#SearchSkip('\<\%(for\|if\)\>', include_syntax, 'W', line('.')) > 0
+    call add(break_columns, col('.') - from)
+  endwhile
+
+  if len(break_columns) <= 0
+    return 0
+  endif
+
+  let body = sj#GetMotion('vi' .. opening_char)
+  let parts = []
+  let last_break = 0
+
+  for break_column in break_columns
+    let part = strpart(body, last_break, break_column - last_break - 1)
+    call add(parts, sj#Trim(part))
+    let last_break = break_column - 1
+  endfor
+
+  let part = strpart(body, last_break, to - last_break - 1)
+  call add(parts, sj#Trim(part))
+
+  if sj#settings#Read('python_brackets_on_separate_lines')
+    let body = opening_char .. "\n" .. join(parts, "\n") .. "\n" .. closing_char
+  else
+    let body = opening_char .. join(parts, "\n") .. closing_char
+  endif
+
+  call sj#ReplaceMotion('va' .. opening_char, body)
+  return 1
+endfunction

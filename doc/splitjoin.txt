@@ -868,6 +868,15 @@ Tuples ~
             2,
             3)
 <
+List comprehensions ~
+>
+    result = [x * y for x in range(1, 10) for y in range(10, 20) if x != y]
+
+    result = [x * y
+              for x in range(1, 10)
+              for y in range(10, 20)
+              if x != y]
+<
 Statements ~
 >
     if foo: bar()

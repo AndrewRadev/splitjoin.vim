@@ -246,4 +246,27 @@ describe "python" do
       out = {"one": "two", "key": ("three", "four")}
     EOF
   end
+
+  specify "list comprehensions" do
+    set_file_contents <<~EOF
+      result = [x * y for x in range(1, 10) for y in range(10, 20) if x != y]
+    EOF
+
+    vim.search('x')
+    split
+
+    assert_file_contents <<~EOF
+      result = [x * y
+                for x in range(1, 10)
+                for y in range(10, 20)
+                if x != y]
+    EOF
+
+    vim.search('[')
+    join
+
+    assert_file_contents <<~EOF
+      result = [x * y for x in range(1, 10) for y in range(10, 20) if x != y]
+    EOF
+  end
 end
