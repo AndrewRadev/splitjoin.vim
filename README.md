@@ -54,12 +54,14 @@ This currently works for various constructs in the following languages:
 - HAML
 - HTML (and HTML-like markup)
 - Handlebars
-- Javascript (within JSX, TSX, Vue.js templates as well)
 - JSON
+- Java
+- Javascript (within JSX, TSX, Vue.js templates as well)
 - Lua
 - PHP
 - Perl
 - Python
+- R
 - Ruby
 - Rust
 - SCSS and Less
