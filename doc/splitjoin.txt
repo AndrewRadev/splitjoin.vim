@@ -11,7 +11,7 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Coffeescript...........................: |splitjoin-coffee|
     CSS....................................: |splitjoin-css|
     Elixir.................................: |splitjoin-elixir|
-    Elm..................................  : |splitjoin-elm|
+    Elm....................................: |splitjoin-elm|
     Eruby..................................: |splitjoin-eruby|
     Go.....................................: |splitjoin-go|
     HAML...................................: |splitjoin-haml|
