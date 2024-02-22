@@ -1,3 +1,15 @@
+function! sj#cue#SplitImports()
+  let pattern = '^import\s\+\(\%(\k\+\s\+\)\=\%(".*"\)\)$'
+
+  if getline('.') =~ pattern
+    call sj#Keeppatterns('s/' . pattern . '/import (\r\1\r)/')
+    normal! k==
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
 function! sj#cue#SplitStructLiteral()
   let [from, to] = sj#LocateBracesOnLine('{', '}')
 
