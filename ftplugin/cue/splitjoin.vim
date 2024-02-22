@@ -3,6 +3,7 @@ if !exists('b:splitjoin_split_callbacks')
             \ 'sj#cue#SplitStructLiteral',
             \ 'sj#cue#SplitArray',
             \ 'sj#cue#SplitArgs',
+            \ 'sj#go#SplitImports',
             \ ]
 endif
 
