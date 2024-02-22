@@ -13,6 +13,3 @@ if !exists('b:splitjoin_join_callbacks')
             \ 'sj#cue#JoinArgs',
             \ ]
 endif
-
-" in CUE, trailing comma means something else
-let b:splitjoin_trailing_comma = 0

@@ -90,19 +90,10 @@ function! s:SplitList(delimiter, cursor_position)
     return 0
   endif
 
-  if sj#settings#Read('trailing_comma')
-    let body = start."\n".join(items, ",\n").",\n".end
-  else
-    let body = start."\n".join(items, ",\n")."\n".end
-  endif
+  let body = start."\n".join(items, ",\n")."\n".end
 
   call sj#ReplaceMotion('Va'.start, body)
 
-  " built-in js indenting doesn't indent this properly
-  for l in range(lineno + 1, lineno + len(items))
-    call sj#SetIndent(l, indent + &sw)
-  endfor
-  " closing bracket
   let end_line = lineno + len(items) + 1
   call sj#SetIndent(end_line, indent)
 

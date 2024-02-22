@@ -10,6 +10,7 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Clojure................................: |splitjoin-clojure|
     Coffeescript...........................: |splitjoin-coffee|
     CSS....................................: |splitjoin-css|
+    CUE....................................: |splitjoin-cue|
     Elixir.................................: |splitjoin-elixir|
     Elm....................................: |splitjoin-elm|
     Eruby..................................: |splitjoin-eruby|
@@ -355,6 +356,52 @@ Multiline selectors ~
       font-weight: bold;
     }
 <
+
+==============================================================================
+CUE                                                              *splitjoin-cue*
+
+CUE Structs are JSON objects but with a cleaner syntax. Lists and Function
+arguments behave like JSON's.
+See |splitjoin-json|.
+
+Structs ~
+
+Structs are first class, so the cursor can precede the first curly brace.
+>
+    a: foo: { x: bar: baz: bool, y: bar: baz: int, z: bar: baz: string }
+
+    a: foo: {
+        x: bar: baz: bool
+        y: bar: baz: int
+        z: bar: baz: string
+    }
+<
+Lists ~
+
+The same applies to lists.
+>
+    foo: [ 'x:y:z', "\xFFFF0000", a.foo.y ]
+
+    foo: [
+        'x:y:z',
+        "\xFFFF0000",
+        a.foo.y
+    ]
+<
+Function Arguments ~
+
+Function splitting requires the cursor to be positioned inside the
+parenthesis, preferably near the closing one.
+>
+    bar: m.Baz(foo[2].bar.baz, 42, true)
+
+    bar: m.Baz(
+        foo[2].bar.baz,
+        42,
+        true
+    )
+<
+
 
 ==============================================================================
 ELIXIR                                                        *splitjoin-elixir*
