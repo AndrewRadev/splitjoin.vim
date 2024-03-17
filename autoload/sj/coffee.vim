@@ -214,8 +214,8 @@ function! sj#coffee#SplitTripleString()
     return 0
   endif
 
-  let start_col = col('.')
-  let quote       = getline('.')[col('.') - 1]
+  let start_col    = col('.')
+  let quote        = getline('.')[col('.') - 1]
   let double_quote = repeat(quote, 2)
   let triple_quote = repeat(quote, 3)
 
