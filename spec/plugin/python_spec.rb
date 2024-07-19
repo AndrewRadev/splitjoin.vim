@@ -271,4 +271,74 @@ describe "python" do
       result = [x * y for x in range(1, 10) for y in range(10, 20) if x != y]
     EOF
   end
+
+  describe "strings" do
+    it "joins ''' strings into single-quoted strings" do
+      set_file_contents <<~EOF
+        string = '''
+            something, "anything"
+        '''
+      EOF
+
+      vim.search "'''"
+      join
+
+      assert_file_contents <<~EOF
+        string = 'something, "anything"'
+      EOF
+    end
+
+    it "joins \"\"\" strings into double-quoted strings" do
+      set_file_contents <<~EOF
+        string = """
+            something, 'anything'
+        """
+      EOF
+
+      vim.search '"""'
+      join
+
+      assert_file_contents <<~EOF
+        string = "something, 'anything'"
+      EOF
+    end
+
+    it "splits normal strings into multiline strings" do
+      set_file_contents 'string = "\"anything\""'
+
+      vim.search '"\"'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+            "anything"
+        """
+      EOF
+    end
+
+    it "splits empty strings into empty multiline strings" do
+      set_file_contents 'string = ""'
+
+      vim.search '"'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+        """
+      EOF
+    end
+
+    it "keeps content around the string, only splits with cursor on delimiter" do
+      set_file_contents 'string = function_call(one, "two", three)'
+
+      vim.search '"'
+      split
+
+      assert_file_contents <<~EOF
+        string = function_call(one, """
+            two
+        """, three)
+      EOF
+    end
+  end
 end

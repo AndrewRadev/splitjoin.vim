@@ -317,6 +317,104 @@ function! sj#python#JoinTernaryAssignment()
   return 1
 endfunction
 
+function! sj#python#SplitString()
+  let char = getline('.')[col('.') - 1]
+  if char != '"' && char != "'"
+    return 0
+  endif
+
+  let string_pattern       = '\(\%(^\|[^\\]\)\zs\([''"]\)\).\{-}[^\\]\+\2'
+  let empty_string_pattern = '\%(''''\|""\)'
+
+  let lineno = line('.')
+
+  let [match_start, match_end] = sj#SearchColsUnderCursor(string_pattern)
+  if match_start <= 0
+    let [match_start, match_end] = sj#SearchColsUnderCursor(empty_string_pattern)
+    if match_start <= 0
+      return 0
+    endif
+  endif
+
+  let string    = sj#GetCols(match_start, match_end - 1)
+  let delimiter = string[0]
+  let body      = string[1:-2]
+  let indent    = indent(lineno)
+
+  if body =~ '^\(''\|""\)'
+    " then we're trying to split a string that's already multiline, ignore:
+    return 0
+  endif
+
+  if delimiter == '"'
+    if len(body) == 0
+      call sj#ReplaceMotion('vi"', '"""'.."\n"..'"""')
+    else
+      let body = substitute(body, '\\"', '"', 'g')
+      call sj#ReplaceMotion('vi"', '""'.."\n"..body.."\n".'""')
+    endif
+  elseif delimiter == "'"
+    if len(body) == 0
+      call sj#ReplaceMotion("vi'", "'''\n'''")
+    else
+      let body = substitute(body, "\\''", "'", 'g')
+      call sj#ReplaceMotion("vi'", "''\n"..body.."\n''")
+    endif
+  else
+    return 0
+  endif
+
+  if len(body) == 0
+    call sj#SetIndent(lineno + 1, lineno + 1, indent)
+  else
+    call sj#SetIndent(lineno + 1, lineno + 1, indent + shiftwidth())
+    call sj#SetIndent(lineno + 2, lineno + 2, indent)
+  endif
+
+  return 1
+endfunction
+
+function! sj#python#JoinMultilineString()
+  if sj#SearchUnderCursor('\("""\|''''''\)\s*$') <= 0
+    return 0
+  endif
+
+  let start_lineno = line('.')
+  let prefix       = getline('.')[0            : col('.') - 2]
+  let delimiter    = getline('.')[col('.') - 1 : col('.') + 2]
+
+  if search('^\s*'.delimiter, 'W') <= 0
+    return 0
+  endif
+
+  let end_lineno = line('.')
+  let suffix     = matchstr(getline(end_lineno), '^\s*'.delimiter.'\zs.*\ze')
+
+  if end_lineno - start_lineno > 1
+    let lines = sj#GetLines(start_lineno + 1, end_lineno - 1)
+    let lines = sj#TrimList(lines)
+    let body  = join(lines, " ")
+  else
+    let body = ''
+  endif
+
+  if delimiter == '"""'
+    let quote = '"'
+    let body = escape(body, '"')
+  elseif delimiter == "'''"
+    let quote = "'"
+    let body = escape(body, "'")
+  else
+    return 0
+  endif
+
+  let replacement = prefix..quote..body..quote..suffix
+  call sj#ReplaceLines(start_lineno, end_lineno, replacement)
+
+  return 1
+endfunction
+
+
 function! s:SplitList(regex, opening_char, closing_char)
   let [from, to] = sj#LocateBracesAroundCursor(a:opening_char, a:closing_char, ['pythonString'])
   if from < 0 && to < 0

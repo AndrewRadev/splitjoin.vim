@@ -1,5 +1,6 @@
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
+        \ 'sj#python#SplitString',
         \ 'sj#python#SplitListComprehension',
         \ 'sj#python#SplitTuple',
         \ 'sj#python#SplitAssignment',
@@ -13,6 +14,7 @@ endif
 
 if !exists('b:splitjoin_join_callbacks')
   let b:splitjoin_join_callbacks = [
+        \ 'sj#python#JoinMultilineString',
         \ 'sj#python#JoinTuple',
         \ 'sj#python#JoinDict',
         \ 'sj#python#JoinArray',

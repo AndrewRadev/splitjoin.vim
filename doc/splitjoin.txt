@@ -963,6 +963,19 @@ Note that splitting `a, b = b, a` would not result in an expression that works
 the same way, due to the special handling by python of this case to swap two
 values.
 
+Strings ~
+>
+    db.execute('UPDATE table SET value = ?', value)
+
+    db.execute('''
+        UPDATE table SET value = ?
+    ''', value)
+<
+To avoid string-splitting overriding argument-splitting, it only triggers when
+the cursor is on the string delimiter. It's recommended to use f'/f"/F'/F" to
+position the cursor precisely before splitting.
+
+
 ==============================================================================
 R                                                                  *splitjoin-r*
 
