@@ -303,6 +303,98 @@ describe "python" do
       EOF
     end
 
+    it "splits single-line \"\"\" strings" do
+      set_file_contents <<~EOF
+        string = """something, 'anything'"""
+      EOF
+
+      vim.search '"""'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+            something, 'anything'
+        """
+      EOF
+    end
+
+    it "splits single-line ''' strings" do
+      set_file_contents <<~EOF
+        string = '''something, "anything"'''
+      EOF
+
+      vim.search "'''"
+      split
+
+      assert_file_contents <<~EOF
+        string = '''
+            something, "anything"
+        '''
+      EOF
+    end
+
+    it "splits empty single-line ''' strings" do
+      set_file_contents <<~EOF
+        string = ''' '''
+      EOF
+
+      vim.search "'''"
+      split
+
+      assert_file_contents <<~EOF
+        string = '''
+        '''
+      EOF
+    end
+
+    it "splits empty single-line \"\"\" strings" do
+      set_file_contents <<~EOF
+        string = """ """
+      EOF
+
+      vim.search '"""'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+        """
+      EOF
+    end
+
+    it "doesn't split already-multiline \"\"\"-strings" do
+      set_file_contents <<~EOF
+        string = """
+            something, 'anything'
+        """
+      EOF
+
+      vim.search '"""'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+            something, 'anything'
+        """
+      EOF
+    end
+
+    it "doesn't split already-multiline '''-strings" do
+      set_file_contents <<~EOF
+        string = '''
+            something, 'anything'
+        '''
+      EOF
+
+      vim.search "'''"
+      split
+
+      assert_file_contents <<~EOF
+        string = '''
+            something, 'anything'
+        '''
+      EOF
+    end
+
     it "splits normal strings into multiline strings" do
       set_file_contents 'string = "\"anything\""'
 

@@ -341,9 +341,45 @@ function! sj#python#SplitString()
   let body      = string[1:-2]
   let indent    = indent(lineno)
 
-  if body =~ '^\(''\|""\)'
-    " then we're trying to split a string that's already multiline, ignore:
+  if body =~ '^[''"]$'
+    " our body is a single quote, we're trying to split a triple-quoted string
     return 0
+  endif
+
+  if body =~ '^\(''''\s*''''\|""\s*""\)$'
+    if search('\(''''\zs\s*''''\|""\zs\s*""\)', 'W', line('.')) <= 0
+      return 0
+    endif
+
+    if delimiter == '"'
+      call sj#ReplaceMotion('va"', "\"\n\"")
+    elseif delimiter == "'"
+      call sj#ReplaceMotion("va'", "'\n'")
+    else
+      return 0
+    endif
+
+    return 1
+  endif
+
+  if body =~ '^\(''''\|""\)\S'
+    " then the string is already triple-quoted, just replace the insides
+    if search('\(''''\|""\)\zs\S', 'W', line('.')) <= 0
+      return 0
+    endif
+
+    if delimiter == '"'
+      let inner_body = sj#GetMotion('vi"')
+      call sj#ReplaceMotion('vi"', "\n"..inner_body.."\n")
+    elseif delimiter == "'"
+      let inner_body = sj#GetMotion("vi'")
+      call sj#ReplaceMotion("vi'", "\n"..inner_body.."\n")
+    else
+      return 0
+    endif
+
+    call sj#SetIndent(lineno + 1, lineno + 1, indent + shiftwidth())
+    return 1
   endif
 
   if delimiter == '"'
