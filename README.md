@@ -52,6 +52,7 @@ This currently works for various constructs in the following languages:
 - Eruby
 - Go
 - HAML
+- Hare
 - HTML (and HTML-like markup)
 - Handlebars
 - JSON
