@@ -618,6 +618,9 @@ Question mark operator ~
         yield t;
     };
 <
+Note that, at the moment, only splitting question marks is supported, joining
+an appropriate match expression into a question-mark operator is not.
+
 
 ==============================================================================
 HTML                                                            *splitjoin-html*
