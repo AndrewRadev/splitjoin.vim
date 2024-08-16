@@ -17,6 +17,7 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Go.....................................: |splitjoin-go|
     HAML...................................: |splitjoin-haml|
     Handlebars.............................: |splitjoin-handlebars|
+    Hare...................................: |splitjoin-hare|
     HTML...................................: |splitjoin-html|
     Java...................................: |splitjoin-java|
     Javascript.............................: |splitjoin-javascript| |splitjoin-json|
@@ -573,6 +574,53 @@ Block components ~
       Some contents
     {{/component-name}}
 <
+
+==============================================================================
+HARE                                                            *splitjoin-hare*
+
+Structs ~
+>
+    struct { source: str, line: 1 };
+
+    struct {
+        source: str,
+        line: 1,
+    };
+<
+Function definitions, calls, and arrays ~
+>
+    fn function_def(values: []u8, s: str) void = {};
+    fn function_def(
+        values: []u8,
+        s: str,
+    ) void = {};
+
+    function_call(values: []u8, s: str);
+    function_call(
+        values: []u8,
+        s: str,
+    );
+
+    let x = [1, 2, 3];
+    let x = [
+        1,
+        2,
+        3,
+    ];
+<
+Question mark operator ~
+>
+    const num = getnumber()?;
+
+    const num = match (getnumber()) {
+    case error => abort();
+    case let t: type =>
+        yield t;
+    };
+<
+Note that, at the moment, only splitting question marks is supported, joining
+an appropriate match expression into a question-mark operator is not.
+
 
 ==============================================================================
 HTML                                                            *splitjoin-html*
