@@ -1113,7 +1113,7 @@ endfunction
 
 function! sj#ruby#JoinOnelineDef()
   " adapted from vim-ruby
-  if search('\<def\s\+\%(\k\+\.\)\=\k\+[!?]\=\%((.*)\)\s*\%(#.*\)\=$', 'Wbc', line('.')) <= 0
+  if search('\<def\s\+\%(\k\+\.\)\=\k\+[!?]\=\s*\%((.*)\)\=\s*\%(#.*\)\=$', 'Wbc', line('.')) <= 0
     return 0
   endif
 
