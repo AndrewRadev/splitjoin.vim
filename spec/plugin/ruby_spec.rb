@@ -1901,5 +1901,47 @@ describe "ruby" do
         def foo(one, two) = bar
       EOF
     end
+
+    specify "with the cursor on a definition without arguments" do
+      set_file_contents <<~EOF
+        def foo = bar
+      EOF
+
+      vim.search 'def'
+      split
+
+      assert_file_contents <<~EOF
+        def foo
+          bar
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        def foo = bar
+      EOF
+    end
+
+    specify "with the cursor on a definition arguments defaults" do
+      set_file_contents <<~EOF
+        def self.foo(bar = quux(42), ...) = bar
+      EOF
+
+      vim.search 'def'
+      split
+
+      assert_file_contents <<~EOF
+        def self.foo(bar = quux(42), ...)
+          bar
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        def self.foo(bar = quux(42), ...) = bar
+      EOF
+    end
   end
 end
