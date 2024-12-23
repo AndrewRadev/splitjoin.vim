@@ -99,6 +99,8 @@ function! sj#python#SplitImport()
     return 0
   endif
 
+  let import_lineno = line('.')
+  let indent = indent('.')
   let import_list = sj#GetMotion('vg_')
 
   if stridx(import_list, ',') < 0
@@ -106,14 +108,44 @@ function! sj#python#SplitImport()
   endif
 
   let imports = split(import_list, ',\s*')
+  let import_style = sj#settings#Read('python_import_style')
 
-  call sj#ReplaceMotion('vg_', join(imports, ",\\\n"))
+  if import_style == 'newline_escape'
+    " from foo import bar,\
+    "   baz
+    call sj#ReplaceMotion('vg_', join(imports, ",\\\n"))
+  elseif import_style == 'round_brackets'
+    " from foo import (
+    "   bar,
+    "   baz
+    " )
+    let replacement = join(imports, ",\n")
+    if sj#settings#Read('python_brackets_on_separate_lines')
+      if sj#settings#Read('trailing_comma')
+        let replacement .= ','
+      endif
+      let replacement = "(\n"..replacement.."\n)"
+    else
+      let replacement = "("..replacement..")"
+    endif
+    call sj#ReplaceMotion('vg_', replacement)
+
+    if sj#settings#Read('python_brackets_on_separate_lines')
+      " number of imports plus one for the round bracket
+      let last_lineno = import_lineno + len(imports) + 1
+
+      call sj#SetIndent(import_lineno + 1, last_lineno - 1, indent + shiftwidth())
+      call sj#SetIndent(last_lineno, last_lineno, indent)
+    endif
+  else
+    echoerr "Unknown splitjoin_python_import_style: "..import_style
+  endif
+
   return 1
 endfunction
 
-function! sj#python#JoinImport()
+function! sj#python#JoinImportWithNewlineEscape()
   let import_pattern = '^from \%(.*\) import .*\\\s*$'
-
   if getline('.') !~ import_pattern
     return 0
   endif
@@ -128,6 +160,21 @@ function! sj#python#JoinImport()
   let end_lineno = current_lineno
 
   exe start_lineno.','.end_lineno.'s/,\\\n\s*/, /e'
+  return 1
+endfunction
+
+function! sj#python#JoinImportWithRoundBrackets()
+  let import_pattern = '^from \%(.*\) import \zs('
+  if search(import_pattern, 'Wc') <= 0
+    return 0
+  endif
+
+  let import_body = sj#GetMotion('vi(')
+  let imports = split(import_body, ',\_s*')
+  let replacement = sj#Trim(join(imports, ', '))
+  let replacement = substitute(replacement, ',$', '', '')
+
+  call sj#ReplaceMotion('va(', replacement)
   return 1
 endfunction
 

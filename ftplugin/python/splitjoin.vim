@@ -20,7 +20,8 @@ if !exists('b:splitjoin_join_callbacks')
         \ 'sj#python#JoinArray',
         \ 'sj#python#JoinTernaryAssignment',
         \ 'sj#python#JoinStatement',
-        \ 'sj#python#JoinImport',
+        \ 'sj#python#JoinImportWithNewlineEscape',
+        \ 'sj#python#JoinImportWithRoundBrackets',
         \ 'sj#python#JoinAssignment',
         \ ]
 endif

@@ -1000,6 +1000,11 @@ Imports ~
 
     from foo import bar,\
             baz
+    " or, depending on `g:splitjoin_python_import_style`:
+    from foo import (
+        bar,
+        baz,
+    )
 <
 Ternary assignment ~
 >
@@ -1990,6 +1995,29 @@ Example:
 The first example might look a bit odd, but if you have the python-pep8-indent
 plugin (https://github.com/hynek/vim-python-pep8-indent), it should look quite
 reasonable.
+
+
+                                                 *splitjoin_python_import_style*
+>
+    let g:splitjoin_python_import_style = 'round_brackets'
+<
+Default value: 'newline_escape'
+
+The default splitting for python imports is to add line escapes after the
+commas. I have no idea why I originally implemented it like this, but it seems
+perfectly acceptable to just surround the imports in round brackets. Example:
+>
+    " Style: 'newline_escape':
+    from foo import bar,\
+            baz
+
+    " Style: 'round_brackets':
+    from foo import (
+        bar,
+        baz,
+    )
+<
+The default is "newline_escape" since it's been this way for a long time.
 
 
                              *splitjoin_handlebars_closing_bracket_on_same_line*

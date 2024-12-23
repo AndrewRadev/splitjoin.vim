@@ -32,6 +32,7 @@ let g:splitjoin_default_settings = {
       \ 'perl_brace_on_same_line':                 1,
       \ 'php_method_chain_full':                   0,
       \ 'python_brackets_on_separate_lines':       0,
+      \ 'python_import_style':                     'newline_escape',
       \ 'handlebars_closing_bracket_on_same_line': 0,
       \ 'handlebars_hanging_arguments':            0,
       \ 'html_attribute_bracket_on_new_line':      0,

@@ -72,8 +72,30 @@ describe "python" do
     EOF
 
     join
-
     assert_file_contents 'from foo import bar, baz'
+
+    vim.command 'let b:splitjoin_python_import_style = "round_brackets"'
+    split
+
+    assert_file_contents <<~EOF
+      from foo import (bar,
+                       baz)
+    EOF
+
+    join
+    assert_file_contents 'from foo import bar, baz'
+
+    vim.command 'let b:splitjoin_python_brackets_on_separate_lines = 1'
+    split
+
+    assert_file_contents <<~EOF
+      from foo import (
+          bar,
+          baz
+      )
+    EOF
+
+    join
   end
 
   specify "statements" do
