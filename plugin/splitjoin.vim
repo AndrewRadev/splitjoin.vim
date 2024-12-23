@@ -38,6 +38,7 @@ let g:splitjoin_default_settings = {
       \ 'java_argument_split_first_newline':       0,
       \ 'java_argument_split_last_newline':        0,
       \ 'vim_split_whitespace_after_backslash':    1,
+      \ 'fasta_textwidth':                         0,
       \ }
 
 if !exists('g:splitjoin_join_mapping')

@@ -14,11 +14,12 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Elixir.................................: |splitjoin-elixir|
     Elm....................................: |splitjoin-elm|
     Eruby..................................: |splitjoin-eruby|
+    FASTA..................................: |splitjoin-fasta|
     Go.....................................: |splitjoin-go|
     HAML...................................: |splitjoin-haml|
+    HTML...................................: |splitjoin-html|
     Handlebars.............................: |splitjoin-handlebars|
     Hare...................................: |splitjoin-hare|
-    HTML...................................: |splitjoin-html|
     Java...................................: |splitjoin-java|
     Javascript.............................: |splitjoin-javascript| |splitjoin-json|
     JSX/TSX................................: |splitjoin-jsx| |splitjoin-tsx|
@@ -511,6 +512,20 @@ Option hashes ~
       :class => 'google',
       :id => 'google-link'
     } %>
+<
+
+==============================================================================
+FASTA                                                          *splitjoin-fasta*
+
+Sequences ~
+>
+    > E.coli_K12 Cysteine--tRNA ligase
+    MLKIFNTLTRQKEEFKPIHAGEVGMYVCGITVYDLCHIGHGRTFVAFDVVARYLRFLGYKLKYVRNITDIDDK...
+
+    > E.coli_K12 Cysteine--tRNA ligase
+    MLKIFNTLTRQKEEFKPIHAGEVGMYVCGITVYDLCHIGHGRTFVAFDVVARYLRFLGYK
+    LKYVRNITDIDDKIIKRANENGESFVAMVDRMIAEMHKDFDALNILRPDMEPRATHHIAE
+    ...
 <
 
 ==============================================================================
@@ -2131,6 +2146,18 @@ Whether to leave a single space after the `\` of a line break. In many cases,
 when breaking a line, one space is left between the backslash and the line
 part. However, if it's broken at a `.`, it could cause parsing problems. Not
 leaving a space might be safer, set to 0 to do that.
+
+
+                                                     *splitjoin_fasta_textwidth*
+>
+    let g:splitjoin_fasta_textwidth = 100
+<
+Default value: 0
+
+Fasta files get split into lines based on textwidth. If this variable is set
+to anything greater than 0, that will be considered the desired textwidth.
+Otherwise, the built-in 'textwidth' will be used. If that's set to 0, the
+plugin will arbitrarily use 100 as the threshold.
 
 
 ==============================================================================
