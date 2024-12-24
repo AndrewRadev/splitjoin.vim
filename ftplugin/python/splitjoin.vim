@@ -14,14 +14,14 @@ endif
 
 if !exists('b:splitjoin_join_callbacks')
   let b:splitjoin_join_callbacks = [
+        \ 'sj#python#JoinImportWithNewlineEscape',
+        \ 'sj#python#JoinImportWithRoundBrackets',
         \ 'sj#python#JoinMultilineString',
         \ 'sj#python#JoinTuple',
         \ 'sj#python#JoinDict',
         \ 'sj#python#JoinArray',
         \ 'sj#python#JoinTernaryAssignment',
         \ 'sj#python#JoinStatement',
-        \ 'sj#python#JoinImportWithNewlineEscape',
-        \ 'sj#python#JoinImportWithRoundBrackets',
         \ 'sj#python#JoinAssignment',
         \ ]
 endif
