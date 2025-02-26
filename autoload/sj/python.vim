@@ -103,10 +103,6 @@ function! sj#python#SplitImport()
   let indent = indent('.')
   let import_list = sj#GetMotion('vg_')
 
-  if stridx(import_list, ',') < 0
-    return 0
-  endif
-
   let imports = split(import_list, ',\s*')
   let import_style = sj#settings#Read('python_import_style')
 
@@ -497,7 +493,6 @@ function! sj#python#JoinMultilineString()
   return 1
 endfunction
 
-
 function! s:SplitList(regex, opening_char, closing_char)
   let [from, to] = sj#LocateBracesAroundCursor(a:opening_char, a:closing_char, ['pythonString'])
   if from < 0 && to < 0
@@ -507,7 +502,7 @@ function! s:SplitList(regex, opening_char, closing_char)
   call sj#PushCursor()
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
-  if len(items) <= 1
+  if len(items) < 1
     call sj#PopCursor()
     return 0
   endif
