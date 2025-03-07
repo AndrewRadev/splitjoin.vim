@@ -317,6 +317,7 @@ endfunction
 function! sj#python#JoinTernaryAssignment()
   let include_syntax = sj#IncludeSyntax(['pythonConditional'])
   let start_lineno = line('.')
+  let indent = indent('.')
   normal! 0
 
   if sj#SearchSkip('^\s*\zsif\>', include_syntax, 'Wc', line('.')) <= 0
@@ -356,6 +357,7 @@ function! sj#python#JoinTernaryAssignment()
 
   let body = lhs_if_true . ' ' . body_if_true . ' ' . if_clause . ' else ' . body_if_false
   call sj#ReplaceLines(start_lineno, start_lineno + 3, body)
+  call sj#SetIndent(start_lineno, start_lineno, indent)
 
   return 1
 endfunction
