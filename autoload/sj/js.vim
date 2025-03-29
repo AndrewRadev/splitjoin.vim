@@ -12,7 +12,7 @@ function! sj#js#SplitObjectLiteral()
 
   let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
   let body = join(pairs, ",\n")
-  if sj#settings#Read('trailing_comma')
+  if sj#settings#Read('trailing_comma') && len(body) > 0
     let body .= ','
   endif
   let body  = "{\n".body."\n}"
@@ -60,7 +60,7 @@ function! sj#js#JoinObjectLiteral()
     let body = join(lines, ' ')
     let body = substitute(body, ',$', '', '')
 
-    if sj#settings#Read('curly_brace_padding')
+    if sj#settings#Read('curly_brace_padding') && len(body) > 0
       let body = '{ '.body.' }'
     else
       let body = '{'.body.'}'
@@ -168,10 +168,8 @@ function! s:SplitList(delimiter, cursor_position)
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
   if empty(items)
-    return 0
-  endif
-
-  if sj#settings#Read('trailing_comma')
+    let body = start."\n".end
+  elseif sj#settings#Read('trailing_comma')
     let body = start."\n".join(items, ",\n").",\n".end
   else
     let body = start."\n".join(items, ",\n")."\n".end

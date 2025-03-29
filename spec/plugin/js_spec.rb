@@ -192,59 +192,102 @@ describe "javascript" do
     end
   end
 
-  specify "object literals" do
-    set_file_contents "{ one: two, 'three': four }"
+  describe "object literals" do
+    specify "basic" do
+      set_file_contents "{ one: two, 'three': four }"
 
-    vim.search '{'
-    split
+      vim.search '{'
+      split
 
-    # Fix issue with inconsistent indenting
-    vim.normal 'gg<G'
-    vim.write
+      # Fix issue with inconsistent indenting
+      vim.normal 'gg<G'
+      vim.write
 
-    assert_file_contents <<~EOF
-      {
-      one: two,
-      'three': four
-      }
-    EOF
+      assert_file_contents <<~EOF
+        {
+        one: two,
+        'three': four
+        }
+      EOF
 
-    join
+      join
 
-    assert_file_contents "{ one: two, 'three': four }"
+      assert_file_contents "{ one: two, 'three': four }"
+    end
+
+    specify "empty" do
+      set_file_contents "foo = {}"
+
+      vim.search '{'
+      split
+
+      # Fix issue with inconsistent indenting
+      vim.normal 'gg<G'
+      vim.write
+
+      assert_file_contents <<~EOF
+        foo = {
+
+        }
+      EOF
+
+      join
+
+      assert_file_contents "foo = {}"
+    end
   end
 
-  specify "lists" do
-    set_file_contents "[ 'one', 'two', 'three', 'four' ]"
+  describe "lists" do
+    specify "basic" do
+      set_file_contents "[ 'one', 'two', 'three', 'four' ]"
 
-    vim.search '['
-    split
+      vim.search '['
+      split
 
-    assert_file_contents <<~EOF
-      [
-        'one',
-        'two',
-        'three',
-        'four'
-      ]
-    EOF
+      assert_file_contents <<~EOF
+        [
+          'one',
+          'two',
+          'three',
+          'four'
+        ]
+      EOF
 
-    join
+      join
 
-    assert_file_contents "['one', 'two', 'three', 'four']"
-  end
+      assert_file_contents "['one', 'two', 'three', 'four']"
+    end
 
-  specify "lists (with trailing comma)" do
-    set_file_contents <<~EOF
-      [
-        'one',
-        'two',
-      ]
-    EOF
+    specify "with trailing comma" do
+      set_file_contents <<~EOF
+        [
+          'one',
+          'two',
+        ]
+      EOF
 
-    join
+      join
 
-    assert_file_contents "['one', 'two']"
+      assert_file_contents "['one', 'two']"
+    end
+
+    specify "empty" do
+      set_file_contents "foo = []"
+      vim.search('[')
+
+      split
+
+      assert_file_contents <<~EOF
+        foo = [
+        ]
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        foo = []
+      EOF
+    end
   end
 
   specify "functions" do
