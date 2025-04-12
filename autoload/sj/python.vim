@@ -92,7 +92,7 @@ function! sj#python#JoinTuple()
 endfunction
 
 function! sj#python#SplitImport()
-  let import_pattern = '^from \%(.*\) import \zs.*$'
+  let import_pattern = '^\s*from \%(.*\) import \zs.*$'
 
   normal! 0
   if search(import_pattern, 'Wc', line('.')) <= 0
@@ -141,7 +141,7 @@ function! sj#python#SplitImport()
 endfunction
 
 function! sj#python#JoinImportWithNewlineEscape()
-  let import_pattern = '^from \%(.*\) import .*\\\s*$'
+  let import_pattern = '^\s*from \%(.*\) import .*\\\s*$'
   if getline('.') !~ import_pattern
     return 0
   endif
@@ -160,7 +160,7 @@ function! sj#python#JoinImportWithNewlineEscape()
 endfunction
 
 function! sj#python#JoinImportWithRoundBrackets()
-  let import_pattern = '^from \%(.*\) import \zs('
+  let import_pattern = '^\s*from \%(.*\) import \zs('
   if search(import_pattern, 'Wc') <= 0
     return 0
   endif

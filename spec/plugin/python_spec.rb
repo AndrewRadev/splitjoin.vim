@@ -62,37 +62,50 @@ describe "python" do
   end
 
   specify "imports" do
-    set_file_contents 'from foo import bar, baz'
+    set_file_contents <<~EOF
+      def surrounding_function():
+          from foo import bar, baz
+    EOF
 
+    vim.search('from foo')
     split
 
     assert_file_contents <<~EOF
-      from foo import bar,\\
-              baz
+      def surrounding_function():
+          from foo import bar,\\
+                  baz
     EOF
 
     join
-    assert_file_contents 'from foo import bar, baz'
+    assert_file_contents <<~EOF
+      def surrounding_function():
+          from foo import bar, baz
+    EOF
 
     vim.command 'let b:splitjoin_python_import_style = "round_brackets"'
     split
 
     assert_file_contents <<~EOF
-      from foo import (bar,
-                       baz)
+      def surrounding_function():
+          from foo import (bar,
+                           baz)
     EOF
 
     join
-    assert_file_contents 'from foo import bar, baz'
+    assert_file_contents <<~EOF
+      def surrounding_function():
+          from foo import bar, baz
+    EOF
 
     vim.command 'let b:splitjoin_python_brackets_on_separate_lines = 1'
     split
 
     assert_file_contents <<~EOF
-      from foo import (
-          bar,
-          baz
-      )
+      def surrounding_function():
+          from foo import (
+              bar,
+              baz
+          )
     EOF
 
     join
