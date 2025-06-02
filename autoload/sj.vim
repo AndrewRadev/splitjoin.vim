@@ -548,6 +548,10 @@ function! sj#SearchSkip(pattern, skip, ...)
   return match
 endfunction
 
+function! sj#GetCursorSyntax() abort
+  return synIDattr(synID(line('.'), col('.'), 1), 'name')
+endfunction
+
 function! sj#SkipSyntax(syntax_groups)
   let syntax_groups = a:syntax_groups
   let skip_pattern  = '\%('.join(syntax_groups, '\|').'\)'

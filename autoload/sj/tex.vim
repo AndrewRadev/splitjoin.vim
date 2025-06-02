@@ -46,7 +46,13 @@ function! sj#tex#JoinBlock()
 
   let block = sj#GetByPosition(start, end)
 
-  let pattern = '^\(\\begin{'.arg_pattern.'\{-}}'.opts_pattern.'\)\_s\+\(.\{-}\)\_s\+\(\\end{'.arg_pattern.'\{-}}\)$'
+  let pattern =
+        \ '^\(\\begin{'..arg_pattern..'\{-}}'..
+        \ opts_pattern..
+        \ '\)\_s\+\(.\{-}\)\_s\+\(\\end{'..
+        \ arg_pattern..
+        \ '\{-}}\)$'
+
   let match = matchlist(block, pattern)
   if empty(match)
     return 0
@@ -65,5 +71,41 @@ function! sj#tex#JoinBlock()
   let replacement = open." ".body." ".close
 
   call sj#ReplaceByPosition(start, end, replacement)
+  return 1
+endfunction
+
+function! sj#tex#SplitCommand()
+  " If on currently on a command, find opening bracket:
+  if sj#GetCursorSyntax() == 'texStatement'
+    call search('\%#\\\=\k\+{', 'e')
+  endif
+
+  let [from, to] = sj#LocateBracesAroundCursor('{', '}', ['texSpecialChar'])
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  let body = sj#GetCols(from + 1, to - 1)
+  call sj#ReplaceCols(from + 1, to - 1, "\n"..sj#Trim(body).."\n")
+  normal! =2j
+
+  return 1
+endfunction
+
+function! sj#tex#JoinCommand()
+  " If on currently on a command, find opening bracket:
+  if sj#GetCursorSyntax() == 'texStatement'
+    call search('\%#\\\=\k\+{', 'e')
+  endif
+
+  " Check if we're on a '{' that is really a delimiter:
+  if sj#GetCursorSyntax() != 'texDelimiter'
+    return
+  endif
+
+  let body = sj#GetMotion('vi{')
+  let replacement = join(sj#TrimList(split(body, "\n")), ' ')
+  call sj#ReplaceMotion('va{', '{'..replacement..'}')
+
   return 1
 endfunction
