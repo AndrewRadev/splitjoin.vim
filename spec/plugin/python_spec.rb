@@ -64,6 +64,23 @@ describe "python" do
     assert_file_contents 'spam = [1, [2, 3], 4]'
   end
 
+  specify "function arguments" do
+    set_file_contents 'spam = callable(one, [2, 3], four)'
+
+    vim.search 'callable'
+    split
+
+    assert_file_contents <<~EOF
+      spam = callable(one,
+                      [2, 3],
+                      four)
+    EOF
+
+    join
+
+    assert_file_contents 'spam = callable(one, [2, 3], four)'
+  end
+
   specify "imports" do
     set_file_contents <<~EOF
       def surrounding_function():

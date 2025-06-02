@@ -87,8 +87,20 @@ function! sj#python#SplitTuple()
   return s:SplitList('(.\{-})', '(', ')')
 endfunction
 
+function! sj#python#SplitArgs()
+  if search('\%#[[:keyword:].]\+(', 'e', line('.'))
+    return sj#python#SplitTuple()
+  endif
+endfunction
+
 function! sj#python#JoinTuple()
   return s:JoinList('([^()]*\s*$', '(', ')')
+endfunction
+
+function! sj#python#JoinArgs()
+  if search('\%#[[:keyword:].]\+(', 'e', line('.'))
+    return sj#python#JoinTuple()
+  endif
 endfunction
 
 function! sj#python#SplitImport()
