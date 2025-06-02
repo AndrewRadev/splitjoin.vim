@@ -6,6 +6,9 @@ describe "python" do
   before :each do
     vim.set(:expandtab)
     vim.set(:shiftwidth, 4)
+
+    vim.command 'unlet! b:splitjoin_python_import_style'
+    vim.command 'unlet! b:splitjoin_python_brackets_on_separate_lines'
   end
 
   specify "dictionaries" do
@@ -279,6 +282,30 @@ describe "python" do
 
     assert_file_contents <<~EOF
       out = {"one": "two", "key": ("three", "four")}
+    EOF
+  end
+
+  specify "tuple within tuple" do
+    set_file_contents <<~EOF
+      out = Foo(Bar(baz, bla))
+    EOF
+
+    vim.command 'let b:splitjoin_python_brackets_on_separate_lines = 1'
+    vim.search('baz')
+    split
+
+    assert_file_contents <<~EOF
+      out = Foo(Bar(
+          baz,
+          bla
+          ))
+    EOF
+
+    vim.search('Bar\zs(')
+    join
+
+    assert_file_contents <<~EOF
+      out = Foo(Bar(baz, bla))
     EOF
   end
 

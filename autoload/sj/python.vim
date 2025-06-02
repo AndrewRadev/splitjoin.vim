@@ -88,7 +88,7 @@ function! sj#python#SplitTuple()
 endfunction
 
 function! sj#python#JoinTuple()
-  return s:JoinList('([^)]*\s*$', '(', ')')
+  return s:JoinList('([^()]*\s*$', '(', ')')
 endfunction
 
 function! sj#python#SplitImport()
