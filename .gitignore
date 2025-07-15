@@ -2,3 +2,4 @@ _project.vim
 tags
 doc/tags
 tmp/
+Gemfile.lock
