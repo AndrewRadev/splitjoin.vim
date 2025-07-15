@@ -277,6 +277,15 @@ describe "python" do
     assert_file_contents <<~EOF
       out = ("one", {"two": "three"}, "four")
     EOF
+
+    vim.search('two')
+    split
+
+    assert_file_contents <<~EOF
+      out = ("one", {
+          "two": "three"
+          }, "four")
+    EOF
   end
 
   specify "tuple within dictionary" do
