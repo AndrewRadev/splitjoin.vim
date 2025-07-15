@@ -53,26 +53,23 @@ endfunction
 function! sj#python#JoinDict()
   let line = getline('.')
 
-  if line =~ '{\s*$'
-    call search('{', 'c', line('.'))
-    let body = sj#GetMotion('Vi{')
-
-    let lines = sj#TrimList(split(body, "\n"))
-    if sj#settings#Read('normalize_whitespace')
-      let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
-    endif
-
-    let body = join(lines, ' ')
-    if sj#settings#Read('trailing_comma')
-      let body = substitute(body, ',\?$', '', '')
-    endif
-
-    call sj#ReplaceMotion('Va{', '{'.body.'}')
-
-    return 1
-  else
+  if line !~ '{\s*$'
     return 0
   endif
+
+  call search('{', 'c', line('.'))
+  let body = sj#GetMotion('Vi{')
+
+  let lines = sj#TrimList(split(body, "\n"))
+  if sj#settings#Read('normalize_whitespace')
+    let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
+  endif
+
+  let body = join(lines, ' ')
+  let body = substitute(body, ',\?$', '', '')
+
+  call sj#ReplaceMotion('Va{', '{'.body.'}')
+  return 1
 endfunction
 
 function! sj#python#SplitArray()
