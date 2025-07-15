@@ -4,6 +4,7 @@ describe "go" do
   let(:filename) { 'test.go' }
 
   before :each do
+    vim.command 'let g:go_recommended_style = 0'
     vim.set(:expandtab)
     vim.set(:shiftwidth, 2)
   end
