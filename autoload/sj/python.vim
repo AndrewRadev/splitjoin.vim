@@ -544,11 +544,7 @@ function! s:JoinList(regex, opening_char, closing_char)
   let body = sj#GetMotion('va'.a:opening_char)
   let body = substitute(body, '\_s\+', ' ', 'g')
   let body = substitute(body, '^'.a:opening_char.'\s\+', a:opening_char, '')
-  if sj#settings#Read('trailing_comma')
-    let body = substitute(body, ',\?\s\+'.a:closing_char.'$', a:closing_char, '')
-  else
-    let body = substitute(body, '\s\+'.a:closing_char.'$', a:closing_char, '')
-  endif
+  let body = substitute(body, ',\?\s\+'.a:closing_char.'$', a:closing_char, '')
 
   call sj#ReplaceMotion('va'.a:opening_char, body)
 
