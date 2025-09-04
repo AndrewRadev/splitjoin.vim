@@ -360,6 +360,48 @@ describe "python" do
     EOF
   end
 
+  specify "split prioritization based on cursor position" do
+    set_file_contents "spam = {'spam': [1, 2, 3], 'spam, spam': mix('eggs', 'ham')}"
+
+    vim.search('{')
+    split
+
+    assert_file_contents <<~EOF
+      spam = {
+              'spam': [1, 2, 3],
+              'spam, spam': mix('eggs', 'ham')
+              }
+    EOF
+    join
+
+    vim.search('[')
+    split
+
+    assert_file_contents <<~EOF
+      spam = {'spam': [1,
+                       2,
+                       3], 'spam, spam': mix('eggs', 'ham')}
+    EOF
+    join
+
+    vim.search('mix(')
+    split
+
+    assert_file_contents <<~EOF
+      spam = {'spam': [1, 2, 3], 'spam, spam': mix('eggs',
+                                                   'ham')}
+    EOF
+    join
+
+    vim.search('(')
+    split
+
+    assert_file_contents <<~EOF
+      spam = {'spam': [1, 2, 3], 'spam, spam': mix('eggs',
+                                                   'ham')}
+    EOF
+  end
+
   describe "strings" do
     it "joins ''' strings into single-quoted strings" do
       set_file_contents <<~EOF

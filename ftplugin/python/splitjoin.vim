@@ -2,12 +2,10 @@ if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
         \ 'sj#python#SplitString',
         \ 'sj#python#SplitListComprehension',
-        \ 'sj#python#SplitDict',
-        \ 'sj#python#SplitTuple',
         \ 'sj#python#SplitArgs',
+        \ 'sj#python#SplitBracketedItem',
         \ 'sj#python#SplitAssignment',
         \ 'sj#python#SplitTernaryAssignment',
-        \ 'sj#python#SplitArray',
         \ 'sj#python#SplitStatement',
         \ 'sj#python#SplitImport',
         \ ]

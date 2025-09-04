@@ -19,6 +19,23 @@ function! sj#python#JoinStatement()
   endif
 endfunction
 
+function! sj#python#SplitBracketedItem() abort
+  let closest_bracket_line = search('[{([]', 'bcW', line('.'), 0, s:skip)
+  if closest_bracket_line <= 0
+    return
+  endif
+
+  let bracket = getline('.')[col('.') - 1]
+
+  if bracket == '('
+    return sj#python#SplitTuple()
+  elseif bracket == '['
+    return sj#python#SplitArray()
+  elseif bracket == '{'
+    return sj#python#SplitDict()
+  endif
+endfunction
+
 function! sj#python#SplitDict()
   let [from, to] = sj#LocateBracesAroundCursor('{', '}', ['pythonString'])
 
