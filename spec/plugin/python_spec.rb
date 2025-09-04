@@ -562,5 +562,29 @@ describe "python" do
         """, three)
       EOF
     end
+
+    it "handles multiple strings on one line " do
+      set_file_contents 'string = "foo" + "bar"'
+
+      vim.search '"foo'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+            foo
+        """ + "bar"
+      EOF
+      join
+
+      vim.search '"bar'
+      split
+
+      assert_file_contents <<~EOF
+        string = "foo" + """
+            bar
+        """
+      EOF
+      join
+    end
   end
 end

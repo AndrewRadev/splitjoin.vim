@@ -394,7 +394,7 @@ function! sj#python#SplitString()
     return 0
   endif
 
-  let string_pattern       = '\(\%(^\|[^\\]\)\zs\([''"]\)\).\{-}[^\\]\+\2'
+  let string_pattern       = '\%(^\|[^\\]\)\zs\([''"]\+\).\{-}[^\\]\1'
   let empty_string_pattern = '\%(''''\|""\)'
 
   let lineno = line('.')
