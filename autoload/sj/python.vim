@@ -246,6 +246,7 @@ function! sj#python#JoinAssignment()
   endif
 
   let start_line = line('.')
+  let start_line_indent = indent('.')
   let [first_variable, first_value] = split(getline('.'), assignment_pattern)
   let variables = [ first_variable ]
   let values = [ first_value ]
@@ -255,7 +256,9 @@ function! sj#python#JoinAssignment()
   while next_line > 0 && next_line <= line('$')
     exe next_line
 
-    if search(assignment_pattern, 'W', line('.')) <= 0
+    if indent('.') != start_line_indent
+      break
+    elseif search(assignment_pattern, 'W', line('.')) <= 0
       break
     else
       let [variable, value] = split(getline(next_line), assignment_pattern)
