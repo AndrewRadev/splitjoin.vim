@@ -102,7 +102,7 @@ function! sj#python#SplitTuple()
 endfunction
 
 function! sj#python#SplitArgs()
-  if search('\%#[[:keyword:].]\+(', 'e', line('.'))
+  if search('\%#[[:keyword:].=]\+(', 'e', line('.'))
     return sj#python#SplitTuple()
   endif
 endfunction
@@ -112,7 +112,7 @@ function! sj#python#JoinTuple()
 endfunction
 
 function! sj#python#JoinArgs()
-  if search('\%#[[:keyword:].]\+(', 'e', line('.'))
+  if search('\%#[[:keyword:].=]\+(', 'e', line('.'))
     return sj#python#JoinTuple()
   endif
 endfunction

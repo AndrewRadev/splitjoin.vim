@@ -47,6 +47,22 @@ describe "python" do
     assert_file_contents "spam = {spam: [1, 2, 3], 'spam, spam': 'eggs'}"
   end
 
+  specify "a dictionary passed to a named variable" do
+    set_file_contents "function_call(spam=dict(eggs=[1, 2], ham=[3, 4])))"
+
+    vim.search 'spam='
+    split
+
+    assert_file_contents <<~EOF
+      function_call(spam=dict(eggs=[1, 2],
+                              ham=[3, 4])))
+    EOF
+
+    join
+
+    assert_file_contents "function_call(spam=dict(eggs=[1, 2], ham=[3, 4])))"
+  end
+
   specify "lists" do
     set_file_contents 'spam = [1, [2, 3], 4]'
 
