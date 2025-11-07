@@ -2,18 +2,12 @@
 let s:skip = sj#SkipSyntax(['cComment', 'cCommentL', 'cString', 'cCppString', 'cBlock'])
 
 function! sj#c#SplitFuncall()
-  if sj#SearchUnderCursor('(.\{-})', '', s:skip) <= 0
+  let [from, to] = sj#LocateBracesAroundCursor('(', ')', s:skip)
+  if from < 0 && to < 0
     return 0
   endif
 
-  call sj#PushCursor()
-
-  normal! l
-  let start = col('.')
-  normal! h%h
-  let end = col('.')
-
-  let items = sj#ParseJsonObjectBody(start, end)
+  let items = sj#ParseJsonObjectBody(from + 1, to - 1)
 
   let body = "("
   if sj#settings#Read('c_argument_split_first_newline')
@@ -27,8 +21,6 @@ function! sj#c#SplitFuncall()
   else
     let body .= ")"
   endif
-
-  call sj#PopCursor()
 
   call sj#ReplaceMotion('va(', body)
   return 1

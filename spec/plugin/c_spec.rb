@@ -25,7 +25,7 @@ describe "c" do
     assert_file_contents "if (val1 && val2 || val3);"
   end
 
-  specify "function_call" do
+  specify "function call" do
     set_file_contents "myfunction(lots, of, different, parameters)"
 
     vim.search '('
@@ -41,6 +41,24 @@ describe "c" do
     join
 
     assert_file_contents "myfunction(lots, of, different, parameters)"
+  end
+
+  specify "nested function call" do
+    set_file_contents "myfunction(other_function(lots, of, different, parameters))"
+
+    vim.search 'lots'
+    split
+
+    assert_file_contents <<~EOF
+      myfunction(other_function(lots,
+            of,
+            different,
+            parameters))
+    EOF
+
+    join
+
+    assert_file_contents "myfunction(other_function(lots, of, different, parameters))"
   end
 
   specify "ignores strings" do

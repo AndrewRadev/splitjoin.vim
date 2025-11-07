@@ -705,7 +705,13 @@ function! sj#LocateBracesOnLine(open, close, ...)
 
   " optional skip parameter
   if a:0 > 0
-    let skip = sj#SkipSyntax(a:1)
+    if type(a:1) == type([])
+      " it's a list of groups, convert it to a skip expression:
+      let skip = sj#SkipSyntax(a:1)
+    else
+      " use the skip expression as-is
+      let skip = a:1
+    endif
   else
     let skip = ''
   endif
