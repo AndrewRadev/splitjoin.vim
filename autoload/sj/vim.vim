@@ -46,9 +46,8 @@ function! sj#vim#Join()
   endif
 
   if next_line =~ continuation_pattern.'\s'
-    " Then there's some whitespace after the \, rely on :join
-    keeppatterns exe next_lineno.'s/'.continuation_pattern.'//'
-    exe current_lineno.','.next_lineno.'join'
+    " Then there's some whitespace after the \, join with a space
+    keeppatterns exe current_lineno.'s/\n'.continuation_pattern.'\s*/ /'
   else
     " No whitespace, let's join them directly
     keeppatterns exe current_lineno.'s/\n'.continuation_pattern.'//'

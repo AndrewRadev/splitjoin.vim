@@ -67,4 +67,21 @@ describe "vim" do
       let foo = 2+2
     EOF
   end
+
+  # Fix for https://github.com/AndrewRadev/splitjoin.vim/issues/216
+  specify "backslashes interpreted as a comment" do
+    set_file_contents <<~EOF
+      let foo = foo(
+            \\ '!#;'.var,
+            \\ \#{curwin: 0})
+    EOF
+
+    vim.search('var')
+    join
+
+    assert_file_contents <<~EOF
+      let foo = foo(
+            \\ '!#;'.var, \#{curwin: 0})
+    EOF
+  end
 end
