@@ -63,6 +63,21 @@ describe "python" do
     assert_file_contents "function_call(spam=dict(eggs=[1, 2], ham=[3, 4])))"
   end
 
+  specify "joining mixed lists" do
+    set_file_contents <<~EOF
+      md = MultiDict([
+          ('bioreplicates', b1.id),
+      ])
+    EOF
+
+    vim.search 'MultiDict'
+    join
+
+    assert_file_contents <<~EOF
+      md = MultiDict([('bioreplicates', b1.id)])
+    EOF
+  end
+
   specify "lists" do
     set_file_contents 'spam = [1, [2, 3], 4]'
 
@@ -188,8 +203,6 @@ describe "python" do
   end
 
   specify "splitting within a string" do
-    pending "Old version on CI" if ENV['CI']
-
     set_file_contents <<~EOF
       run("one", "two", "three {}".format(four))
     EOF
@@ -205,8 +218,6 @@ describe "python" do
   end
 
   specify "chained method calls" do
-    pending "Old version on CI" if ENV['CI']
-
     set_file_contents <<~EOF
       SomeModel.objects.filter(asdf=1, qwer=2).exclude(zxcv=2, tyui=3)
     EOF
@@ -272,8 +283,6 @@ describe "python" do
   end
 
   specify "dictionary within tuple" do
-    pending "Old version on CI" if ENV['CI']
-
     set_file_contents <<~EOF
       out = ("one", {"two": "three"}, "four")
     EOF
@@ -352,8 +361,6 @@ describe "python" do
   end
 
   specify "list comprehensions" do
-    pending "Old version on CI" if ENV['CI']
-
     set_file_contents <<~EOF
       result = [x * y for x in range(1, 10) for y in range(10, 20) if x != y]
     EOF

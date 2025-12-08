@@ -36,6 +36,23 @@ function! sj#python#SplitBracketedItem() abort
   endif
 endfunction
 
+function! sj#python#JoinBracketsAtEOL() abort
+  let final_bracket_on_line = search('[{([]$', 'cW', line('.'), 0, s:skip)
+  if final_bracket_on_line <= 0
+    return
+  endif
+
+  let bracket = getline('.')[col('.') - 1]
+
+  if bracket == '('
+    return sj#python#JoinTuple()
+  elseif bracket == '['
+    return sj#python#JoinArray()
+  elseif bracket == '{'
+    return s:JoinDict()
+  endif
+endfunction
+
 function! sj#python#SplitDict()
   let [from, to] = sj#LocateBracesAroundCursor('{', '}', ['pythonString'])
 
@@ -65,28 +82,6 @@ function! sj#python#SplitDict()
 
     return 1
   endif
-endfunction
-
-function! sj#python#JoinDict()
-  let line = getline('.')
-
-  if line !~ '{\s*$'
-    return 0
-  endif
-
-  call search('{', 'c', line('.'))
-  let body = sj#GetMotion('Vi{')
-
-  let lines = sj#TrimList(split(body, "\n"))
-  if sj#settings#Read('normalize_whitespace')
-    let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
-  endif
-
-  let body = join(lines, ' ')
-  let body = substitute(body, ',\?$', '', '')
-
-  call sj#ReplaceMotion('Va{', '{'.body.'}')
-  return 1
 endfunction
 
 function! sj#python#SplitArray()
@@ -550,6 +545,21 @@ function! s:SplitList(regex, opening_char, closing_char)
 
   call sj#PopCursor()
   call sj#ReplaceMotion('va'.a:opening_char, body)
+  return 1
+endfunction
+
+function! s:JoinDict()
+  let body = sj#GetMotion('Vi{')
+
+  let lines = sj#TrimList(split(body, "\n"))
+  if sj#settings#Read('normalize_whitespace')
+    let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
+  endif
+
+  let body = join(lines, ' ')
+  let body = substitute(body, ',\?$', '', '')
+
+  call sj#ReplaceMotion('Va{', '{'.body.'}')
   return 1
 endfunction
 

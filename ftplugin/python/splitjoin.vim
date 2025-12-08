@@ -16,7 +16,7 @@ if !exists('b:splitjoin_join_callbacks')
         \ 'sj#python#JoinImportWithNewlineEscape',
         \ 'sj#python#JoinImportWithRoundBrackets',
         \ 'sj#python#JoinMultilineString',
-        \ 'sj#python#JoinDict',
+        \ 'sj#python#JoinBracketsAtEOL',
         \ 'sj#python#JoinTuple',
         \ 'sj#python#JoinArgs',
         \ 'sj#python#JoinArray',
