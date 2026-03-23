@@ -73,8 +73,12 @@ function! sj#argparser#rust_struct#IsValidStruct() dict
 
   for entry in self.args
     if entry.argument !~ '^'.visibility.'\k\+$' &&
-          \ entry.argument !~ '^'.visibility.'\k\+:' &&
+          \ entry.argument !~ '^'.visibility.'\k\+:[^:]' &&
           \ entry.argument !~ '^'.visibility.'\.\.\k'
+      return 0
+    endif
+
+    if entry.argument =~ ';$'
       return 0
     endif
   endfor
