@@ -34,11 +34,30 @@ describe "html" do
       </div> Three
     EOF
 
-    vim.search 'div'
+    vim.search '<div'
     join
     remove_indentation
 
     assert_file_contents 'One <div class="foo">Two</div> Three'
+  end
+
+  specify "tags with nested tags in strings" do
+    set_file_contents '<div data-description="R<sup>2</sup>"><div>R-squared</div></div>'
+    vim.search 'div'
+    split
+    remove_indentation
+
+    assert_file_contents <<~EOF
+      <div data-description="R<sup>2</sup>">
+      <div>R-squared</div>
+      </div>
+    EOF
+
+    vim.search '<div'
+    join
+    remove_indentation
+
+    assert_file_contents '<div data-description="R<sup>2</sup>"><div>R-squared</div></div>'
   end
 
   specify "tags" do

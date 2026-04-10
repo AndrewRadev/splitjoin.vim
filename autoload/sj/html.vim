@@ -1,19 +1,39 @@
 function! sj#html#SplitTags()
-  let line = getline('.')
   let tag_regex = '\(<.\{-}>\)\(.*\)\(<\/.\{-}>\)'
-  let tag_with_content_regex = '\(<.\{-}>\)\(.\+\)\(<\/.\{-}>\)'
+  let lineno = line('.')
+  let indent = indent('.')
 
-  if line =~ tag_regex
-    let body = sj#GetMotion('Vat')
-    if line =~ tag_with_content_regex
-      call sj#ReplaceMotion('Vat', substitute(body, tag_regex, '\1\n\2\n\3', ''))
-    else
-      call sj#ReplaceMotion('Vat', substitute(body, tag_regex, '\1\n\3', ''))
-    endif
-    return 1
-  else
+  let skip = sj#SkipSyntax(['htmlString'])
+
+  if search(tag_regex, 'Wbc', line('.'), 0, skip) <= 0
     return 0
   endif
+
+  let start_col = col('.')
+  let tag_name = expand('<cword>')
+
+  call sj#PushCursor()
+  normal! %l
+  let inner_start_col = col('.')
+  call sj#PopCursor()
+
+  if searchpair($'<{tag_name}\>', '', $'</{tag_name}>', 'W', skip, line('.')) <= 0
+    return
+  endif
+  let inner_end_col = col('.') - 1
+  let [_, end_col] = searchpos($'</{tag_name}>', 'Wne', line('.'), 0, skip)
+
+  if inner_end_col - inner_start_col > 1
+    " There is content inside of the body, insert two newlines
+    exe $"normal! {lineno}G{inner_end_col}|a\<cr>"
+    exe $"normal! {lineno}G{inner_start_col}|i\<cr>"
+  else
+    exe $"normal! {lineno}G{inner_start_col}|i\<cr>"
+  endif
+
+  call sj#SetIndent(lineno + 1, indent + shiftwidth())
+
+  return 1
 endfunction
 
 " Needs to be called with the cursor on a starting or ending tag to work.
@@ -22,18 +42,33 @@ function! sj#html#JoinTags()
     return 0
   endif
 
-  let tag = sj#GetMotion('vat')
-  let body = sj#GetMotion('vit')
+  let skip = sj#SkipSyntax(['htmlString'])
+  let opening_tag = sj#GetMotion('va>')
+  let opening_lineno = line('.')
+  let tag_name = expand('<cword>')
 
-  if len(split(tag, "\n")) == 1
-    " then it's just one line, ignore
+  if searchpair($'<{tag_name}\>', '', $'</{tag_name}>', 'W', skip) <= 0
+    return
+  endif
+  let closing_lineno = line('.')
+
+  if closing_lineno - opening_lineno == 1
+    " No content, just join
+    join
+    return 1
+  endif
+
+  if closing_lineno - opening_lineno < 1
+    " Mismatched start and end
     return 0
   endif
 
-  let body = sj#Trim(body)
-  let body = join(sj#TrimList(split(body, "\n")), ' ')
+  let body_lines = sj#GetLines(opening_lineno + 1, closing_lineno - 1)
+  let body_lines = sj#TrimList(body_lines)
+  let body = join(body_lines, ' ')
 
-  call sj#ReplaceMotion('vit', body)
+  call sj#ReplaceLines(opening_lineno + 1, closing_lineno - 1, body)
+  exe $'keeppatterns {opening_lineno},{opening_lineno + 1}s/\n\_s*//e'
 
   return 1
 endfunction
