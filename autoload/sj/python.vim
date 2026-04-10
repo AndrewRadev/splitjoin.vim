@@ -579,16 +579,28 @@ function! s:JoinList(regex, opening_char, closing_char)
 endfunction
 
 function! sj#python#SplitListComprehension()
+  let best_from = -1
+  let best_to = -1
+
   for [opening_char, closing_char] in [['(', ')'], ['[', ']'], ['{', '}']]
     let [from, to] = sj#LocateBracesAroundCursor(opening_char, closing_char, ['pythonString'])
-    if from > 0 && to > 0
-      break
+
+    if from > best_from
+      let best_from         = from
+      let best_to           = to
+      let best_opening_char = opening_char
+      let best_closing_char = closing_char
     endif
   endfor
 
-  if from < 0 && to < 0
+  if best_from < 0
     return 0
   endif
+
+  let from         = best_from
+  let to           = best_to
+  let opening_char = best_opening_char
+  let closing_char = best_closing_char
 
   if to - from < 2
     " empty list
@@ -603,7 +615,13 @@ function! sj#python#SplitListComprehension()
   let break_columns = []
   let include_syntax = sj#IncludeSyntax(['pythonRepeat', 'pythonConditional'])
 
+  " TODO: Re-find best surrounding brackets starting from the "for"
+
   while sj#SearchSkip('\<\%(for\|if\)\>', include_syntax, 'W', line('.')) > 0
+    if col('.') > to
+      break
+    endif
+
     call add(break_columns, col('.') - from)
   endwhile
 
