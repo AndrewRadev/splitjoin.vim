@@ -45,7 +45,13 @@ function! sj#html#JoinTags()
   let skip = sj#SkipSyntax(['htmlString'])
   let opening_tag = sj#GetMotion('va>')
   let opening_lineno = line('.')
+
   let tag_name = expand('<cword>')
+  if tag_name == '>'
+    " Then va> put us on the closing bracket, jump to the opening one:
+    normal! %
+    let tag_name = expand('<cword>')
+  endif
 
   if searchpair($'<{tag_name}\>', '', $'</{tag_name}>', 'W', skip) <= 0
     return
