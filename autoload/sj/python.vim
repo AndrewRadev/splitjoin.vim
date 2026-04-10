@@ -539,6 +539,9 @@ function! s:SplitList(regex, opening_char, closing_char)
     else
       let body = a:opening_char."\n".join(items, ",\n")."\n".a:closing_char
     endif
+  elseif len(items) == 1
+    " With the non-separate lines style, a single item won't really split
+    return 0
   else
     let body = a:opening_char.join(items, ",\n").a:closing_char
   endif

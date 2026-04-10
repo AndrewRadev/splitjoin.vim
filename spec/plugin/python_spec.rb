@@ -112,6 +112,22 @@ describe "python" do
     assert_file_contents 'spam = callable(one, [2, 3], four)'
   end
 
+  specify "nested function arguments with a list comprehension" do
+    set_file_contents <<~EOF
+      self.assertEqual(sorted([m.subjectType for m in measurements]), ["glucose", "trehalose"])
+    EOF
+
+    vim.search 'sorted('
+    vim.command 'let b:splitjoin_python_brackets_on_separate_lines = 1'
+    split
+
+    assert_file_contents <<~EOF
+      self.assertEqual(sorted(
+          [m.subjectType for m in measurements]
+          ), ["glucose", "trehalose"])
+    EOF
+  end
+
   specify "imports" do
     set_file_contents <<~EOF
       def surrounding_function():

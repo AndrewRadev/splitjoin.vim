@@ -1,8 +1,8 @@
 if !exists('b:splitjoin_split_callbacks')
   let b:splitjoin_split_callbacks = [
         \ 'sj#python#SplitString',
-        \ 'sj#python#SplitListComprehension',
         \ 'sj#python#SplitArgs',
+        \ 'sj#python#SplitListComprehension',
         \ 'sj#python#SplitBracketedItem',
         \ 'sj#python#SplitAssignment',
         \ 'sj#python#SplitTernaryAssignment',
