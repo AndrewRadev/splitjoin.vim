@@ -9,29 +9,28 @@ function! sj#html#SplitTags()
     return 0
   endif
 
-  let start_col = col('.')
+  let start_col = virtcol('.')
   let tag_name = expand('<cword>')
 
   call sj#PushCursor()
   normal! %l
-  let inner_start_col = col('.')
+  let inner_start_col = virtcol('.')
   call sj#PopCursor()
 
   if searchpair($'<{tag_name}\>', '', $'</{tag_name}>', 'W', skip, line('.')) <= 0
     return
   endif
-  let inner_end_col = col('.') - 1
+  let inner_end_col = virtcol('.') - 1
   let [_, end_col] = searchpos($'</{tag_name}>', 'Wne', line('.'), 0, skip)
 
-  if inner_end_col - inner_start_col > 1
+  if inner_end_col - inner_start_col >= 0
     " There is content inside of the body, insert two newlines
     exe $"normal! {lineno}G{inner_end_col}|a\<cr>"
     exe $"normal! {lineno}G{inner_start_col}|i\<cr>"
+    call sj#SetIndent(lineno + 1, indent + shiftwidth())
   else
     exe $"normal! {lineno}G{inner_start_col}|i\<cr>"
   endif
-
-  call sj#SetIndent(lineno + 1, indent + shiftwidth())
 
   return 1
 endfunction
@@ -60,7 +59,7 @@ function! sj#html#JoinTags()
 
   if closing_lineno - opening_lineno == 1
     " No content, just join
-    join
+    call sj#JoinWithoutBlanks(opening_lineno)
     return 1
   endif
 
@@ -74,7 +73,7 @@ function! sj#html#JoinTags()
   let body = join(body_lines, ' ')
 
   call sj#ReplaceLines(opening_lineno + 1, closing_lineno - 1, body)
-  exe $'keeppatterns {opening_lineno},{opening_lineno + 1}s/\n\_s*//e'
+  call sj#JoinWithoutBlanks(opening_lineno, closing_lineno - 1)
 
   return 1
 endfunction

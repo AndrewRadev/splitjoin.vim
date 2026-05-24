@@ -22,6 +22,18 @@ describe "html" do
     assert_file_contents joined_html
   end
 
+  specify "tags" do
+    joined_html = '<div class="foo">bar</div>'
+
+    split_html = <<~EOF
+      <div class="foo">
+      bar
+      </div>
+    EOF
+
+    simple_test(joined_html, split_html)
+  end
+
   specify "tags in other content" do
     set_file_contents 'One <div class="foo">Two</div> Three'
     vim.search 'div'
@@ -60,12 +72,23 @@ describe "html" do
     assert_file_contents '<div data-description="R<sup>2</sup>"><div>R-squared</div></div>'
   end
 
-  specify "tags" do
-    joined_html = '<div class="foo">bar</div>'
+  specify "tags with unicode content" do
+    joined_html = '<div class="foo">↔</div>'
 
     split_html = <<~EOF
       <div class="foo">
-      bar
+      ↔
+      </div>
+    EOF
+
+    simple_test(joined_html, split_html)
+  end
+
+  specify "empty tags" do
+    joined_html = '<div class="foo"></div>'
+
+    split_html = <<~EOF
+      <div class="foo">
       </div>
     EOF
 

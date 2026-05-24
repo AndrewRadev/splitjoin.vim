@@ -870,6 +870,21 @@ function! sj#JumpBracketsTill(end_pattern, brackets)
   endtry
 endfunction
 
+" Joins the given range of lines without any whitespace added between them,
+" unlike the native `:join` command, which adds a single space.
+"
+function! sj#JoinWithoutBlanks(start_lineno, ...)
+  let start_lineno = a:start_lineno
+
+  if a:0 == 0
+    let range = start_lineno
+  else
+    let range = $"{start_lineno},{a:1}"
+  endif
+
+  exe $'keeppatterns {range}s/\n\_s*//e'
+endfunction
+
 function! s:RemainderOfLine()
   return strpart(getline('.'), col('.') - 1)
 endfunction
