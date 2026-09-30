@@ -99,8 +99,7 @@ If you'd rather not use git, you can download the files from the "releases" tab 
 
 ## Contributing
 
-If you'd like to hack on the plugin, please see
-[CONTRIBUTING.md](https://github.com/AndrewRadev/splitjoin.vim/blob/master/CONTRIBUTING.md) first.
+Pull requests are welcome, as long as they **did not involve LLM usage**. Take a look at [CONTRIBUTING.md](./CONTRIBUTING.md) first for some guidelines. Be sure to abide by the [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) as well.
 
 ## Issues
 
