@@ -59,6 +59,14 @@ command! SplitjoinJoin  call sj#Join()
 nnoremap <silent> <plug>SplitjoinSplit :<c-u>call sj#Split()<cr>
 nnoremap <silent> <plug>SplitjoinJoin  :<c-u>call sj#Join()<cr>
 
+augroup Splitjoin
+  autocmd!
+
+  autocmd FileType * if !exists('b:undo_ftplugin') | let b:undo_ftplugin = '' | endif
+  autocmd FileType * let b:undo_ftplugin = 'silent! unlet b:splitjoin_split_callbacks|' .. b:undo_ftplugin
+  autocmd FileType * let b:undo_ftplugin = 'silent! unlet b:splitjoin_join_callbacks|' .. b:undo_ftplugin
+augroup END
+
 if g:splitjoin_join_mapping != ''
   exe 'nnoremap <silent> '.g:splitjoin_join_mapping.' :<c-u>call <SID>Mapping(g:splitjoin_join_mapping, "sj#Join")<cr>'
 endif
